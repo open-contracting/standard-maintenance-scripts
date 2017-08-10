@@ -21,7 +21,7 @@ def client
 end
 
 def repos
-  @repos ||= client.repos('open-contracting', per_page: 100)
+  @repos ||= client.repos(ENV['ORG'] || 'open-contracting', per_page: 100)
 end
 
 desc 'Lists repositories with multiple branches'
@@ -53,9 +53,9 @@ end
 
 desc 'List repositories with number of open issues, open PRs, issues enabled, wiki enabled, pages enabled'
 task :status do
-  format = '%-50s  %11s  %11s  %11s  %s  %s  %s'
+  format = '%-50s  %11s  %11s  %11s  %11s  %s  %s  %s'
 
-  puts '%-50s  %s  %s  %s  %s  %s  %s' % ['', '#I', '#P', '#M', 'I', 'W', 'P']
+  puts '%-50s  %s  %s  %s  %s  %s  %s  %s' % ['', '#I', '#P', '#M', '#B', 'I', 'W', 'P']
 
   repos.sort{ |a, b|
     if a.open_issues == b.open_issues
@@ -69,6 +69,7 @@ task :status do
       i(repo.open_issues),
       i(repo.rels[:pulls].get.data.size),
       i(repo.rels[:milestones].get.data.size),
+      i(repo.rels[:branches].get.data.size - 1),
       s(repo.has_issues),
       s(repo.has_wiki),
       s(repo.has_pages),
