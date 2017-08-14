@@ -20,7 +20,7 @@ def download_extensions(ctx, path):
             run(command)
 
 @task
-def aspell(ctx):
+def check_aspell_dictionary(ctx):
     with open(expanduser('~/.aspell.en.pws'), 'r', encoding='iso-8859-1') as f:
         aspell = f.read()
 
@@ -57,7 +57,7 @@ def aspell(ctx):
         'png',
     ]
 
-    exceptions = [exception.lower() for exception in plural_exceptions] + capital_exceptions + [
+    combined_exceptions = [exception.lower() for exception in plural_exceptions] + capital_exceptions + [
         # Prose
         'validator',
         # Terms
@@ -74,4 +74,4 @@ def aspell(ctx):
     report(lambda line: line.lower(), capital_exceptions)
 
     # It's okay for there to be a capitalized singular building block and an uncapitalized plural field. Check anyway.
-    report(lambda line: re.sub(r'e?s$', '', line).lower(), exceptions)
+    report(lambda line: re.sub(r'e?s$', '', line).lower(), combined_exceptions)
