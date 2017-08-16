@@ -1,3 +1,5 @@
+set -e
+
 flake8 --max-line-length 119
 
 # MD013 Line length (breaking lines in paragraphs produces longer diffs)

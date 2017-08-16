@@ -5,7 +5,7 @@ from collections import OrderedDict
 
 def test_json_format():
     """
-    Ensures all JSON files are formatted for humans.
+    Ensures all JSON files are valid and formatted for humans.
     """
 
     for root, dirs, files in os.walk(os.getcwd()):
