@@ -45,21 +45,21 @@ Check whether `~/.aspell.en.pws` contains unwanted words:
 
 ### Review GitHub organization configuration
 
-List organization members not employed by the Open Contracting Partnership or its helpdesk teams:
+Lists organization members not employed by the Open Contracting Partnership or its helpdesk teams:
 
     rake org:members
 
 ### Manage pull requests
 
-Create pull requests from a given branch:
+Creates pull requests from a given branch:
 
     rake pulls:create REF=branch
 
-Replace the descriptions of pull requests from a given branch:
+Replaces the descriptions of pull requests from a given branch:
 
     rake pulls:update REF=branch BODY=description
 
-Merges pull requests for a given branch:
+Merges pull requests from a given branch:
 
     rake pulls:merge REF=branch
 

@@ -25,7 +25,7 @@ namespace :pulls do
     end
   end
 
-  desc 'Updates pull request descriptions'
+  desc 'Replaces the descriptions of pull requests from a given branch'
   task :update do
     ref, body = variables('REF', 'BODY')
 
@@ -38,7 +38,7 @@ namespace :pulls do
     end
   end
 
-  desc 'Merges pull requests for a given branch'
+  desc 'Merges pull requests from a given branch'
   task :merge do
     ref = variables('REF')[0]
 
