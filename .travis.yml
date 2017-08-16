@@ -1,0 +1,11 @@
+sudo: false
+language: python
+cache: pip
+python:
+  - "3.6"
+env:
+  - BASEDIR="file://`pwd`"
+install:
+  - curl -s $BASEDIR/tests/install.sh | bash -
+script:
+  - curl -s $BASEDIR/tests/script.sh | bash -

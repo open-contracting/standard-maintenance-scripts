@@ -6,6 +6,7 @@ from urllib.parse import urlparse
 import requests
 from invoke import run, task
 
+
 @task
 def download_extensions(ctx, path):
     path = path.rstrip('/')
@@ -18,6 +19,7 @@ def download_extensions(ctx, path):
             repo = '/'.join(components[1:3])
             command = 'git clone git@github.com:{}.git {}/{}'.format(repo, path, components[2])
             run(command)
+
 
 @task
 def check_aspell_dictionary(ctx):
@@ -33,7 +35,6 @@ def check_aspell_dictionary(ctx):
         for stem, count in stems.items():
             if count > 1 and stem not in exceptions:
                 print('{} {}'.format(count, stem))
-
 
     plural_exceptions = [
         # Prose
