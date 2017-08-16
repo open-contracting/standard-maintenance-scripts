@@ -1,10 +1,16 @@
+require 'bundler/setup'
+
 require 'json'
 require 'open-uri'
 require 'set'
 
 require 'colored'
 require 'faraday'
+require 'hashdiff'
 require 'octokit'
+require 'safe_yaml'
+
+SafeYAML::OPTIONS[:default_mode] = :safe
 
 def s(condition)
   condition && 'Y'.green || 'N'.blue
@@ -27,7 +33,7 @@ def organization
 end
 
 def repos
-  @repos ||= client.repos(organization, per_page: 100)
+  @repos ||= client.repos(organization, per_page: 100, accept: 'application/vnd.github.drax-preview+json')
 end
 
 def extension?(name)
@@ -50,7 +56,7 @@ task :uncloned do
     if !extension_repositories.include?(repo.name) && !cloned_repositories.include?(repo.name)
       suffix = ''
       if repo.language
-        suffix << " (#{repo.language})"
+        suffix << " #{repo.language.bold}"
       end
       puts "#{repo.html_url}#{suffix}"
     end
@@ -94,7 +100,71 @@ namespace :org do
   end
 end
 
+namespace :pulls do
+  desc 'Creates pull requests from a given branch'
+  task :create do
+    ref = ENV['REF']
+    if ref.nil?
+      abort 'usage: rake pulls:create REF=branch'
+    end
+
+    repos.each do |repo|
+      if repo.rels[:pulls].get.data.none?{ |pull| pull.head.ref == ref }
+        branch = repo.rels[:branches].get.data.find{ |branch| branch.name == ref }
+        if branch
+          title = client.commit(repo.full_name, branch.commit.sha).commit.message
+          pull = client.create_pull_request(repo.full_name, repo.default_branch, ref, title)
+          puts "#{pull.html_url} #{title.bold}"
+        end
+      end
+    end
+  end
+
+  desc 'Merges pull requests for a given branch'
+  task :merge do
+    ref = ENV['REF']
+    if ref.nil?
+      abort 'usage: rake pulls:merge REF=branchtomerge'
+    end
+
+    repos.each do |repo|
+      repo.rels[:pulls].get.data.each do |pull|
+        if pull.head.ref == ref
+          client.merge_pull_request(repo.full_name, pull.number)
+          puts pull.html_url
+        end
+      end
+    end
+  end
+end
+
 namespace :repos do
+  desc 'Checks Travis configurations'
+  task :check_travis do
+    def read(repo, path)
+      Base64.decode64(client.contents(repo, path: path).content)
+    end
+
+    expected = read('open-contracting/standard-maintenance-scripts', 'fixtures/.travis.yml')
+
+    repos.each do |repo|
+      if repo.rels[:hooks].get.data.any?{ |datum| datum.name == 'travis' }
+        begin
+          actual = read(repo.full_name, '.travis.yml')
+          if actual != expected
+            if HashDiff.diff(YAML.load(actual), YAML.load(expected)).reject{ |diff| diff[0] == '-' }.any?
+              puts "#{repo.html_url}/blob/#{repo.default_branch}/.travis.yml lacks configuration"
+            end
+          end
+        rescue Octokit::NotFound
+          puts "#{repo.html_url} lacks .travis.yml"
+        end
+      else
+        puts "#{repo.html_url} lacks Travis"
+      end
+    end
+  end
+
   desc 'Lists repositories with many non-PR branches'
   task :many_branches do
     exclusions = Set.new((ENV['EXCLUDE'] || '').split(','))
@@ -128,10 +198,10 @@ namespace :repos do
       options = headers.merge(enforce_admins: true, required_status_checks: {strict: true, contexts: contexts})
       if !default_branch.protected
         client.protect_branch(repo.full_name, default_branch.name, options)
-        puts "#{repo.html_url}/settings/branches/#{default_branch.name} now protected branch"
+        puts "#{repo.html_url}/settings/branches/#{default_branch.name} protected"
       elsif default_branch.protection.enabled && default_branch.protection.required_status_checks.enforcement_level == 'everyone' && default_branch.protection.required_status_checks.contexts.empty? && default_branch.protection.required_status_checks.contexts != contexts
         client.protect_branch(repo.full_name, default_branch.name, options)
-        puts "#{repo.html_url}/settings/branches/#{default_branch.name} now added contexts: #{contexts.join(', ')}"
+        puts "#{repo.html_url}/settings/branches/#{default_branch.name} added: #{contexts.join(', ')}"
       elsif !default_branch.protection.enabled || default_branch.protection.required_status_checks.enforcement_level != 'everyone' || default_branch.protection.required_status_checks.contexts != contexts
         puts "#{repo.html_url}/settings/branches/#{default_branch.name} unexpectedly configured"
       end
@@ -141,6 +211,18 @@ namespace :repos do
         puts "#{repo.html_url}/settings/branches unexpectedly protects:" 
         protected_branches.each do |branch|
           puts "- #{branch.name}"
+        end
+      end
+    end
+  end
+
+  desc 'Lists missing or unexpected licenses'
+  task :licenses do
+    repos.partition{ |repo| extension?(repo.name) }.each do |set|
+      puts
+      set.each do |repo|
+        if repo.license.nil? || repo.license.key != 'apache-2.0'
+          puts "#{repo.html_url} #{repo.license && repo.license.key.bold}"
         end
       end
     end
@@ -221,7 +303,7 @@ namespace :repos do
         response = Faraday.get("#{repo.html_url}/wiki")
         if response.status == 302 && response.headers['location'] == repo.html_url
           client.edit_repository(repo.full_name, has_wiki: false)
-          puts "#{repo.html_url}/settings now disabled wiki"
+          puts "#{repo.html_url}/settings disabled wiki"
         end
       end
 

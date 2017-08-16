@@ -20,6 +20,14 @@ The standard [`.travis.yml`](fixtures/.travis.yml) file performs:
   * JSON (readable by Python)
 * Indenting JSON files
 
+To create a pull request to set up a new repository, enable the repository on [travis-ci.org](https://travis-ci.org), then:
+
+    git checkout -b travis
+    curl -O https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/master/fixtures/.travis.yml
+    git add .travis.yml
+    git commit -m 'Add .travis.yml'
+    git push -u origin travis
+
 ## Tools
 
 List tasks:
@@ -41,6 +49,16 @@ List organization members not employed by the Open Contracting Partnership or it
 
     rake org:members
 
+### Manage pull requests
+
+Create pull requests from a given branch:
+
+    rake pulls:create REF=branchtomerge
+
+Merges pull requests for a given branch:
+
+    rake pulls:merge REF=branchtomerge
+
 ### Review GitHub repository metadata and configuration
 
 Disables empty wikis and lists repositories with invalid names, unexpected configurations, etc.:
@@ -53,6 +71,10 @@ Protects default branches:
 
 The next tasks make no changes, but may require the user to perform an action depending on the output.
 
+Lists repositories with missing or unexpected Travis configuration:
+
+    rake repos:check_travis
+
 Lists repositories with many non-PR branches (so that merged branches without new commits may be deleted):
 
     rake repos:many_branches [EXCLUDE=branch1,branch2]
@@ -60,6 +82,10 @@ Lists repositories with many non-PR branches (so that merged branches without ne
 Lists repositories with number of issues, PRs, branches, milestones and whether wiki, pages, issues, projects are enabled:
 
     rake repos:status [ORG=open-contracting]
+
+Lists missing or unexpected licenses:
+
+    rake repos:licenses
 
 Lists repository descriptions:
 
