@@ -8,6 +8,16 @@ To run the Rake tasks:
 * [Create a GitHub personal access token](https://github.com/settings/tokens) with the scopes `public_repo` and `admin:org`
 * [Edit your `~/.netrc` file](https://github.com/octokit/octokit.rb#using-a-netrc-file) using the token as your password
 
+## Tests
+
+The standard [`.travis.yml`](fixtures/.travis.yml) file performs:
+
+* Linting of:
+    * Python ([flake8](https://pypi.python.org/pypi/flake8))
+    * Markdown ([markdownlint](https://github.com/markdownlint/markdownlint))
+    * JSON (readable by Python)
+* Indenting JSON files
+
 ## Tools
 
 List tasks:
