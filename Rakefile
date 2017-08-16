@@ -71,12 +71,15 @@ namespace :org do
 end
 
 namespace :repos do
-  desc 'Lists repositories with multiple branches'
+  desc 'Lists repositories with many non-PR branches'
   task :many_branches do
     exclusions = Set.new((ENV['EXCLUDE'] || '').split(','))
+
     repos.each do |repo|
+      pulls = repo.rels[:pulls].get.data.map{ |pull| pull.head.ref }
+
       branches = repo.rels[:branches].get.data.reject do |branch|
-        branch.name == repo.default_branch || exclusions.include?(branch.name)
+        branch.name == repo.default_branch || exclusions.include?(branch.name) || pulls.include?(branch.name)
       end
 
       if branches.any?
@@ -86,11 +89,32 @@ namespace :repos do
     end
   end
 
-  desc 'Lists protected branches'
+  desc 'Lists protected branches and protects default branches'
   task :protected_branches do
     repos.each do |repo|
-      # TODO
-      raise repo.rels[:branches].get(accept: 'application/vnd.github.loki-preview+json').data.inspect
+      headers = {accept: 'application/vnd.github.loki-preview+json'}
+      branches = repo.rels[:branches].get(headers: headers).data
+      default_branch = branches.find{ |branch| branch.name == repo.default_branch }
+      contexts = []
+
+      if repo.rels[:hooks].get.data.any?{ |datum| datum.name == 'travis' }
+        contexts << 'continuous-integration/travis-ci'
+      end
+
+      if !default_branch.protected
+        client.protect_branch(repo.full_name, default_branch.name, headers.merge(enforce_admins: true, required_status_checks: {strict: true, contexts: contexts}))
+        puts "#{repo.html_url}/settings/branches/#{default_branch.name} now protected"
+      elsif !default_branch.protection.enabled || default_branch.protection.required_status_checks.enforcement_level != 'everyone' || default_branch.protection.required_status_checks.contexts != contexts
+        puts "#{repo.html_url}/settings/branches/#{default_branch.name} unexpectedly configured"
+      end
+
+      protected_branches = branches.select{ |branch| branch.name != repo.default_branch && branch.protected }
+      if protected_branches.any?
+        puts "#{repo.html_url}/settings/branches unexpectedly protects:" 
+        protected_branches.each do |branch|
+          puts "- #{branch.name}"
+        end
+      end
     end
   end
 

@@ -35,7 +35,11 @@ List repositories with empty wikis (so that they may be disabled), unexpected co
 
     rake repos:lint
 
-List repositories with many branches (so that merged branches without new commits may be deleted):
+List repositories without protected default branches:
+
+    rake repos:protected_branches
+
+List repositories with many non-PR branches (so that merged branches without new commits may be deleted):
 
     rake repos:many_branches [EXCLUDE=branch1,branch2]
 
