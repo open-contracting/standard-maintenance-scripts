@@ -53,11 +53,15 @@ List organization members not employed by the Open Contracting Partnership or it
 
 Create pull requests from a given branch:
 
-    rake pulls:create REF=branchtomerge
+    rake pulls:create REF=branch
+
+Replace the descriptions of pull requests from a given branch:
+
+    rake pulls:update REF=branch BODY=description
 
 Merges pull requests for a given branch:
 
-    rake pulls:merge REF=branchtomerge
+    rake pulls:merge REF=branch
 
 ### Review GitHub repository metadata and configuration
 

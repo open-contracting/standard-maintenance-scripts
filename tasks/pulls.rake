@@ -1,10 +1,17 @@
 namespace :pulls do
+  def variables(*keys)
+    keys.map do |key|
+      value = ENV[key]
+      if value.nil? || value.empty?
+        abort "usage: rake #{ARGV[0]} #{keys.map{ |key| "#{key}=value" }.join(' ')}"
+      end
+      value
+    end
+  end
+
   desc 'Creates pull requests from a given branch'
   task :create do
-    ref = ENV['REF']
-    if ref.nil?
-      abort 'usage: rake pulls:create REF=branch'
-    end
+    ref = variables('REF')[0]
 
     repos.each do |repo|
       if repo.rels[:pulls].get.data.none?{ |pull| pull.head.ref == ref }
@@ -18,12 +25,22 @@ namespace :pulls do
     end
   end
 
+  desc 'Updates pull request descriptions'
+  task :update do
+    ref, body = variables('REF', 'BODY')
+
+    repos.each do |repo|
+      pull = repo.rels[:pulls].get.data.find{ |pull| pull.head.ref == ref }
+      if pull
+        client.update_pull_request(repo.full_name, pull.number, body: body)
+        puts pull.html_url
+      end
+    end
+  end
+
   desc 'Merges pull requests for a given branch'
   task :merge do
-    ref = ENV['REF']
-    if ref.nil?
-      abort 'usage: rake pulls:merge REF=branchtomerge'
-    end
+    ref = variables('REF')[0]
 
     repos.each do |repo|
       repo.rels[:pulls].get.data.each do |pull|
