@@ -1,3 +1,5 @@
+# Standard maintenance scripts
+
 ## Setup
 
     pip install -r requirements.txt
@@ -13,9 +15,9 @@ To run the Rake tasks:
 The standard [`.travis.yml`](fixtures/.travis.yml) file performs:
 
 * Linting of:
-    * Python ([flake8](https://pypi.python.org/pypi/flake8))
-    * Markdown ([markdownlint](https://github.com/markdownlint/markdownlint))
-    * JSON (readable by Python)
+  * Python ([flake8](https://pypi.python.org/pypi/flake8))
+  * Markdown ([markdownlint](https://github.com/markdownlint/markdownlint))
+  * JSON (readable by Python)
 * Indenting JSON files
 
 ## Tools
