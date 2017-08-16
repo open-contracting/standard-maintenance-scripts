@@ -1,3 +1,4 @@
+require 'json'
 require 'open-uri'
 require 'set'
 
@@ -31,6 +32,29 @@ end
 
 def extension?(name)
   name.end_with?('extension') || ['ocds_performance_failures', 'public-private-partnerships', 'trade'].include?(name)
+end
+
+desc 'Report which non-extension repositories are not cloned'
+task :uncloned do
+  extension_repositories = Set.new
+  url = 'http://standard.open-contracting.org/extension_registry/master/extensions.json'
+  JSON.load(open(url).read).fetch('extensions').each do |extension|
+    if extension.fetch('active')
+      extension_repositories << URI.parse(extension['url']).path.split('/')[2]
+    end
+  end
+
+  cloned_repositories = Set.new(Dir['../*'].map{ |path| File.basename(path) })
+
+  repos.each do |repo|
+    if !extension_repositories.include?(repo.name) && !cloned_repositories.include?(repo.name)
+      suffix = ''
+      if repo.language
+        suffix << " (#{repo.language})"
+      end
+      puts "#{repo.html_url}#{suffix}"
+    end
+  end
 end
 
 namespace :org do
