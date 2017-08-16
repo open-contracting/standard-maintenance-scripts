@@ -125,9 +125,13 @@ namespace :repos do
         contexts << 'continuous-integration/travis-ci'
       end
 
+      options = headers.merge(enforce_admins: true, required_status_checks: {strict: true, contexts: contexts})
       if !default_branch.protected
-        client.protect_branch(repo.full_name, default_branch.name, headers.merge(enforce_admins: true, required_status_checks: {strict: true, contexts: contexts}))
+        client.protect_branch(repo.full_name, default_branch.name, options)
         puts "#{repo.html_url}/settings/branches/#{default_branch.name} now protected branch"
+      elsif default_branch.protection.enabled && default_branch.protection.required_status_checks.enforcement_level == 'everyone' && default_branch.protection.required_status_checks.contexts.empty? && default_branch.protection.required_status_checks.contexts != contexts
+        client.protect_branch(repo.full_name, default_branch.name, options)
+        puts "#{repo.html_url}/settings/branches/#{default_branch.name} now added contexts: #{contexts.join(', ')}"
       elsif !default_branch.protection.enabled || default_branch.protection.required_status_checks.enforcement_level != 'everyone' || default_branch.protection.required_status_checks.contexts != contexts
         puts "#{repo.html_url}/settings/branches/#{default_branch.name} unexpectedly configured"
       end
