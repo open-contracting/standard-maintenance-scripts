@@ -1,0 +1,11 @@
+sudo: false
+language: python
+cache: pip
+python:
+  - "3.6"
+env:
+  - BASEDIR="https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts"
+install:
+  - curl -s $BASEDIR/tests/install.sh | bash -
+script:
+  - curl -s $BASEDIR/tests/test_lint.sh | bash -
