@@ -8,4 +8,4 @@ env:
 install:
   - curl -s $BASEDIR/tests/install.sh | bash -
 script:
-  - curl -s $BASEDIR/tests/test_lint.sh | bash -
+  - curl -s $BASEDIR/tests/script.sh | bash -
