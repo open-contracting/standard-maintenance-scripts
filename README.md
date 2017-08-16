@@ -3,9 +3,9 @@
     pip install -r requirements.txt
     bundle
 
-To run `rake many_branches`:
+To run the Rake tasks:
 
-* [Create a personal access token](https://github.com/settings/tokens) with the scopes `public_repo` and `admin:org`
+* [Create a GitHub personal access token](https://github.com/settings/tokens) with the scopes `public_repo` and `admin:org`
 * [Edit your `~/.netrc` file](https://github.com/octokit/octokit.rb#using-a-netrc-file) using the token as your password
 
 ## Tools
@@ -31,38 +31,40 @@ List organization members not employed by the Open Contracting Partnership or it
 
 ### Review GitHub repository metadata and configuration
 
-List repositories with empty wikis (so that they may be disabled), unexpected configurations, invalid names, etc.:
+Disables empty wikis and lists repositories with invalid names, unexpected configurations, etc.:
 
     rake repos:lint
 
-List repositories without protected default branches:
+Protects default branches:
 
-    rake repos:protected_branches
+    rake repos:protect_branches
 
-List repositories with many non-PR branches (so that merged branches without new commits may be deleted):
+The next tasks make no changes, but may require the user to perform an action depending on the output.
+
+Lists repositories with many non-PR branches (so that merged branches without new commits may be deleted):
 
     rake repos:many_branches [EXCLUDE=branch1,branch2]
 
-List repositories with number of issues, PRs, branches, milestones and whether wiki, pages, issues, projects are enabled:
+Lists repositories with number of issues, PRs, branches, milestones and whether wiki, pages, issues, projects are enabled:
 
     rake repos:status [ORG=open-contracting]
 
-List descriptions:
+Lists repository descriptions:
 
     rake repos:descriptions
 
-List non-default labels:
+Lists non-default issue labels:
 
     rake repos:labels
 
-List releases:
+Lists releases:
 
     rake repos:releases
 
-List unreleased tags:
+Lists unreleased tags:
 
     rake repos:tags
 
-List non-Travis webhooks:
+Lists non-Travis webhooks:
 
     rake repos:webhooks

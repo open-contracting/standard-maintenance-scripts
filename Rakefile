@@ -89,8 +89,8 @@ namespace :repos do
     end
   end
 
-  desc 'Lists protected branches and protects default branches'
-  task :protected_branches do
+  desc 'Protects default branches'
+  task :protect_branches do
     repos.each do |repo|
       headers = {accept: 'application/vnd.github.loki-preview+json'}
       branches = repo.rels[:branches].get(headers: headers).data
@@ -103,7 +103,7 @@ namespace :repos do
 
       if !default_branch.protected
         client.protect_branch(repo.full_name, default_branch.name, headers.merge(enforce_admins: true, required_status_checks: {strict: true, contexts: contexts}))
-        puts "#{repo.html_url}/settings/branches/#{default_branch.name} now protected"
+        puts "#{repo.html_url}/settings/branches/#{default_branch.name} now protected branch"
       elsif !default_branch.protection.enabled || default_branch.protection.required_status_checks.enforcement_level != 'everyone' || default_branch.protection.required_status_checks.contexts != contexts
         puts "#{repo.html_url}/settings/branches/#{default_branch.name} unexpectedly configured"
       end
@@ -118,7 +118,7 @@ namespace :repos do
     end
   end
 
-  desc 'Lists descriptions'
+  desc 'Lists repository descriptions'
   task :descriptions do
     repos.partition{ |repo| extension?(repo.name) }.each do |set|
       puts
@@ -128,7 +128,7 @@ namespace :repos do
     end
   end
 
-  desc 'Lists non-default labels'
+  desc 'Lists non-default issue labels'
   task :labels do
     default_labels = ['bug', 'duplicate', 'enhancement', 'help wanted', 'invalid', 'question', 'wontfix']
 
@@ -186,13 +186,14 @@ namespace :repos do
     end
   end
 
-  desc 'Lints repositories'
+  desc 'Disables empty wikis and lists repositories with invalid names, unexpected configurations, etc.'
   task :lint do
     repos.each do |repo|
       if repo.has_wiki
         response = Faraday.get("#{repo.html_url}/wiki")
         if response.status == 302 && response.headers['location'] == repo.html_url
-          puts "Disable wiki #{repo.html_url}/settings"
+          client.edit_repository(repo.full_name, has_wiki: false)
+          puts "#{repo.html_url}/settings now disabled wiki"
         end
       end
 
@@ -229,7 +230,7 @@ namespace :repos do
     end
   end
 
-  desc 'List repositories with number of issues, PRs, branches, milestones and whether wiki, pages, issues, projects are enabled'
+  desc 'Lists repositories with number of issues, PRs, branches, milestones and whether wiki, pages, issues, projects are enabled'
   task :status do
     format = '%-50s  %11s  %11s  %11s  %11s  %s  %s  %s  %s'
 
