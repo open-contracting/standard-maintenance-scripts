@@ -10,6 +10,72 @@ from jsonschema import FormatChecker
 from jsonschema.validators import Draft4Validator as validator
 
 
+def is_extension():
+    # See https://github.com/open-contracting/standard-development-handbook/issues/16
+    exceptions = ('ocds_performance_failures', 'public-private-partnerships')
+    name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', os.getcwd()))
+    return name.startswith('ocds') and name.endswith('extension') or name in exceptions
+
+
+# Draft 6 corrects some problems with Draft 4, e.g. omitting `format`, but it:
+# * renames `id` to `$id`
+# * changes `exclusiveMinimum` to a number
+# * allows additional properties, which makes it possible for typos to go undetected
+# See http://json-schema.org/draft-04/schema
+metaschema = requests.get('http://json-schema.org/schema').json()
+metaschema['properties']['id'] = metaschema['properties'].pop('$id')
+metaschema['properties']['exclusiveMinimum'] = {'type': 'boolean', 'default': False}
+metaschema['additionalProperties'] = False
+
+# OCDS fields.
+metaschema['properties']['codelist'] = {'type': 'string'}
+metaschema['properties']['openCodelist'] = {'type': 'boolean'}
+# @see https://github.com/open-contracting/standard/blob/1.1-dev/standard/docs/en/schema/deprecation.md
+metaschema['properties']['deprecated'] = {
+    'type': 'object',
+    'properties': {
+        'additionalProperties': False,
+        'description': {'type': 'string'},
+        'deprecatedVersion': {'type': 'string'},
+    },
+}
+# See https://github.com/open-contracting/standard/blob/1.1-dev/standard/docs/en/schema/merging.md
+metaschema['properties']['omitWhenMerged'] = {'type': 'boolean'}
+metaschema['properties']['wholeListMerge'] = {'type': 'boolean'}
+metaschema['properties']['versionId'] = {'type': 'boolean'}
+
+# jsonmerge fields.
+# See https://github.com/open-contracting-archive/jsonmerge
+metaschema['properties']['mergeStrategy'] = {
+    'type': 'string',
+    'enum': [
+        'append',
+        'arrayMergeById',
+        'objectMerge',
+        'ocdsOmit',
+        'ocdsVersion',
+        'overwrite',
+        'version',
+    ],
+}
+metaschema['properties']['mergeOptions'] = {
+    'type': 'object',
+    'properties': {
+        'additionalProperties': False,
+        'idRef': {'type': 'string'},
+        'ignoreDups': {'type': 'boolean'},
+        'ignoreId': {'type': 'string'},
+        'limit': {'type': 'number'},
+        'unique': {'type': 'boolean'},
+    },
+}
+
+if is_extension():
+    # See https://tools.ietf.org/html/rfc7396
+    metaschema['type'].append('null')
+    metaschema['properties']['deprecated']['type'] = ['object', 'null']
+
+
 def walk():
     """
     Yields all files, except third-party files under `_static` directories.
@@ -40,6 +106,20 @@ def is_json_schema(data):
     return '$schema' in data or 'definitions' in data or 'properties' in data
 
 
+def validate_json_schema(path, data):
+    errors = 0
+
+    for error in validator(metaschema, format_checker=FormatChecker()).iter_errors(data):
+        errors += 1
+        print(json.dumps(error.instance, indent=2, separators=(',', ': ')))
+        print('{} ({})\n'.format(error.message, '/'.join(error.absolute_schema_path)))
+
+    if errors:
+        print('{} is not valid JSON Schema ({} errors)'.format(path, errors))
+
+    assert errors == 0
+
+
 def test_valid():
     """
     Ensures all JSON files are valid.
@@ -48,7 +128,7 @@ def test_valid():
         pass  # fails if the JSON can't be read
 
 
-@pytest.mark.skip(reason="See https://github.com/open-contracting/standard-maintenance-scripts/issues/2")
+@pytest.mark.skip(reason='see https://github.com/open-contracting/standard-maintenance-scripts/issues/2')
 def test_indent():
     """
     Ensures all JSON files are valid and formatted for humans.
@@ -64,95 +144,38 @@ def test_json_schema():
     """
     Ensures all JSON Schema files are valid JSON Schema Draft 4.
     """
-    # Draft 6 corrects some problems with Draft 4, e.g. omitting `format`, but it:
-    # * renames `id` to `$id`
-    # * changes `exclusiveMinimum` to a number
-    # * allows additional properties, which makes it possible for typos to go undetected
-    # See http://json-schema.org/draft-04/schema
-    metaschema = requests.get('http://json-schema.org/schema').json()
-    metaschema['properties']['id'] = metaschema['properties'].pop('$id')
-    metaschema['properties']['exclusiveMinimum'] = {'type': 'boolean', 'default': False}
-    metaschema['additionalProperties'] = False
-
-    # See https://tools.ietf.org/html/rfc7396
-    metaschema['type'].append('null')
-
-    # OCDS fields.
-    metaschema['properties']['codelist'] = {'type': 'string'}
-    metaschema['properties']['openCodelist'] = {'type': 'boolean'}
-    # @see https://github.com/open-contracting/standard/blob/1.1-dev/standard/docs/en/schema/deprecation.md
-    metaschema['properties']['deprecated'] = {
-        'type': ['object', 'null'],
-        'properties': {
-            'additionalProperties': False,
-            'description': {'type': 'string'},
-            'deprecatedVersion': {'type': 'string'},
-        },
-    }
-    # See https://github.com/open-contracting/standard/blob/1.1-dev/standard/docs/en/schema/merging.md
-    metaschema['properties']['omitWhenMerged'] = {'type': 'boolean'}
-    metaschema['properties']['wholeListMerge'] = {'type': 'boolean'}
-    metaschema['properties']['versionId'] = {'type': 'boolean'}
-
-    # jsonmerge fields.
-    # See https://github.com/open-contracting-archive/jsonmerge
-    metaschema['properties']['mergeStrategy'] = {
-        'type': 'string',
-        'enum': [
-            'append',
-            'arrayMergeById',
-            'objectMerge',
-            'ocdsOmit',
-            'ocdsVersion',
-            'overwrite',
-            'version',
-        ],
-    }
-    metaschema['properties']['mergeOptions'] = {
-        'type': 'object',
-        'properties': {
-            'additionalProperties': False,
-            'idRef': {'type': 'string'},
-            'ignoreDups': {'type': 'boolean'},
-            'ignoreId': {'type': 'string'},
-            'limit': {'type': 'number'},
-            'unique': {'type': 'boolean'},
-        },
-    }
-
     for path, text, data in walk_json_data():
         if is_json_schema(data):
-            errors = 0
-            for error in validator(metaschema, format_checker=FormatChecker()).iter_errors(data):
-                errors += 1
-                print(json.dumps(error.instance, indent=2, separators=(',', ': ')))
-                print('{} ({})\n'.format(error.message, '/'.join(error.absolute_schema_path)))
-            if errors:
-                print('{} is not valid JSON Schema ({} errors)'.format(path, errors))
-            assert errors == 0
+            validate_json_schema(path, data)
 
 
 def test_json_merge_patch():
     """
     Ensures all extension JSON Schema successfully patch core JSON Schema.
     """
-    basenames = (
-        'record-package-schema.json',
-        'release-package-schema.json',
-        'release-schema.json', 
-        'versioned-release-validation-schema.json',
-    )
+    if not is_extension():
+        pytest.skip('not an extension')
 
     schemas = {}
 
-    for basename in in basenames:
+    basenames = (
+        'record-package-schema.json',
+        'release-package-schema.json',
+        'release-schema.json',
+        'versioned-release-validation-schema.json',
+    )
+
+    for basename in basenames:
         schemas[basename] = requests.get('http://standard.open-contracting.org/latest/en/{}'.format(basename)).json()
 
     for path, text, data in walk_json_data():
         if is_json_schema(data):
             basename = os.path.basename(path)
-            unpatched = deepcopy(schemas[basename])
-            patched = json_merge_patch.merge(unpatched, data)
-            # We don't `assert patched != schemas[basename]`, because empty patches are allowed. json_merge_patch
-            # mutates `unpatched`, which is unexpected, which is why we would test against `schemas[basename]`.
-            # It's not clear that `json_merge_patch.merge()` ever fails, so this test may be useless.
+            if basename in basenames:
+                unpatched = deepcopy(schemas[basename])
+                # It's not clear that `json_merge_patch.merge()` can ever fail.
+                patched = json_merge_patch.merge(unpatched, data)
+
+                # We don't `assert patched != schemas[basename]`, because empty patches are allowed. json_merge_patch
+                # mutates `unpatched`, which is unexpected, which is why we would test against `schemas[basename]`.
+                validate_json_schema(path, patched)
