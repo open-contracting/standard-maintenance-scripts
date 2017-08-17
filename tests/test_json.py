@@ -3,6 +3,7 @@ import os
 from collections import OrderedDict
 from copy import deepcopy
 
+import json_merge_patch
 import pytest
 import requests
 from jsonschema import FormatChecker
@@ -32,12 +33,19 @@ def walk_json_data():
                 yield (path, text, data)
 
 
+def is_json_schema(data):
+    """
+    Returns whether the data is a JSON Schema.
+    """
+    return '$schema' in data or 'definitions' in data or 'properties' in data
+
+
 def test_valid():
     """
     Ensures all JSON files are valid.
     """
     for path, text, data in walk_json_data():
-        pass
+        pass  # fails if the JSON can't be read
 
 
 @pytest.mark.skip(reason="See https://github.com/open-contracting/standard-maintenance-scripts/issues/2")
@@ -54,6 +62,7 @@ def test_indent():
 
 def test_json_schema():
     """
+    Ensures all JSON Schema files are valid JSON Schema Draft 4.
     """
     # Draft 6 corrects some problems with Draft 4, e.g. omitting `format`, but it:
     # * renames `id` to `$id`
@@ -75,6 +84,7 @@ def test_json_schema():
     metaschema['properties']['deprecated'] = {
         'type': ['object', 'null'],
         'properties': {
+            'additionalProperties': False,
             'description': {'type': 'string'},
             'deprecatedVersion': {'type': 'string'},
         },
@@ -111,7 +121,7 @@ def test_json_schema():
     }
 
     for path, text, data in walk_json_data():
-        if '$schema' in data or 'definitions' in data or 'properties' in data:
+        if is_json_schema(data):
             errors = 0
             for error in validator(metaschema, format_checker=FormatChecker()).iter_errors(data):
                 errors += 1
@@ -120,3 +130,29 @@ def test_json_schema():
             if errors:
                 print('{} is not valid JSON Schema ({} errors)'.format(path, errors))
             assert errors == 0
+
+
+def test_json_merge_patch():
+    """
+    Ensures all extension JSON Schema successfully patch core JSON Schema.
+    """
+    basenames = (
+        'record-package-schema.json',
+        'release-package-schema.json',
+        'release-schema.json', 
+        'versioned-release-validation-schema.json',
+    )
+
+    schemas = {}
+
+    for basename in in basenames:
+        schemas[basename] = requests.get('http://standard.open-contracting.org/latest/en/{}'.format(basename)).json()
+
+    for path, text, data in walk_json_data():
+        if is_json_schema(data):
+            basename = os.path.basename(path)
+            unpatched = deepcopy(schemas[basename])
+            patched = json_merge_patch.merge(unpatched, data)
+            # We don't `assert patched != schemas[basename]`, because empty patches are allowed. json_merge_patch
+            # mutates `unpatched`, which is unexpected, which is why we would test against `schemas[basename]`.
+            # It's not clear that `json_merge_patch.merge()` ever fails, so this test may be useless.
