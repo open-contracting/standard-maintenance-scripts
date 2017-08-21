@@ -43,11 +43,12 @@ namespace :pulls do
     ref = variables('REF')[0]
 
     repos.each do |repo|
-      repo.rels[:pulls].get.data.each do |pull|
-        if pull.head.ref == ref
-          client.merge_pull_request(repo.full_name, pull.number)
-          puts pull.html_url
+      pull = repo.rels[:pulls].get.data.find{ |pull| pull.head.ref == ref }
+      if pull
+        if client.merge_pull_request(repo.full_name, pull.number)
+          client.delete_branch(repo.full_name, ref)
         end
+        puts pull.html_url
       end
     end
   end
