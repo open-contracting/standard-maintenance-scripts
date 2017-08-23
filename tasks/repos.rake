@@ -25,16 +25,25 @@ namespace :repos do
     end
   end
 
-  desc 'Lists repositories with many non-PR branches'
-  task :many_branches do
+  def non_default_or_pull_or_upstream_or_excluded_branches(repo)
     exclusions = Set.new((ENV['EXCLUDE'] || '').split(','))
 
-    repos.each do |repo|
-      pulls = repo.rels[:pulls].get.data.map{ |pull| pull.head.ref }
+    pulls = repo.rels[:pulls].get.data.map{ |pull| pull.head.ref }
 
-      branches = repo.rels[:branches].get.data.reject do |branch|
-        branch.name == repo.default_branch || exclusions.include?(branch.name) || pulls.include?(branch.name)
-      end
+    # In forks, we maintain a reference to the upstream master branch.
+    if repo.fork && %w(open_contracting opencontracting).include?(repo.default_branch)
+      exclusions << 'master'
+    end
+
+    repo.rels[:branches].get.data.reject do |branch|
+      branch.name == repo.default_branch || exclusions.include?(branch.name) || pulls.include?(branch.name)
+    end
+  end
+
+  desc 'Lists repositories with many non-PR branches'
+  task :many_branches do
+    repos.each do |repo|
+      branches = non_default_or_pull_or_upstream_or_excluded_branches(repo)
 
       if branches.any?
         puts "#{repo.html_url}/branches"
@@ -203,12 +212,25 @@ namespace :repos do
         response = Faraday.get("#{repo.html_url}/wiki")
         if response.status == 302 && response.headers['location'] == repo.html_url
           client.edit_repository(repo.full_name, has_wiki: false)
-          puts "#{repo.html_url}/settings disabled wiki"
+          puts "#{repo.html_url}/settings #{'disabled wiki'.bold}"
         end
       end
 
-      if extension?(repo.name) && !repo.name[/\Aocds_\w+_extension\z/]
-        puts "#{repo.name} is not a valid extension name"
+      if extension?(repo.name)
+        if !repo.name[/\Aocds_\w+_extension\z/]
+          puts "#{repo.name} is not a valid extension name"
+        end
+
+        open_issues = repo.open_issues - repo.rels[:pulls].get.data.size
+        if repo.has_issues && open_issues.zero?
+          client.edit_repository(repo.full_name, has_issues: false)
+          puts "#{repo.html_url}/settings #{'disabled issues'.bold}"
+        end
+
+        if repo.has_projects && client.projects(repo.full_name, accept: 'application/vnd.github.inertia-preview+json').none?
+          client.edit_repository(repo.full_name, has_projects: false)
+          puts "#{repo.html_url}/settings #{'disabled projects'.bold}"
+        end
       end
 
       if repo.private
@@ -260,7 +282,7 @@ namespace :repos do
           repo.name,
           i(repo.open_issues - pull_requests),
           i(pull_requests),
-          i(repo.rels[:branches].get.data.size - 1),
+          i(non_default_or_pull_or_upstream_or_excluded_branches(repo).size),
           i(repo.rels[:milestones].get.data.size),
           s(repo.has_wiki),
           s(repo.has_pages),
