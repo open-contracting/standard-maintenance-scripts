@@ -153,7 +153,7 @@ namespace :repos do
 
     repos.each do |repo|
       data = repo.rels[:labels].get.data
-      remainder = data.map(&:name).reject{ |name| name[/\A\d - /] } - default_labels # exclude HuBoard labels
+      remainder = data.map(&:name) - default_labels
       if remainder.any?
         puts "#{repo.html_url}/labels"
         data.each do |datum|
