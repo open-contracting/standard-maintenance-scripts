@@ -54,8 +54,16 @@ namespace :repos do
 
   desc 'Lists extension repositories with missing template content'
   task :readmes do
-    repos.each do |repo|
+    template = <<-END
+## Issues
 
+Report issues for this extension in the [ocds-extensions repository](https://github.com/open-contracting/ocds-extensions/issues), putting the extension's name in the issue's title.
+    END
+
+    repos.each do |repo|
+      if extension?(repo.name) && !client.readme(repo.full_name)[template]
+        puts "#{repo.html_url}#readme #{'missing content'.bold}"
+      end
     end
   end
 
@@ -131,7 +139,7 @@ namespace :repos do
   desc 'Lists non-Travis, non-Requires.io webhooks'
   task :webhooks do
     repos.each do |repo|
-      data = repo.rels[:hooks].get.data.select{ |datum| datum.name != 'travis' && data.config.url != 'https://requires.io/github/web-hook/' }
+      data = repo.rels[:hooks].get.data.reject{ |datum| datum.name == 'travis' || datum.config.url == 'https://requires.io/github/web-hook/' }
       if data.any?
         puts "#{repo.html_url}/settings/hooks"
         data.each do |datum|

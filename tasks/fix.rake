@@ -128,4 +128,44 @@ namespace :fix do
       end
     end
   end
+
+  desc 'Update extension readmes with template content'
+  task :update_readmes do
+    basedir = variables('BASEDIR')[0]
+
+    template = <<-END
+
+## Issues
+
+Report issues for this extension in the [ocds-extensions repository](https://github.com/open-contracting/ocds-extensions/issues), putting the extension's name in the issue's title.
+    END
+
+    updated = []
+
+    Dir[File.join(basedir, '*')].each do |path|
+      repo_name = File.basename(path)
+
+      if Dir.exist?(path) && extension?(repo_name)
+        readme_path = File.join(path, 'README.md')
+        content = File.read(readme_path)
+
+        if !content[template]
+          if !content.end_with?("\n")
+            content << "\n"
+          end
+
+          content << template
+          updated << repo_name
+
+          File.open(readme_path, 'w') do |f|
+            f.write(content)
+          end
+        end
+      end
+    end
+
+    if updated.any?
+      puts "updated: #{updated.join(' ')}"
+    end
+  end
 end

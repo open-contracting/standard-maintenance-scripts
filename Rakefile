@@ -40,6 +40,16 @@ def extension?(name)
   name.end_with?('extension') || ['ocds_performance_failures', 'public-private-partnerships', 'trade'].include?(name)
 end
 
+def variables(*keys)
+  keys.map do |key|
+    value = ENV[key]
+    if value.nil? || value.empty?
+      abort "usage: rake #{ARGV[0]} #{keys.map{ |key| "#{key}=value" }.join(' ')}"
+    end
+    value
+  end
+end
+
 desc 'Report which non-extension repositories are not cloned'
 task :uncloned do
   extension_repositories = Set.new

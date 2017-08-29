@@ -1,14 +1,4 @@
 namespace :pulls do
-  def variables(*keys)
-    keys.map do |key|
-      value = ENV[key]
-      if value.nil? || value.empty?
-        abort "usage: rake #{ARGV[0]} #{keys.map{ |key| "#{key}=value" }.join(' ')}"
-      end
-      value
-    end
-  end
-
   desc 'Creates pull requests from a given branch'
   task :create do
     ref = variables('REF')[0]
