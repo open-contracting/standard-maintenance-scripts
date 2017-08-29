@@ -67,25 +67,29 @@ Merges pull requests from a given branch:
 
 Disables empty wikis and lists repositories with invalid names, unexpected configurations, etc.:
 
-    rake repos:lint
+    rake fix:lint_repos
 
 Protects default branches:
 
-    rake repos:protect_branches
+    rake fix:protect_branches
 
 The next tasks make no changes, but may require the user to perform an action depending on the output.
 
 Lists repositories with missing or unexpected Travis configuration:
 
-    rake repos:check_travis
+    rake repos:travis
 
 Lists repositories with many non-PR branches (so that merged branches without new commits may be deleted):
 
-    rake repos:many_branches [EXCLUDE=branch1,branch2]
+    rake repos:branches [EXCLUDE=branch1,branch2]
 
 Lists repositories with number of issues, PRs, branches, milestones and whether wiki, pages, issues, projects are enabled:
 
     rake repos:status [ORG=open-contracting]
+
+Lists extension repositories with missing template content:
+
+    rake repos:readmes
 
 Lists missing or unexpected licenses:
 
