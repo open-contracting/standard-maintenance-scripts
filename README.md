@@ -53,7 +53,7 @@ Lists organization members not employed by the Open Contracting Partnership or i
 
 Creates pull requests from a given branch:
 
-    rake pulls:create REF=branch
+    rake pulls:create REF=branch BODY=description
 
 Replaces the descriptions of pull requests from a given branch:
 
