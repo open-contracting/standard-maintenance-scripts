@@ -34,29 +34,53 @@ namespace :fix do
         end
       end
 
-      options = headers.merge(enforce_admins: true, required_status_checks: {strict: true, contexts: contexts})
+      options = headers.merge({
+        enforce_admins: true,
+        required_status_checks: {
+          strict: true,
+          contexts: contexts,
+        },
+        required_pull_request_reviews: nil,
+      })
+
       branches_to_protect.each do |branch|
         if !branch.protected
           client.protect_branch(repo.full_name, branch.name, options)
-          puts "#{repo.html_url}/settings/branches/#{branch.name} protected"
-        elsif branch.protection.enabled && branch.protection.required_status_checks.enforcement_level == 'everyone' && known_contexts.include?(branch.protection.required_status_checks.contexts) && branch.protection.required_status_checks.contexts != contexts
-          client.protect_branch(repo.full_name, branch.name, options)
+          puts "#{repo.html_url}/settings/branches/#{branch.name} #{'protected'.bold}"
+        else
+          protection = client.branch_protection(repo.full_name, branch.name, headers)
 
-          messages = []
+          if (!protection.enforce_admins.enabled ||
+              !protection.required_status_checks.strict ||
+              protection.required_status_checks.contexts != contexts && known_contexts.include?(protection.required_status_checks.contexts) ||
+              protection.required_pull_request_reviews)
+            messages = []
 
-          added = contexts - branch.protection.required_status_checks.contexts
-          if added.any?
-            messages << "added: #{added.join(', ')}"
+            if !protection.enforce_admins.enabled
+              messages << "check 'Include administrators'"
+            end
+            if !protection.required_status_checks.strict
+              messages << "check 'Require branches to be up to date before merging'"
+            end
+            if protection.required_pull_request_reviews
+              messages << "uncheck 'Require pull request reviews before merging'"
+            end
+
+            added = contexts - branch.protection.required_status_checks.contexts
+            if added.any?
+              messages << "added: #{added.join(', ')}"
+            end
+
+            removed = branch.protection.required_status_checks.contexts - contexts
+            if removed.any?
+              messages << "removed: #{removed.join(', ')}"
+            end
+
+            client.protect_branch(repo.full_name, branch.name, options)
+            puts "#{repo.html_url}/settings/branches/#{branch.name} #{messages.join(' | ').bold}"
+          elsif protection.required_status_checks.contexts != contexts
+            puts "#{repo.html_url}/settings/branches/#{branch.name} unexpected: #{protection.required_status_checks.contexts.join(', ').bold}"
           end
-
-          removed = branch.protection.required_status_checks.contexts - contexts
-          if removed.any?
-            messages << "removed: #{removed.join(', ')}"
-          end
-
-          puts "#{repo.html_url}/settings/branches/#{branch.name} #{messages.join(' | ').bold}"
-        elsif !branch.protection.enabled || branch.protection.required_status_checks.enforcement_level != 'everyone' || branch.protection.required_status_checks.contexts != contexts
-          puts "#{repo.html_url}/settings/branches/#{branch.name} unexpectedly configured"
         end
       end
 
