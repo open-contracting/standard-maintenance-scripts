@@ -38,7 +38,7 @@ namespace :org do
 
     difference = known_members - names
     if difference.any?
-      puts "Remove from tasks/org.rake: #{difference.join(', ')}"
+      puts "remove from tasks/org.rake: #{difference.join(', ')}"
     end
   end
 end
