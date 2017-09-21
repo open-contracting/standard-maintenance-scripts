@@ -33,7 +33,14 @@ def organization
 end
 
 def repos
-  @repos ||= client.repos(organization, per_page: 100, accept: 'application/vnd.github.drax-preview+json')
+  @repos ||= begin
+    repos = client.repos(organization, per_page: 100, accept: 'application/vnd.github.drax-preview+json')
+    if ENV['REPOS']
+      repos.select{ |repo| ENV['REPOS'].include?(repo.name) }
+    else
+      repos
+    end
+  end
 end
 
 def extension?(name)

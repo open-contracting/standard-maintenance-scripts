@@ -9,8 +9,16 @@ namespace :repos do
       exclusions << 'master'
     end
 
+    # Exceptions for `extension_registry`.
+    if repo.name == 'extension_registry'
+      exclusions << 'ppp'
+      pattern = /\Av\d(?:\.\d){1,}\z/
+    else
+      pattern = /\A\z/
+    end
+
     repo.rels[:branches].get.data.reject do |branch|
-      branch.name == repo.default_branch || exclusions.include?(branch.name) || pulls.include?(branch.name)
+      branch.name == repo.default_branch || pulls.include?(branch.name) || branch.name[pattern] || exclusions.include?(branch.name)
     end
   end
 
@@ -40,7 +48,7 @@ namespace :repos do
     end
   end
 
-  desc 'Lists repositories with many non-PR branches'
+  desc 'Lists repositories with unexpected, old branches'
   task :branches do
     repos.each do |repo|
       branches = non_default_or_pull_or_upstream_or_excluded_branches(repo)

@@ -83,7 +83,7 @@ Lists repositories with missing or unexpected Travis configuration:
 
     rake repos:travis
 
-Lists repositories with many non-PR branches (so that merged branches without new commits may be deleted):
+Lists repositories with many unexpected, old branches (so that merged branches without new commits may be deleted):
 
     rake repos:branches [EXCLUDE=branch1,branch2]
 

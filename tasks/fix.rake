@@ -44,6 +44,8 @@ namespace :fix do
       })
 
       branches_to_protect.each do |branch|
+        branch = client.branch(repo.full_name, branch.name)
+
         if !branch.protected
           client.protect_branch(repo.full_name, branch.name, options)
           puts "#{repo.html_url}/settings/branches/#{branch.name} #{'protected'.bold}"
@@ -83,7 +85,6 @@ namespace :fix do
           end
         end
       end
-
 
       expected_protected_branches = branches_to_protect.map(&:name)
       unexpected_protected_branches = branches.select{ |branch| branch.protected && !expected_protected_branches.include?(branch.name) }
