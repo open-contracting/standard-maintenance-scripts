@@ -51,6 +51,10 @@ Lists organization members not employed by the Open Contracting Partnership or i
 
 ### Manage pull requests
 
+Lists the pull requests from a given branch:
+
+    rake pulls:list REF=branch
+
 Creates pull requests from a given branch:
 
     rake pulls:create REF=branch BODY=description
@@ -58,6 +62,10 @@ Creates pull requests from a given branch:
 Replaces the descriptions of pull requests from a given branch:
 
     rake pulls:update REF=branch BODY=description
+
+Compares the given branch to the default branch:
+
+    rake pulls:compare REF=branch
 
 Merges pull requests from a given branch:
 

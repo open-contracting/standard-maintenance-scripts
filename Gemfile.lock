@@ -7,8 +7,11 @@ GEM
     faraday (0.12.2)
       multipart-post (>= 1.2, < 3)
     hashdiff (0.3.5)
+    mini_portile2 (2.2.0)
     multipart-post (2.0.0)
     netrc (0.11.0)
+    nokogiri (1.8.0)
+      mini_portile2 (~> 2.2.0)
     octokit (4.7.0)
       sawyer (~> 0.8.0, >= 0.5.3)
     public_suffix (2.0.5)
@@ -26,9 +29,10 @@ DEPENDENCIES
   faraday
   hashdiff
   netrc
+  nokogiri
   octokit
   rake
   safe_yaml
 
 BUNDLED WITH
-   1.15.1
+   1.15.3

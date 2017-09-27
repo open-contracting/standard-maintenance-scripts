@@ -7,6 +7,7 @@ require 'set'
 require 'colored'
 require 'faraday'
 require 'hashdiff'
+require 'nokogiri'
 require 'octokit'
 require 'safe_yaml'
 
