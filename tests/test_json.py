@@ -182,7 +182,8 @@ def validate_codelist_enum(path, data, pointer=''):
                                 added = actual - expected
                                 removed = expected - actual
                                 errors += 1
-                                print('{} has mismatch between enum and codelist at {}: added {}; removed {}'.format(path, pointer, ', '.join(added), ', '.join(removed)))
+                                print('{} has mismatch between enum and codelist at {}: added {}; removed {}'.format(
+                                    path, pointer, ', '.join(added), ', '.join(removed)))
 
                             break
                     else:
@@ -225,7 +226,7 @@ def test_valid():
         pass  # fails if the JSON can't be read
 
 
-@pytest.mark.skip(reason='not testing indentation, see https://github.com/open-contracting/standard-maintenance-scripts/issues/2')
+@pytest.mark.skip(reason='not testing indentation, see open-contracting/standard-maintenance-scripts#2')
 def test_indent():
     """
     Ensures all JSON files are valid and formatted for humans.
