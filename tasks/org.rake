@@ -17,6 +17,7 @@ namespace :org do
       'julijahansen', # Julija Hansen
       'kindly', # David Raznick
       'robredpath', # Rob Redpath
+      'scatteredink', # Jack Lord
       'timgdavies', # Tim Davies
 
       # Iniciativa Latinoamericana por los Datos Abiertos
@@ -31,6 +32,13 @@ namespace :org do
 
     people = client.org_members(organization) + client.org_invitations(organization, accept: 'application/vnd.github.korra-preview')
 
-    puts people.map{ |member| member.login.downcase } - known_members
+    names = people.map{ |member| member.login.downcase }
+
+    puts names - known_members
+
+    difference = known_members - names
+    if difference.any?
+      puts "remove from tasks/org.rake: #{difference.join(', ')}"
+    end
   end
 end

@@ -51,13 +51,21 @@ Lists organization members not employed by the Open Contracting Partnership or i
 
 ### Manage pull requests
 
+Lists the pull requests from a given branch:
+
+    rake pulls:list REF=branch
+
 Creates pull requests from a given branch:
 
-    rake pulls:create REF=branch
+    rake pulls:create REF=branch BODY=description
 
 Replaces the descriptions of pull requests from a given branch:
 
     rake pulls:update REF=branch BODY=description
+
+Compares the given branch to the default branch:
+
+    rake pulls:compare REF=branch
 
 Merges pull requests from a given branch:
 
@@ -67,25 +75,33 @@ Merges pull requests from a given branch:
 
 Disables empty wikis and lists repositories with invalid names, unexpected configurations, etc.:
 
-    rake repos:lint
+    rake fix:lint_repos
 
 Protects default branches:
 
-    rake repos:protect_branches
+    rake fix:protect_branches
+
+Adds template content to extension readmes:
+
+    rake fix:update_readmes BASEDIR=extensions
 
 The next tasks make no changes, but may require the user to perform an action depending on the output.
 
 Lists repositories with missing or unexpected Travis configuration:
 
-    rake repos:check_travis
+    rake repos:travis
 
-Lists repositories with many non-PR branches (so that merged branches without new commits may be deleted):
+Lists repositories with many unexpected, old branches (so that merged branches without new commits may be deleted):
 
-    rake repos:many_branches [EXCLUDE=branch1,branch2]
+    rake repos:branches [EXCLUDE=branch1,branch2]
 
 Lists repositories with number of issues, PRs, branches, milestones and whether wiki, pages, issues, projects are enabled:
 
     rake repos:status [ORG=open-contracting]
+
+Lists extension repositories with missing template content:
+
+    rake repos:readmes
 
 Lists missing or unexpected licenses:
 

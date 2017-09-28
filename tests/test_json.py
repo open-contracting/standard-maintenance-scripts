@@ -44,7 +44,7 @@ metaschema['properties']['omitWhenMerged'] = {'type': 'boolean'}
 metaschema['properties']['wholeListMerge'] = {'type': 'boolean'}
 metaschema['properties']['versionId'] = {'type': 'boolean'}
 
-# jsonmerge fields.
+# jsonmerge fields for OCDS 1.0.
 # See https://github.com/open-contracting-archive/jsonmerge
 metaschema['properties']['mergeStrategy'] = {
     'type': 'string',

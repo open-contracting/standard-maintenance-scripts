@@ -7,6 +7,7 @@ require 'set'
 require 'colored'
 require 'faraday'
 require 'hashdiff'
+require 'nokogiri'
 require 'octokit'
 require 'safe_yaml'
 
@@ -33,11 +34,28 @@ def organization
 end
 
 def repos
-  @repos ||= client.repos(organization, per_page: 100, accept: 'application/vnd.github.drax-preview+json')
+  @repos ||= begin
+    repos = client.repos(organization, per_page: 100, accept: 'application/vnd.github.drax-preview+json')
+    if ENV['REPOS']
+      repos.select{ |repo| ENV['REPOS'].include?(repo.name) }
+    else
+      repos
+    end
+  end
 end
 
 def extension?(name)
   name.end_with?('extension') || ['ocds_performance_failures', 'public-private-partnerships', 'trade'].include?(name)
+end
+
+def variables(*keys)
+  keys.map do |key|
+    value = ENV[key]
+    if value.nil? || value.empty?
+      abort "usage: rake #{ARGV[0]} #{keys.map{ |key| "#{key}=value" }.join(' ')}"
+    end
+    value
+  end
 end
 
 desc 'Report which non-extension repositories are not cloned'
