@@ -1,7 +1,9 @@
+import csv
 import json
 import os
 from collections import OrderedDict
 from copy import deepcopy
+from io import StringIO
 
 import json_merge_patch
 import pytest
@@ -10,12 +12,22 @@ from jsonschema import FormatChecker
 from jsonschema.validators import Draft4Validator as validator
 
 
-def is_extension():
-    # See https://github.com/open-contracting/standard-development-handbook/issues/16
-    exceptions = ('ocds_performance_failures', 'public-private-partnerships')
-    name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', os.getcwd()))
-    return name.startswith('ocds') and name.endswith('extension') or name in exceptions
+# See https://github.com/open-contracting/standard-development-handbook/issues/16
+other_extensions = ('ocds_performance_failures', 'public-private-partnerships')
+name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', os.getcwd()))
+is_extension = name.startswith('ocds') and name.endswith('extension') or name in other_extensions
 
+core_codelists = [
+    'awardStatus.csv',
+    'contractStatus.csv',
+    'currency.csv',
+    'initiationType.csv',
+    'method.csv',
+    'milestoneStatus.csv',
+    'procurementCategory.csv',
+    'releaseTag.csv',
+    'tenderStatus.csv',
+]
 
 # Draft 6 corrects some problems with Draft 4, e.g. omitting `format`, but it:
 # * renames `id` to `$id`
@@ -70,7 +82,7 @@ metaschema['properties']['mergeOptions'] = {
     },
 }
 
-if is_extension():
+if is_extension:
     # See https://tools.ietf.org/html/rfc7396
     metaschema['type'].append('null')
     metaschema['properties']['deprecated']['type'] = ['object', 'null']
@@ -99,6 +111,17 @@ def walk_json_data():
                 yield (path, text, data)
 
 
+def walk_csv_data():
+    """
+    Yields all CSV data.
+    """
+    for root, name in walk():
+        if name.endswith('.csv'):
+            path = os.path.join(root, name)
+            with open(path, 'r') as f:
+                yield (path, csv.DictReader(StringIO(f.read())))
+
+
 def is_json_schema(data):
     """
     Returns whether the data is a JSON Schema.
@@ -106,7 +129,79 @@ def is_json_schema(data):
     return '$schema' in data or 'definitions' in data or 'properties' in data
 
 
+def is_codelist(reader):
+    """
+    Returns whether the CSV is a codelist.
+    """
+    return 'Code' in reader.fieldnames
+
+
+def validate_codelist_enum(path, data, pointer=''):
+    """
+    Prints and returns the number of errors relating to codelists in a JSON Schema.
+    """
+    errors = 0
+
+    if isinstance(data, list):
+        for index, item in enumerate(data):
+            errors += validate_codelist_enum(path, item, pointer='{}/{}'.format(pointer, index))
+    elif isinstance(data, dict):
+        if 'codelist' in data:
+            if isinstance(data['type'], str):
+                types = [data['type']]
+            else:
+                types = data['type']
+
+            if data['openCodelist']:
+                # Open codelists shouldn't set `enum`.
+                if ('string' in types and 'enum' in data or 'array' in types and 'enum' in data['items']):
+                    errors += 1
+                    print('{} must not set `enum` for open codelist at {}'.format(path, pointer))
+            else:
+                # Closed codelists should set `enum`.
+                if ('string' in types and 'enum' not in data or 'array' in types and 'enum' not in data['items']):
+                    # See https://github.com/open-contracting/standard-maintenance-scripts/issues/16
+                    pass
+                    # errors += 1
+                    # print('{} must set `enum` for closed codelist at {}'.format(path, pointer))
+                else:
+                    if 'enum' in data:
+                        actual = set(data['enum'])
+                    else:
+                        actual = set(data['items']['enum'])
+
+                    for csvpath, reader in walk_csv_data():
+                        if os.path.basename(csvpath) == data['codelist']:
+                            expected = set([row['Code'] for row in reader])
+
+                            # Add None if the field is nullable.
+                            if None in actual:
+                                expected.add(None)
+
+                            if actual != expected:
+                                added = actual - expected
+                                removed = expected - actual
+                                errors += 1
+                                print('{} has mismatch between enum and codelist at {}: added {}; removed {}'.format(path, pointer, ', '.join(added), ', '.join(removed)))
+
+                            break
+                    else:
+                        # When validating a patched schema, the above code will fail to find the core codelists in an
+                        # extension, but that is not an error.
+                        if is_extension and data['codelist'] not in core_codelists:
+                            errors += 1
+                            print('{} refers to nonexistent codelist named {}'.format(path, data['codelist']))
+        else:
+            for key, value in data.items():
+                errors += validate_codelist_enum(path, value, pointer='{}/{}'.format(pointer, key))
+
+    return errors
+
+
 def validate_json_schema(path, data):
+    """
+    Prints and asserts errors in a JSON Schema.
+    """
     errors = 0
 
     for error in validator(metaschema, format_checker=FormatChecker()).iter_errors(data):
@@ -116,6 +211,8 @@ def validate_json_schema(path, data):
 
     if errors:
         print('{} is not valid JSON Schema ({} errors)'.format(path, errors))
+
+    errors += validate_codelist_enum(path, data)
 
     assert errors == 0
 
@@ -128,7 +225,7 @@ def test_valid():
         pass  # fails if the JSON can't be read
 
 
-@pytest.mark.skip(reason='see https://github.com/open-contracting/standard-maintenance-scripts/issues/2')
+@pytest.mark.skip(reason='not testing indentation, see https://github.com/open-contracting/standard-maintenance-scripts/issues/2')
 def test_indent():
     """
     Ensures all JSON files are valid and formatted for humans.
@@ -149,13 +246,11 @@ def test_json_schema():
             validate_json_schema(path, data)
 
 
+@pytest.mark.skipif(not is_extension, reason='not an extension')
 def test_json_merge_patch():
     """
     Ensures all extension JSON Schema successfully patch core JSON Schema.
     """
-    if not is_extension():
-        pytest.skip('not an extension')
-
     schemas = {}
 
     basenames = (
