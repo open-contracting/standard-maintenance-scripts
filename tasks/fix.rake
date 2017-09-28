@@ -37,7 +37,7 @@ namespace :fix do
       options = headers.merge({
         enforce_admins: true,
         required_status_checks: {
-          strict: true,
+          strict: false,
           contexts: contexts,
         },
         required_pull_request_reviews: nil,
@@ -53,7 +53,7 @@ namespace :fix do
           protection = client.branch_protection(repo.full_name, branch.name, headers)
 
           if (!protection.enforce_admins.enabled ||
-              !protection.required_status_checks.strict ||
+              protection.required_status_checks.strict ||
               protection.required_status_checks.contexts != contexts && known_contexts.include?(protection.required_status_checks.contexts) ||
               protection.required_pull_request_reviews)
             messages = []
@@ -61,8 +61,8 @@ namespace :fix do
             if !protection.enforce_admins.enabled
               messages << "check 'Include administrators'"
             end
-            if !protection.required_status_checks.strict
-              messages << "check 'Require branches to be up to date before merging'"
+            if protection.required_status_checks.strict
+              messages << "uncheck 'Require branches to be up to date before merging'"
             end
             if protection.required_pull_request_reviews
               messages << "uncheck 'Require pull request reviews before merging'"
