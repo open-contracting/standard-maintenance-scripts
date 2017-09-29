@@ -107,8 +107,11 @@ def walk_json_data():
             path = os.path.join(root, name)
             with open(path, 'r') as f:
                 text = f.read()
-                data = json.loads(text, object_pairs_hook=OrderedDict)
-                yield (path, text, data)
+                if text:
+                    try:
+                        yield (path, text, json.loads(text, object_pairs_hook=OrderedDict))
+                    except json.decoder.JSONDecodeError as e:
+                        assert False, '{} is not valid JSON ({})'.format(path, e)
 
 
 def walk_csv_data():
