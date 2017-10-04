@@ -22,6 +22,55 @@ namespace :repos do
     end
   end
 
+  desc 'Regenerates the badges pages'
+  task :badges do
+    output = [
+      '# Project Build and Dependency Status',
+    ]
+
+    repos.partition{ |repo| !extension?(repo.name) }.each_with_index do |set, index|
+      output << ''
+
+      if index.zero?
+        output << "## Repositories"
+      else
+        output << "## Extensions"
+      end
+
+      output += [
+        '',
+        'Name|Build|Dependencies',
+        '-|-|-',
+      ]
+
+      set.each do |repo|
+        hooks = repo.rels[:hooks].get.data
+
+        line = "[#{repo.name}](#{repo.html_url})|"
+
+        hook = hooks.find{ |datum| datum.name == 'travis' }
+        if hook && hook.active
+          line << "[![Build Status](https://travis-ci.org/#{repo.full_name}.svg)](https://travis-ci.org/#{repo.full_name})"
+        end
+
+        line << '|'
+
+        hook = hooks.find{ |datum| datum.config.url == 'https://requires.io/github/web-hook/' }
+        if hook && hook.active
+          line << "[![Requirements Status](https://requires.io/github/#{repo.full_name}/requirements.svg)](https://requires.io/github/#{repo.full_name}/requirements/)"
+        end
+
+        output << line
+
+        print '.'
+      end
+    end
+
+    File.open('badges.md', 'w') do |f|
+      f.write(output.join("\n"))
+    end
+  end
+
   desc 'Checks Travis configurations'
   task :travis do
     def read(repo, path)
@@ -31,13 +80,16 @@ namespace :repos do
     expected = read('open-contracting/standard-maintenance-scripts', 'fixtures/.travis.yml')
 
     repos.each do |repo|
-      if repo.rels[:hooks].get.data.any?{ |datum| datum.name == 'travis' }
+      hook = repo.rels[:hooks].get.data.find{ |datum| datum.name == 'travis' }
+      if hook && hook.active
         begin
           actual = read(repo.full_name, '.travis.yml')
           if actual != expected
-            if HashDiff.diff(YAML.load(actual), YAML.load(expected)).reject{ |diff| diff[0] == '-' }.any?
-              puts "#{repo.html_url}/blob/#{repo.default_branch}/.travis.yml #{'lacks configuration'.bold}"
+            diff = HashDiff.diff(YAML.load(actual), YAML.load(expected))
+            if diff.any?
+              puts "#{repo.html_url}/blob/#{repo.default_branch}/.travis.yml #{'changes configuration'.bold}"
             end
+            PP.pp(diff, $>, 120)
           end
         rescue Octokit::NotFound
           puts "#{repo.html_url} #{'lacks .travis.yml'.bold}"

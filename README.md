@@ -85,6 +85,10 @@ Adds template content to extension readmes:
 
     rake fix:update_readmes BASEDIR=extensions
 
+Regenerates the [badges page](badges.md):
+
+    rake repos:badges
+
 The next tasks make no changes, but may require the user to perform an action depending on the output.
 
 Lists repositories with missing or unexpected Travis configuration:

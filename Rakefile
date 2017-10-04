@@ -2,6 +2,7 @@ require 'bundler/setup'
 
 require 'json'
 require 'open-uri'
+require 'pp'
 require 'set'
 
 require 'colored'
