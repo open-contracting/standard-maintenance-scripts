@@ -31,13 +31,16 @@ namespace :repos do
     expected = read('open-contracting/standard-maintenance-scripts', 'fixtures/.travis.yml')
 
     repos.each do |repo|
-      if repo.rels[:hooks].get.data.any?{ |datum| datum.name == 'travis' }
+      hook = repo.rels[:hooks].get.data.find{ |datum| datum.name == 'travis' }
+      if hook && hook.active
         begin
           actual = read(repo.full_name, '.travis.yml')
           if actual != expected
-            if HashDiff.diff(YAML.load(actual), YAML.load(expected)).reject{ |diff| diff[0] == '-' }.any?
-              puts "#{repo.html_url}/blob/#{repo.default_branch}/.travis.yml #{'lacks configuration'.bold}"
+            diff = HashDiff.diff(YAML.load(actual), YAML.load(expected))
+            if diff.any?
+              puts "#{repo.html_url}/blob/#{repo.default_branch}/.travis.yml #{'changes configuration'.bold}"
             end
+            PP.pp(diff, $>, 120)
           end
         rescue Octokit::NotFound
           puts "#{repo.html_url} #{'lacks .travis.yml'.bold}"
