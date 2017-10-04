@@ -26,31 +26,44 @@ namespace :repos do
   task :badges do
     output = [
       '# Project Build and Dependency Status',
-      '',
-      'Name|Build|Dependencies',
-      '-|-|-',
     ]
 
-    repos.each do |repo|
-      hooks = repo.rels[:hooks].get.data
+    repos.partition{ |repo| !extension?(repo.name) }.each_with_index do |set, index|
+      output << ''
 
-      line = "[#{repo.name}](#{repo.html_url})|"
-
-      hook = hooks.find{ |datum| datum.name == 'travis' }
-      if hook && hook.active
-        line << "[![Build Status](https://travis-ci.org/#{repo.full_name}.svg)](https://travis-ci.org/#{repo.full_name})"
+      if index.zero?
+        output << "## Repositories"
+      else
+        output << "## Extensions"
       end
 
-      line << '|'
+      output += [
+        '',
+        'Name|Build|Dependencies',
+        '-|-|-',
+      ]
 
-      hook = hooks.find{ |datum| datum.config.url == 'https://requires.io/github/web-hook/' }
-      if hook && hook.active
-        line << "[![Requirements Status](https://requires.io/github/#{repo.full_name}/requirements.svg)](https://requires.io/github/#{repo.full_name}/requirements/)"
+      set.each do |repo|
+        hooks = repo.rels[:hooks].get.data
+
+        line = "[#{repo.name}](#{repo.html_url})|"
+
+        hook = hooks.find{ |datum| datum.name == 'travis' }
+        if hook && hook.active
+          line << "[![Build Status](https://travis-ci.org/#{repo.full_name}.svg)](https://travis-ci.org/#{repo.full_name})"
+        end
+
+        line << '|'
+
+        hook = hooks.find{ |datum| datum.config.url == 'https://requires.io/github/web-hook/' }
+        if hook && hook.active
+          line << "[![Requirements Status](https://requires.io/github/#{repo.full_name}/requirements.svg)](https://requires.io/github/#{repo.full_name}/requirements/)"
+        end
+
+        output << line
+
+        print '.'
       end
-
-      output << line
-
-      print '.'
     end
 
     File.open('badges.md', 'w') do |f|

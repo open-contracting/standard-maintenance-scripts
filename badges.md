@@ -1,9 +1,10 @@
 # Project Build and Dependency Status
 
+## Repositories
+
 Name|Build|Dependencies
 -|-|-
 [api-specification](https://github.com/open-contracting/api-specification)||
-[api_extension](https://github.com/open-contracting/api_extension)||
 [extension_creator](https://github.com/open-contracting/extension_creator)||
 [extension_registry](https://github.com/open-contracting/extension_registry)|[![Build Status](https://travis-ci.org/open-contracting/extension_registry.svg)](https://travis-ci.org/open-contracting/extension_registry)|
 [extension_tester](https://github.com/open-contracting/extension_tester)|[![Build Status](https://travis-ci.org/open-contracting/extension_tester.svg)](https://travis-ci.org/open-contracting/extension_tester)|
@@ -14,11 +15,26 @@ Name|Build|Dependencies
 [ocds-extensions](https://github.com/open-contracting/ocds-extensions)||
 [ocds-faker](https://github.com/open-contracting/ocds-faker)|[![Build Status](https://travis-ci.org/open-contracting/ocds-faker.svg)](https://travis-ci.org/open-contracting/ocds-faker)|
 [ocds-merge](https://github.com/open-contracting/ocds-merge)|[![Build Status](https://travis-ci.org/open-contracting/ocds-merge.svg)](https://travis-ci.org/open-contracting/ocds-merge)|
-[ocds-riskAllocation-extension](https://github.com/open-contracting/ocds-riskAllocation-extension)|[![Build Status](https://travis-ci.org/open-contracting/ocds-riskAllocation-extension.svg)](https://travis-ci.org/open-contracting/ocds-riskAllocation-extension)|
-[ocds-shareholders-extension](https://github.com/open-contracting/ocds-shareholders-extension)|[![Build Status](https://travis-ci.org/open-contracting/ocds-shareholders-extension.svg)](https://travis-ci.org/open-contracting/ocds-shareholders-extension)|
 [ocds-show](https://github.com/open-contracting/ocds-show)||
 [ocds-show-ppp](https://github.com/open-contracting/ocds-show-ppp)||
 [ocds-tabulate](https://github.com/open-contracting/ocds-tabulate)|[![Build Status](https://travis-ci.org/open-contracting/ocds-tabulate.svg)](https://travis-ci.org/open-contracting/ocds-tabulate)|
+[ocds_sphinx_directives](https://github.com/open-contracting/ocds_sphinx_directives)|[![Build Status](https://travis-ci.org/open-contracting/ocds_sphinx_directives.svg)](https://travis-ci.org/open-contracting/ocds_sphinx_directives)|
+[open-contracting.github.io](https://github.com/open-contracting/open-contracting.github.io)||
+[sample-data](https://github.com/open-contracting/sample-data)|[![Build Status](https://travis-ci.org/open-contracting/sample-data.svg)](https://travis-ci.org/open-contracting/sample-data)|[![Requirements Status](https://requires.io/github/open-contracting/sample-data/requirements.svg)](https://requires.io/github/open-contracting/sample-data/requirements/)
+[standard](https://github.com/open-contracting/standard)|[![Build Status](https://travis-ci.org/open-contracting/standard.svg)](https://travis-ci.org/open-contracting/standard)|[![Requirements Status](https://requires.io/github/open-contracting/standard/requirements.svg)](https://requires.io/github/open-contracting/standard/requirements/)
+[standard-development-handbook](https://github.com/open-contracting/standard-development-handbook)|[![Build Status](https://travis-ci.org/open-contracting/standard-development-handbook.svg)](https://travis-ci.org/open-contracting/standard-development-handbook)|
+[standard-legacy-staticsites](https://github.com/open-contracting/standard-legacy-staticsites)||
+[standard-maintenance-scripts](https://github.com/open-contracting/standard-maintenance-scripts)|[![Build Status](https://travis-ci.org/open-contracting/standard-maintenance-scripts.svg)](https://travis-ci.org/open-contracting/standard-maintenance-scripts)|
+[standard_extension_template](https://github.com/open-contracting/standard_extension_template)|[![Build Status](https://travis-ci.org/open-contracting/standard_extension_template.svg)](https://travis-ci.org/open-contracting/standard_extension_template)|
+[standard_theme](https://github.com/open-contracting/standard_theme)||
+
+## Extensions
+
+Name|Build|Dependencies
+-|-|-
+[api_extension](https://github.com/open-contracting/api_extension)||
+[ocds-riskAllocation-extension](https://github.com/open-contracting/ocds-riskAllocation-extension)|[![Build Status](https://travis-ci.org/open-contracting/ocds-riskAllocation-extension.svg)](https://travis-ci.org/open-contracting/ocds-riskAllocation-extension)|
+[ocds-shareholders-extension](https://github.com/open-contracting/ocds-shareholders-extension)|[![Build Status](https://travis-ci.org/open-contracting/ocds-shareholders-extension.svg)](https://travis-ci.org/open-contracting/ocds-shareholders-extension)|
 [ocds_additionalContactPoints_extension](https://github.com/open-contracting/ocds_additionalContactPoints_extension)|[![Build Status](https://travis-ci.org/open-contracting/ocds_additionalContactPoints_extension.svg)](https://travis-ci.org/open-contracting/ocds_additionalContactPoints_extension)|
 [ocds_bid_extension](https://github.com/open-contracting/ocds_bid_extension)|[![Build Status](https://travis-ci.org/open-contracting/ocds_bid_extension.svg)](https://travis-ci.org/open-contracting/ocds_bid_extension)|
 [ocds_budget_breakdown_extension](https://github.com/open-contracting/ocds_budget_breakdown_extension)|[![Build Status](https://travis-ci.org/open-contracting/ocds_budget_breakdown_extension.svg)](https://travis-ci.org/open-contracting/ocds_budget_breakdown_extension)|
@@ -41,16 +57,7 @@ Name|Build|Dependencies
 [ocds_process_title_extension](https://github.com/open-contracting/ocds_process_title_extension)|[![Build Status](https://travis-ci.org/open-contracting/ocds_process_title_extension.svg)](https://travis-ci.org/open-contracting/ocds_process_title_extension)|
 [ocds_qualification_extension](https://github.com/open-contracting/ocds_qualification_extension)|[![Build Status](https://travis-ci.org/open-contracting/ocds_qualification_extension.svg)](https://travis-ci.org/open-contracting/ocds_qualification_extension)|
 [ocds_requirements_extension](https://github.com/open-contracting/ocds_requirements_extension)|[![Build Status](https://travis-ci.org/open-contracting/ocds_requirements_extension.svg)](https://travis-ci.org/open-contracting/ocds_requirements_extension)|
-[ocds_sphinx_directives](https://github.com/open-contracting/ocds_sphinx_directives)|[![Build Status](https://travis-ci.org/open-contracting/ocds_sphinx_directives.svg)](https://travis-ci.org/open-contracting/ocds_sphinx_directives)|
 [ocds_tariffs_extension](https://github.com/open-contracting/ocds_tariffs_extension)|[![Build Status](https://travis-ci.org/open-contracting/ocds_tariffs_extension.svg)](https://travis-ci.org/open-contracting/ocds_tariffs_extension)|
 [ocds_transactions_relatedMilestone_extension](https://github.com/open-contracting/ocds_transactions_relatedMilestone_extension)|[![Build Status](https://travis-ci.org/open-contracting/ocds_transactions_relatedMilestone_extension.svg)](https://travis-ci.org/open-contracting/ocds_transactions_relatedMilestone_extension)|
-[open-contracting.github.io](https://github.com/open-contracting/open-contracting.github.io)||
 [public-private-partnerships](https://github.com/open-contracting/public-private-partnerships)|[![Build Status](https://travis-ci.org/open-contracting/public-private-partnerships.svg)](https://travis-ci.org/open-contracting/public-private-partnerships)|
-[sample-data](https://github.com/open-contracting/sample-data)|[![Build Status](https://travis-ci.org/open-contracting/sample-data.svg)](https://travis-ci.org/open-contracting/sample-data)|[![Requirements Status](https://requires.io/github/open-contracting/sample-data/requirements.svg)](https://requires.io/github/open-contracting/sample-data/requirements/)
-[standard](https://github.com/open-contracting/standard)|[![Build Status](https://travis-ci.org/open-contracting/standard.svg)](https://travis-ci.org/open-contracting/standard)|[![Requirements Status](https://requires.io/github/open-contracting/standard/requirements.svg)](https://requires.io/github/open-contracting/standard/requirements/)
-[standard-development-handbook](https://github.com/open-contracting/standard-development-handbook)|[![Build Status](https://travis-ci.org/open-contracting/standard-development-handbook.svg)](https://travis-ci.org/open-contracting/standard-development-handbook)|
-[standard-legacy-staticsites](https://github.com/open-contracting/standard-legacy-staticsites)||
-[standard-maintenance-scripts](https://github.com/open-contracting/standard-maintenance-scripts)|[![Build Status](https://travis-ci.org/open-contracting/standard-maintenance-scripts.svg)](https://travis-ci.org/open-contracting/standard-maintenance-scripts)|
-[standard_extension_template](https://github.com/open-contracting/standard_extension_template)|[![Build Status](https://travis-ci.org/open-contracting/standard_extension_template.svg)](https://travis-ci.org/open-contracting/standard_extension_template)|
-[standard_theme](https://github.com/open-contracting/standard_theme)||
 [trade](https://github.com/open-contracting/trade)||
