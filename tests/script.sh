@@ -9,6 +9,6 @@ flake8 --max-line-length 119
 # MD033 Inline HTML (some files require HTML)
 /tmp/bin/mdl --git-recurse --rules ~MD013,~MD024,~MD033 .
 
-# Lint and indent JSON
+# Lint and indent JSON and JSON Schema
 curl -s -S $BASEDIR/tests/test_json.py -o /tmp/test_json.py
 py.test -rs /tmp/test_json.py

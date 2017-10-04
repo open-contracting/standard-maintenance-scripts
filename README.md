@@ -43,6 +43,14 @@ Check whether `~/.aspell.en.pws` contains unwanted words:
 
     invoke check_aspell_dictionary
 
+Check for files have unexpected permissions:
+
+    find . \! -perm 644 -type f -not -path '*/.git/*' -o \! -perm 755 -type d
+
+Check for files with TODOs that should be made into GitHub issues (skipping Git, vendored, translation, and generated files):
+
+    grep -R -i --exclude-dir .git --exclude-dir _static --exclude-dir LC_MESSAGES --exclude app.js --exclude conf.py '\btodo' .
+
 ### Review GitHub organization configuration
 
 Lists organization members not employed by the Open Contracting Partnership or its helpdesk teams:
