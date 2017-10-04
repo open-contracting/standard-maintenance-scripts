@@ -132,8 +132,25 @@ Report issues for this extension in the [ocds-extensions repository](https://git
     repos.partition{ |repo| extension?(repo.name) }.each do |set|
       puts
       set.each do |repo|
-        if repo.license.nil? || repo.license.key != 'apache-2.0'
-          puts "#{repo.html_url} #{repo.license && repo.license.key.bold}"
+        # The following licenses are acceptable:
+        # * Apache 2.0 for extensions and documentation
+        # * BSD 3-Clause for Python
+        # * MIT for CSS, JavaScript and Ruby
+        unless repo.license && (
+          repo.license.key == 'apache-2.0' && [nil, 'Python'].include?(repo.language) ||
+          repo.license.key == 'bsd-3-clause' && repo.language == 'Python' ||
+          repo.license.key == 'mit' && ['CSS', 'JavaScript', 'Ruby'].include?(repo.language)
+        )
+          line = repo.html_url
+          if repo.license
+            line << " #{repo.license.key.bold}"
+          else
+            line << " #{'missing'.bold}"
+          end
+          if repo.language
+            line << " (#{repo.language})"
+          end
+          puts line
         end
       end
     end
