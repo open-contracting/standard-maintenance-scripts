@@ -261,4 +261,26 @@ Report issues for this extension in the [ocds-extensions repository](https://git
       end
     end
   end
+
+  desc 'Lists web traffic statistics over past two weeks'
+  task :traffic do
+    data = {}
+
+    repos.each do |repo|
+      data[repo.name] = client.views(repo.full_name, per: 'week', accept: 'application/vnd.github.spiderman-preview')
+    end
+
+    data.sort{ |a, b|
+      if a[1].uniques == b[1].uniques
+        b[1].count <=> a[1].count
+      else
+        b[1].uniques <=> a[1].uniques
+      end
+    }.partition{ |repo, _| extension?(repo) }.each do |set|
+      puts
+      set.each do |repo, datum|
+        puts '%-45s %2d uniques %3d views' % [repo, datum.uniques, datum.count]
+      end
+    end
+  end
 end

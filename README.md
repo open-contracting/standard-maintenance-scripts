@@ -138,3 +138,7 @@ Lists unreleased tags:
 Lists non-Travis, non-Requires.io webhooks:
 
     rake repos:webhooks
+
+Lists web traffic statistics over past two weeks:
+
+    rake repos:traffic
