@@ -121,7 +121,7 @@ Report issues for this extension in the [ocds-extensions repository](https://git
     END
 
     repos.each do |repo|
-      if extension?(repo.name) && !client.readme(repo.full_name)[template]
+      if extension?(repo.name) && !Base64.decode64(client.readme(repo.full_name).content)[template]
         puts "#{repo.html_url}#readme #{'missing content'.bold}"
       end
     end
