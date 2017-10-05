@@ -127,7 +127,7 @@ Lists non-default issue labels:
 
     rake repos:labels
 
-Lists releases:
+Lists non-extension releases:
 
     rake repos:releases
 
@@ -135,6 +135,6 @@ Lists unreleased tags:
 
     rake repos:tags
 
-Lists non-Travis webhooks:
+Lists non-Travis, non-Requires.io webhooks:
 
     rake repos:webhooks
