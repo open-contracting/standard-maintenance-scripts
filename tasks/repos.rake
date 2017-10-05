@@ -121,7 +121,7 @@ Report issues for this extension in the [ocds-extensions repository](https://git
     END
 
     repos.each do |repo|
-      if extension?(repo.name) && !client.readme(repo.full_name)[template]
+      if extension?(repo.name) && !Base64.decode64(client.readme(repo.full_name).content)[template]
         puts "#{repo.html_url}#readme #{'missing content'.bold}"
       end
     end
@@ -132,8 +132,25 @@ Report issues for this extension in the [ocds-extensions repository](https://git
     repos.partition{ |repo| extension?(repo.name) }.each do |set|
       puts
       set.each do |repo|
-        if repo.license.nil? || repo.license.key != 'apache-2.0'
-          puts "#{repo.html_url} #{repo.license && repo.license.key.bold}"
+        # The following licenses are acceptable:
+        # * Apache 2.0 for extensions and documentation
+        # * BSD 3-Clause for Python
+        # * MIT for CSS, JavaScript and Ruby
+        unless repo.license && (
+          repo.license.key == 'apache-2.0' && [nil, 'Python'].include?(repo.language) ||
+          repo.license.key == 'bsd-3-clause' && repo.language == 'Python' ||
+          repo.license.key == 'mit' && ['CSS', 'JavaScript', 'Ruby'].include?(repo.language)
+        )
+          line = repo.html_url
+          if repo.license
+            line << " #{repo.license.key.bold}"
+          else
+            line << " #{'missing'.bold}"
+          end
+          if repo.language
+            line << " (#{repo.language})"
+          end
+          puts line
         end
       end
     end
@@ -167,10 +184,15 @@ Report issues for this extension in the [ocds-extensions repository](https://git
     end
   end
 
-  desc 'Lists releases'
+  desc 'Lists non-extension releases'
   task :releases do
+    expected_extension_tags = Set.new(['ppp', 'v1.1', 'v1.1.1'])
+
     repos.each do |repo|
       data = repo.rels[:releases].get.data
+      if extension?(repo.name)
+        data.reject!{ |datum| expected_extension_tags.include?(datum.tag_name) }
+      end
       if data.any?
         puts "#{repo.html_url}/releases"
         data.each do |datum|

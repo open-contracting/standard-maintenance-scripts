@@ -174,6 +174,7 @@ def validate_codelist_enum(path, data, pointer=''):
                         actual = set(data['items']['enum'])
 
                     for csvpath, reader in walk_csv_data():
+                        # The codelist's CSV file should exist and match the `enum` values.
                         if os.path.basename(csvpath) == data['codelist']:
                             expected = set([row['Code'] for row in reader])
 
@@ -243,7 +244,7 @@ def test_indent():
 
 def test_json_schema():
     """
-    Ensures all JSON Schema files are valid JSON Schema Draft 4.
+    Ensures all JSON Schema files are valid JSON Schema Draft 4 and use codelists correctly.
     """
     for path, text, data in walk_json_data():
         if is_json_schema(data):
