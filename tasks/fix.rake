@@ -113,15 +113,24 @@ namespace :fix do
           puts "#{repo.name} is not a valid extension name"
         end
 
-        open_issues = repo.open_issues - repo.rels[:pulls].get.data.size
-        if repo.has_issues && open_issues.zero?
-          client.edit_repository(repo.full_name, has_issues: false)
-          puts "#{repo.html_url}/settings #{'disabled issues'.bold}"
+        if repo.has_issues
+          open_issues = repo.open_issues - repo.rels[:pulls].get.data.size
+          if open_issues.zero?
+            client.edit_repository(repo.full_name, has_issues: false)
+            puts "#{repo.html_url}/settings #{'disabled issues'.bold}"
+          else
+            puts "#{repo.html_url}/issues #{'issues should be moved and disabled'.bold}"
+          end
         end
 
-        if repo.has_projects && client.projects(repo.full_name, accept: 'application/vnd.github.inertia-preview+json').none?
-          client.edit_repository(repo.full_name, has_projects: false)
-          puts "#{repo.html_url}/settings #{'disabled projects'.bold}"
+        if repo.has_projects
+          projects = client.projects(repo.full_name, accept: 'application/vnd.github.inertia-preview+json')
+          if projects.none?
+            client.edit_repository(repo.full_name, has_projects: false)
+            puts "#{repo.html_url}/settings #{'disabled projects'.bold}"
+          else
+            puts "#{repo.html_url}/issues #{'projects should be moved and disabled'.bold}"
+          end
         end
       end
 

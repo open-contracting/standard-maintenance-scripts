@@ -46,7 +46,7 @@ def repos
 end
 
 def extension?(name)
-  name.end_with?('extension') || ['ocds_performance_failures', 'public-private-partnerships', 'trade'].include?(name)
+  name.end_with?('extension') || ['ocds_performance_failures'].include?(name)
 end
 
 def variables(*keys)

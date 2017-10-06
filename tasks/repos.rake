@@ -276,10 +276,10 @@ Report issues for this extension in the [ocds-extensions repository](https://git
       else
         b[1].uniques <=> a[1].uniques
       end
-    }.partition{ |repo, _| extension?(repo) }.each do |set|
+    }.partition{ |name, _| extension?(name) }.each do |set|
       puts
-      set.each do |repo, datum|
-        puts '%-45s %2d uniques %3d views' % [repo, datum.uniques, datum.count]
+      set.each do |name, datum|
+        puts '%-45s %2d uniques %3d views' % [name, datum.uniques, datum.count]
       end
     end
   end
