@@ -233,10 +233,19 @@ Report issues for this extension in the [ocds-extensions repository](https://git
 
   desc 'Lists repositories with number of issues, PRs, branches, milestones and whether wiki, pages, issues, projects are enabled'
   task :status do
-    format = '%-50s  %11s  %11s  %11s  %11s  %s  %s  %s  %s'
+    format = '%-50s  %12s  %11s  %11s  %11s  %s  %s  %s  %s  %s'
 
     repos.partition{ |repo| extension?(repo.name) }.each do |set|
-      puts '%-50s  %s  %s  %s  %s  %s  %s  %s  %s' % ['', '#I', '#P', '#B', '#M', 'W', 'P', 'I', 'P']
+      # Number of open issues
+      # Number of open pull requests
+      # Number of branches, excluding default, pull, upstream, excluded branches
+      # Number of open milestones
+      # Whether the repo has a wiki
+      # Whether the repo has GitHub Pages
+      # Whether the repo has issues enabled
+      # Whether the repo has projects enabled
+      # The top contributor (e.g. to decide who to contact)
+      puts '%-50s   %s  %s  %s  %s  %s  %s  %s  %s  %s' % ['', '#I', '#P', '#B', '#M', 'W', 'P', 'I', 'P', 'C']
 
       set.sort{ |a, b|
         if a.open_issues == b.open_issues
@@ -246,6 +255,9 @@ Report issues for this extension in the [ocds-extensions repository](https://git
         end
       }.each do |repo|
         pull_requests = repo.rels[:pulls].get.data.size
+        # At time of writing, I'm the top contributor on most repositories (due
+        # to widespread cleanup work), which is not useful information.
+        top_contributor = repo.rels[:contributors].get.data.find{ |contributor| contributor.login != 'jpmckinney' }
 
         puts format % [
           repo.name,
@@ -257,7 +269,30 @@ Report issues for this extension in the [ocds-extensions repository](https://git
           s(repo.has_pages),
           s(repo.has_issues),
           s(repo.has_projects),
+          top_contributor && top_contributor.login,
         ]
+      end
+    end
+  end
+
+  desc 'Lists web traffic statistics over past two weeks'
+  task :traffic do
+    data = {}
+
+    repos.each do |repo|
+      data[repo.name] = client.views(repo.full_name, per: 'week', accept: 'application/vnd.github.spiderman-preview')
+    end
+
+    data.sort{ |a, b|
+      if a[1].uniques == b[1].uniques
+        b[1].count <=> a[1].count
+      else
+        b[1].uniques <=> a[1].uniques
+      end
+    }.partition{ |name, _| extension?(name) }.each do |set|
+      puts
+      set.each do |name, datum|
+        puts '%-45s %2d uniques %3d views' % [name, datum.uniques, datum.count]
       end
     end
   end
