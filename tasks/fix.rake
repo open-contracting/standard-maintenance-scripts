@@ -1,3 +1,27 @@
+def disable_issues(repo, message)
+  if repo.has_issues
+    open_issues = repo.open_issues - repo.rels[:pulls].get.data.size
+    if open_issues.zero?
+      client.edit_repository(repo.full_name, has_issues: false)
+      puts "#{repo.html_url}/settings #{'disabled issues'.bold}"
+    else
+      puts "#{repo.html_url}/issues #{"issues #{message}".bold}"
+    end
+  end
+end
+
+def disable_projects(repo, message)
+  if repo.has_projects
+    projects = client.projects(repo.full_name, accept: 'application/vnd.github.inertia-preview+json')
+    if projects.none?
+      client.edit_repository(repo.full_name, has_projects: false)
+      puts "#{repo.html_url}/settings #{'disabled projects'.bold}"
+    else
+      puts "#{repo.html_url}/issues #{"projects #{message}".bold}"
+    end
+  end
+end
+
 namespace :fix do
   desc 'Protects default branches'
   task :protect_branches do
@@ -97,6 +121,22 @@ namespace :fix do
     end
   end
 
+  desc 'Prepares repositories for archival'
+  task :archive_repos do
+    if ENV['REPOS']
+      repos.each do |repo|
+        disable_issues(repo, 'should be reviewed')
+        disable_projects(repo, 'should be reviewed')
+
+        if !repo.archived
+          puts "#{repo.html_url}/settings #{'archive repository'.bold}"
+        end
+      end
+    else
+      abort "You must set the REPOS environment variable to archive repositories."
+    end
+  end
+
   desc 'Disables empty wikis and lists repositories with invalid names, unexpected configurations, etc.'
   task :lint_repos do
     repos.each do |repo|
@@ -113,25 +153,8 @@ namespace :fix do
           puts "#{repo.name} is not a valid extension name"
         end
 
-        if repo.has_issues
-          open_issues = repo.open_issues - repo.rels[:pulls].get.data.size
-          if open_issues.zero?
-            client.edit_repository(repo.full_name, has_issues: false)
-            puts "#{repo.html_url}/settings #{'disabled issues'.bold}"
-          else
-            puts "#{repo.html_url}/issues #{'issues should be moved and disabled'.bold}"
-          end
-        end
-
-        if repo.has_projects
-          projects = client.projects(repo.full_name, accept: 'application/vnd.github.inertia-preview+json')
-          if projects.none?
-            client.edit_repository(repo.full_name, has_projects: false)
-            puts "#{repo.html_url}/settings #{'disabled projects'.bold}"
-          else
-            puts "#{repo.html_url}/issues #{'projects should be moved and disabled'.bold}"
-          end
-        end
+        disable_issues(repo, 'should be moved and disabled')
+        disable_projects(repo, 'should be moved and disabled')
       end
 
       if repo.private
