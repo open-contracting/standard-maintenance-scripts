@@ -89,6 +89,10 @@ Protects default branches:
 
     rake fix:protect_branches
 
+Prepares repositories for archival (`REPOS` is a comma-separated list of repository names):
+
+    rake fix:archive_repos REPOS=…
+
 Adds template content to extension readmes:
 
     rake fix:update_readmes BASEDIR=extensions
