@@ -225,4 +225,53 @@ Report issues for this extension in the [ocds-extensions repository](https://git
       puts "updated: #{updated.join(' ')}"
     end
   end
+
+  desc 'Update extension.json to new format'
+  task :update_extension_jsons do
+    basedir = variables('BASEDIR')[0]
+
+    updated = []
+
+    Dir[File.join(basedir, '*')].each do |path|
+      repo_name = File.basename(path)
+
+      if Dir.exist?(path) && extension?(repo_name)
+        file_path = File.join(path, 'extension.json')
+        content = JSON.load(File.read(file_path))
+
+        %w(name description).each do |field|
+          if String === content[field]
+            content[field] = { 'en' => content[field] }
+          end
+        end
+
+        if String === content['compatibility']
+          content['compatibility'] = case content['compatibility']
+          when /\A>=1\.1/
+            ['1.1']
+          when /\A>=1\.0/
+            ['1.0', '1.1']
+          else
+            raise "unexpected compatibility '#{content['compatibility']}'"
+          end
+        end
+
+        if content.key?('dependencies') && content['dependencies'].empty?
+          content.delete('dependencies')
+        end
+
+        if !content.key?('documentationUrl')
+          content['documentationUrl'] = { 'en' => "https://github.com/open-contracting/#{repo_name}" }
+        end
+
+        File.open(file_path, 'w') do |f|
+          f.write(JSON.pretty_generate(content) + "\n")
+        end
+      end
+    end
+
+    if updated.any?
+      puts "updated: #{updated.join(' ')}"
+    end
+  end
 end
