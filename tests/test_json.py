@@ -13,7 +13,7 @@ from jsonschema.validators import Draft4Validator as validator
 
 
 # See https://github.com/open-contracting/standard-development-handbook/issues/16
-other_extensions = ('ocds_performance_failures', 'public-private-partnerships')
+other_extensions = ('api_extension', 'ocds_performance_failures', 'public-private-partnerships')
 name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', os.getcwd()))
 is_extension = name.startswith('ocds') and name.endswith('extension') or name in other_extensions
 
@@ -65,7 +65,7 @@ del metaschema['definitions']['stringArray']['minItems']
 # See https://tools.ietf.org/html/rfc7396
 if is_extension:
     # See https://github.com/open-contracting/ocds_budget_projects_extension/blob/master/release-schema.json#L70
-    metaschema['type'].append('null')
+    metaschema['type'] = ['object', 'null']
     # See https://github.com/open-contracting/ocds_milestone_documents_extension/blob/master/release-schema.json#L9
     metaschema['properties']['deprecated']['type'] = ['object', 'null']
 
@@ -185,13 +185,13 @@ def validate_codelist_enum(path, data, pointer=''):
     return errors
 
 
-def validate_json_schema(path, data):
+def validate_json_schema(path, data, schema):
     """
     Prints and asserts errors in a JSON Schema.
     """
     errors = 0
 
-    for error in validator(metaschema, format_checker=FormatChecker()).iter_errors(data):
+    for error in validator(schema, format_checker=FormatChecker()).iter_errors(data):
         errors += 1
         print(json.dumps(error.instance, indent=2, separators=(',', ': ')))
         print('{} ({})\n'.format(error.message, '/'.join(error.absolute_schema_path)))
@@ -230,7 +230,17 @@ def test_json_schema():
     """
     for path, text, data in walk_json_data():
         if is_json_schema(data):
-            validate_json_schema(path, data)
+            validate_json_schema(path, data, metaschema)
+
+
+@pytest.mark.skipif(not is_extension, reason='not an extension')
+def test_extension_json():
+    with open(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'schema', 'extension-schema.json')) as f:
+        schema = json.loads(f.read())
+
+    for path, text, data in walk_json_data():
+        if os.path.basename(path) == 'extension.json':
+            validate_json_schema(path, data, schema)
 
 
 @pytest.mark.skipif(not is_extension, reason='not an extension')
@@ -260,4 +270,4 @@ def test_json_merge_patch():
 
                 # We don't `assert patched != schemas[basename]`, because empty patches are allowed. json_merge_patch
                 # mutates `unpatched`, which is unexpected, which is why we would test against `schemas[basename]`.
-                validate_json_schema(path, patched)
+                validate_json_schema(path, patched, metaschema)
