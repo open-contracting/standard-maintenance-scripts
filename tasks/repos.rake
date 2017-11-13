@@ -51,6 +51,8 @@ namespace :repos do
         hook = hooks.find{ |datum| datum.name == 'travis' }
         if hook && hook.active
           line << "[![Build Status](https://travis-ci.org/#{repo.full_name}.svg)](https://travis-ci.org/#{repo.full_name})"
+        else
+          line << '-'
         end
 
         line << '|'
@@ -58,6 +60,8 @@ namespace :repos do
         hook = hooks.find{ |datum| datum.config.url == 'https://requires.io/github/web-hook/' }
         if hook && hook.active
           line << "[![Requirements Status](https://requires.io/github/#{repo.full_name}/requirements.svg)](https://requires.io/github/#{repo.full_name}/requirements/)"
+        else
+          line << '-'
         end
 
         output << line
@@ -65,6 +69,8 @@ namespace :repos do
         print '.'
       end
     end
+
+    output << ''
 
     File.open('badges.md', 'w') do |f|
       f.write(output.join("\n"))
