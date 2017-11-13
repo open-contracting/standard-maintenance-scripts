@@ -30,7 +30,7 @@ core_codelists = [
 ]
 
 # Update URL after merge: https://github.com/open-contracting/standard/pull/611
-metaschema = requests.get('https://raw.githubusercontent.com/open-contracting/standard/3920a12d203df31dc3d31ca64736dab54445c597/standard/schema/meta-schema.json').json()
+metaschema = requests.get('https://raw.githubusercontent.com/open-contracting/standard/3920a12d203df31dc3d31ca64736dab54445c597/standard/schema/meta-schema.json').json()  # noqa
 
 # jsonmerge fields for OCDS 1.0.
 # See https://github.com/open-contracting-archive/jsonmerge
