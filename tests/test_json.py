@@ -29,32 +29,8 @@ core_codelists = [
     'tenderStatus.csv',
 ]
 
-# Draft 6 corrects some problems with Draft 4, e.g. omitting `format`, but it:
-# * renames `id` to `$id`
-# * changes `exclusiveMinimum` to a number
-# * allows additional properties, which makes it possible for typos to go undetected
-# See http://json-schema.org/draft-04/schema
-metaschema = requests.get('http://json-schema.org/schema').json()
-metaschema['properties']['id'] = metaschema['properties'].pop('$id')
-metaschema['properties']['exclusiveMinimum'] = {'type': 'boolean', 'default': False}
-metaschema['additionalProperties'] = False
-
-# OCDS fields.
-metaschema['properties']['codelist'] = {'type': 'string'}
-metaschema['properties']['openCodelist'] = {'type': 'boolean'}
-# @see https://github.com/open-contracting/standard/blob/1.1-dev/standard/docs/en/schema/deprecation.md
-metaschema['properties']['deprecated'] = {
-    'type': 'object',
-    'properties': {
-        'additionalProperties': False,
-        'description': {'type': 'string'},
-        'deprecatedVersion': {'type': 'string'},
-    },
-}
-# See https://github.com/open-contracting/standard/blob/1.1-dev/standard/docs/en/schema/merging.md
-metaschema['properties']['omitWhenMerged'] = {'type': 'boolean'}
-metaschema['properties']['wholeListMerge'] = {'type': 'boolean'}
-metaschema['properties']['versionId'] = {'type': 'boolean'}
+# Update URL after merge: https://github.com/open-contracting/standard/pull/611
+metaschema = requests.get('https://raw.githubusercontent.com/open-contracting/standard/3920a12d203df31dc3d31ca64736dab54445c597/standard/schema/meta-schema.json').json()
 
 # jsonmerge fields for OCDS 1.0.
 # See https://github.com/open-contracting-archive/jsonmerge
@@ -82,9 +58,15 @@ metaschema['properties']['mergeOptions'] = {
     },
 }
 
+# Draft 6 removes `minItems` from `definitions/stringArray`.
+# See https://github.com/open-contracting/api_extension/blob/master/release-package-schema.json#L2
+del metaschema['definitions']['stringArray']['minItems']
+
+# See https://tools.ietf.org/html/rfc7396
 if is_extension:
-    # See https://tools.ietf.org/html/rfc7396
+    # See https://github.com/open-contracting/ocds_budget_projects_extension/blob/master/release-schema.json#L70
     metaschema['type'].append('null')
+    # See https://github.com/open-contracting/ocds_milestone_documents_extension/blob/master/release-schema.json#L9
     metaschema['properties']['deprecated']['type'] = ['object', 'null']
 
 
