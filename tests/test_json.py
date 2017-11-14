@@ -76,6 +76,8 @@ def walk():
     Yields all files, except third-party files under `_static` directories.
     """
     for root, dirs, files in os.walk(os.getcwd()):
+        if '.git' in dirs:
+            dirs.remove('.git')
         if '_static' not in root.split(os.sep):
             for name in files:
                 yield (root, name)
@@ -288,7 +290,7 @@ def test_extension_json():
 @pytest.mark.skipif(not is_extension, reason='not an extension')
 def test_empty_files():
     """
-    Ensures an extension has no empty schema files and no versioned-release-validation-schema.json file.
+    Ensures an extension has no empty files and no versioned-release-validation-schema.json file.
     """
     basenames = (
         'record-package-schema.json',
@@ -296,12 +298,17 @@ def test_empty_files():
         'release-schema.json',
     )
 
-    for path, text, data in walk_json_data():
-        basename = os.path.basename(path)
-        if basename == 'versioned-release-validation-schema.json':
+    for root, name in walk():
+        if name == 'versioned-release-validation-schema.json':
             assert False, 'versioned-release-validation-schema.json should be removed'
-        elif basename in basenames:
-            assert data, '{} is empty and should be removed'.format(path)
+        else:
+            path = os.path.join(root, name)
+            with open(path, 'r') as f:
+                text = f.read()
+            if name in basenames:
+                assert json.loads(text), '{} is empty and should be removed'.format(path)
+            else:
+                assert text.strip(), '{} is empty and should be removed'.format(path)
 
 
 @pytest.mark.skipif(not is_extension, reason='not an extension')
