@@ -286,6 +286,25 @@ def test_extension_json():
 
 
 @pytest.mark.skipif(not is_extension, reason='not an extension')
+def test_empty_files():
+    """
+    Ensures an extension has no empty schema files and no versioned-release-validation-schema.json file.
+    """
+    basenames = (
+        'record-package-schema.json',
+        'release-package-schema.json',
+        'release-schema.json',
+    )
+
+    for path, text, data in walk_json_data():
+        basename = os.path.basename(path)
+        if basename == 'versioned-release-validation-schema.json':
+            assert False, 'versioned-release-validation-schema.json should be removed'
+        elif basename in basenames:
+            assert data, '{} is empty and should be removed'.format(path)
+
+
+@pytest.mark.skipif(not is_extension, reason='not an extension')
 def test_json_merge_patch():
     """
     Ensures all extension JSON Schema successfully patch core JSON Schema, generating schema that are valid JSON Schema
