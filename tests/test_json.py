@@ -187,6 +187,9 @@ def validate_codelist_enum(path, data, pointer=''):
 
 
 def ensure_title_description_type(path, data, pointer=''):
+    """
+    Prints and returns the number of errors relating to metadata in a JSON Schema.
+    """
     errors = 0
 
     schema_fields = ('definitions', 'deprecated', 'items', 'patternProperties', 'properties')
@@ -261,7 +264,8 @@ def test_indent():
 
 def test_json_schema():
     """
-    Ensures all JSON Schema files are valid JSON Schema Draft 4 and use codelists correctly.
+    Ensures all JSON Schema files are valid JSON Schema Draft 4 and use codelists correctly. Unless this is an
+    extension, ensures JSON Schema files have required metadata.
     """
     for path, text, data in walk_json_data():
         if is_json_schema(data):
@@ -270,6 +274,9 @@ def test_json_schema():
 
 @pytest.mark.skipif(not is_extension, reason='not an extension')
 def test_extension_json():
+    """
+    Ensures the extension's extension.json file is valid JSON Schema Draft 4.
+    """
     with open(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'schema', 'extension-schema.json')) as f:
         schema = json.loads(f.read())
 
@@ -281,7 +288,8 @@ def test_extension_json():
 @pytest.mark.skipif(not is_extension, reason='not an extension')
 def test_json_merge_patch():
     """
-    Ensures all extension JSON Schema successfully patch core JSON Schema.
+    Ensures all extension JSON Schema successfully patch core JSON Schema, generating schema that are valid JSON Schema
+    Draft 4, use codelists correctly, and have required metadata.
     """
     schemas = {}
 
