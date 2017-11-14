@@ -12,7 +12,7 @@ from jsonschema import FormatChecker
 from jsonschema.validators import Draft4Validator as validator
 
 
-# See https://github.com/open-contracting/standard-development-handbook/issues/16
+# For identifying extensions, see https://github.com/open-contracting/standard-development-handbook/issues/16
 other_extensions = ('api_extension', 'ocds_performance_failures', 'public-private-partnerships')
 name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', os.getcwd()))
 is_extension = name.startswith('ocds') and name.endswith('extension') or name in other_extensions
@@ -29,8 +29,9 @@ core_codelists = [
     'tenderStatus.csv',
 ]
 
-# Update URL after merge: https://github.com/open-contracting/standard/pull/611
-metaschema = requests.get('https://raw.githubusercontent.com/open-contracting/standard/3920a12d203df31dc3d31ca64736dab54445c597/standard/schema/meta-schema.json').json()  # noqa
+# TODO: See https://github.com/open-contracting/standard-maintenance-scripts/issues/29
+url = 'https://raw.githubusercontent.com/open-contracting/standard/3920a12d203df31dc3d31ca64736dab54445c597/standard/schema/meta-schema.json'  # noqa
+metaschema = requests.get(url).json()
 
 # jsonmerge fields for OCDS 1.0.
 # See https://github.com/open-contracting-archive/jsonmerge
@@ -145,7 +146,7 @@ def validate_codelist_enum(path, data, pointer=''):
             else:
                 # Closed codelists should set `enum`.
                 if ('string' in types and 'enum' not in data or 'array' in types and 'enum' not in data['items']):
-                    # See https://github.com/open-contracting/standard-maintenance-scripts/issues/16
+                    # TODO: See https://github.com/open-contracting/standard-maintenance-scripts/issues/16
                     pass
                     # errors += 1
                     # print('{} must set `enum` for closed codelist at {}'.format(path, pointer))
@@ -185,7 +186,37 @@ def validate_codelist_enum(path, data, pointer=''):
     return errors
 
 
-def validate_json_schema(path, data, schema):
+def ensure_title_description_type(path, data, pointer=''):
+    errors = 0
+
+    schema_fields = ('definitions', 'deprecated', 'items', 'patternProperties', 'properties')
+    required_fields = ('title', 'description')
+
+    if isinstance(data, list):
+        for index, item in enumerate(data):
+            errors += ensure_title_description_type(path, item, pointer='{}/{}'.format(pointer, index))
+    elif isinstance(data, dict):
+        parent = pointer.rsplit('/', 1)[-1]
+
+        # Don't look for metadata fields on non-user-defined objects.
+        if parent not in schema_fields:
+            for field in required_fields:
+                if field not in data:
+                    errors += 1
+                    print('{} is missing {}/{}'.format(path, pointer, field))
+            if 'type' not in data and '$ref' not in data:
+                errors += 1
+                print('{0} is missing {1}/type or {1}/$ref'.format(path, pointer))
+
+        # Don't iterate into `patternProperties`.
+        if parent != 'patternProperties':
+            for key, value in data.items():
+                errors += ensure_title_description_type(path, value, pointer='{}/{}'.format(pointer, key))
+
+    return errors
+
+
+def validate_json_schema(path, data, schema, ensure_metadata=not is_extension):  # extensions don't repeat core
     """
     Prints and asserts errors in a JSON Schema.
     """
@@ -198,6 +229,10 @@ def validate_json_schema(path, data, schema):
 
     if errors:
         print('{} is not valid JSON Schema ({} errors)'.format(path, errors))
+
+    # TODO: https://github.com/open-contracting/standard-maintenance-scripts/issues/27
+    # if ensure_metadata and 'versioned-release-validation-schema.json' not in path:
+    #     errors += ensure_title_description_type(path, data)
 
     errors += validate_codelist_enum(path, data)
 
@@ -260,6 +295,25 @@ def test_json_merge_patch():
     for basename in basenames:
         schemas[basename] = requests.get('http://standard.open-contracting.org/latest/en/{}'.format(basename)).json()
 
+        if basename == 'release-schema.json':
+            # TODO: See https://github.com/open-contracting/standard/issues/603
+            schemas[basename]['definitions']['Classification']['description'] = ''
+            schemas[basename]['definitions']['Identifier']['description'] = ''
+            schemas[basename]['definitions']['Milestone']['description'] = ''
+            schemas[basename]['definitions']['Organization']['properties']['address']['description'] = ''
+            schemas[basename]['definitions']['Organization']['properties']['address']['title'] = ''
+            schemas[basename]['definitions']['Organization']['properties']['contactPoint']['description'] = ''
+            schemas[basename]['definitions']['Organization']['properties']['contactPoint']['title'] = ''
+            schemas[basename]['definitions']['Planning']['properties']['budget']['description'] = ''
+            schemas[basename]['definitions']['Planning']['properties']['budget']['title'] = ''
+            schemas[basename]['definitions']['Value']['description'] = ''
+            schemas[basename]['description'] = ''
+
+            # Two extensions have optional dependencies on ocds_bid_extension.
+            if name in ('ocds_lots_extension', 'ocds_requirements_extension'):
+                url = 'https://raw.githubusercontent.com/open-contracting/ocds_bid_extension/master/release-schema.json'  # noqa
+                json_merge_patch.merge(schemas[basename], requests.get(url).json())
+
     for path, text, data in walk_json_data():
         if is_json_schema(data):
             basename = os.path.basename(path)
@@ -270,4 +324,4 @@ def test_json_merge_patch():
 
                 # We don't `assert patched != schemas[basename]`, because empty patches are allowed. json_merge_patch
                 # mutates `unpatched`, which is unexpected, which is why we would test against `schemas[basename]`.
-                validate_json_schema(path, patched, metaschema)
+                validate_json_schema(path, patched, metaschema, ensure_metadata=True)
