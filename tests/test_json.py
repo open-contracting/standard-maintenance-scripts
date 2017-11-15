@@ -285,6 +285,9 @@ def test_extension_json():
     for path, text, data in walk_json_data():
         if os.path.basename(path) == 'extension.json':
             validate_json_schema(path, data, schema)
+            break
+    else:
+        assert False, 'expected an extension.json file'
 
 
 @pytest.mark.skipif(not is_extension, reason='not an extension')
