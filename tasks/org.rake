@@ -23,7 +23,6 @@ namespace :org do
       # Iniciativa Latinoamericana por los Datos Abiertos
       # https://idatosabiertos.org/acerca-de-nosotros/
       'cdemidchuk', # Catalina Demidchuk
-      'emanuelzh', # Emanuel Zámano
       'juanpane', # Juan Pane
       'scrollif', # Fabrizio Scrollini
       'tlacoyodefrijol', # Oscar Montiel
