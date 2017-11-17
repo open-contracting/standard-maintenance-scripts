@@ -268,6 +268,12 @@ Report issues for this extension in the [ocds-extensions repository](https://git
           content['documentationUrl'] = { 'en' => "https://github.com/open-contracting/#{repo_name}" }
         end
 
+        expected = Set.new(Dir[File.join(path, 'codelists', '*')].map{ |path| File.basename(path) })
+
+        if String === content['codelists'] || expected != Set.new(content['codelists'])
+          content['codelists'] = expected.to_a.sort
+        end
+
         File.open(file_path, 'w') do |f|
           f.write(JSON.pretty_generate(content) + "\n")
         end

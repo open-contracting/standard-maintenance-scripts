@@ -285,10 +285,20 @@ def test_extension_json():
     url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/master/schema/extension-schema.json'  # noqa
     schema = requests.get(url).json()
 
+    expected = set()
+
+    # This loop is somewhat unnecessary, as repositories contain at most one codelists directory.
+    for path, data in walk_csv_data():
+        if 'codelists' in path.split(os.sep):
+            expected.add(os.path.basename(path))
+
     # This loop is somewhat unnecessary, as repositories contain at most one extension.json.
     for path, text, data in walk_json_data():
         if os.path.basename(path) == 'extension.json':
             validate_json_schema(path, data, schema)
+
+            assert expected == set(data.get('codelists', []))
+
             break
     else:
         assert False, 'expected an extension.json file'
@@ -308,10 +318,14 @@ def test_empty_files():
     for root, name in walk():
         if name == 'versioned-release-validation-schema.json':
             assert False, 'versioned-release-validation-schema.json should be removed'
-        else:
+        # __init__.py files are allowed to be empty. PNG files raise UnicodeDecodeError exceptions.
+        elif not name == '__init__.py' and not name.endswith('.png'):
             path = os.path.join(root, name)
-            with open(path, 'r') as f:
-                text = f.read()
+            try:
+                with open(path, 'r') as f:
+                    text = f.read()
+            except UnicodeDecodeError as e:
+                assert False, 'UnicodeDecodeError: {} {}'.format(e, path)
             if name in basenames:
                 assert json.loads(text), '{} is empty and should be removed'.format(path)
             else:
