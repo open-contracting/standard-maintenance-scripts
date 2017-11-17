@@ -23,12 +23,13 @@
     },
     "compatibility": {
       "title": "Compatibility",
-      "description": "Versions of the OCDS standard this extension works against",
+      "description": "Minor versions of the OCDS standard this extension works with",
       "type": "array",
       "minItems": 1,
       "items":{
         "type": "string",
-        "minLength": 1
+        "minLength": 1,
+        "format": "^\\d+\\.\\d+$"
       }
     },
     "description": {
@@ -46,7 +47,7 @@
     },
     "documentationUrl": {
       "title": "Documentation URL" ,
-      "description": "Location of the documentation for the extension as an object with keys being language codes (ISO 639-1) and values the url of the documentation in that language.",
+      "description": "Location of the documentation for the extension as an object with keys being language codes (ISO 639-1) and values the URL of the documentation in that language.",
       "type": "object",
       "minProperties": 1,
       "additionalProperties": false,
@@ -60,7 +61,7 @@
     },
     "name": {
       "title": "Name",
-      "description": "Name of the extension as an object with keys being language codes (ISO 639-1) and values the name in that language",
+      "description": "Name of the extension as an object with keys being language codes (ISO 639-1) and values the name in that language.",
       "type": "object",
       "minProperties": 1,
       "additionalProperties": false,
@@ -78,12 +79,14 @@
       "minItems": 1,
       "items":{
         "type": "string",
-        "minLength": 1
+        "minLength": 1,
+        "format": "uri",
+        "pattern": "^.+/extension\\.json$"
       }
     },
     "version": {
       "title": "Version",
-      "description": "Version of the extension. This may be completely seperate from the version of the OCDS standard this extension is compatible with (use compatability for this case).",
+      "description": "Version of the extension. This may be completely separate from the version of the OCDS standard this extension is compatible with (use compatibility for that).",
       "type": "string",
       "minLength": 1
     }

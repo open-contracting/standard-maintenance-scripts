@@ -308,10 +308,14 @@ def test_empty_files():
     for root, name in walk():
         if name == 'versioned-release-validation-schema.json':
             assert False, 'versioned-release-validation-schema.json should be removed'
-        else:
+        # __init__.py files are allowed to be empty. PNG files raise UnicodeDecodeError exceptions.
+        elif not name == '__init__.py' and not name.endswith('.png'):
             path = os.path.join(root, name)
-            with open(path, 'r') as f:
-                text = f.read()
+            try:
+                with open(path, 'r') as f:
+                    text = f.read()
+            except UnicodeDecodeError as e:
+                assert False, 'UnicodeDecodeError: {} {}'.format(e, path)
             if name in basenames:
                 assert json.loads(text), '{} is empty and should be removed'.format(path)
             else:
