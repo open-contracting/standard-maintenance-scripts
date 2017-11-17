@@ -199,7 +199,9 @@ Report issues for this extension in the [ocds-extensions repository](https://git
 
     updated = []
 
-    Dir[File.join(basedir, '*')].each do |path|
+    paths = Dir[basedir] + Dir[File.join(basedir, '*')]
+
+    paths.each do |path|
       repo_name = File.basename(path)
 
       if Dir.exist?(path) && extension?(repo_name)
@@ -232,7 +234,9 @@ Report issues for this extension in the [ocds-extensions repository](https://git
 
     updated = []
 
-    Dir[File.join(basedir, '*')].each do |path|
+    paths = Dir[basedir] + Dir[File.join(basedir, '*')]
+
+    paths.each do |path|
       repo_name = File.basename(path)
 
       if Dir.exist?(path) && extension?(repo_name)

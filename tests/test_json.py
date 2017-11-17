@@ -12,9 +12,11 @@ from jsonschema import FormatChecker
 from jsonschema.validators import Draft4Validator as validator
 
 
-# For identifying extensions, see https://github.com/open-contracting/standard-development-handbook/issues/16
-other_extensions = ('api_extension', 'ocds_performance_failures', 'public-private-partnerships')
 name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', os.getcwd()))
+
+# For identifying extensions, see https://github.com/open-contracting/standard-development-handbook/issues/16
+# This should match the logic in `Rakefile`.
+other_extensions = ('api_extension', 'ocds_performance_failures', 'public-private-partnerships', 'standard_extension_template')
 is_extension = name.startswith('ocds') and name.endswith('extension') or name in other_extensions
 
 core_codelists = [
@@ -290,7 +292,7 @@ def test_extension_json():
         assert False, 'expected an extension.json file'
 
 
-@pytest.mark.skipif(not is_extension, reason='not an extension')
+@pytest.mark.skipif(not is_extension or name == 'standard_extension_template', reason='not an extension')
 def test_empty_files():
     """
     Ensures an extension has no empty files and no versioned-release-validation-schema.json file.
