@@ -277,7 +277,7 @@ def test_json_schema():
 @pytest.mark.skipif(not is_extension, reason='not an extension')
 def test_extension_json():
     """
-    Ensures the extension's extension.json file is valid JSON Schema Draft 4.
+    Ensures the extension's extension.json file is valid against extension-schema.json.
     """
     with open(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'schema', 'extension-schema.json')) as f:
         schema = json.loads(f.read())
