@@ -285,10 +285,20 @@ def test_extension_json():
     url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/master/schema/extension-schema.json'  # noqa
     schema = requests.get(url).json()
 
+    expected = set()
+
+    # This loop is somewhat unnecessary, as repositories contain at most one codelists directory.
+    for path, data in walk_csv_data():
+        if 'codelists' in path.split(os.sep):
+            expected.add(os.path.basename(path))
+
     # This loop is somewhat unnecessary, as repositories contain at most one extension.json.
     for path, text, data in walk_json_data():
         if os.path.basename(path) == 'extension.json':
             validate_json_schema(path, data, schema)
+
+            assert expected == set(data.get('codelists', []))
+
             break
     else:
         assert False, 'expected an extension.json file'

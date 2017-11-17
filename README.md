@@ -30,7 +30,7 @@ To create a pull request to set up a new repository, enable the repository on [t
 
 ### extension-schema.json
 
-This repository holds `extension-schema.json` against which each extension's `extension.json` is tested. The schema is documented in [standard_extension_template](https://github.com/open-contracting/standard_extension_template#extensionjson), and should be largely the same as [`entry-schema.json`](https://github.com/open-contracting/extension_registry/blob/master/entry-schema.json), which is documented in [extension_registry](https://github.com/open-contracting/extension_registry#entryjson).
+This repository holds `extension-schema.json` against which each extension's `extension.json` is tested. The schema is documented in [standard_extension_template](https://github.com/open-contracting/standard_extension_template#extensionjson). It should largely be the same as [`entry-schema.json`](https://github.com/open-contracting/extension_registry/blob/master/entry-schema.json), documented in [extension_registry](https://github.com/open-contracting/extension_registry#entryjson).
 
 If changes are made to `extension-schema.json`, changes may be needed to:
 
