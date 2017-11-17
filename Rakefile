@@ -46,7 +46,9 @@ def repos
 end
 
 def extension?(name)
-  name.end_with?('extension') || ['ocds_performance_failures'].include?(name)
+  # This should match the logic in `test_json.py`.
+  other_extensions = ['api_extension', 'ocds_performance_failures', 'public-private-partnerships', 'standard_extension_template']
+  name.start_with?('ocds') && name.end_with?('extension') || other_extensions.include?(name)
 end
 
 def variables(*keys)
