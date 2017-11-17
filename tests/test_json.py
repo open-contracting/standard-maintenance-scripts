@@ -16,7 +16,8 @@ name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', os.getcwd()))
 
 # For identifying extensions, see https://github.com/open-contracting/standard-development-handbook/issues/16
 # This should match the logic in `Rakefile`.
-other_extensions = ('api_extension', 'ocds_performance_failures', 'public-private-partnerships', 'standard_extension_template')
+other_extensions = ('api_extension', 'ocds_performance_failures', 'public-private-partnerships',
+                    'standard_extension_template')
 is_extension = name.startswith('ocds') and name.endswith('extension') or name in other_extensions
 
 core_codelists = [
