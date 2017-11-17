@@ -282,9 +282,10 @@ def test_extension_json():
     """
     Ensures the extension's extension.json file is valid against extension-schema.json.
     """
-    with open(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'schema', 'extension-schema.json')) as f:
-        schema = json.loads(f.read())
+    url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/master/schema/extension-schema.json'  # noqa
+    schema = requests.get(url).json()
 
+    # This loop is somewhat unnecessary, as repositories contain at most one extension.json.
     for path, text, data in walk_json_data():
         if os.path.basename(path) == 'extension.json':
             validate_json_schema(path, data, schema)
@@ -354,6 +355,7 @@ def test_json_merge_patch():
                 url = 'https://raw.githubusercontent.com/open-contracting/ocds_bid_extension/master/release-schema.json'  # noqa
                 json_merge_patch.merge(schemas[basename], requests.get(url).json())
 
+    # This loop is somewhat unnecessary, as repositories contain at most one of each schema file.
     for path, text, data in walk_json_data():
         if is_json_schema(data):
             basename = os.path.basename(path)
