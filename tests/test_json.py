@@ -232,10 +232,12 @@ def validate_type(path, data, pointer='', nullable=True):
         for key, value in data.items():
             if key == 'properties':
                 for k, v in data[key].items():
-                    errors += validate_type(path, v, pointer='{}/{}/{}'.format(pointer, key, k), nullable=k not in required)
+                    errors += validate_type(path, v, pointer='{}/{}/{}'.format(pointer, key, k),
+                                            nullable=k not in required)
             elif key in ('definitions', 'items'):
                 for k, v in data[key].items():
-                    errors += validate_type(path, v, pointer='{}/{}/{}'.format(pointer, key, k), nullable=False)
+                    errors += validate_type(path, v, pointer='{}/{}/{}'.format(pointer, key, k),
+                                            nullable=False)
             else:
                 errors += validate_type(path, value, pointer='{}/{}'.format(pointer, key))
 
