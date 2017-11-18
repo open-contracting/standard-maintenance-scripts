@@ -1,5 +1,7 @@
 all
 
+# Rules can be configured. See https://github.com/markdownlint/markdownlint/blob/master/docs/RULES.md
+
 # See https://github.com/markdownlint/markdownlint/blob/master/docs/RULES.md#md026---trailing-punctuation-in-header
 rule 'MD026', :punctuation => '.,;:!'
 
