@@ -109,11 +109,19 @@ Prepares repositories for archival (`REPOS` is a comma-separated list of reposit
 
 Regenerates the [badges page](badges.md):
 
-    rake repos:badges
+    rake local:badges
+
+Sets the enum in a JSON Schema to match the codes in the CSV files of closed codelists:
+
+    rake local:codelists BASEDIR=extensions
 
 Adds template content to extension readmes:
 
-    rake fix:update_readmes BASEDIR=extensions
+    rake local:readmes BASEDIR=extensions
+
+Updates extension.json to its new format:
+
+    rake local:extension_json BASEDIR=extensions
 
 ### Review GitHub repository metadata and configuration
 

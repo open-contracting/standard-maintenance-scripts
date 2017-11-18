@@ -156,18 +156,19 @@ def validate_codelist_enum(path, data, pointer=''):
                     # errors += 1
                     # print('{} must set `enum` for closed codelist at {}'.format(path, pointer))
                 else:
-                    if 'enum' in data:
+                    if 'string' in types:
                         actual = set(data['enum'])
                     else:
                         actual = set(data['items']['enum'])
 
+                    # It'd be faster to cache the CSVs, but most extensions have only one closed codelist.
                     for csvpath, reader in walk_csv_data():
                         # The codelist's CSV file should exist and match the `enum` values.
                         if os.path.basename(csvpath) == data['codelist']:
                             expected = set([row['Code'] for row in reader])
 
                             # Add None if the field is nullable.
-                            if None in actual:
+                            if 'null' in types:
                                 expected.add(None)
 
                             if actual != expected:

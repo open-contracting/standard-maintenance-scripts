@@ -22,61 +22,6 @@ namespace :repos do
     end
   end
 
-  desc 'Regenerates the badges pages'
-  task :badges do
-    output = [
-      '# Project Build and Dependency Status',
-    ]
-
-    repos.partition{ |repo| !extension?(repo.name) }.each_with_index do |set, index|
-      output << ''
-
-      if index.zero?
-        output << "## Repositories"
-      else
-        output << "## Extensions"
-      end
-
-      output += [
-        '',
-        'Name|Build|Dependencies',
-        '-|-|-',
-      ]
-
-      set.each do |repo|
-        hooks = repo.rels[:hooks].get.data
-
-        line = "[#{repo.name}](#{repo.html_url})|"
-
-        hook = hooks.find{ |datum| datum.name == 'travis' }
-        if hook && hook.active
-          line << "[![Build Status](https://travis-ci.org/#{repo.full_name}.svg)](https://travis-ci.org/#{repo.full_name})"
-        else
-          line << '-'
-        end
-
-        line << '|'
-
-        hook = hooks.find{ |datum| datum.config.url == 'https://requires.io/github/web-hook/' }
-        if hook && hook.active
-          line << "[![Requirements Status](https://requires.io/github/#{repo.full_name}/requirements.svg)](https://requires.io/github/#{repo.full_name}/requirements/)"
-        else
-          line << '-'
-        end
-
-        output << line
-
-        print '.'
-      end
-    end
-
-    output << ''
-
-    File.open('badges.md', 'w') do |f|
-      f.write(output.join("\n"))
-    end
-  end
-
   desc 'Checks Travis configurations'
   task :travis do
     def read(repo, path)
