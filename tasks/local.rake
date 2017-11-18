@@ -89,6 +89,8 @@ namespace :local do
       case data
       when Hash
         if data['codelist']
+          CODELISTS_SEEN << data['codelist']
+
           if String === data.fetch('type')
             types = [data['type']]
           else
@@ -121,11 +123,13 @@ namespace :local do
       data
     end
 
-    CODELISTS = {}
-
     standard = variables('STANDARD')[0]
 
+    CODELISTS = {}
+
     collect_codelists(standard)
+
+    CODELISTS_SEEN = CODELISTS.keys
 
     each_path do |path, updated|
       repo_name = File.basename(path)
@@ -150,6 +154,11 @@ namespace :local do
           end
         end
       end
+    end
+
+    difference = CODELISTS.keys.reject{ |key| key.start_with?('+') } - CODELISTS_SEEN
+    if difference.any?
+      puts "unused: #{difference.join(' ')}"
     end
   end
 
