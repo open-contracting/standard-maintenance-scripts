@@ -20,7 +20,7 @@ other_extensions = ('api_extension', 'ocds_performance_failures', 'public-privat
                     'standard_extension_template')
 is_extension = repo_name.startswith('ocds') and repo_name.endswith('extension') or repo_name in other_extensions
 
-core_codelists = [
+external_codelists = [
     'awardStatus.csv',
     'contractStatus.csv',
     'currency.csv',
@@ -149,22 +149,23 @@ def validate_codelist_enum(path, data, pointer=''):
                     errors += 1
                     print('{} must not set `enum` for open codelist at {}'.format(path, pointer))
             else:
-                # Closed codelists should set `enum`.
-                if ('string' in types and 'enum' not in data or 'array' in types and 'enum' not in data['items']):
+                if 'string' in types and 'enum' not in data or 'array' in types and 'enum' not in data['items']:
+                    actual = None
                     # TODO: See https://github.com/open-contracting/standard-maintenance-scripts/issues/16
-                    pass
+                    # Fields with closed codelists should set `enum`.
                     # errors += 1
                     # print('{} must set `enum` for closed codelist at {}'.format(path, pointer))
+                elif 'string' in types:
+                    actual = set(data['enum'])
                 else:
-                    if 'string' in types:
-                        actual = set(data['enum'])
-                    else:
-                        actual = set(data['items']['enum'])
+                    actual = set(data['items']['enum'])
 
-                    # It'd be faster to cache the CSVs, but most extensions have only one closed codelist.
-                    for csvpath, reader in walk_csv_data():
-                        # The codelist's CSV file should exist and match the `enum` values.
-                        if os.path.basename(csvpath) == data['codelist']:
+                # It'd be faster to cache the CSVs, but most extensions have only one closed codelist.
+                for csvpath, reader in walk_csv_data():
+                    # The codelist's CSV file should exist.
+                    if os.path.basename(csvpath) == data['codelist']:
+                        # The codelist's CSV file should match the `enum` values, if the field is set.
+                        if actual:
                             expected = set([row['Code'] for row in reader])
 
                             # Add None if the field is nullable.
@@ -173,19 +174,35 @@ def validate_codelist_enum(path, data, pointer=''):
 
                             if actual != expected:
                                 added = actual - expected
-                                removed = expected - actual
-                                errors += 1
-                                print('{} has mismatch between enum and codelist at {}: added {}; removed {}'.format(
-                                    path, pointer, ', '.join(added), ', '.join(removed)))
+                                if added:
+                                    added = '; added {}'.format(added)
+                                else:
+                                    added = ''
 
-                            break
-                    else:
-                        # When validating a patched schema, the above code will fail to find the core codelists in an
-                        # extension, but that is not an error.
-                        if is_extension and data['codelist'] not in core_codelists:
-                            errors += 1
-                            print('{} refers to nonexistent codelist named {}'.format(path, data['codelist']))
+                                removed = expected - actual
+                                if removed:
+                                    removed = '; removed {}'.format(removed)
+                                else:
+                                    removed = ''
+
+                                errors += 1
+                                print('{} has mismatch between enum and codelist at {}{}{}'.format(
+                                    path, pointer, added, removed))
+
+                        break
+                else:
+                    # When validating a patched schema, the above code will fail to find the core codelists in an
+                    # extension, but that is not an error.
+                    if is_extension and data['codelist'] not in external_codelists:
+                        errors += 1
+                        print('{} refers to nonexistent codelist named {}'.format(path, data['codelist']))
         else:
+            if 'enum' in data:
+                pass
+                # TODO: See https://github.com/open-contracting/standard-maintenance-scripts/issues/16
+                # Fields with `enum` should set closed codelists.
+                # errors += 1
+                # print('{} has enum without codelist at {}'.format(path, pointer))
             for key, value in data.items():
                 errors += validate_codelist_enum(path, value, pointer='{}/{}'.format(pointer, key))
 
@@ -225,7 +242,8 @@ def ensure_title_description_type(path, data, pointer=''):
     return errors
 
 
-def validate_json_schema(path, data, schema, ensure_metadata=not is_extension):  # extensions don't repeat core
+# `ensure_metadata` is set to not expect extensions to repeat core metadata.
+def validate_json_schema(path, data, schema, ensure_metadata=not is_extension):
     """
     Prints and asserts errors in a JSON Schema.
     """
@@ -369,6 +387,8 @@ def test_json_merge_patch():
 
             # Two extensions have optional dependencies on ocds_bid_extension.
             if repo_name in ('ocds_lots_extension', 'ocds_requirements_extension'):
+                url = 'https://raw.githubusercontent.com/open-contracting/ocds_bid_extension/master/extension.json'  # noqa
+                external_codelists.extend(requests.get(url).json()['codelists'])
                 url = 'https://raw.githubusercontent.com/open-contracting/ocds_bid_extension/master/release-schema.json'  # noqa
                 json_merge_patch.merge(schemas[basename], requests.get(url).json())
 
@@ -381,6 +401,7 @@ def test_json_merge_patch():
                 # It's not clear that `json_merge_patch.merge()` can ever fail.
                 patched = json_merge_patch.merge(unpatched, data)
 
+                # All metadata should be present.
                 validate_json_schema(path, patched, metaschema, ensure_metadata=True)
 
                 # Empty patches aren't allowed. json_merge_patch mutates `unpatched`, so `schemas[basename]` is tested.
