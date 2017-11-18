@@ -79,11 +79,11 @@ def walk():
     Yields all files, except third-party files under `_static` directories.
     """
     for root, dirs, files in os.walk(os.getcwd()):
-        if '.git' in dirs:
-            dirs.remove('.git')
-        if '_static' not in root.split(os.sep):
-            for name in files:
-                yield (root, name)
+        for directory in ('.git', '_static'):
+            if directory in dirs:
+                dirs.remove(directory)
+        for name in files:
+            yield (root, name)
 
 
 def walk_json_data():
@@ -280,7 +280,7 @@ def test_json_schema():
 @pytest.mark.skipif(not is_extension, reason='not an extension')
 def test_extension_json():
     """
-    Ensures the extension's extension.json file is valid against extension-schema.json.
+    Ensures the extension's extension.json file is valid against extension-schema.json and all codelists are included.
     """
     url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/master/schema/extension-schema.json'  # noqa
     schema = requests.get(url).json()
@@ -337,8 +337,8 @@ def test_empty_files():
 @pytest.mark.skipif(not is_extension, reason='not an extension')
 def test_json_merge_patch():
     """
-    Ensures all extension JSON Schema successfully patch core JSON Schema, generating schema that are valid JSON Schema
-    Draft 4, use codelists correctly, and have required metadata.
+    Ensures all extension JSON Schema successfully patch and change core JSON Schema, generating schema that are valid
+    JSON Schema Draft 4, use codelists correctly, and have required metadata.
     """
     schemas = {}
 
