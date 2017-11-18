@@ -1,5 +1,6 @@
 require 'bundler/setup'
 
+require 'csv'
 require 'json'
 require 'open-uri'
 require 'pp'

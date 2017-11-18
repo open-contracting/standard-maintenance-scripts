@@ -12,13 +12,13 @@ from jsonschema import FormatChecker
 from jsonschema.validators import Draft4Validator as validator
 
 
-name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', os.getcwd()))
+repo_name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', os.getcwd()))
 
 # For identifying extensions, see https://github.com/open-contracting/standard-development-handbook/issues/16
 # This should match the logic in `Rakefile`.
 other_extensions = ('api_extension', 'ocds_performance_failures', 'public-private-partnerships',
                     'standard_extension_template')
-is_extension = name.startswith('ocds') and name.endswith('extension') or name in other_extensions
+is_extension = repo_name.startswith('ocds') and repo_name.endswith('extension') or repo_name in other_extensions
 
 core_codelists = [
     'awardStatus.csv',
@@ -79,11 +79,11 @@ def walk():
     Yields all files, except third-party files under `_static` directories.
     """
     for root, dirs, files in os.walk(os.getcwd()):
-        if '.git' in dirs:
-            dirs.remove('.git')
-        if '_static' not in root.split(os.sep):
-            for name in files:
-                yield (root, name)
+        for directory in ('.git', '_static'):
+            if directory in dirs:
+                dirs.remove(directory)
+        for name in files:
+            yield (root, name)
 
 
 def walk_json_data():
@@ -156,18 +156,19 @@ def validate_codelist_enum(path, data, pointer=''):
                     # errors += 1
                     # print('{} must set `enum` for closed codelist at {}'.format(path, pointer))
                 else:
-                    if 'enum' in data:
+                    if 'string' in types:
                         actual = set(data['enum'])
                     else:
                         actual = set(data['items']['enum'])
 
+                    # It'd be faster to cache the CSVs, but most extensions have only one closed codelist.
                     for csvpath, reader in walk_csv_data():
                         # The codelist's CSV file should exist and match the `enum` values.
                         if os.path.basename(csvpath) == data['codelist']:
                             expected = set([row['Code'] for row in reader])
 
                             # Add None if the field is nullable.
-                            if None in actual:
+                            if 'null' in types:
                                 expected.add(None)
 
                             if actual != expected:
@@ -280,7 +281,7 @@ def test_json_schema():
 @pytest.mark.skipif(not is_extension, reason='not an extension')
 def test_extension_json():
     """
-    Ensures the extension's extension.json file is valid against extension-schema.json.
+    Ensures the extension's extension.json file is valid against extension-schema.json and all codelists are included.
     """
     url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/master/schema/extension-schema.json'  # noqa
     schema = requests.get(url).json()
@@ -304,7 +305,7 @@ def test_extension_json():
         assert False, 'expected an extension.json file'
 
 
-@pytest.mark.skipif(not is_extension or name == 'standard_extension_template', reason='not an extension')
+@pytest.mark.skipif(not is_extension, reason='not an extension')
 def test_empty_files():
     """
     Ensures an extension has no empty files and no versioned-release-validation-schema.json file.
@@ -327,7 +328,9 @@ def test_empty_files():
             except UnicodeDecodeError as e:
                 assert False, 'UnicodeDecodeError: {} {}'.format(e, path)
             if name in basenames:
-                assert json.loads(text), '{} is empty and should be removed'.format(path)
+                # standard_extension_template is allowed to have empty schema files.
+                if repo_name != 'standard_extension_template':
+                    assert json.loads(text), '{} is empty and should be removed'.format(path)
             else:
                 assert text.strip(), '{} is empty and should be removed'.format(path)
 
@@ -335,8 +338,8 @@ def test_empty_files():
 @pytest.mark.skipif(not is_extension, reason='not an extension')
 def test_json_merge_patch():
     """
-    Ensures all extension JSON Schema successfully patch core JSON Schema, generating schema that are valid JSON Schema
-    Draft 4, use codelists correctly, and have required metadata.
+    Ensures all extension JSON Schema successfully patch and change core JSON Schema, generating schema that are valid
+    JSON Schema Draft 4, use codelists correctly, and have required metadata.
     """
     schemas = {}
 
@@ -365,7 +368,7 @@ def test_json_merge_patch():
             schemas[basename]['description'] = ''
 
             # Two extensions have optional dependencies on ocds_bid_extension.
-            if name in ('ocds_lots_extension', 'ocds_requirements_extension'):
+            if repo_name in ('ocds_lots_extension', 'ocds_requirements_extension'):
                 url = 'https://raw.githubusercontent.com/open-contracting/ocds_bid_extension/master/release-schema.json'  # noqa
                 json_merge_patch.merge(schemas[basename], requests.get(url).json())
 

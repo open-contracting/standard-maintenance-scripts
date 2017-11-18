@@ -105,15 +105,23 @@ Prepares repositories for archival (`REPOS` is a comma-separated list of reposit
 
     rake fix:archive_repos REPOS=…
 
+### Modify local repositories
+
 Regenerates the [badges page](badges.md):
 
-    rake repos:badges
+    rake local:badges
 
-### Modify local repositories
+Sets the enum in a JSON Schema to match the codes in the CSV files of closed codelists:
+
+    rake local:codelists BASEDIR=extensions
 
 Adds template content to extension readmes:
 
-    rake fix:update_readmes BASEDIR=extensions
+    rake local:readmes BASEDIR=extensions
+
+Updates extension.json to its new format:
+
+    rake local:extension_json BASEDIR=extensions
 
 ### Review GitHub repository metadata and configuration
 
@@ -158,6 +166,8 @@ Lists unreleased tags:
 Lists non-Travis, non-Requires.io webhooks:
 
     rake repos:webhooks
+
+## Assess priority
 
 Lists web traffic statistics over past two weeks:
 
