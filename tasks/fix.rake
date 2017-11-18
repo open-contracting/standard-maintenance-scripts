@@ -128,8 +128,13 @@ namespace :fix do
         disable_issues(repo, 'should be reviewed')
         disable_projects(repo, 'should be reviewed')
 
+        hook = repo.rels[:hooks].get.data.find{ |datum| datum.name == 'travis' }
+        if hook
+          client.remove_hook(repo.full_name, hook.id)
+        end
+
         if !repo.archived
-          puts "#{repo.html_url}/settings #{'archive repository'.bold}"
+          puts "#{repo.html_url}/settings #{'should be archived'.bold}"
         end
       end
     else
