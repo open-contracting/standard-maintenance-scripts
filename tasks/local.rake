@@ -17,6 +17,12 @@ end
 namespace :local do
   desc 'Regenerates the badges pages'
   task :badges do
+    if ENV['ORG']
+      filename = "badges-#{ENV['ORG']}.md"
+    else
+      filename = 'badges.md'
+    end
+
     output = [
       '# Project Build and Dependency Status',
     ]
@@ -37,7 +43,11 @@ namespace :local do
       ]
 
       set.each do |repo|
-        hooks = repo.rels[:hooks].get.data
+        begin
+          hooks = repo.rels[:hooks].get.data
+        rescue Octokit::NotFound
+          hooks = []
+        end
 
         line = "[#{repo.name}](#{repo.html_url})|"
 
@@ -65,7 +75,7 @@ namespace :local do
 
     output << ''
 
-    File.open('badges.md', 'w') do |f|
+    File.open(filename, 'w') do |f|
       f.write(output.join("\n"))
     end
   end
