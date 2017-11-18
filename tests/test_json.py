@@ -150,8 +150,8 @@ def validate_codelist_enum(path, data, pointer=''):
                     print('{} must not set `enum` for open codelist at {}'.format(path, pointer))
             else:
                 if 'string' in types and 'enum' not in data or 'array' in types and 'enum' not in data['items']:
-                    actual = None
                     # TODO: See https://github.com/open-contracting/standard-maintenance-scripts/issues/16
+                    actual = None
                     # Fields with closed codelists should set `enum`.
                     # errors += 1
                     # print('{} must set `enum` for closed codelist at {}'.format(path, pointer))
@@ -186,7 +186,7 @@ def validate_codelist_enum(path, data, pointer=''):
                                     removed = ''
 
                                 errors += 1
-                                print('{} has mismatch between enum and codelist at {}{}{}'.format(
+                                print('{} has mismatch between `enum` and codelist at {}{}{}'.format(
                                     path, pointer, added, removed))
 
                         break
@@ -195,16 +195,49 @@ def validate_codelist_enum(path, data, pointer=''):
                     # extension, but that is not an error.
                     if is_extension and data['codelist'] not in external_codelists:
                         errors += 1
-                        print('{} refers to nonexistent codelist named {}'.format(path, data['codelist']))
+                        print('{} names nonexistent codelist {}'.format(path, data['codelist']))
         else:
             if 'enum' in data:
                 pass
                 # TODO: See https://github.com/open-contracting/standard-maintenance-scripts/issues/16
                 # Fields with `enum` should set closed codelists.
                 # errors += 1
-                # print('{} has enum without codelist at {}'.format(path, pointer))
+                # print('{} has `enum` without codelist at {}'.format(path, pointer))
             for key, value in data.items():
                 errors += validate_codelist_enum(path, value, pointer='{}/{}'.format(pointer, key))
+
+    return errors
+
+
+def validate_type(path, data, pointer='', nullable=True):
+    """
+    Prints and returns the number of errors relating to non-nullable optional fields and nullable required fields.
+    """
+    errors = 0
+
+    if isinstance(data, list):
+        for index, item in enumerate(data):
+            errors += validate_type(path, item, pointer='{}/{}'.format(pointer, index))
+    elif isinstance(data, dict):
+        if 'type' in data and pointer:
+            if nullable and 'null' not in data['type']:
+                errors += 1
+                print('{} has optional but non-nullable {} at {}'.format(path, data['type'], pointer))
+            elif not nullable and 'null' in data['type']:
+                errors += 1
+                print('{} has required but nullable {} at {}'.format(path, data['type'], pointer))
+
+        required = data.get('required', [])
+
+        for key, value in data.items():
+            if key == 'properties':
+                for k, v in data[key].items():
+                    errors += validate_type(path, v, pointer='{}/{}/{}'.format(pointer, key, k), nullable=k not in required)
+            elif key in ('definitions', 'items'):
+                for k, v in data[key].items():
+                    errors += validate_type(path, v, pointer='{}/{}/{}'.format(pointer, key, k), nullable=False)
+            else:
+                errors += validate_type(path, value, pointer='{}/{}'.format(pointer, key))
 
     return errors
 
@@ -242,8 +275,8 @@ def ensure_title_description_type(path, data, pointer=''):
     return errors
 
 
-# `ensure_metadata` is set to not expect extensions to repeat core metadata.
-def validate_json_schema(path, data, schema, ensure_metadata=not is_extension):
+# `full_schema` is set to not expect extensions to repeat `title`, `description`, `type` and `required` from core.
+def validate_json_schema(path, data, schema, full_schema=not is_extension):
     """
     Prints and asserts errors in a JSON Schema.
     """
@@ -257,11 +290,15 @@ def validate_json_schema(path, data, schema, ensure_metadata=not is_extension):
     if errors:
         print('{} is not valid JSON Schema ({} errors)'.format(path, errors))
 
-    # TODO: https://github.com/open-contracting/standard-maintenance-scripts/issues/27
-    # if ensure_metadata and 'versioned-release-validation-schema.json' not in path:
-    #     errors += ensure_title_description_type(path, data)
-
     errors += validate_codelist_enum(path, data)
+
+    # TODO: https://github.com/open-contracting/standard/issues/630
+    # if full_schema:
+    #     errors += validate_type(path, data)
+
+    # TODO: https://github.com/open-contracting/standard-maintenance-scripts/issues/27
+    # if full_schema and 'versioned-release-validation-schema.json' not in path:
+    #     errors += ensure_title_description_type(path, data)
 
     assert errors == 0
 
@@ -372,6 +409,42 @@ def test_json_merge_patch():
         schemas[basename] = requests.get('http://standard.open-contracting.org/latest/en/{}'.format(basename)).json()
 
         if basename == 'release-schema.json':
+            # TODO: See https://github.com/open-contracting/standard/issues/630
+            schemas[basename]['definitions']['OrganizationReference']['properties']['name']['type'] = ['string']
+            schemas[basename]['definitions']['Amendment']['properties']['changes']['type'] = ['array', 'null']
+            schemas[basename]['definitions']['Amendment']['properties']['changes']['items']['properties']['property']['type'] = ['string', 'null']
+            schemas[basename]['definitions']['Award']['properties']['amendments']['type'] = ['array', 'null']
+            schemas[basename]['definitions']['Award']['properties']['documents']['type'] = ['array', 'null']
+            schemas[basename]['definitions']['Award']['properties']['items']['type'] = ['array', 'null']
+            schemas[basename]['definitions']['Award']['properties']['suppliers']['type'] = ['array', 'null']
+            schemas[basename]['definitions']['Contract']['properties']['amendments']['type'] = ['array', 'null']
+            schemas[basename]['definitions']['Contract']['properties']['documents']['type'] = ['array', 'null']
+            schemas[basename]['definitions']['Contract']['properties']['items']['type'] = ['array', 'null']
+            schemas[basename]['definitions']['Contract']['properties']['milestones']['type'] = ['array', 'null']
+            schemas[basename]['definitions']['Contract']['properties']['relatedProcesses']['type'] = ['array', 'null']
+            schemas[basename]['definitions']['Implementation']['properties']['documents']['type'] = ['array', 'null']
+            schemas[basename]['definitions']['Implementation']['properties']['milestones']['type'] = ['array', 'null']
+            schemas[basename]['definitions']['Implementation']['properties']['transactions']['type'] = ['array', 'null']
+            schemas[basename]['definitions']['Item']['properties']['additionalClassifications']['type'] = ['array', 'null']
+            schemas[basename]['definitions']['Item']['properties']['unit']['type'] = ['object', 'null']
+            schemas[basename]['definitions']['Milestone']['properties']['documents']['type'] = ['array', 'null']
+            schemas[basename]['definitions']['Organization']['properties']['additionalIdentifiers']['type'] = ['array', 'null']
+            schemas[basename]['definitions']['Organization']['properties']['id']['type'] = ['string', 'null']
+            schemas[basename]['definitions']['OrganizationReference']['properties']['additionalIdentifiers']['type'] = ['array', 'null']
+            schemas[basename]['definitions']['OrganizationReference']['properties']['id']['type'] = ['string', 'integer', 'null']
+            schemas[basename]['definitions']['Planning']['properties']['documents']['type'] = ['array', 'null']
+            schemas[basename]['definitions']['Planning']['properties']['milestones']['type'] = ['array', 'null']
+            schemas[basename]['definitions']['RelatedProcess']['properties']['id']['type'] = ['string', 'null']
+            schemas[basename]['definitions']['Tender']['properties']['amendments']['type'] = ['array', 'null']
+            schemas[basename]['definitions']['Tender']['properties']['documents']['type'] = ['array', 'null']
+            schemas[basename]['definitions']['Tender']['properties']['items']['type'] = ['array', 'null']
+            schemas[basename]['definitions']['Tender']['properties']['milestones']['type'] = ['array', 'null']
+            schemas[basename]['definitions']['Tender']['properties']['tenderers']['type'] = ['array', 'null']
+            schemas[basename]['properties']['awards']['type'] = ['array', 'null']
+            schemas[basename]['properties']['contracts']['type'] = ['array', 'null']
+            schemas[basename]['properties']['parties']['type'] = ['array', 'null']
+            schemas[basename]['properties']['relatedProcesses']['type'] = ['array', 'null']
+
             # TODO: See https://github.com/open-contracting/standard/issues/603
             schemas[basename]['definitions']['Classification']['description'] = ''
             schemas[basename]['definitions']['Identifier']['description'] = ''
@@ -402,7 +475,7 @@ def test_json_merge_patch():
                 patched = json_merge_patch.merge(unpatched, data)
 
                 # All metadata should be present.
-                validate_json_schema(path, patched, metaschema, ensure_metadata=True)
+                validate_json_schema(path, patched, metaschema, full_schema=True)
 
                 # Empty patches aren't allowed. json_merge_patch mutates `unpatched`, so `schemas[basename]` is tested.
                 assert patched != schemas[basename]
