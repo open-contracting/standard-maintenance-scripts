@@ -378,6 +378,7 @@ def test_json_merge_patch():
                 # It's not clear that `json_merge_patch.merge()` can ever fail.
                 patched = json_merge_patch.merge(unpatched, data)
 
-                # We don't `assert patched != schemas[basename]`, because empty patches are allowed. json_merge_patch
-                # mutates `unpatched`, which is unexpected, which is why we would test against `schemas[basename]`.
                 validate_json_schema(path, patched, metaschema, ensure_metadata=True)
+
+                # Empty patches aren't allowed. json_merge_patch mutates `unpatched`, so `schemas[basename]` is tested.
+                assert patched != schemas[basename]

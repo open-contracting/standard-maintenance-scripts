@@ -91,7 +91,7 @@ Merges pull requests from a given branch:
 
     rake pulls:merge REF=branch
 
-### Review GitHub repository metadata and configuration
+### Change GitHub repository configuration
 
 Disables empty wikis and lists repositories with invalid names, unexpected configurations, etc.:
 
@@ -105,13 +105,17 @@ Prepares repositories for archival (`REPOS` is a comma-separated list of reposit
 
     rake fix:archive_repos REPOS=…
 
+Regenerates the [badges page](badges.md):
+
+    rake repos:badges
+
+### Modify local repositories
+
 Adds template content to extension readmes:
 
     rake fix:update_readmes BASEDIR=extensions
 
-Regenerates the [badges page](badges.md):
-
-    rake repos:badges
+### Review GitHub repository metadata and configuration
 
 The next tasks make no changes, but may require the user to perform an action depending on the output.
 
