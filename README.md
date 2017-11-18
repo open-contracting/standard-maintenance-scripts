@@ -105,11 +105,11 @@ Prepares repositories for archival (`REPOS` is a comma-separated list of reposit
 
     rake fix:archive_repos REPOS=…
 
+### Modify local repositories
+
 Regenerates the [badges page](badges.md):
 
     rake repos:badges
-
-### Modify local repositories
 
 Adds template content to extension readmes:
 
@@ -158,6 +158,8 @@ Lists unreleased tags:
 Lists non-Travis, non-Requires.io webhooks:
 
     rake repos:webhooks
+
+## Assess priority
 
 Lists web traffic statistics over past two weeks:
 

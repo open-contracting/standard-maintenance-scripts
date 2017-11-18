@@ -12,13 +12,13 @@ from jsonschema import FormatChecker
 from jsonschema.validators import Draft4Validator as validator
 
 
-name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', os.getcwd()))
+repo_name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', os.getcwd()))
 
 # For identifying extensions, see https://github.com/open-contracting/standard-development-handbook/issues/16
 # This should match the logic in `Rakefile`.
 other_extensions = ('api_extension', 'ocds_performance_failures', 'public-private-partnerships',
                     'standard_extension_template')
-is_extension = name.startswith('ocds') and name.endswith('extension') or name in other_extensions
+is_extension = repo_name.startswith('ocds') and repo_name.endswith('extension') or repo_name in other_extensions
 
 core_codelists = [
     'awardStatus.csv',
@@ -304,7 +304,7 @@ def test_extension_json():
         assert False, 'expected an extension.json file'
 
 
-@pytest.mark.skipif(not is_extension or name == 'standard_extension_template', reason='not an extension')
+@pytest.mark.skipif(not is_extension, reason='not an extension')
 def test_empty_files():
     """
     Ensures an extension has no empty files and no versioned-release-validation-schema.json file.
@@ -327,7 +327,9 @@ def test_empty_files():
             except UnicodeDecodeError as e:
                 assert False, 'UnicodeDecodeError: {} {}'.format(e, path)
             if name in basenames:
-                assert json.loads(text), '{} is empty and should be removed'.format(path)
+                # standard_extension_template is allowed to have empty schema files.
+                if repo_name != 'standard_extension_template':
+                    assert json.loads(text), '{} is empty and should be removed'.format(path)
             else:
                 assert text.strip(), '{} is empty and should be removed'.format(path)
 
@@ -365,7 +367,7 @@ def test_json_merge_patch():
             schemas[basename]['description'] = ''
 
             # Two extensions have optional dependencies on ocds_bid_extension.
-            if name in ('ocds_lots_extension', 'ocds_requirements_extension'):
+            if repo_name in ('ocds_lots_extension', 'ocds_requirements_extension'):
                 url = 'https://raw.githubusercontent.com/open-contracting/ocds_bid_extension/master/release-schema.json'  # noqa
                 json_merge_patch.merge(schemas[basename], requests.get(url).json())
 
