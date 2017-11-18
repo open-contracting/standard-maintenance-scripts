@@ -7,7 +7,6 @@ Name|Build|Dependencies
 [api-specification](https://github.com/open-contracting/api-specification)|-|-
 [extension_creator](https://github.com/open-contracting/extension_creator)|-|-
 [extension_registry](https://github.com/open-contracting/extension_registry)|[![Build Status](https://travis-ci.org/open-contracting/extension_registry.svg)](https://travis-ci.org/open-contracting/extension_registry)|-
-[extension_tester](https://github.com/open-contracting/extension_tester)|[![Build Status](https://travis-ci.org/open-contracting/extension_tester.svg)](https://travis-ci.org/open-contracting/extension_tester)|-
 [json-schema-random](https://github.com/open-contracting/json-schema-random)|-|-
 [mapping-sheet-generator](https://github.com/open-contracting/mapping-sheet-generator)|[![Build Status](https://travis-ci.org/open-contracting/mapping-sheet-generator.svg)](https://travis-ci.org/open-contracting/mapping-sheet-generator)|-
 [mel-reporting-support](https://github.com/open-contracting/mel-reporting-support)|[![Build Status](https://travis-ci.org/open-contracting/mel-reporting-support.svg)](https://travis-ci.org/open-contracting/mel-reporting-support)|-
