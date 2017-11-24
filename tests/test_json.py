@@ -209,7 +209,7 @@ def validate_codelist_enum(path, data, pointer=''):
     return errors
 
 
-def validate_type(path, data, pointer='', nullable=True):
+def validate_type(path, data, pointer='', should_be_nullable=True):
     """
     Prints and returns the number of errors relating to non-nullable optional fields and nullable required fields.
     """
@@ -220,12 +220,16 @@ def validate_type(path, data, pointer='', nullable=True):
             errors += validate_type(path, item, pointer='{}/{}'.format(pointer, index))
     elif isinstance(data, dict):
         if 'type' in data and pointer:
-            if nullable and 'null' not in data['type']:
-                errors += 1
-                print('{} has optional but non-nullable {} at {}'.format(path, data['type'], pointer))
-            elif not nullable and 'null' in data['type']:
-                errors += 1
-                print('{} has required but nullable {} at {}'.format(path, data['type'], pointer))
+            nullable = 'null' in data['type']
+            array_of_refs_or_objects = data['type'] == 'array' and any(key in data['items'] for key in ('$ref', 'properties'))  # noqa
+            if should_be_nullable:
+                if not nullable and not array_of_refs_or_objects:
+                    errors += 1
+                    print('{} has optional but non-nullable {} at {}'.format(path, data['type'], pointer))
+            else:
+                if nullable:
+                    errors += 1
+                    print('{} has required but nullable {} at {}'.format(path, data['type'], pointer))
 
         required = data.get('required', [])
 
@@ -233,11 +237,11 @@ def validate_type(path, data, pointer='', nullable=True):
             if key == 'properties':
                 for k, v in data[key].items():
                     errors += validate_type(path, v, pointer='{}/{}/{}'.format(pointer, key, k),
-                                            nullable=k not in required)
+                                            should_be_nullable=k not in required)
             elif key in ('definitions', 'items'):
                 for k, v in data[key].items():
                     errors += validate_type(path, v, pointer='{}/{}/{}'.format(pointer, key, k),
-                                            nullable=False)
+                                            should_be_nullable=False)
             else:
                 errors += validate_type(path, value, pointer='{}/{}'.format(pointer, key))
 
@@ -262,7 +266,7 @@ def ensure_title_description_type(path, data, pointer=''):
         # Don't look for metadata fields on non-user-defined objects.
         if parent not in schema_fields:
             for field in required_fields:
-                if field not in data:
+                if field not in data or not data[field]:
                     errors += 1
                     print('{} is missing {}/{}'.format(path, pointer, field))
             if 'type' not in data and '$ref' not in data:
@@ -413,52 +417,24 @@ def test_json_merge_patch():
         if basename == 'release-schema.json':
             # TODO: See https://github.com/open-contracting/standard/issues/630
             schemas[basename]['definitions']['OrganizationReference']['properties']['name']['type'] = ['string']  # noqa
-            schemas[basename]['definitions']['Amendment']['properties']['changes']['type'] = ['array', 'null']  # noqa
             schemas[basename]['definitions']['Amendment']['properties']['changes']['items']['properties']['property']['type'] = ['string', 'null']  # noqa
-            schemas[basename]['definitions']['Award']['properties']['amendments']['type'] = ['array', 'null']  # noqa
-            schemas[basename]['definitions']['Award']['properties']['documents']['type'] = ['array', 'null']  # noqa
-            schemas[basename]['definitions']['Award']['properties']['items']['type'] = ['array', 'null']  # noqa
-            schemas[basename]['definitions']['Award']['properties']['suppliers']['type'] = ['array', 'null']  # noqa
-            schemas[basename]['definitions']['Contract']['properties']['amendments']['type'] = ['array', 'null']  # noqa
-            schemas[basename]['definitions']['Contract']['properties']['documents']['type'] = ['array', 'null']  # noqa
-            schemas[basename]['definitions']['Contract']['properties']['items']['type'] = ['array', 'null']  # noqa
-            schemas[basename]['definitions']['Contract']['properties']['milestones']['type'] = ['array', 'null']  # noqa
-            schemas[basename]['definitions']['Contract']['properties']['relatedProcesses']['type'] = ['array', 'null']  # noqa
-            schemas[basename]['definitions']['Implementation']['properties']['documents']['type'] = ['array', 'null']  # noqa
-            schemas[basename]['definitions']['Implementation']['properties']['milestones']['type'] = ['array', 'null']  # noqa
-            schemas[basename]['definitions']['Implementation']['properties']['transactions']['type'] = ['array', 'null']  # noqa
-            schemas[basename]['definitions']['Item']['properties']['additionalClassifications']['type'] = ['array', 'null']  # noqa
             schemas[basename]['definitions']['Item']['properties']['unit']['type'] = ['object', 'null']  # noqa
-            schemas[basename]['definitions']['Milestone']['properties']['documents']['type'] = ['array', 'null']  # noqa
-            schemas[basename]['definitions']['Organization']['properties']['additionalIdentifiers']['type'] = ['array', 'null']  # noqa
             schemas[basename]['definitions']['Organization']['properties']['id']['type'] = ['string', 'null']  # noqa
-            schemas[basename]['definitions']['OrganizationReference']['properties']['additionalIdentifiers']['type'] = ['array', 'null']  # noqa
             schemas[basename]['definitions']['OrganizationReference']['properties']['id']['type'] = ['string', 'integer', 'null']  # noqa
-            schemas[basename]['definitions']['Planning']['properties']['documents']['type'] = ['array', 'null']  # noqa
-            schemas[basename]['definitions']['Planning']['properties']['milestones']['type'] = ['array', 'null']  # noqa
             schemas[basename]['definitions']['RelatedProcess']['properties']['id']['type'] = ['string', 'null']  # noqa
-            schemas[basename]['definitions']['Tender']['properties']['amendments']['type'] = ['array', 'null']  # noqa
-            schemas[basename]['definitions']['Tender']['properties']['documents']['type'] = ['array', 'null']  # noqa
-            schemas[basename]['definitions']['Tender']['properties']['items']['type'] = ['array', 'null']  # noqa
-            schemas[basename]['definitions']['Tender']['properties']['milestones']['type'] = ['array', 'null']  # noqa
-            schemas[basename]['definitions']['Tender']['properties']['tenderers']['type'] = ['array', 'null']  # noqa
-            schemas[basename]['properties']['awards']['type'] = ['array', 'null']  # noqa
-            schemas[basename]['properties']['contracts']['type'] = ['array', 'null']  # noqa
-            schemas[basename]['properties']['parties']['type'] = ['array', 'null']  # noqa
-            schemas[basename]['properties']['relatedProcesses']['type'] = ['array', 'null']  # noqa
 
             # TODO: See https://github.com/open-contracting/standard/issues/603
-            schemas[basename]['definitions']['Classification']['description'] = ''
-            schemas[basename]['definitions']['Identifier']['description'] = ''
-            schemas[basename]['definitions']['Milestone']['description'] = ''
-            schemas[basename]['definitions']['Organization']['properties']['address']['description'] = ''
-            schemas[basename]['definitions']['Organization']['properties']['address']['title'] = ''
-            schemas[basename]['definitions']['Organization']['properties']['contactPoint']['description'] = ''
-            schemas[basename]['definitions']['Organization']['properties']['contactPoint']['title'] = ''
-            schemas[basename]['definitions']['Planning']['properties']['budget']['description'] = ''
-            schemas[basename]['definitions']['Planning']['properties']['budget']['title'] = ''
-            schemas[basename]['definitions']['Value']['description'] = ''
-            schemas[basename]['description'] = ''
+            schemas[basename]['definitions']['Classification']['description'] = 'TODO'
+            schemas[basename]['definitions']['Identifier']['description'] = 'TODO'
+            schemas[basename]['definitions']['Milestone']['description'] = 'TODO'
+            schemas[basename]['definitions']['Organization']['properties']['address']['description'] = 'TODO'
+            schemas[basename]['definitions']['Organization']['properties']['address']['title'] = 'TODO'
+            schemas[basename]['definitions']['Organization']['properties']['contactPoint']['description'] = 'TODO'
+            schemas[basename]['definitions']['Organization']['properties']['contactPoint']['title'] = 'TODO'
+            schemas[basename]['definitions']['Planning']['properties']['budget']['description'] = 'TODO'
+            schemas[basename]['definitions']['Planning']['properties']['budget']['title'] = 'TODO'
+            schemas[basename]['definitions']['Value']['description'] = 'TODO'
+            schemas[basename]['description'] = 'TODO'
 
             # Two extensions have optional dependencies on ocds_bid_extension.
             if repo_name in ('ocds_lots_extension', 'ocds_requirements_extension'):
