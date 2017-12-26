@@ -79,7 +79,7 @@ def walk():
     Yields all files, except third-party files under `_static` directories.
     """
     for root, dirs, files in os.walk(os.getcwd()):
-        for directory in ('.git', '_static'):
+        for directory in ('.git', '_static', 'fixtures'):
             if directory in dirs:
                 dirs.remove(directory)
         for name in files:
