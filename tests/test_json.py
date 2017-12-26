@@ -20,7 +20,7 @@ other_extensions = ('api_extension', 'ocds_performance_failures', 'public-privat
                     'standard_extension_template')
 is_extension = repo_name.startswith('ocds') and repo_name.endswith('extension') or repo_name in other_extensions
 
-core_codelists = [
+external_codelists = [
     'awardStatus.csv',
     'contractStatus.csv',
     'currency.csv',
@@ -79,7 +79,7 @@ def walk():
     Yields all files, except third-party files under `_static` directories.
     """
     for root, dirs, files in os.walk(os.getcwd()):
-        for directory in ('.git', '_static'):
+        for directory in ('.git', '_static', 'fixtures'):
             if directory in dirs:
                 dirs.remove(directory)
         for name in files:
@@ -149,22 +149,23 @@ def validate_codelist_enum(path, data, pointer=''):
                     errors += 1
                     print('{} must not set `enum` for open codelist at {}'.format(path, pointer))
             else:
-                # Closed codelists should set `enum`.
-                if ('string' in types and 'enum' not in data or 'array' in types and 'enum' not in data['items']):
+                if 'string' in types and 'enum' not in data or 'array' in types and 'enum' not in data['items']:
                     # TODO: See https://github.com/open-contracting/standard-maintenance-scripts/issues/16
-                    pass
+                    actual = None
+                    # Fields with closed codelists should set `enum`.
                     # errors += 1
                     # print('{} must set `enum` for closed codelist at {}'.format(path, pointer))
+                elif 'string' in types:
+                    actual = set(data['enum'])
                 else:
-                    if 'string' in types:
-                        actual = set(data['enum'])
-                    else:
-                        actual = set(data['items']['enum'])
+                    actual = set(data['items']['enum'])
 
-                    # It'd be faster to cache the CSVs, but most extensions have only one closed codelist.
-                    for csvpath, reader in walk_csv_data():
-                        # The codelist's CSV file should exist and match the `enum` values.
-                        if os.path.basename(csvpath) == data['codelist']:
+                # It'd be faster to cache the CSVs, but most extensions have only one closed codelist.
+                for csvpath, reader in walk_csv_data():
+                    # The codelist's CSV file should exist.
+                    if os.path.basename(csvpath) == data['codelist']:
+                        # The codelist's CSV file should match the `enum` values, if the field is set.
+                        if actual:
                             expected = set([row['Code'] for row in reader])
 
                             # Add None if the field is nullable.
@@ -173,21 +174,76 @@ def validate_codelist_enum(path, data, pointer=''):
 
                             if actual != expected:
                                 added = actual - expected
-                                removed = expected - actual
-                                errors += 1
-                                print('{} has mismatch between enum and codelist at {}: added {}; removed {}'.format(
-                                    path, pointer, ', '.join(added), ', '.join(removed)))
+                                if added:
+                                    added = '; added {}'.format(added)
+                                else:
+                                    added = ''
 
-                            break
-                    else:
-                        # When validating a patched schema, the above code will fail to find the core codelists in an
-                        # extension, but that is not an error.
-                        if is_extension and data['codelist'] not in core_codelists:
-                            errors += 1
-                            print('{} refers to nonexistent codelist named {}'.format(path, data['codelist']))
+                                removed = expected - actual
+                                if removed:
+                                    removed = '; removed {}'.format(removed)
+                                else:
+                                    removed = ''
+
+                                errors += 1
+                                print('{} has mismatch between `enum` and codelist at {}{}{}'.format(
+                                    path, pointer, added, removed))
+
+                        break
+                else:
+                    # When validating a patched schema, the above code will fail to find the core codelists in an
+                    # extension, but that is not an error.
+                    if is_extension and data['codelist'] not in external_codelists:
+                        errors += 1
+                        print('{} names nonexistent codelist {}'.format(path, data['codelist']))
         else:
+            if 'enum' in data:
+                pass
+                # TODO: See https://github.com/open-contracting/standard-maintenance-scripts/issues/16
+                # Fields with `enum` should set closed codelists.
+                # errors += 1
+                # print('{} has `enum` without codelist at {}'.format(path, pointer))
             for key, value in data.items():
                 errors += validate_codelist_enum(path, value, pointer='{}/{}'.format(pointer, key))
+
+    return errors
+
+
+def validate_type(path, data, pointer='', should_be_nullable=True):
+    """
+    Prints and returns the number of errors relating to non-nullable optional fields and nullable required fields.
+    """
+    errors = 0
+
+    if isinstance(data, list):
+        for index, item in enumerate(data):
+            errors += validate_type(path, item, pointer='{}/{}'.format(pointer, index))
+    elif isinstance(data, dict):
+        if 'type' in data and pointer:
+            nullable = 'null' in data['type']
+            array_of_refs_or_objects = data['type'] == 'array' and any(key in data['items'] for key in ('$ref', 'properties'))  # noqa
+            if should_be_nullable:
+                if not nullable and not array_of_refs_or_objects:
+                    errors += 1
+                    print('{} has optional but non-nullable {} at {}'.format(path, data['type'], pointer))
+            else:
+                if nullable:
+                    errors += 1
+                    print('{} has required but nullable {} at {}'.format(path, data['type'], pointer))
+
+        required = data.get('required', [])
+
+        for key, value in data.items():
+            if key == 'properties':
+                for k, v in data[key].items():
+                    errors += validate_type(path, v, pointer='{}/{}/{}'.format(pointer, key, k),
+                                            should_be_nullable=k not in required)
+            elif key in ('definitions', 'items'):
+                for k, v in data[key].items():
+                    errors += validate_type(path, v, pointer='{}/{}/{}'.format(pointer, key, k),
+                                            should_be_nullable=False)
+            else:
+                errors += validate_type(path, value, pointer='{}/{}'.format(pointer, key))
 
     return errors
 
@@ -210,7 +266,7 @@ def ensure_title_description_type(path, data, pointer=''):
         # Don't look for metadata fields on non-user-defined objects.
         if parent not in schema_fields:
             for field in required_fields:
-                if field not in data:
+                if field not in data or not data[field]:
                     errors += 1
                     print('{} is missing {}/{}'.format(path, pointer, field))
             if 'type' not in data and '$ref' not in data:
@@ -225,7 +281,8 @@ def ensure_title_description_type(path, data, pointer=''):
     return errors
 
 
-def validate_json_schema(path, data, schema, ensure_metadata=not is_extension):  # extensions don't repeat core
+# `full_schema` is set to not expect extensions to repeat `title`, `description`, `type` and `required` from core.
+def validate_json_schema(path, data, schema, full_schema=not is_extension):
     """
     Prints and asserts errors in a JSON Schema.
     """
@@ -239,11 +296,15 @@ def validate_json_schema(path, data, schema, ensure_metadata=not is_extension): 
     if errors:
         print('{} is not valid JSON Schema ({} errors)'.format(path, errors))
 
-    # TODO: https://github.com/open-contracting/standard-maintenance-scripts/issues/27
-    # if ensure_metadata and 'versioned-release-validation-schema.json' not in path:
-    #     errors += ensure_title_description_type(path, data)
-
     errors += validate_codelist_enum(path, data)
+
+    # TODO: https://github.com/open-contracting/standard/issues/630
+    # if full_schema:
+    #     errors += validate_type(path, data)
+
+    # TODO: https://github.com/open-contracting/standard-maintenance-scripts/issues/27
+    # if full_schema and 'versioned-release-validation-schema.json' not in path:
+    #     errors += ensure_title_description_type(path, data)
 
     assert errors == 0
 
@@ -354,21 +415,31 @@ def test_json_merge_patch():
         schemas[basename] = requests.get('http://standard.open-contracting.org/latest/en/{}'.format(basename)).json()
 
         if basename == 'release-schema.json':
+            # TODO: See https://github.com/open-contracting/standard/issues/630
+            schemas[basename]['definitions']['OrganizationReference']['properties']['name']['type'] = ['string']  # noqa
+            schemas[basename]['definitions']['Amendment']['properties']['changes']['items']['properties']['property']['type'] = ['string', 'null']  # noqa
+            schemas[basename]['definitions']['Item']['properties']['unit']['type'] = ['object', 'null']  # noqa
+            schemas[basename]['definitions']['Organization']['properties']['id']['type'] = ['string', 'null']  # noqa
+            schemas[basename]['definitions']['OrganizationReference']['properties']['id']['type'] = ['string', 'integer', 'null']  # noqa
+            schemas[basename]['definitions']['RelatedProcess']['properties']['id']['type'] = ['string', 'null']  # noqa
+
             # TODO: See https://github.com/open-contracting/standard/issues/603
-            schemas[basename]['definitions']['Classification']['description'] = ''
-            schemas[basename]['definitions']['Identifier']['description'] = ''
-            schemas[basename]['definitions']['Milestone']['description'] = ''
-            schemas[basename]['definitions']['Organization']['properties']['address']['description'] = ''
-            schemas[basename]['definitions']['Organization']['properties']['address']['title'] = ''
-            schemas[basename]['definitions']['Organization']['properties']['contactPoint']['description'] = ''
-            schemas[basename]['definitions']['Organization']['properties']['contactPoint']['title'] = ''
-            schemas[basename]['definitions']['Planning']['properties']['budget']['description'] = ''
-            schemas[basename]['definitions']['Planning']['properties']['budget']['title'] = ''
-            schemas[basename]['definitions']['Value']['description'] = ''
-            schemas[basename]['description'] = ''
+            schemas[basename]['definitions']['Classification']['description'] = 'TODO'
+            schemas[basename]['definitions']['Identifier']['description'] = 'TODO'
+            schemas[basename]['definitions']['Milestone']['description'] = 'TODO'
+            schemas[basename]['definitions']['Organization']['properties']['address']['description'] = 'TODO'
+            schemas[basename]['definitions']['Organization']['properties']['address']['title'] = 'TODO'
+            schemas[basename]['definitions']['Organization']['properties']['contactPoint']['description'] = 'TODO'
+            schemas[basename]['definitions']['Organization']['properties']['contactPoint']['title'] = 'TODO'
+            schemas[basename]['definitions']['Planning']['properties']['budget']['description'] = 'TODO'
+            schemas[basename]['definitions']['Planning']['properties']['budget']['title'] = 'TODO'
+            schemas[basename]['definitions']['Value']['description'] = 'TODO'
+            schemas[basename]['description'] = 'TODO'
 
             # Two extensions have optional dependencies on ocds_bid_extension.
             if repo_name in ('ocds_lots_extension', 'ocds_requirements_extension'):
+                url = 'https://raw.githubusercontent.com/open-contracting/ocds_bid_extension/master/extension.json'  # noqa
+                external_codelists.extend(requests.get(url).json()['codelists'])
                 url = 'https://raw.githubusercontent.com/open-contracting/ocds_bid_extension/master/release-schema.json'  # noqa
                 json_merge_patch.merge(schemas[basename], requests.get(url).json())
 
@@ -381,7 +452,8 @@ def test_json_merge_patch():
                 # It's not clear that `json_merge_patch.merge()` can ever fail.
                 patched = json_merge_patch.merge(unpatched, data)
 
-                validate_json_schema(path, patched, metaschema, ensure_metadata=True)
+                # All metadata should be present.
+                validate_json_schema(path, patched, metaschema, full_schema=True)
 
                 # Empty patches aren't allowed. json_merge_patch mutates `unpatched`, so `schemas[basename]` is tested.
                 assert patched != schemas[basename]

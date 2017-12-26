@@ -9,7 +9,6 @@ Name|Build|Dependencies
 [extension_registry](https://github.com/open-contracting/extension_registry)|[![Build Status](https://travis-ci.org/open-contracting/extension_registry.svg)](https://travis-ci.org/open-contracting/extension_registry)|-
 [json-schema-random](https://github.com/open-contracting/json-schema-random)|-|-
 [mapping-sheet-generator](https://github.com/open-contracting/mapping-sheet-generator)|[![Build Status](https://travis-ci.org/open-contracting/mapping-sheet-generator.svg)](https://travis-ci.org/open-contracting/mapping-sheet-generator)|-
-[mel-reporting-support](https://github.com/open-contracting/mel-reporting-support)|[![Build Status](https://travis-ci.org/open-contracting/mel-reporting-support.svg)](https://travis-ci.org/open-contracting/mel-reporting-support)|-
 [ocds-extensions](https://github.com/open-contracting/ocds-extensions)|-|-
 [ocds-faker](https://github.com/open-contracting/ocds-faker)|[![Build Status](https://travis-ci.org/open-contracting/ocds-faker.svg)](https://travis-ci.org/open-contracting/ocds-faker)|-
 [ocds-merge](https://github.com/open-contracting/ocds-merge)|[![Build Status](https://travis-ci.org/open-contracting/ocds-merge.svg)](https://travis-ci.org/open-contracting/ocds-merge)|-
@@ -17,6 +16,7 @@ Name|Build|Dependencies
 [ocds-show-ppp](https://github.com/open-contracting/ocds-show-ppp)|-|-
 [ocds-tabulate](https://github.com/open-contracting/ocds-tabulate)|[![Build Status](https://travis-ci.org/open-contracting/ocds-tabulate.svg)](https://travis-ci.org/open-contracting/ocds-tabulate)|-
 [ocds_sphinx_directives](https://github.com/open-contracting/ocds_sphinx_directives)|[![Build Status](https://travis-ci.org/open-contracting/ocds_sphinx_directives.svg)](https://travis-ci.org/open-contracting/ocds_sphinx_directives)|-
+[ocdskit](https://github.com/open-contracting/ocdskit)|[![Build Status](https://travis-ci.org/open-contracting/ocdskit.svg)](https://travis-ci.org/open-contracting/ocdskit)|-
 [open-contracting.github.io](https://github.com/open-contracting/open-contracting.github.io)|-|-
 [public-private-partnerships](https://github.com/open-contracting/public-private-partnerships)|[![Build Status](https://travis-ci.org/open-contracting/public-private-partnerships.svg)](https://travis-ci.org/open-contracting/public-private-partnerships)|-
 [sample-data](https://github.com/open-contracting/sample-data)|[![Build Status](https://travis-ci.org/open-contracting/sample-data.svg)](https://travis-ci.org/open-contracting/sample-data)|[![Requirements Status](https://requires.io/github/open-contracting/sample-data/requirements.svg)](https://requires.io/github/open-contracting/sample-data/requirements/)
