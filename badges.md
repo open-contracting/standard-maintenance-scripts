@@ -8,7 +8,6 @@ Name|Build|Dependencies
 [extension_creator](https://github.com/open-contracting/extension_creator)|-|-
 [extension_registry](https://github.com/open-contracting/extension_registry)|[![Build Status](https://travis-ci.org/open-contracting/extension_registry.svg)](https://travis-ci.org/open-contracting/extension_registry)|-
 [json-schema-random](https://github.com/open-contracting/json-schema-random)|-|-
-[mapping-sheet-generator](https://github.com/open-contracting/mapping-sheet-generator)|[![Build Status](https://travis-ci.org/open-contracting/mapping-sheet-generator.svg)](https://travis-ci.org/open-contracting/mapping-sheet-generator)|-
 [ocds-extensions](https://github.com/open-contracting/ocds-extensions)|-|-
 [ocds-faker](https://github.com/open-contracting/ocds-faker)|[![Build Status](https://travis-ci.org/open-contracting/ocds-faker.svg)](https://travis-ci.org/open-contracting/ocds-faker)|-
 [ocds-merge](https://github.com/open-contracting/ocds-merge)|[![Build Status](https://travis-ci.org/open-contracting/ocds-merge.svg)](https://travis-ci.org/open-contracting/ocds-merge)|-
