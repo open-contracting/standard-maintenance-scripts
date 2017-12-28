@@ -8,6 +8,7 @@ from io import StringIO
 import json_merge_patch
 import pytest
 import requests
+from jsonref import JsonRef, JsonRefError
 from jsonschema import FormatChecker
 from jsonschema.validators import Draft4Validator as validator
 
@@ -248,6 +249,19 @@ def validate_type(path, data, pointer='', should_be_nullable=True):
     return errors
 
 
+def validate_ref(path, data):
+    ref = JsonRef.replace_refs(data)
+
+    try:
+        # `repr` causes the references to be loaded, if possible.
+        repr(ref)
+    except JsonRefError as e:
+        print('{} has {} at {}'.format(path, e.message, '/'.join(e.path)))
+        return 1
+
+    return 0
+
+
 def ensure_title_description_type(path, data, pointer=''):
     """
     Prints and returns the number of errors relating to metadata in a JSON Schema.
@@ -298,9 +312,10 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
 
     errors += validate_codelist_enum(path, data)
 
-    # TODO: https://github.com/open-contracting/standard/issues/630
-    # if full_schema:
-    #     errors += validate_type(path, data)
+    if full_schema:
+        errors += validate_ref(path, data)
+        # TODO: https://github.com/open-contracting/standard/issues/630
+        # errors += validate_type(path, data)
 
     # TODO: https://github.com/open-contracting/standard-maintenance-scripts/issues/27
     # if full_schema and 'versioned-release-validation-schema.json' not in path:
