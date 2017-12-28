@@ -21,6 +21,7 @@ other_extensions = ('api_extension', 'ocds_performance_failures', 'public-privat
                     'standard_extension_template')
 is_extension = repo_name.startswith('ocds') and repo_name.endswith('extension') or repo_name in other_extensions
 
+# The codelists defined in the standard.
 external_codelists = [
     'awardStatus.csv',
     'contractStatus.csv',
@@ -126,6 +127,45 @@ def is_codelist(reader):
     Returns whether the CSV is a codelist.
     """
     return 'Code' in reader.fieldnames
+
+
+def merge(*objs):
+    """
+    Copied from json_merge_patch.
+    """
+    result = objs[0]
+    for obj in objs[1:]:
+        result = merge_obj(result, obj)
+    return result
+
+
+def merge_obj(result, obj, pointer=''):  # changed code
+    """
+    Copied from json_merge_patch, with edits.
+    """
+    if not isinstance(result, dict):
+        result = {}
+
+    if not isinstance(obj, dict):
+        return obj
+
+    for key, value in obj.items():
+        if isinstance(value, dict):
+            target = result.get(key)
+            if isinstance(target, dict):
+                merge_obj(target, value, pointer='{}/{}'.format(pointer, key))  # changed code
+                continue
+            result[key] = {}
+            merge_obj(result[key], value, pointer='{}/{}'.format(pointer, key))  # changed code
+            continue
+
+        raise Exception('unexpectedly overwrites {}'.format(pointer))  # new code
+
+        if value is None:
+            result.pop(key, None)
+            continue
+        result[key] = value
+    return result
 
 
 def validate_codelist_enum(path, data, pointer=''):
@@ -464,8 +504,10 @@ def test_json_merge_patch():
             basename = os.path.basename(path)
             if basename in basenames:
                 unpatched = deepcopy(schemas[basename])
-                # It's not clear that `json_merge_patch.merge()` can ever fail.
-                patched = json_merge_patch.merge(unpatched, data)
+                try:
+                    patched = merge(unpatched, data)
+                except Exception as e:
+                    assert False, 'Exception: {} {}'.format(e, path)
 
                 # All metadata should be present.
                 validate_json_schema(path, patched, metaschema, full_schema=True)
