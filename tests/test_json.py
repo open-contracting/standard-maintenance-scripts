@@ -76,11 +76,11 @@ if is_extension:
     metaschema['properties']['deprecated']['type'] = ['object', 'null']
 
 
-def walk():
+def walk(top=os.getcwd()):
     """
     Yields all files, except third-party files under `_static` directories.
     """
-    for root, dirs, files in os.walk(os.getcwd()):
+    for root, dirs, files in os.walk(top):
         for directory in ('.git', '_static', 'fixtures'):
             if directory in dirs:
                 dirs.remove(directory)
@@ -88,11 +88,11 @@ def walk():
             yield (root, name)
 
 
-def walk_json_data():
+def walk_json_data(top=os.getcwd()):
     """
     Yields all JSON data.
     """
-    for root, name in walk():
+    for root, name in walk(top):
         if name.endswith('.json'):
             path = os.path.join(root, name)
             with open(path, 'r') as f:
@@ -104,11 +104,11 @@ def walk_json_data():
                         assert False, '{} is not valid JSON ({})'.format(path, e)
 
 
-def walk_csv_data():
+def walk_csv_data(top=os.getcwd()):
     """
     Yields all CSV data.
     """
-    for root, name in walk():
+    for root, name in walk(top):
         if name.endswith('.csv'):
             path = os.path.join(root, name)
             with open(path, 'r') as f:
@@ -141,7 +141,7 @@ def merge(*objs):
 
 def merge_obj(result, obj, pointer=''):  # changed code
     """
-    Copied from json_merge_patch, with edits.
+    Copied from json_merge_patch, with edits to raise an error if overwriting.
     """
     if not isinstance(result, dict):
         result = {}
@@ -159,7 +159,8 @@ def merge_obj(result, obj, pointer=''):  # changed code
             merge_obj(result[key], value, pointer='{}/{}'.format(pointer, key))  # changed code
             continue
 
-        raise Exception('unexpectedly overwrites {}'.format(pointer))  # new code
+        if key in result:  # new code
+            raise Exception('unexpectedly overwrites {}/{}'.format(pointer, key))
 
         if value is None:
             result.pop(key, None)
@@ -289,19 +290,6 @@ def validate_type(path, data, pointer='', should_be_nullable=True):
     return errors
 
 
-def validate_ref(path, data):
-    ref = JsonRef.replace_refs(data)
-
-    try:
-        # `repr` causes the references to be loaded, if possible.
-        repr(ref)
-    except JsonRefError as e:
-        print('{} has {} at {}'.format(path, e.message, '/'.join(e.path)))
-        return 1
-
-    return 0
-
-
 def ensure_title_description_type(path, data, pointer=''):
     """
     Prints and returns the number of errors relating to metadata in a JSON Schema.
@@ -333,6 +321,19 @@ def ensure_title_description_type(path, data, pointer=''):
                 errors += ensure_title_description_type(path, value, pointer='{}/{}'.format(pointer, key))
 
     return errors
+
+
+def validate_ref(path, data):
+    ref = JsonRef.replace_refs(data)
+
+    try:
+        # `repr` causes the references to be loaded, if possible.
+        repr(ref)
+    except JsonRefError as e:
+        print('{} has {} at {}'.format(path, e.message, '/'.join(e.path)))
+        return 1
+
+    return 0
 
 
 # `full_schema` is set to not expect extensions to repeat `title`, `description`, `type` and `required` from core.
@@ -399,24 +400,28 @@ def test_extension_json():
     """
     Ensures the extension's extension.json file is valid against extension-schema.json and all codelists are included.
     """
-    url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/master/schema/extension-schema.json'  # noqa
-    schema = requests.get(url).json()
+    path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'schema', 'extension-schema.json')
+    if os.path.isfile(path):
+        with open(path) as f:
+            schema = json.load(f)
+    else:
+        url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/master/schema/extension-schema.json'  # noqa
+        schema = requests.get(url).json()
 
     expected = set()
 
-    # This loop is somewhat unnecessary, as repositories contain at most one codelists directory.
-    for path, data in walk_csv_data():
+    for path, data in walk_csv_data(os.path.join(os.getcwd(), 'codelists')):
         if 'codelists' in path.split(os.sep):
             expected.add(os.path.basename(path))
 
-    # This loop is somewhat unnecessary, as repositories contain at most one extension.json.
-    for path, text, data in walk_json_data():
-        if os.path.basename(path) == 'extension.json':
-            validate_json_schema(path, data, schema)
+    path = os.path.join(os.getcwd(), 'extension.json')
+    if os.path.isfile(path):
+        with open(path) as f:
+            data = json.load(f, object_pairs_hook=OrderedDict)
 
-            assert expected == set(data.get('codelists', []))
+        validate_json_schema(path, data, schema)
 
-            break
+        assert expected == set(data.get('codelists', []))
     else:
         assert False, 'expected an extension.json file'
 
