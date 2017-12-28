@@ -1,7 +1,7 @@
 set -e
 
 # Python dependencies
-pip install flake8 json-merge-patch jsonschema "pytest<3" requests
+pip install flake8 json-merge-patch jsonschema "pytest<3" requests rfc3987 strict-rfc3339
 
 # Ruby dependencies
 curl -s -S -o /tmp/Gemfile $BASEDIR/fixtures/Gemfile
