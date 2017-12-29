@@ -1,6 +1,7 @@
 import csv
 import json
 import os
+import re
 import warnings
 from collections import OrderedDict
 from copy import deepcopy
@@ -71,8 +72,6 @@ del metaschema['definitions']['stringArray']['minItems']
 
 # See https://tools.ietf.org/html/rfc7396
 if is_extension:
-    # See https://github.com/open-contracting/ocds_budget_projects_extension/blob/master/release-schema.json#L70
-    metaschema['type'] = ['object', 'null']
     # See https://github.com/open-contracting/ocds_milestone_documents_extension/blob/master/release-schema.json#L9
     metaschema['properties']['deprecated']['type'] = ['object', 'null']
 
@@ -161,8 +160,10 @@ def merge_obj(result, obj, pointer=''):  # changed code
             continue
 
         if key in result:  # new code
-            if key == 'deprecated' and value is None:
+            if key == 'deprecated' and value is None:  # ocds_milestone_documents_extension
                 warnings.warn('reintroduces {}'.format(pointer))
+            elif key == 'required' and value == []:  # api_extension
+                warnings.warn('empties {}/{}'.format(pointer, key))
             else:
                 raise Exception('unexpectedly overwrites {}/{}'.format(pointer, key))
 
@@ -173,16 +174,134 @@ def merge_obj(result, obj, pointer=''):  # changed code
     return result
 
 
-def validate_codelist_enum(path, data, pointer=''):
+def traverse(block):
     """
-    Prints and returns the number of errors relating to codelists in a JSON Schema.
+    Implements common logic used by methods below.
+    """
+    def method(path, data, pointer=''):
+        errors = 0
+
+        if isinstance(data, list):
+            for index, item in enumerate(data):
+                errors += method(path, item, pointer='{}/{}'.format(pointer, index))
+        elif isinstance(data, dict):
+            errors += block(path, data, pointer)
+
+            for key, value in data.items():
+                errors += method(path, value, pointer='{}/{}'.format(pointer, key))
+
+        return errors
+
+    return method
+
+
+def validate_letter_case(*args):
+    """
+    Prints and returns the number of errors relating to the letter case of properties and definitions.
+    """
+    properties_exceptions = {'former_value'}
+    definition_exceptions = {'record'}
+
+    def block(path, data, pointer):
+        errors = 0
+
+        parent = pointer.rsplit('/', 1)[-1]
+
+        if parent == 'properties':
+            for key in data.keys():
+                if not re.search(r'^[a-z][A-Za-z]+$', key) and key not in properties_exceptions:
+                    errors += 1
+                    print('{} {}/{} should be lowerCamelCase ASCII letters'.format(path, pointer, key))
+        elif parent == 'definitions':
+            for key in data.keys():
+                if not re.search(r'^[A-Z][A-Za-z]+$', key) and key not in definition_exceptions:
+                    errors += 1
+                    print('{} {}/{} should be UpperCamelCase ASCII letters'.format(path, pointer, key))
+
+        return errors
+
+    return traverse(block)(*args)
+
+
+def validate_title_description_type(*args):
+    """
+    Prints and returns the number of errors relating to metadata in a JSON Schema.
+    """
+    schema_fields = ('definitions', 'deprecated', 'items', 'patternProperties', 'properties')
+    schema_sections = ('patternProperties',)
+    required_fields = ('title', 'description')
+
+    def block(path, data, pointer):
+        errors = 0
+
+        parts = pointer.rsplit('/', 2)
+        if len(parts) == 3:
+            grandparent = parts[-2]
+        else:
+            grandparent = None
+        parent = parts[-1]
+
+        # Don't look for metadata fields on non-user-defined objects.
+        if parent not in schema_fields and grandparent not in schema_sections:
+            for field in required_fields:
+                if field not in data or not data[field] or not data[field].strip():
+                    errors += 1
+                    print('{} is missing {}/{}'.format(path, pointer, field))
+            if 'type' not in data and '$ref' not in data:
+                errors += 1
+                print('{0} is missing {1}/type or {1}/$ref'.format(path, pointer))
+
+        return errors
+
+    return traverse(block)(*args)
+
+
+def validate_null_type(path, data, pointer='', should_be_nullable=True):
+    """
+    Prints and returns the number of errors relating to non-nullable optional fields and nullable required fields.
     """
     errors = 0
 
     if isinstance(data, list):
         for index, item in enumerate(data):
-            errors += validate_codelist_enum(path, item, pointer='{}/{}'.format(pointer, index))
+            errors += validate_null_type(path, item, pointer='{}/{}'.format(pointer, index))
     elif isinstance(data, dict):
+        if 'type' in data and pointer:
+            nullable = 'null' in data['type']
+            array_of_refs_or_objects = data['type'] == 'array' and any(key in data['items'] for key in ('$ref', 'properties'))  # noqa
+            if should_be_nullable:
+                if not nullable and not array_of_refs_or_objects:
+                    errors += 1
+                    print('{} has optional but non-nullable {} at {}'.format(path, data['type'], pointer))
+            else:
+                if nullable:
+                    errors += 1
+                    print('{} has required but nullable {} at {}'.format(path, data['type'], pointer))
+
+        required = data.get('required', [])
+
+        for key, value in data.items():
+            if key == 'properties':
+                for k, v in data[key].items():
+                    errors += validate_null_type(path, v, pointer='{}/{}/{}'.format(pointer, key, k),
+                                                 should_be_nullable=k not in required)
+            elif key in ('definitions', 'items'):
+                for k, v in data[key].items():
+                    errors += validate_null_type(path, v, pointer='{}/{}/{}'.format(pointer, key, k),
+                                                 should_be_nullable=False)
+            else:
+                errors += validate_null_type(path, value, pointer='{}/{}'.format(pointer, key))
+
+    return errors
+
+
+def validate_codelist_enum(*args):
+    """
+    Prints and returns the number of errors relating to codelists in a JSON Schema.
+    """
+    def block(path, data, pointer):
+        errors = 0
+
         if 'codelist' in data:
             if isinstance(data['type'], str):
                 types = [data['type']]
@@ -242,89 +361,65 @@ def validate_codelist_enum(path, data, pointer=''):
                     if is_extension and data['codelist'] not in external_codelists:
                         errors += 1
                         print('{} names nonexistent codelist {}'.format(path, data['codelist']))
+        elif 'enum' in data:
+            pass
+            # TODO: See https://github.com/open-contracting/standard-maintenance-scripts/issues/16
+            # Fields with `enum` should set closed codelists.
+            # errors += 1
+            # print('{} has `enum` without codelist at {}'.format(path, pointer))
+
+        return errors
+
+    return traverse(block)(*args)
+
+
+def validate_deep_properties(*args):
+    """
+    Prints and returns the number of errors relating to deep objects, which should be modeled as new definitions.
+    """
+    exceptions = {'/definitions/Item/properties/unit', '/definitions/Amendment/properties/changes/items'}
+
+    def block(path, data, pointer):
+        parts = pointer.rsplit('/', 2)
+        if len(parts) == 3:
+            grandparent = parts[-2]
         else:
-            if 'enum' in data:
-                pass
-                # TODO: See https://github.com/open-contracting/standard-maintenance-scripts/issues/16
-                # Fields with `enum` should set closed codelists.
-                # errors += 1
-                # print('{} has `enum` without codelist at {}'.format(path, pointer))
-            for key, value in data.items():
-                errors += validate_codelist_enum(path, value, pointer='{}/{}'.format(pointer, key))
+            grandparent = None
 
-    return errors
+        if pointer and grandparent != 'definitions' and 'properties' in data and pointer not in exceptions:
+            warnings.warn('{} has deep properties at {}'.format(path, pointer))
+
+        return 0
+
+    return traverse(block)(*args)
 
 
-def validate_type(path, data, pointer='', should_be_nullable=True):
+def validate_object_id(*args):
     """
-    Prints and returns the number of errors relating to non-nullable optional fields and nullable required fields.
+    Prints and returns the number of errors relating objects within arrays lacking `id` fields.
     """
-    errors = 0
+    # `changes` is deprecated, and `records` uses `ocid`.
+    exceptions = {'changes', 'records'}
 
-    if isinstance(data, list):
-        for index, item in enumerate(data):
-            errors += validate_type(path, item, pointer='{}/{}'.format(pointer, index))
-    elif isinstance(data, dict):
-        if 'type' in data and pointer:
-            nullable = 'null' in data['type']
-            array_of_refs_or_objects = data['type'] == 'array' and any(key in data['items'] for key in ('$ref', 'properties'))  # noqa
-            if should_be_nullable:
-                if not nullable and not array_of_refs_or_objects:
+    def block(path, data, pointer):
+        errors = 0
+
+        parts = pointer.rsplit('/')
+        if len(parts) >= 3:
+            grandparent = parts[-2]
+        else:
+            grandparent = None
+        parent = parts[-1]
+
+        if 'type' in data and data['type'] == 'array':
+            if 'properties' in data['items'] and 'id' not in data['items']['properties']:
+                if 'versionedRelease' not in pointer and grandparent != 'oneOf' and parent not in exceptions:
                     errors += 1
-                    print('{} has optional but non-nullable {} at {}'.format(path, data['type'], pointer))
-            else:
-                if nullable:
-                    errors += 1
-                    print('{} has required but nullable {} at {}'.format(path, data['type'], pointer))
+                    print('{} object array has no `id` property at {}'.format(path, pointer))
 
-        required = data.get('required', [])
+        return errors
 
-        for key, value in data.items():
-            if key == 'properties':
-                for k, v in data[key].items():
-                    errors += validate_type(path, v, pointer='{}/{}/{}'.format(pointer, key, k),
-                                            should_be_nullable=k not in required)
-            elif key in ('definitions', 'items'):
-                for k, v in data[key].items():
-                    errors += validate_type(path, v, pointer='{}/{}/{}'.format(pointer, key, k),
-                                            should_be_nullable=False)
-            else:
-                errors += validate_type(path, value, pointer='{}/{}'.format(pointer, key))
-
-    return errors
-
-
-def ensure_title_description_type(path, data, pointer=''):
-    """
-    Prints and returns the number of errors relating to metadata in a JSON Schema.
-    """
-    errors = 0
-
-    schema_fields = ('definitions', 'deprecated', 'items', 'patternProperties', 'properties')
-    required_fields = ('title', 'description')
-
-    if isinstance(data, list):
-        for index, item in enumerate(data):
-            errors += ensure_title_description_type(path, item, pointer='{}/{}'.format(pointer, index))
-    elif isinstance(data, dict):
-        parent = pointer.rsplit('/', 1)[-1]
-
-        # Don't look for metadata fields on non-user-defined objects.
-        if parent not in schema_fields:
-            for field in required_fields:
-                if field not in data or not data[field]:
-                    errors += 1
-                    print('{} is missing {}/{}'.format(path, pointer, field))
-            if 'type' not in data and '$ref' not in data:
-                errors += 1
-                print('{0} is missing {1}/type or {1}/$ref'.format(path, pointer))
-
-        # Don't iterate into `patternProperties`.
-        if parent != 'patternProperties':
-            for key, value in data.items():
-                errors += ensure_title_description_type(path, value, pointer='{}/{}'.format(pointer, key))
-
-    return errors
+    return traverse(block)(*args)
 
 
 def validate_ref(path, data):
@@ -340,7 +435,6 @@ def validate_ref(path, data):
     return 0
 
 
-# `full_schema` is set to not expect extensions to repeat `title`, `description`, `type` and `required` from core.
 def validate_json_schema(path, data, schema, full_schema=not is_extension):
     """
     Prints and asserts errors in a JSON Schema.
@@ -357,14 +451,28 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
 
     errors += validate_codelist_enum(path, data)
 
-    if full_schema:
-        errors += validate_ref(path, data)
-        # TODO: https://github.com/open-contracting/standard/issues/630
-        # errors += validate_type(path, data)
+    if not full_schema:
+        errors += validate_deep_properties(path, data)
 
-    # TODO: https://github.com/open-contracting/standard-maintenance-scripts/issues/27
-    # if full_schema and 'versioned-release-validation-schema.json' not in path:
-    #     errors += ensure_title_description_type(path, data)
+    # JSON Schema has definitions that aren't UpperCamelCase.
+    if 'json-schema-draft-4.json' not in path:
+        errors += validate_letter_case(path, data)
+
+    # `full_schema` is set to not expect extensions to repeat `title`, `description`, `type`, `required` and
+    # `definitions` from core.
+    if full_schema:
+        # TODO: https://github.com/open-contracting/standard/issues/630
+        # errors += validate_null_type(path, data)
+        errors += validate_ref(path, data)
+
+        # `versioned-release-validation-schema.json` introduces arrays of objects. JSON Schema references itself.
+        if 'versioned-release-validation-schema.json' not in path and 'json-schema-draft-4.json' not in path:
+            errors += validate_object_id(path, JsonRef.replace_refs(data))
+
+        # TODO: https://github.com/open-contracting/standard-maintenance-scripts/issues/27
+        # `versioned-release-validation-schema.json` omits `title` and `description`.
+        # if 'versioned-release-validation-schema.json' not in path:
+        #     errors += validate_title_description_type(path, data)
 
     assert errors == 0
 
@@ -392,7 +500,7 @@ def test_indent():
 def test_json_schema():
     """
     Ensures all JSON Schema files are valid JSON Schema Draft 4 and use codelists correctly. Unless this is an
-    extension, ensures JSON Schema files have required metadata.
+    extension, ensures JSON Schema files have required metadata and valid references.
     """
     for path, text, data in walk_json_data():
         if is_json_schema(data):
@@ -402,7 +510,8 @@ def test_json_schema():
 @pytest.mark.skipif(not is_extension, reason='not an extension')
 def test_extension_json():
     """
-    Ensures the extension's extension.json file is valid against extension-schema.json and all codelists are included.
+    Ensures the extension's extension.json file is valid against extension-schema.json, all codelists are included, and
+    all URLs resolve.
     """
     path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'schema', 'extension-schema.json')
     if os.path.isfile(path):
@@ -424,6 +533,11 @@ def test_extension_json():
             data = json.load(f, object_pairs_hook=OrderedDict)
 
         validate_json_schema(path, data, schema)
+
+        urls = data.get('dependencies', []) + list(data['documentationUrl'].values())
+        for url in urls:
+            status_code = requests.head(url).status_code
+            assert status_code == 200, 'HTTP {} on {}'.format(status_code, url)
 
         assert expected == set(data.get('codelists', []))
     else:
@@ -495,6 +609,7 @@ def test_json_merge_patch():
             schemas[basename]['definitions']['Organization']['properties']['address']['title'] = 'TODO'
             schemas[basename]['definitions']['Organization']['properties']['contactPoint']['description'] = 'TODO'
             schemas[basename]['definitions']['Organization']['properties']['contactPoint']['title'] = 'TODO'
+            schemas[basename]['definitions']['Period']['description'] = 'TODO'
             schemas[basename]['definitions']['Planning']['properties']['budget']['description'] = 'TODO'
             schemas[basename]['definitions']['Planning']['properties']['budget']['title'] = 'TODO'
             schemas[basename]['definitions']['Value']['description'] = 'TODO'
