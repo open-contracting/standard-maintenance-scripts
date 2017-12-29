@@ -453,7 +453,8 @@ def test_json_schema():
 @pytest.mark.skipif(not is_extension, reason='not an extension')
 def test_extension_json():
     """
-    Ensures the extension's extension.json file is valid against extension-schema.json and all codelists are included.
+    Ensures the extension's extension.json file is valid against extension-schema.json, all codelists are included, and
+    all URLs resolve.
     """
     path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'schema', 'extension-schema.json')
     if os.path.isfile(path):
@@ -475,6 +476,11 @@ def test_extension_json():
             data = json.load(f, object_pairs_hook=OrderedDict)
 
         validate_json_schema(path, data, schema)
+
+        urls = data.get('dependencies', []) + list(data['documentationUrl'].values())
+        for url in urls:
+            status_code = requests.head(url).status_code
+            assert status_code == 200, 'HTTP {} on {}'.format(status_code, url)
 
         assert expected == set(data.get('codelists', []))
     else:
