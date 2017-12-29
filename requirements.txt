@@ -1,6 +1,7 @@
 flake8==3.4.1
 invoke==0.19.0
 json-merge-patch==0.1
+jsonref==0.1
 jsonschema==2.6.0
 pytest==3.3.1
 requests==2.18.2
