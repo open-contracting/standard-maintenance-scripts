@@ -1,6 +1,7 @@
 import csv
 import json
 import os
+import re
 import warnings
 from collections import OrderedDict
 from copy import deepcopy
@@ -327,6 +328,39 @@ def ensure_title_description_type(path, data, pointer=''):
     return errors
 
 
+# TODO: Refactor the common pattern of iterating through the schema.
+def validate_letter_case(path, data, pointer=''):
+    """
+    Prints and returns the number of errors relating to the letter case of properties and definitions.
+    """
+    errors = 0
+
+    properties_exceptions = {'former_value'}
+    definition_exceptions = {'record'}
+
+    if isinstance(data, list):
+        for index, item in enumerate(data):
+            errors += validate_letter_case(path, item, pointer='{}/{}'.format(pointer, index))
+    elif isinstance(data, dict):
+        parent = pointer.rsplit('/', 1)[-1]
+
+        if parent == 'properties':
+            for key in data.keys():
+                if not re.search(r'^[a-z][A-Za-z]+$', key) and key not in properties_exceptions:
+                    print('{} {}/{} should be lowerCamelCase ASCII letters'.format(path, pointer, key))
+                    errors += 1
+        elif parent == 'definitions':
+            for key in data.keys():
+                if not re.search(r'^[A-Z][A-Za-z]+$', key) and key not in definition_exceptions:
+                    print('{} {}/{} should be UpperCamelCase ASCII letters'.format(path, pointer, key))
+                    errors += 1
+
+        for key, value in data.items():
+            errors += validate_letter_case(path, value, pointer='{}/{}'.format(pointer, key))
+
+    return errors
+
+
 def validate_ref(path, data):
     ref = JsonRef.replace_refs(data)
 
@@ -356,6 +390,7 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
         print('{} is not valid JSON Schema ({} errors)'.format(path, errors))
 
     errors += validate_codelist_enum(path, data)
+    errors += validate_letter_case(path, data)
 
     if full_schema:
         errors += validate_ref(path, data)
