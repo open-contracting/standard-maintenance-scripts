@@ -1,6 +1,7 @@
 import csv
 import json
 import os
+import warnings
 from collections import OrderedDict
 from copy import deepcopy
 from io import StringIO
@@ -8,6 +9,7 @@ from io import StringIO
 import json_merge_patch
 import pytest
 import requests
+from jsonref import JsonRef, JsonRefError
 from jsonschema import FormatChecker
 from jsonschema.validators import Draft4Validator as validator
 
@@ -20,6 +22,7 @@ other_extensions = ('api_extension', 'ocds_performance_failures', 'public-privat
                     'standard_extension_template')
 is_extension = repo_name.startswith('ocds') and repo_name.endswith('extension') or repo_name in other_extensions
 
+# The codelists defined in the standard.
 external_codelists = [
     'awardStatus.csv',
     'contractStatus.csv',
@@ -74,11 +77,11 @@ if is_extension:
     metaschema['properties']['deprecated']['type'] = ['object', 'null']
 
 
-def walk():
+def walk(top=os.getcwd()):
     """
     Yields all files, except third-party files under `_static` directories.
     """
-    for root, dirs, files in os.walk(os.getcwd()):
+    for root, dirs, files in os.walk(top):
         for directory in ('.git', '_static', 'fixtures'):
             if directory in dirs:
                 dirs.remove(directory)
@@ -86,11 +89,11 @@ def walk():
             yield (root, name)
 
 
-def walk_json_data():
+def walk_json_data(top=os.getcwd()):
     """
     Yields all JSON data.
     """
-    for root, name in walk():
+    for root, name in walk(top):
         if name.endswith('.json'):
             path = os.path.join(root, name)
             with open(path, 'r') as f:
@@ -102,11 +105,11 @@ def walk_json_data():
                         assert False, '{} is not valid JSON ({})'.format(path, e)
 
 
-def walk_csv_data():
+def walk_csv_data(top=os.getcwd()):
     """
     Yields all CSV data.
     """
-    for root, name in walk():
+    for root, name in walk(top):
         if name.endswith('.csv'):
             path = os.path.join(root, name)
             with open(path, 'r') as f:
@@ -125,6 +128,49 @@ def is_codelist(reader):
     Returns whether the CSV is a codelist.
     """
     return 'Code' in reader.fieldnames
+
+
+def merge(*objs):
+    """
+    Copied from json_merge_patch.
+    """
+    result = objs[0]
+    for obj in objs[1:]:
+        result = merge_obj(result, obj)
+    return result
+
+
+def merge_obj(result, obj, pointer=''):  # changed code
+    """
+    Copied from json_merge_patch, with edits to raise an error if overwriting.
+    """
+    if not isinstance(result, dict):
+        result = {}
+
+    if not isinstance(obj, dict):
+        return obj
+
+    for key, value in obj.items():
+        if isinstance(value, dict):
+            target = result.get(key)
+            if isinstance(target, dict):
+                merge_obj(target, value, pointer='{}/{}'.format(pointer, key))  # changed code
+                continue
+            result[key] = {}
+            merge_obj(result[key], value, pointer='{}/{}'.format(pointer, key))  # changed code
+            continue
+
+        if key in result:  # new code
+            if key == 'deprecated' and value is None:
+                warnings.warn('reintroduces {}'.format(pointer))
+            else:
+                raise Exception('unexpectedly overwrites {}/{}'.format(pointer, key))
+
+        if value is None:
+            result.pop(key, None)
+            continue
+        result[key] = value
+    return result
 
 
 def validate_codelist_enum(path, data, pointer=''):
@@ -281,6 +327,19 @@ def ensure_title_description_type(path, data, pointer=''):
     return errors
 
 
+def validate_ref(path, data):
+    ref = JsonRef.replace_refs(data)
+
+    try:
+        # `repr` causes the references to be loaded, if possible.
+        repr(ref)
+    except JsonRefError as e:
+        print('{} has {} at {}'.format(path, e.message, '/'.join(e.path)))
+        return 1
+
+    return 0
+
+
 # `full_schema` is set to not expect extensions to repeat `title`, `description`, `type` and `required` from core.
 def validate_json_schema(path, data, schema, full_schema=not is_extension):
     """
@@ -298,9 +357,10 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
 
     errors += validate_codelist_enum(path, data)
 
-    # TODO: https://github.com/open-contracting/standard/issues/630
-    # if full_schema:
-    #     errors += validate_type(path, data)
+    if full_schema:
+        errors += validate_ref(path, data)
+        # TODO: https://github.com/open-contracting/standard/issues/630
+        # errors += validate_type(path, data)
 
     # TODO: https://github.com/open-contracting/standard-maintenance-scripts/issues/27
     # if full_schema and 'versioned-release-validation-schema.json' not in path:
@@ -344,24 +404,28 @@ def test_extension_json():
     """
     Ensures the extension's extension.json file is valid against extension-schema.json and all codelists are included.
     """
-    url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/master/schema/extension-schema.json'  # noqa
-    schema = requests.get(url).json()
+    path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'schema', 'extension-schema.json')
+    if os.path.isfile(path):
+        with open(path) as f:
+            schema = json.load(f)
+    else:
+        url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/master/schema/extension-schema.json'  # noqa
+        schema = requests.get(url).json()
 
     expected = set()
 
-    # This loop is somewhat unnecessary, as repositories contain at most one codelists directory.
-    for path, data in walk_csv_data():
+    for path, data in walk_csv_data(os.path.join(os.getcwd(), 'codelists')):
         if 'codelists' in path.split(os.sep):
             expected.add(os.path.basename(path))
 
-    # This loop is somewhat unnecessary, as repositories contain at most one extension.json.
-    for path, text, data in walk_json_data():
-        if os.path.basename(path) == 'extension.json':
-            validate_json_schema(path, data, schema)
+    path = os.path.join(os.getcwd(), 'extension.json')
+    if os.path.isfile(path):
+        with open(path) as f:
+            data = json.load(f, object_pairs_hook=OrderedDict)
 
-            assert expected == set(data.get('codelists', []))
+        validate_json_schema(path, data, schema)
 
-            break
+        assert expected == set(data.get('codelists', []))
     else:
         assert False, 'expected an extension.json file'
 
@@ -436,12 +500,13 @@ def test_json_merge_patch():
             schemas[basename]['definitions']['Value']['description'] = 'TODO'
             schemas[basename]['description'] = 'TODO'
 
-            # Two extensions have optional dependencies on ocds_bid_extension.
-            if repo_name in ('ocds_lots_extension', 'ocds_requirements_extension'):
-                url = 'https://raw.githubusercontent.com/open-contracting/ocds_bid_extension/master/extension.json'  # noqa
-                external_codelists.extend(requests.get(url).json()['codelists'])
-                url = 'https://raw.githubusercontent.com/open-contracting/ocds_bid_extension/master/release-schema.json'  # noqa
-                json_merge_patch.merge(schemas[basename], requests.get(url).json())
+            path = os.path.join(os.getcwd(), 'extension.json')
+            with open(path) as f:
+                data = json.load(f, object_pairs_hook=OrderedDict)
+                for extension_url in data.get('dependencies', []):
+                    external_codelists.extend(requests.get(extension_url).json().get('codelists', []))
+                    schema_url = '{}/{}'.format(extension_url.rsplit('/', 1)[0], basename)
+                    json_merge_patch.merge(schemas[basename], requests.get(schema_url).json())
 
     # This loop is somewhat unnecessary, as repositories contain at most one of each schema file.
     for path, text, data in walk_json_data():
@@ -449,8 +514,10 @@ def test_json_merge_patch():
             basename = os.path.basename(path)
             if basename in basenames:
                 unpatched = deepcopy(schemas[basename])
-                # It's not clear that `json_merge_patch.merge()` can ever fail.
-                patched = json_merge_patch.merge(unpatched, data)
+                try:
+                    patched = merge(unpatched, data)
+                except Exception as e:
+                    assert False, 'Exception: {} {}'.format(e, path)
 
                 # All metadata should be present.
                 validate_json_schema(path, patched, metaschema, full_schema=True)
