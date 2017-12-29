@@ -373,6 +373,27 @@ def validate_codelist_enum(*args):
     return traverse(block)(*args)
 
 
+def validate_deep_properties(*args):
+    """
+    Prints and returns the number of errors relating to deep objects, which should be modeled as new definitions.
+    """
+    exceptions = ('/definitions/Item/properties/unit', '/definitions/Amendment/properties/changes/items')
+
+    def block(path, data, pointer):
+        parts = pointer.rsplit('/', 2)
+        if len(parts) == 3:
+            grandparent = parts[-2]
+        else:
+            grandparent = None
+
+        if pointer and grandparent != 'definitions' and 'properties' in data and pointer not in exceptions:
+            warnings.warn('{} has deep properties at {}'.format(path, pointer))
+
+        return 0
+
+    return traverse(block)(*args)
+
+
 def validate_ref(path, data):
     ref = JsonRef.replace_refs(data)
 
@@ -401,6 +422,9 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
         print('{} is not valid JSON Schema ({} errors)'.format(path, errors))
 
     errors += validate_codelist_enum(path, data)
+
+    if not full_schema:
+        errors += validate_deep_properties(path, data)
 
     if 'json-schema-draft-4.json' not in path:
         errors += validate_letter_case(path, data)
