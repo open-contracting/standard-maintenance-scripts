@@ -195,6 +195,106 @@ def traverse(block):
     return method
 
 
+def validate_letter_case(*args):
+    """
+    Prints and returns the number of errors relating to the letter case of properties and definitions.
+    """
+    properties_exceptions = {'former_value'}
+    definition_exceptions = {'record'}
+
+    def block(path, data, pointer):
+        errors = 0
+
+        parent = pointer.rsplit('/', 1)[-1]
+
+        if parent == 'properties':
+            for key in data.keys():
+                if not re.search(r'^[a-z][A-Za-z]+$', key) and key not in properties_exceptions:
+                    errors += 1
+                    print('{} {}/{} should be lowerCamelCase ASCII letters'.format(path, pointer, key))
+        elif parent == 'definitions':
+            for key in data.keys():
+                if not re.search(r'^[A-Z][A-Za-z]+$', key) and key not in definition_exceptions:
+                    errors += 1
+                    print('{} {}/{} should be UpperCamelCase ASCII letters'.format(path, pointer, key))
+
+        return errors
+
+    return traverse(block)(*args)
+
+
+def validate_title_description_type(*args):
+    """
+    Prints and returns the number of errors relating to metadata in a JSON Schema.
+    """
+    schema_fields = ('definitions', 'deprecated', 'items', 'patternProperties', 'properties')
+    schema_sections = ('patternProperties',)
+    required_fields = ('title', 'description')
+
+    def block(path, data, pointer):
+        errors = 0
+
+        parts = pointer.rsplit('/', 2)
+        if len(parts) == 3:
+            grandparent = parts[-2]
+        else:
+            grandparent = None
+        parent = parts[-1]
+
+        # Don't look for metadata fields on non-user-defined objects.
+        if parent not in schema_fields and grandparent not in schema_sections:
+            for field in required_fields:
+                if field not in data or not data[field] or not data[field].strip():
+                    errors += 1
+                    print('{} is missing {}/{}'.format(path, pointer, field))
+            if 'type' not in data and '$ref' not in data:
+                errors += 1
+                print('{0} is missing {1}/type or {1}/$ref'.format(path, pointer))
+
+        return errors
+
+    return traverse(block)(*args)
+
+
+def validate_null_type(path, data, pointer='', should_be_nullable=True):
+    """
+    Prints and returns the number of errors relating to non-nullable optional fields and nullable required fields.
+    """
+    errors = 0
+
+    if isinstance(data, list):
+        for index, item in enumerate(data):
+            errors += validate_null_type(path, item, pointer='{}/{}'.format(pointer, index))
+    elif isinstance(data, dict):
+        if 'type' in data and pointer:
+            nullable = 'null' in data['type']
+            array_of_refs_or_objects = data['type'] == 'array' and any(key in data['items'] for key in ('$ref', 'properties'))  # noqa
+            if should_be_nullable:
+                if not nullable and not array_of_refs_or_objects:
+                    errors += 1
+                    print('{} has optional but non-nullable {} at {}'.format(path, data['type'], pointer))
+            else:
+                if nullable:
+                    errors += 1
+                    print('{} has required but nullable {} at {}'.format(path, data['type'], pointer))
+
+        required = data.get('required', [])
+
+        for key, value in data.items():
+            if key == 'properties':
+                for k, v in data[key].items():
+                    errors += validate_null_type(path, v, pointer='{}/{}/{}'.format(pointer, key, k),
+                                                 should_be_nullable=k not in required)
+            elif key in ('definitions', 'items'):
+                for k, v in data[key].items():
+                    errors += validate_null_type(path, v, pointer='{}/{}/{}'.format(pointer, key, k),
+                                                 should_be_nullable=False)
+            else:
+                errors += validate_null_type(path, value, pointer='{}/{}'.format(pointer, key))
+
+    return errors
+
+
 def validate_codelist_enum(*args):
     """
     Prints and returns the number of errors relating to codelists in a JSON Schema.
@@ -273,106 +373,6 @@ def validate_codelist_enum(*args):
     return traverse(block)(*args)
 
 
-def validate_type(path, data, pointer='', should_be_nullable=True):
-    """
-    Prints and returns the number of errors relating to non-nullable optional fields and nullable required fields.
-    """
-    errors = 0
-
-    if isinstance(data, list):
-        for index, item in enumerate(data):
-            errors += validate_type(path, item, pointer='{}/{}'.format(pointer, index))
-    elif isinstance(data, dict):
-        if 'type' in data and pointer:
-            nullable = 'null' in data['type']
-            array_of_refs_or_objects = data['type'] == 'array' and any(key in data['items'] for key in ('$ref', 'properties'))  # noqa
-            if should_be_nullable:
-                if not nullable and not array_of_refs_or_objects:
-                    errors += 1
-                    print('{} has optional but non-nullable {} at {}'.format(path, data['type'], pointer))
-            else:
-                if nullable:
-                    errors += 1
-                    print('{} has required but nullable {} at {}'.format(path, data['type'], pointer))
-
-        required = data.get('required', [])
-
-        for key, value in data.items():
-            if key == 'properties':
-                for k, v in data[key].items():
-                    errors += validate_type(path, v, pointer='{}/{}/{}'.format(pointer, key, k),
-                                            should_be_nullable=k not in required)
-            elif key in ('definitions', 'items'):
-                for k, v in data[key].items():
-                    errors += validate_type(path, v, pointer='{}/{}/{}'.format(pointer, key, k),
-                                            should_be_nullable=False)
-            else:
-                errors += validate_type(path, value, pointer='{}/{}'.format(pointer, key))
-
-    return errors
-
-
-def validate_title_description_type(*args):
-    """
-    Prints and returns the number of errors relating to metadata in a JSON Schema.
-    """
-    schema_fields = ('definitions', 'deprecated', 'items', 'patternProperties', 'properties')
-    schema_sections = ('patternProperties',)
-    required_fields = ('title', 'description')
-
-    def block(path, data, pointer):
-        errors = 0
-
-        parts = pointer.rsplit('/', 2)
-        if len(parts) == 3:
-            grandparent = parts[-2]
-        else:
-            grandparent = None
-        parent = parts[-1]
-
-        # Don't look for metadata fields on non-user-defined objects.
-        if parent not in schema_fields and grandparent not in schema_sections:
-            for field in required_fields:
-                if field not in data or not data[field] or not data[field].strip():
-                    errors += 1
-                    print('{} is missing {}/{}'.format(path, pointer, field))
-            if 'type' not in data and '$ref' not in data:
-                errors += 1
-                print('{0} is missing {1}/type or {1}/$ref'.format(path, pointer))
-
-        return errors
-
-    return traverse(block)(*args)
-
-
-def validate_letter_case(*args):
-    """
-    Prints and returns the number of errors relating to the letter case of properties and definitions.
-    """
-    properties_exceptions = {'former_value'}
-    definition_exceptions = {'record'}
-
-    def block(path, data, pointer):
-        errors = 0
-
-        parent = pointer.rsplit('/', 1)[-1]
-
-        if parent == 'properties':
-            for key in data.keys():
-                if not re.search(r'^[a-z][A-Za-z]+$', key) and key not in properties_exceptions:
-                    errors += 1
-                    print('{} {}/{} should be lowerCamelCase ASCII letters'.format(path, pointer, key))
-        elif parent == 'definitions':
-            for key in data.keys():
-                if not re.search(r'^[A-Z][A-Za-z]+$', key) and key not in definition_exceptions:
-                    errors += 1
-                    print('{} {}/{} should be UpperCamelCase ASCII letters'.format(path, pointer, key))
-
-        return errors
-
-    return traverse(block)(*args)
-
-
 def validate_ref(path, data):
     ref = JsonRef.replace_refs(data)
 
@@ -386,7 +386,6 @@ def validate_ref(path, data):
     return 0
 
 
-# `full_schema` is set to not expect extensions to repeat `title`, `description`, `type` and `required` from core.
 def validate_json_schema(path, data, schema, full_schema=not is_extension):
     """
     Prints and asserts errors in a JSON Schema.
@@ -406,11 +405,13 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
     if 'json-schema-draft-4.json' not in path:
         errors += validate_letter_case(path, data)
 
+    # `full_schema` is set to not expect extensions to repeat `required` and `definitions` from core.
     if full_schema:
-        errors += validate_ref(path, data)
         # TODO: https://github.com/open-contracting/standard/issues/630
-        # errors += validate_type(path, data)
+        # errors += validate_null_type(path, data)
+        errors += validate_ref(path, data)
 
+    # `full_schema` is set to not expect extensions to repeat `title`, `description` and `type` from core.
     # TODO: https://github.com/open-contracting/standard-maintenance-scripts/issues/27
     # if full_schema and 'versioned-release-validation-schema.json' not in path:
     #     errors += validate_title_description_type(path, data)
@@ -441,7 +442,7 @@ def test_indent():
 def test_json_schema():
     """
     Ensures all JSON Schema files are valid JSON Schema Draft 4 and use codelists correctly. Unless this is an
-    extension, ensures JSON Schema files have required metadata.
+    extension, ensures JSON Schema files have required metadata and valid references.
     """
     for path, text, data in walk_json_data():
         if is_json_schema(data):
