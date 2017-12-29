@@ -72,8 +72,6 @@ del metaschema['definitions']['stringArray']['minItems']
 
 # See https://tools.ietf.org/html/rfc7396
 if is_extension:
-    # See https://github.com/open-contracting/ocds_budget_projects_extension/blob/master/release-schema.json#L70
-    metaschema['type'] = ['object', 'null']
     # See https://github.com/open-contracting/ocds_milestone_documents_extension/blob/master/release-schema.json#L9
     metaschema['properties']['deprecated']['type'] = ['object', 'null']
 
@@ -314,7 +312,7 @@ def validate_type(path, data, pointer='', should_be_nullable=True):
     return errors
 
 
-def ensure_title_description_type(*args):
+def validate_title_description_type(*args):
     """
     Prints and returns the number of errors relating to metadata in a JSON Schema.
     """
@@ -335,7 +333,7 @@ def ensure_title_description_type(*args):
         # Don't look for metadata fields on non-user-defined objects.
         if parent not in schema_fields and grandparent not in schema_sections:
             for field in required_fields:
-                if field not in data or not data[field]:
+                if field not in data or not data[field] or not data[field].strip():
                     errors += 1
                     print('{} is missing {}/{}'.format(path, pointer, field))
             if 'type' not in data and '$ref' not in data:
@@ -415,7 +413,7 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
 
     # TODO: https://github.com/open-contracting/standard-maintenance-scripts/issues/27
     # if full_schema and 'versioned-release-validation-schema.json' not in path:
-    #     errors += ensure_title_description_type(path, data)
+    #     errors += validate_title_description_type(path, data)
 
     assert errors == 0
 
