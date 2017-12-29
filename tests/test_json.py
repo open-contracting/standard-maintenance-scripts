@@ -1,6 +1,7 @@
 import csv
 import json
 import os
+import warnings
 from collections import OrderedDict
 from copy import deepcopy
 from io import StringIO
@@ -160,7 +161,10 @@ def merge_obj(result, obj, pointer=''):  # changed code
             continue
 
         if key in result:  # new code
-            raise Exception('unexpectedly overwrites {}/{}'.format(pointer, key))
+            if key == 'deprecated' and value is None:
+                warnings.warn('reintroduces {}'.format(pointer))
+            else:
+                raise Exception('unexpectedly overwrites {}/{}'.format(pointer, key))
 
         if value is None:
             result.pop(key, None)
@@ -496,12 +500,13 @@ def test_json_merge_patch():
             schemas[basename]['definitions']['Value']['description'] = 'TODO'
             schemas[basename]['description'] = 'TODO'
 
-            # Two extensions have optional dependencies on ocds_bid_extension.
-            if repo_name in ('ocds_lots_extension', 'ocds_requirements_extension'):
-                url = 'https://raw.githubusercontent.com/open-contracting/ocds_bid_extension/master/extension.json'  # noqa
-                external_codelists.extend(requests.get(url).json()['codelists'])
-                url = 'https://raw.githubusercontent.com/open-contracting/ocds_bid_extension/master/release-schema.json'  # noqa
-                json_merge_patch.merge(schemas[basename], requests.get(url).json())
+            path = os.path.join(os.getcwd(), 'extension.json')
+            with open(path) as f:
+                data = json.load(f, object_pairs_hook=OrderedDict)
+                for extension_url in data.get('dependencies', []):
+                    external_codelists.extend(requests.get(extension_url).json().get('codelists', []))
+                    schema_url = '{}/{}'.format(extension_url.rsplit('/', 1)[0], basename)
+                    json_merge_patch.merge(schemas[basename], requests.get(schema_url).json())
 
     # This loop is somewhat unnecessary, as repositories contain at most one of each schema file.
     for path, text, data in walk_json_data():
