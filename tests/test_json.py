@@ -377,7 +377,7 @@ def validate_deep_properties(*args):
     """
     Prints and returns the number of errors relating to deep objects, which should be modeled as new definitions.
     """
-    exceptions = ('/definitions/Item/properties/unit', '/definitions/Amendment/properties/changes/items')
+    exceptions = {'/definitions/Item/properties/unit', '/definitions/Amendment/properties/changes/items'}
 
     def block(path, data, pointer):
         parts = pointer.rsplit('/', 2)
@@ -390,6 +390,34 @@ def validate_deep_properties(*args):
             warnings.warn('{} has deep properties at {}'.format(path, pointer))
 
         return 0
+
+    return traverse(block)(*args)
+
+
+def validate_object_id(*args):
+    """
+    Prints and returns the number of errors relating objects within arrays lacking `id` fields.
+    """
+    # `changes` is deprecated, and `records` uses `ocid`.
+    exceptions = {'changes', 'records'}
+
+    def block(path, data, pointer):
+        errors = 0
+
+        parts = pointer.rsplit('/')
+        if len(parts) >= 3:
+            grandparent = parts[-2]
+        else:
+            grandparent = None
+        parent = parts[-1]
+
+        if 'type' in data and data['type'] == 'array':
+            if 'properties' in data['items'] and 'id' not in data['items']['properties']:
+                if 'versionedRelease' not in pointer and grandparent != 'oneOf' and parent not in exceptions:
+                    errors += 1
+                    print('{} object array has no `id` property at {}'.format(path, pointer))
+
+        return errors
 
     return traverse(block)(*args)
 
@@ -426,19 +454,25 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
     if not full_schema:
         errors += validate_deep_properties(path, data)
 
+    # JSON Schema has definitions that aren't UpperCamelCase.
     if 'json-schema-draft-4.json' not in path:
         errors += validate_letter_case(path, data)
 
-    # `full_schema` is set to not expect extensions to repeat `required` and `definitions` from core.
+    # `full_schema` is set to not expect extensions to repeat `title`, `description`, `type`, `required` and
+    # `definitions` from core.
     if full_schema:
         # TODO: https://github.com/open-contracting/standard/issues/630
         # errors += validate_null_type(path, data)
         errors += validate_ref(path, data)
 
-    # `full_schema` is set to not expect extensions to repeat `title`, `description` and `type` from core.
-    # TODO: https://github.com/open-contracting/standard-maintenance-scripts/issues/27
-    # if full_schema and 'versioned-release-validation-schema.json' not in path:
-    #     errors += validate_title_description_type(path, data)
+        # `versioned-release-validation-schema.json` introduces arrays of objects. JSON Schema references itself.
+        if 'versioned-release-validation-schema.json' not in path and 'json-schema-draft-4.json' not in path:
+            errors += validate_object_id(path, JsonRef.replace_refs(data))
+
+        # TODO: https://github.com/open-contracting/standard-maintenance-scripts/issues/27
+        # `versioned-release-validation-schema.json` omits `title` and `description`.
+        # if 'versioned-release-validation-schema.json' not in path:
+        #     errors += validate_title_description_type(path, data)
 
     assert errors == 0
 
