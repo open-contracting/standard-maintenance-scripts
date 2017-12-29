@@ -165,7 +165,7 @@ def merge_obj(result, obj, pointer=''):  # changed code
             if key == 'deprecated' and value is None:  # ocds_milestone_documents_extension
                 warnings.warn('reintroduces {}'.format(pointer))
             elif key == 'required' and value == []:  # api_extension
-                warnings.warn('makes optional {}'.format(pointer))
+                warnings.warn('empties {}/{}'.format(pointer, key))
             else:
                 raise Exception('unexpectedly overwrites {}/{}'.format(pointer, key))
 
@@ -176,16 +176,34 @@ def merge_obj(result, obj, pointer=''):  # changed code
     return result
 
 
-def validate_codelist_enum(path, data, pointer=''):
+def traverse(block):
+    """
+    Implements common logic used by methods below.
+    """
+    def method(path, data, pointer=''):
+        errors = 0
+
+        if isinstance(data, list):
+            for index, item in enumerate(data):
+                errors += method(path, item, pointer='{}/{}'.format(pointer, index))
+        elif isinstance(data, dict):
+            errors += block(path, data, pointer)
+
+            for key, value in data.items():
+                errors += method(path, value, pointer='{}/{}'.format(pointer, key))
+
+        return errors
+
+    return method
+
+
+def validate_codelist_enum(*args):
     """
     Prints and returns the number of errors relating to codelists in a JSON Schema.
     """
-    errors = 0
+    def block(path, data, pointer):
+        errors = 0
 
-    if isinstance(data, list):
-        for index, item in enumerate(data):
-            errors += validate_codelist_enum(path, item, pointer='{}/{}'.format(pointer, index))
-    elif isinstance(data, dict):
         if 'codelist' in data:
             if isinstance(data['type'], str):
                 types = [data['type']]
@@ -245,17 +263,16 @@ def validate_codelist_enum(path, data, pointer=''):
                     if is_extension and data['codelist'] not in external_codelists:
                         errors += 1
                         print('{} names nonexistent codelist {}'.format(path, data['codelist']))
-        else:
-            if 'enum' in data:
-                pass
-                # TODO: See https://github.com/open-contracting/standard-maintenance-scripts/issues/16
-                # Fields with `enum` should set closed codelists.
-                # errors += 1
-                # print('{} has `enum` without codelist at {}'.format(path, pointer))
-            for key, value in data.items():
-                errors += validate_codelist_enum(path, value, pointer='{}/{}'.format(pointer, key))
+        elif 'enum' in data:
+            pass
+            # TODO: See https://github.com/open-contracting/standard-maintenance-scripts/issues/16
+            # Fields with `enum` should set closed codelists.
+            # errors += 1
+            # print('{} has `enum` without codelist at {}'.format(path, pointer))
 
-    return errors
+        return errors
+
+    return traverse(block)(*args)
 
 
 def validate_type(path, data, pointer='', should_be_nullable=True):
@@ -297,23 +314,26 @@ def validate_type(path, data, pointer='', should_be_nullable=True):
     return errors
 
 
-def ensure_title_description_type(path, data, pointer=''):
+def ensure_title_description_type(*args):
     """
     Prints and returns the number of errors relating to metadata in a JSON Schema.
     """
-    errors = 0
-
     schema_fields = ('definitions', 'deprecated', 'items', 'patternProperties', 'properties')
+    schema_sections = ('patternProperties',)
     required_fields = ('title', 'description')
 
-    if isinstance(data, list):
-        for index, item in enumerate(data):
-            errors += ensure_title_description_type(path, item, pointer='{}/{}'.format(pointer, index))
-    elif isinstance(data, dict):
-        parent = pointer.rsplit('/', 1)[-1]
+    def block(path, data, pointer):
+        errors = 0
+
+        parts = pointer.rsplit('/', 2)
+        if len(parts) == 3:
+            grandparent = parts[-2]
+        else:
+            grandparent = None
+        parent = parts[-1]
 
         # Don't look for metadata fields on non-user-defined objects.
-        if parent not in schema_fields:
+        if parent not in schema_fields and grandparent not in schema_sections:
             for field in required_fields:
                 if field not in data or not data[field]:
                     errors += 1
@@ -322,45 +342,37 @@ def ensure_title_description_type(path, data, pointer=''):
                 errors += 1
                 print('{0} is missing {1}/type or {1}/$ref'.format(path, pointer))
 
-        # Don't iterate into `patternProperties`.
-        if parent != 'patternProperties':
-            for key, value in data.items():
-                errors += ensure_title_description_type(path, value, pointer='{}/{}'.format(pointer, key))
+        return errors
 
-    return errors
+    return traverse(block)(*args)
 
 
-# TODO: Refactor the common pattern of iterating through the schema.
-def validate_letter_case(path, data, pointer=''):
+def validate_letter_case(*args):
     """
     Prints and returns the number of errors relating to the letter case of properties and definitions.
     """
-    errors = 0
-
     properties_exceptions = {'former_value'}
     definition_exceptions = {'record'}
 
-    if isinstance(data, list):
-        for index, item in enumerate(data):
-            errors += validate_letter_case(path, item, pointer='{}/{}'.format(pointer, index))
-    elif isinstance(data, dict):
+    def block(path, data, pointer):
+        errors = 0
+
         parent = pointer.rsplit('/', 1)[-1]
 
         if parent == 'properties':
             for key in data.keys():
                 if not re.search(r'^[a-z][A-Za-z]+$', key) and key not in properties_exceptions:
-                    print('{} {}/{} should be lowerCamelCase ASCII letters'.format(path, pointer, key))
                     errors += 1
+                    print('{} {}/{} should be lowerCamelCase ASCII letters'.format(path, pointer, key))
         elif parent == 'definitions':
             for key in data.keys():
                 if not re.search(r'^[A-Z][A-Za-z]+$', key) and key not in definition_exceptions:
-                    print('{} {}/{} should be UpperCamelCase ASCII letters'.format(path, pointer, key))
                     errors += 1
+                    print('{} {}/{} should be UpperCamelCase ASCII letters'.format(path, pointer, key))
 
-        for key, value in data.items():
-            errors += validate_letter_case(path, value, pointer='{}/{}'.format(pointer, key))
+        return errors
 
-    return errors
+    return traverse(block)(*args)
 
 
 def validate_ref(path, data):
@@ -392,7 +404,9 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
         print('{} is not valid JSON Schema ({} errors)'.format(path, errors))
 
     errors += validate_codelist_enum(path, data)
-    errors += validate_letter_case(path, data)
+
+    if 'json-schema-draft-4.json' not in path:
+        errors += validate_letter_case(path, data)
 
     if full_schema:
         errors += validate_ref(path, data)
