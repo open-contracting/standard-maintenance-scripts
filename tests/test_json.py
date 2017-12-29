@@ -550,6 +550,7 @@ def test_json_merge_patch():
             schemas[basename]['definitions']['Organization']['properties']['address']['title'] = 'TODO'
             schemas[basename]['definitions']['Organization']['properties']['contactPoint']['description'] = 'TODO'
             schemas[basename]['definitions']['Organization']['properties']['contactPoint']['title'] = 'TODO'
+            schemas[basename]['definitions']['Period']['description'] = 'TODO'
             schemas[basename]['definitions']['Planning']['properties']['budget']['description'] = 'TODO'
             schemas[basename]['definitions']['Planning']['properties']['budget']['title'] = 'TODO'
             schemas[basename]['definitions']['Value']['description'] = 'TODO'
