@@ -309,17 +309,17 @@ def validate_codelist_enum(*args):
                 types = data['type']
 
             if data['openCodelist']:
-                # Open codelists shouldn't set `enum`.
                 if ('string' in types and 'enum' in data or 'array' in types and 'enum' in data['items']):
+                    # Open codelists shouldn't set `enum`.
                     errors += 1
                     print('{} must not set `enum` for open codelist at {}'.format(path, pointer))
             else:
                 if 'string' in types and 'enum' not in data or 'array' in types and 'enum' not in data['items']:
-                    # TODO: See https://github.com/open-contracting/standard-maintenance-scripts/issues/16
-                    actual = None
                     # Fields with closed codelists should set `enum`.
-                    # errors += 1
-                    # print('{} must set `enum` for closed codelist at {}'.format(path, pointer))
+                    errors += 1
+                    print('{} must set `enum` for closed codelist at {}'.format(path, pointer))
+
+                    actual = None
                 elif 'string' in types:
                     actual = set(data['enum'])
                 else:
