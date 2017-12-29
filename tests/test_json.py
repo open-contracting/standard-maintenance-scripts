@@ -162,8 +162,10 @@ def merge_obj(result, obj, pointer=''):  # changed code
             continue
 
         if key in result:  # new code
-            if key == 'deprecated' and value is None:
+            if key == 'deprecated' and value is None:  # ocds_milestone_documents_extension
                 warnings.warn('reintroduces {}'.format(pointer))
+            elif key == 'required' and value == []:  # api_extension
+                warnings.warn('makes optional {}'.format(pointer))
             else:
                 raise Exception('unexpectedly overwrites {}/{}'.format(pointer, key))
 
