@@ -309,17 +309,17 @@ def validate_codelist_enum(*args):
                 types = data['type']
 
             if data['openCodelist']:
-                # Open codelists shouldn't set `enum`.
                 if ('string' in types and 'enum' in data or 'array' in types and 'enum' in data['items']):
+                    # Open codelists shouldn't set `enum`.
                     errors += 1
                     print('{} must not set `enum` for open codelist at {}'.format(path, pointer))
             else:
                 if 'string' in types and 'enum' not in data or 'array' in types and 'enum' not in data['items']:
-                    # TODO: See https://github.com/open-contracting/standard-maintenance-scripts/issues/16
-                    actual = None
                     # Fields with closed codelists should set `enum`.
-                    # errors += 1
-                    # print('{} must set `enum` for closed codelist at {}'.format(path, pointer))
+                    errors += 1
+                    print('{} must set `enum` for closed codelist at {}'.format(path, pointer))
+
+                    actual = None
                 elif 'string' in types:
                     actual = set(data['enum'])
                 else:
@@ -465,8 +465,13 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
         # errors += validate_null_type(path, data)
         errors += validate_ref(path, data)
 
-        # `versioned-release-validation-schema.json` introduces arrays of objects. JSON Schema references itself.
-        if 'versioned-release-validation-schema.json' not in path and 'json-schema-draft-4.json' not in path:
+        object_id_exceptions = [
+            'entry-schema.json',
+            'json-schema-draft-4.json',
+            'versioned-release-validation-schema.json',
+        ]
+
+        if all(basename not in path for basename in object_id_exceptions):
             errors += validate_object_id(path, JsonRef.replace_refs(data))
 
         # TODO: https://github.com/open-contracting/standard-maintenance-scripts/issues/27
