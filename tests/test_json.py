@@ -541,8 +541,11 @@ def test_extension_json():
 
         urls = data.get('dependencies', []) + list(data['documentationUrl'].values())
         for url in urls:
-            status_code = requests.head(url).status_code
-            assert status_code == 200, 'HTTP {} on {}'.format(status_code, url)
+            try:
+                status_code = requests.head(url).status_code
+                assert status_code == 200, 'HTTP {} on {}'.format(status_code, url)
+            except requests.exceptions.ConnectionError as e:
+                assert False, '{} on {}'.format(e, url)
 
         assert expected == set(data.get('codelists', []))
     else:
