@@ -490,16 +490,15 @@ def test_valid():
         pass  # fails if the JSON can't be read
 
 
-@pytest.mark.skip(reason='not testing indentation, see open-contracting/standard-maintenance-scripts#2')
+@pytest.mark.skipif(not is_extension, reason='not an extension (test_indent)')
 def test_indent():
     """
     Ensures all JSON files are valid and formatted for humans.
     """
     for path, text, data in walk_json_data():
         # See https://github.com/open-contracting/standard-maintenance-scripts/issues/2
-        indent2 = json.dumps(data, indent=2, separators=(',', ': '))
-        indent4 = json.dumps(data, indent=4, separators=(',', ': '))
-        assert text == indent2 or text == indent4, "{} is not indented as expected".format(path)
+        indent2 = json.dumps(data, indent=2, separators=(',', ': ')) + '\n'
+        assert text == indent2, "{} is not indented as expected, try using `ocdskit indent` to fix indentation".format(path)
 
 
 def test_json_schema():
@@ -512,7 +511,7 @@ def test_json_schema():
             validate_json_schema(path, data, metaschema)
 
 
-@pytest.mark.skipif(not is_extension, reason='not an extension')
+@pytest.mark.skipif(not is_extension, reason='not an extension (test_extension_json)')
 def test_extension_json():
     """
     Ensures the extension's extension.json file is valid against extension-schema.json, all codelists are included, and
@@ -552,7 +551,7 @@ def test_extension_json():
         assert False, 'expected an extension.json file'
 
 
-@pytest.mark.skipif(not is_extension, reason='not an extension')
+@pytest.mark.skipif(not is_extension, reason='not an extension (test_empty_files)')
 def test_empty_files():
     """
     Ensures an extension has no empty files and no versioned-release-validation-schema.json file.
@@ -582,7 +581,7 @@ def test_empty_files():
                 assert text.strip(), '{} is empty and should be removed'.format(path)
 
 
-@pytest.mark.skipif(not is_extension, reason='not an extension')
+@pytest.mark.skipif(not is_extension, reason='not an extension (test_json_merge_patch)')
 def test_json_merge_patch():
     """
     Ensures all extension JSON Schema successfully patch and change core JSON Schema, generating schema that are valid
