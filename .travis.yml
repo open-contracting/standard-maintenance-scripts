@@ -6,6 +6,6 @@ python:
 env:
   - BASEDIR="file://`pwd`"
 install:
-  - curl -s -S $BASEDIR/tests/install.sh | bash -
+  - curl -s -S --retry 3 $BASEDIR/tests/install.sh | bash -
 script:
-  - curl -s -S $BASEDIR/tests/script.sh | bash -
+  - curl -s -S --retry 3 $BASEDIR/tests/script.sh | bash -

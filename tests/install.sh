@@ -4,7 +4,7 @@ set -e
 pip install flake8 json-merge-patch jsonref jsonschema pytest requests rfc3987 strict-rfc3339
 
 # Ruby dependencies
-curl -s -S -o /tmp/Gemfile $BASEDIR/fixtures/Gemfile
+curl -s -S --retry 3 -o /tmp/Gemfile $BASEDIR/fixtures/Gemfile
 # Use same magic incantation as https://github.com/rails/rails/blob/288fbc7ff47b6aae0d5bab978ae16858a425f643/.travis.yml#L30-L31
 gem update --system
 gem install bundler -v 1.15.4
