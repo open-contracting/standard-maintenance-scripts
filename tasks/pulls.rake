@@ -20,8 +20,16 @@ namespace :pulls do
         branch = repo.rels[:branches].get.data.find{ |branch| branch.name == ref }
         if branch
           title = client.commit(repo.full_name, branch.commit.sha).commit.message
-          pull = client.create_pull_request(repo.full_name, repo.default_branch, ref, title, body)
-          puts "#{pull.html_url} #{title.bold}"
+          begin
+            pull = client.create_pull_request(repo.full_name, repo.default_branch, ref, title, body)
+            puts "#{pull.html_url} #{title.bold}"
+          rescue Octokit::UnprocessableEntity => e
+            if e.errors[0][:message][/\ANo commits between master and \S+\z/]
+              client.delete_branch(repo.full_name, ref)
+            else
+              raise e
+            end
+          end
         end
       end
     end
