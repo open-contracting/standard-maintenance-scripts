@@ -612,26 +612,11 @@ def test_json_merge_patch():
 
         if basename == 'release-schema.json':
             # TODO: See https://github.com/open-contracting/standard/issues/630
-            schemas[basename]['definitions']['OrganizationReference']['properties']['name']['type'] = ['string']  # noqa
             schemas[basename]['definitions']['Amendment']['properties']['changes']['items']['properties']['property']['type'] = ['string', 'null']  # noqa
             schemas[basename]['definitions']['Item']['properties']['unit']['type'] = ['object', 'null']  # noqa
             schemas[basename]['definitions']['Organization']['properties']['id']['type'] = ['string', 'null']  # noqa
             schemas[basename]['definitions']['OrganizationReference']['properties']['id']['type'] = ['string', 'integer', 'null']  # noqa
             schemas[basename]['definitions']['RelatedProcess']['properties']['id']['type'] = ['string', 'null']  # noqa
-
-            # TODO: See https://github.com/open-contracting/standard/issues/603
-            schemas[basename]['definitions']['Classification']['description'] = 'TODO'
-            schemas[basename]['definitions']['Identifier']['description'] = 'TODO'
-            schemas[basename]['definitions']['Milestone']['description'] = 'TODO'
-            schemas[basename]['definitions']['Organization']['properties']['address']['description'] = 'TODO'
-            schemas[basename]['definitions']['Organization']['properties']['address']['title'] = 'TODO'
-            schemas[basename]['definitions']['Organization']['properties']['contactPoint']['description'] = 'TODO'
-            schemas[basename]['definitions']['Organization']['properties']['contactPoint']['title'] = 'TODO'
-            schemas[basename]['definitions']['Period']['description'] = 'TODO'
-            schemas[basename]['definitions']['Planning']['properties']['budget']['description'] = 'TODO'
-            schemas[basename]['definitions']['Planning']['properties']['budget']['title'] = 'TODO'
-            schemas[basename]['definitions']['Value']['description'] = 'TODO'
-            schemas[basename]['description'] = 'TODO'
 
             path = os.path.join(os.getcwd(), 'extension.json')
             with open(path) as f:
