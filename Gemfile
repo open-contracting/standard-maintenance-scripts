@@ -2,6 +2,7 @@ source 'https://rubygems.org'
 
 gem 'colored'
 gem 'faraday'
+gem 'google-api-client'
 gem 'hashdiff'
 gem 'netrc'
 gem 'nokogiri'

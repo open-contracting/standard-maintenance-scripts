@@ -1,6 +1,7 @@
 require 'bundler/setup'
 
 require 'csv'
+require 'fileutils'
 require 'json'
 require 'open-uri'
 require 'pp'
@@ -8,6 +9,9 @@ require 'set'
 
 require 'colored'
 require 'faraday'
+require 'google/apis/drive_v2'
+require 'googleauth'
+require 'googleauth/stores/file_token_store'
 require 'hashdiff'
 require 'nokogiri'
 require 'octokit'

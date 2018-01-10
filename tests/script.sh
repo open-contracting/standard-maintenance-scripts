@@ -10,5 +10,5 @@ flake8 --max-line-length 119
 # /tmp/bin/mdl --git-recurse --style /tmp/mdlrc.rb .
 
 # Validate JSON and JSON Schema
-curl -s -S -o /tmp/test_json.py $BASEDIR/tests/test_json.py
-py.test -rs /tmp/test_json.py
+curl -s -S --retry 3 -o /tmp/test_json.py $BASEDIR/tests/test_json.py
+py.test -rs --tb=line /tmp/test_json.py
