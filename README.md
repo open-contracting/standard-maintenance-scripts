@@ -18,7 +18,7 @@ The standard [`.travis.yml`](fixtures/.travis.yml) file performs:
   * Python ([flake8](https://pypi.python.org/pypi/flake8))
   * Markdown ([markdownlint](https://github.com/markdownlint/markdownlint))
   * JSON (readable by Python)
-* Indenting JSON files
+* Various checks against OCDS schema, extensions, etc.
 
 To create a pull request to set up a new repository, enable the repository on [travis-ci.org](https://travis-ci.org), then:
 
@@ -27,6 +27,11 @@ To create a pull request to set up a new repository, enable the repository on [t
     git add .travis.yml
     git commit -m 'Add .travis.yml'
     git push -u origin travis
+
+To run the tests locally, run the setup commands above, change into a repository's folder, then:
+
+    flake8 --max-line-length 119
+    py.test -rs path/to/standard-maintenance-scripts/tests/test_json.py
 
 ### extension-schema.json
 

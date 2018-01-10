@@ -36,6 +36,12 @@ namespace :fix do
 
     repos.each do |repo|
       contexts = []
+
+      # The GitHub Pages status check is very slow.
+      # if repo.has_pages
+      #   contexts << 'github/pages'
+      # end
+
       if repo.rels[:hooks].get.data.any?{ |datum| datum.name == 'travis' }
         begin
           # Only enable Travis if Travis is configured.
@@ -105,7 +111,7 @@ namespace :fix do
             client.protect_branch(repo.full_name, branch.name, options)
             puts "#{repo.html_url}/settings/branches/#{branch.name} #{messages.join(' | ').bold}"
           elsif protection.required_status_checks.contexts != contexts
-            puts "#{repo.html_url}/settings/branches/#{branch.name} unexpected: #{protection.required_status_checks.contexts.join(', ').bold}"
+            puts "#{repo.html_url}/settings/branches/#{branch.name} expected #{contexts.join(', ')}, got #{protection.required_status_checks.contexts.join(', ').bold}"
           end
         end
       end
