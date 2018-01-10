@@ -270,13 +270,14 @@ def validate_null_type(path, data, pointer='', should_be_nullable=True):
             nullable = 'null' in data['type']
             array_of_refs_or_objects = data['type'] == 'array' and any(key in data['items'] for key in ('$ref', 'properties'))  # noqa
             if should_be_nullable:
+                # A special case: If it's not required (should be nullable), but isn't nullable, it's okay if and only
+                # if it's an array of references or objects.
                 if not nullable and not array_of_refs_or_objects:
                     errors += 1
                     print('{} has optional but non-nullable {} at {}'.format(path, data['type'], pointer))
-            else:
-                if nullable:
-                    errors += 1
-                    print('{} has required but nullable {} at {}'.format(path, data['type'], pointer))
+            elif nullable:
+                errors += 1
+                print('{} has required but nullable {} at {}'.format(path, data['type'], pointer))
 
         required = data.get('required', [])
 
@@ -301,6 +302,8 @@ def validate_codelist_enum(*args):
     """
     def block(path, data, pointer):
         errors = 0
+
+        parent = pointer.rsplit('/', 1)[-1]
 
         if 'codelist' in data:
             if isinstance(data['type'], str):
@@ -361,12 +364,10 @@ def validate_codelist_enum(*args):
                     if is_extension and data['codelist'] not in external_codelists:
                         errors += 1
                         print('{} names nonexistent codelist {}'.format(path, data['codelist']))
-        elif 'enum' in data:
-            pass
-            # TODO: See https://github.com/open-contracting/standard-maintenance-scripts/issues/16
+        elif 'enum' in data and parent != 'items' or 'items' in data and 'enum' in data['items']:
             # Fields with `enum` should set closed codelists.
-            # errors += 1
-            # print('{} has `enum` without codelist at {}'.format(path, pointer))
+            errors += 1
+            print('{} has `enum` without codelist at {}'.format(path, pointer))
 
         return errors
 
@@ -441,6 +442,12 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
     """
     errors = 0
 
+    json_schema_exceptions = [
+        'json-schema-draft-4.json',
+        'meta-schema.json',
+        'meta-schema-patch.json',
+    ]
+
     for error in validator(schema, format_checker=FormatChecker()).iter_errors(data):
         errors += 1
         print(json.dumps(error.instance, indent=2, separators=(',', ': ')))
@@ -449,13 +456,14 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
     if errors:
         print('{} is not valid JSON Schema ({} errors)'.format(path, errors))
 
-    errors += validate_codelist_enum(path, data)
+    if all(basename not in path for basename in json_schema_exceptions):
+        errors += validate_codelist_enum(path, data)
 
     if not full_schema:
         errors += validate_deep_properties(path, data)
 
     # JSON Schema has definitions that aren't UpperCamelCase.
-    if 'json-schema-draft-4.json' not in path:
+    if all(basename not in path for basename in json_schema_exceptions):
         errors += validate_letter_case(path, data)
 
     # `full_schema` is set to not expect extensions to repeat `title`, `description`, `type`, `required` and
@@ -465,9 +473,8 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
         # errors += validate_null_type(path, data)
         errors += validate_ref(path, data)
 
-        object_id_exceptions = [
+        object_id_exceptions = json_schema_exceptions + [
             'entry-schema.json',
-            'json-schema-draft-4.json',
             'versioned-release-validation-schema.json',
         ]
 
@@ -596,8 +603,12 @@ def test_json_merge_patch():
         'versioned-release-validation-schema.json',
     )
 
+    # TODO: See https://github.com/open-contracting/standard-maintenance-scripts/issues/16
+    url_pattern = 'https://raw.githubusercontent.com/open-contracting/standard/1.1.3-dev/standard/schema/{}'
+    # url_pattern = 'http://standard.open-contracting.org/latest/en/{}'
+
     for basename in basenames:
-        schemas[basename] = requests.get('http://standard.open-contracting.org/latest/en/{}'.format(basename)).json()
+        schemas[basename] = requests.get(url_pattern.format(basename)).json()
 
         if basename == 'release-schema.json':
             # TODO: See https://github.com/open-contracting/standard/issues/630
