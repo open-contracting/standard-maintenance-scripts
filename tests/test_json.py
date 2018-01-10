@@ -498,7 +498,7 @@ def test_indent():
     for path, text, data in walk_json_data():
         # See https://github.com/open-contracting/standard-maintenance-scripts/issues/2
         indent2 = json.dumps(data, indent=2, separators=(',', ': ')) + '\n'
-        assert text == indent2, "{} is not indented as expected, try using `ocdskit indent` to fix indentation".format(path)
+        assert text == indent2, "{} is not indented as expected (use `ocdskit indent` to fix indentation)".format(path)
 
 
 def test_json_schema():
