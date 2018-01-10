@@ -270,13 +270,14 @@ def validate_null_type(path, data, pointer='', should_be_nullable=True):
             nullable = 'null' in data['type']
             array_of_refs_or_objects = data['type'] == 'array' and any(key in data['items'] for key in ('$ref', 'properties'))  # noqa
             if should_be_nullable:
+                # A special case: If it's not required (should be nullable), but isn't nullable, it's okay if and only
+                # if it's an array of references or objects.
                 if not nullable and not array_of_refs_or_objects:
                     errors += 1
                     print('{} has optional but non-nullable {} at {}'.format(path, data['type'], pointer))
-            else:
-                if nullable:
-                    errors += 1
-                    print('{} has required but nullable {} at {}'.format(path, data['type'], pointer))
+            elif nullable:
+                errors += 1
+                print('{} has required but nullable {} at {}'.format(path, data['type'], pointer))
 
         required = data.get('required', [])
 
