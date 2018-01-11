@@ -212,4 +212,126 @@ namespace :crm do
       end
     end
   end
+
+  desc 'Prints tab-separated values to paste into a contacts spreadsheet'
+  task :dashboard do
+    # Population data.
+    url = 'https://raw.githubusercontent.com/datasets/population/master/data/population.csv'
+    populations = csv_from_url(url).select{ |row| row.fetch('Year') == '2016' }
+
+    # Country data.
+    countries = {}
+    url = 'https://raw.githubusercontent.com/datasets/country-codes/master/data/country-codes.csv'
+    csv_from_url(url).each do |row|
+      countries[row.fetch('ISO3166-1-Alpha-3')] = row
+    end
+
+    # Google Drive data.
+    service = Google::Apis::DriveV2::DriveService.new
+    service.client_options.application_name = APPLICATION_NAME
+    service.authorization = authorize
+
+    folders = {}
+    q = "'0B5qzJROt-jZ0Ui1hSGlLdkxoY0E' in parents" # "1. Publishers" folder
+    service.list_files(q: q).each do |file|
+      folders[file.title] = file
+    end
+
+    # CRM data.
+    contacts = {}
+    suffix = '&tags=government%%20agency' # TODO &tags=national
+    contacts_from_crm(suffix).each do |contact|
+      key = contact['address']['country_code']
+      if contacts.key?(key)
+        $stderr.puts "unexpected collision on country code '#{key}'"
+      else
+        contacts[key] = {
+          'id' => contact['id'],
+          'data_urls' => contact['custom_fields'].find{ |custom_field| custom_field['id'] == 2 }['value'],
+        }
+      end
+    end
+
+    # TODO Handle: non-national government agencies; multiple national government agencies.
+
+    rows = []
+    populations.each do |population|
+      country_code = population.fetch('Country Code')
+      country_name = population.fetch('Country Name')
+
+      begin
+        country = countries.fetch(country_code)
+      rescue KeyError
+        next # Not a country.
+      end
+
+      country_two_letter_code = country.fetch('ISO3166-1-Alpha-2')
+      classifications = [country.fetch('Developed / Developing Countries')]
+
+      [ 'Land Locked Developing Countries (LLDC)',
+        'Least Developed Countries (LDC)',
+        'Small Island Developing States (SIDS)',
+      ].each do |key|
+        value = country.fetch(key)
+        case value
+        when 'x'
+          classifications << key
+        when nil
+          # Do nothing.
+        else
+          $stderr.puts "unexpected value #{value.inspect} in '#{key}' for #{country_code}"
+        end
+      end
+
+      if folders.key?(country_name)
+        drive_folder_url = folders.delete(country_name).alternate_link
+      else
+        drive_folder_url = nil
+      end
+
+      contact = contacts.delete(country_two_letter_code) || {}
+
+      rows << {
+        'Organization' => contact['first_name'],
+        'Country name' => country_name,
+        'Population' => population.fetch('Value'),
+        'Continent code' => country.fetch('Continent'),
+        'Country code' => country_two_letter_code,
+        'Region name' => country.fetch('Sub-region Name'),
+        'Currency code' => country.fetch('ISO4217-currency_alphabetic_code'),
+        'Languages' => country.fetch('Languages'),
+        'Classifications' => classifications.join("\n"),
+        'Drive folder URL' => drive_folder_url,
+        'Data URLs' => contact['data_urls'],
+        'CRM contact URL' => "http://crm.open-contracting.org/contacts/#{contact['id']}",
+      }
+    end
+
+    if folders.any?
+      $stderr.puts "The following folders matched no country name:\n#{folders.keys.join("\n")}"
+    end
+
+    if contacts.any?
+      $stderr.puts "The following contacts matched no country code:\n#{contacts.map{ |contact| contact_link(contact) }.join("\n")}"
+    end
+
+    headers = [
+      'Organization',
+      'Population',
+      'Continent code',
+      'Country code',
+      'Region',
+      'Currency code',
+      'Languages',
+      'Classifications',
+    ]
+
+    CSV($stdout, col_sep: "\t") do |csv|
+      csv << headers
+
+      rows.each do |row|
+        csv << row.values
+      end
+    end
+  end
 end
