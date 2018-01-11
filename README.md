@@ -177,3 +177,13 @@ Lists non-Travis, non-Requires.io webhooks:
 Lists web traffic statistics over past two weeks:
 
     rake repos:traffic
+
+## Check Redmine's consistency and coherence
+
+Prints the errors in contacts:
+
+    rake crm:check
+
+Prints the contacts with non-reactive support:
+
+    rake crm:statuses
