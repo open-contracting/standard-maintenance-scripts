@@ -99,9 +99,6 @@ namespace :resources do
       'Link',
       'Bit.ly link',
       'Resource link',
-      'Resource Type',
-      'Region',
-      'Open Contracting',
     ], col_sep: "\t")
 
     get_resources.each do |resource|
@@ -113,9 +110,6 @@ namespace :resources do
             resource_url.dereferenced_url,
             resource_url.url,
             "https://www.open-contracting.org/wp-admin/post.php?post=#{resource['id']}&action=edit",
-            taxonomy_values(resource, 'resource-type').join(', '),
-            taxonomy_values(resource, 'region').join(', '),
-            taxonomy_values(resource, 'open-contracting').join(', '),
           ]
         end
       end
