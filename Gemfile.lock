@@ -24,6 +24,7 @@ GEM
       os (~> 0.9)
       signet (~> 0.7)
     hashdiff (0.3.5)
+    htmlentities (4.3.4)
     httpclient (2.8.3)
     jwt (2.1.0)
     little-plugger (1.1.4)
@@ -69,6 +70,7 @@ DEPENDENCIES
   faraday
   google-api-client
   hashdiff
+  htmlentities
   netrc
   nokogiri
   octokit

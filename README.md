@@ -187,3 +187,17 @@ Prints the errors in contacts:
 Prints the contacts with non-reactive support:
 
     rake crm:statuses
+
+## Check OCP Resources links
+
+Lints the Resources section of the OCP website:
+
+    rake resources:check
+
+Prints all links from the Resources section of the OCP website:
+
+    rake resources:links
+
+Prints the bit.ly links from the Resources section of the OCP website as tab-separated values:
+
+    rake resources:bitly
