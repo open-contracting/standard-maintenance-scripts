@@ -49,6 +49,23 @@ namespace :resources do
     url[/(?:docs|drive)\.google\.com/]
   end
 
+  def taxonomy_values(resource, key)
+    if resource['taxonomies'][key].any?
+      resource['taxonomies'][key].values
+    else
+      []
+    end
+  end
+
+  def resource_language(resource)
+    matcher = resource['title'].match(/\(([A-Z]{2})\)\z/)
+    if matcher
+      matcher[1]
+    else
+      'EN'
+    end
+  end
+
   def resource_error(resource, message='')
     puts "https://www.open-contracting.org/wp-admin/post.php?post=#{resource['id']}&action=edit: #{message}"
   end
@@ -74,31 +91,43 @@ namespace :resources do
   task :bitly do
     # Bit.ly links are catalogued in https://docs.google.com/spreadsheets/d/1gTcRIzQOdF_jbxDfauZP-f-cfiAUSQy6SQm0-jAKBho/edit#gid=0
 
-    messages = []
+    rows = []
+
+    puts CSV.generate_line([
+      'Name',
+      'Language',
+      'Link',
+      'Bit.ly link',
+      'Resource link',
+      'Resource Type',
+      'Region',
+      'Open Contracting',
+    ], col_sep: "\t")
 
     get_resources.each do |resource|
       get_resource_urls(resource).each do |resource_url|
         if resource_url.url['bit.ly']
-          matcher = resource['title'].match(/\(([A-Z]{2})\)\z/)
-          if matcher
-            language = matcher[1]
-          else
-            language = 'EN'
-          end
-          messages << "#{resource['title'].gsub('&nbsp;', ' ')}\t#{language}\t#{resource_url.dereferenced_url}\t#{url}"
+          rows << [
+            HTMLEntities.new.decode(resource['title']),
+            resource_language(resource),
+            resource_url.dereferenced_url,
+            resource_url.url,
+            "https://www.open-contracting.org/wp-admin/post.php?post=#{resource['id']}&action=edit",
+            taxonomy_values(resource, 'resource-type').join(', '),
+            taxonomy_values(resource, 'region').join(', '),
+            taxonomy_values(resource, 'open-contracting').join(', '),
+          ]
         end
       end
     end
 
-    messages.sort_by{|message| message.split("\t").last }.each do |message|
-      puts message
+    rows.sort_by{ |row| row[3] }.each do |row|
+      puts CSV.generate_line(row, col_sep: "\t")
     end
   end
 
   desc 'Lints the Resources section of the OCP website'
   task :check do
-    # TODO 'taxonomies'
-
     resources = get_resources
     resources_urls = {}
     resource_urls = {}
@@ -114,12 +143,11 @@ namespace :resources do
     ])
 
     resources.each do |resource|
+      # Cache the resource URLs.
       resources_urls[resource['id']] = get_resource_urls(resource)
-    end
 
-    # Collect the unique resource for each URL not occuring in the content of a resource.
-    # Warn if the URL is used in the links or attachments of multiple resources.
-    resources.each do |resource|
+      # Collect the unique resource for each URL not occuring in the content of a resource.
+      # Warn if the URL is used in the links or attachments of multiple resources.
       resources_urls[resource['id']].each do |resource_url|
         url = resource_url.dereferenced_url
         location = resource_url.location
@@ -144,9 +172,39 @@ namespace :resources do
       end
     end
 
+    # Validate the resources
     resources.each do |resource|
       errors = []
       seen_urls = {}
+
+      # Just check the taxonomies of OCDS resources.
+      if resource['title']['OCDS']
+        resource_type = taxonomy_values(resource, 'resource-type')[0]
+        region = taxonomy_values(resource, 'region')
+        open_contracting = taxonomy_values(resource, 'open-contracting')
+
+        if !resource_type
+          errors << 'expected Resource Type to not be nil'
+        end
+
+        if resource_language(resource) == 'ES'
+          expected_region = 'Latin America and the Caribbean'
+        else
+          expected_region = 'International'
+        end
+        if !region.include?(expected_region)
+          errors << "expected Region to include '#{expected_region}'"
+        end
+
+        if resource_type == 'Data tool'
+          expected_open_contracting = ['Data standard', 'Implementation']
+        else
+          expected_open_contracting = ['Data standard']
+        end
+        if open_contracting != expected_open_contracting
+          errors << "expected Open Contracting to be #{expected_open_contracting}"
+        end
+      end
 
       resources_urls[resource['id']].each do |resource_url|
         url = resource_url.dereferenced_url
