@@ -52,7 +52,7 @@ If changes are made to `extension-schema.json`, changes may be needed to:
 List tasks:
 
     invoke -l
-    rake -AT
+    bundle exec rake -AT
 
 Download all extensions to a directory:
 
@@ -76,61 +76,61 @@ Check for TODOs that should be made into GitHub issues (skipping Git, vendored, 
 
 Lists organization members not employed by the Open Contracting Partnership or its helpdesk teams ⏰:
 
-    rake org:members
+    bundle exec rake org:members
 
 ### Manage pull requests
 
 Lists the pull requests from a given branch:
 
-    rake pulls:list REF=branch
+    bundle exec rake pulls:list REF=branch
 
 Creates pull requests from a given branch:
 
-    rake pulls:create REF=branch BODY=description
+    bundle exec rake pulls:create REF=branch BODY=description
 
 Replaces the descriptions of pull requests from a given branch:
 
-    rake pulls:update REF=branch BODY=description
+    bundle exec rake pulls:update REF=branch BODY=description
 
 Compares the given branch to the default branch:
 
-    rake pulls:compare REF=branch
+    bundle exec rake pulls:compare REF=branch
 
 Merges pull requests from a given branch:
 
-    rake pulls:merge REF=branch
+    bundle exec rake pulls:merge REF=branch
 
 ### Change GitHub repository configuration
 
 Disables empty wikis and lists repositories with invalid names, unexpected configurations, etc. ⏰:
 
-    rake fix:lint_repos
+    bundle exec rake fix:lint_repos
 
 Protects default branches ⏰:
 
-    rake fix:protect_branches
+    bundle exec rake fix:protect_branches
 
 Prepares repositories for archival (`REPOS` is a comma-separated list of repository names):
 
-    rake fix:archive_repos REPOS=…
+    bundle exec rake fix:archive_repos REPOS=…
 
 ### Modify local repositories
 
 Regenerates the [badges page](badges.md) ⏰:
 
-    rake local:badges
+    bundle exec rake local:badges
 
 Sets the enum in a JSON Schema to match the codes in the CSV files of closed codelists:
 
-    rake local:codelists BASEDIR=extensions
+    bundle exec rake local:codelists BASEDIR=extensions
 
 Adds template content to extension readmes:
 
-    rake local:readmes BASEDIR=extensions
+    bundle exec rake local:readmes BASEDIR=extensions
 
 Updates extension.json to its new format:
 
-    rake local:extension_json BASEDIR=extensions
+    bundle exec rake local:extension_json BASEDIR=extensions
 
 ### Review GitHub repository metadata and configuration ⏰
 
@@ -138,49 +138,49 @@ The next tasks make no changes, but may require the user to perform an action de
 
 Lists repositories with missing or unexpected Travis configuration:
 
-    rake repos:travis
+    bundle exec rake repos:travis
 
 Lists repositories with many unexpected, old branches (so that merged branches without new commits may be deleted):
 
-    rake repos:branches [EXCLUDE=branch1,branch2]
+    bundle exec rake repos:branches [EXCLUDE=branch1,branch2]
 
 Lists repositories with number of issues, PRs, branches, milestones and whether wiki, pages, issues, projects are enabled:
 
-    rake repos:status [ORG=open-contracting]
+    bundle exec rake repos:status [ORG=open-contracting]
 
 Lists extension repositories with missing template content:
 
-    rake repos:readmes
+    bundle exec rake repos:readmes
 
 Lists missing or unexpected licenses:
 
-    rake repos:licenses
+    bundle exec rake repos:licenses
 
 Lists repository descriptions:
 
-    rake repos:descriptions
+    bundle exec rake repos:descriptions
 
 Lists non-default issue labels:
 
-    rake repos:labels
+    bundle exec rake repos:labels
 
 Lists non-extension releases:
 
-    rake repos:releases
+    bundle exec rake repos:releases
 
 Lists unreleased tags:
 
-    rake repos:tags
+    bundle exec rake repos:tags
 
 Lists non-Travis, non-Requires.io webhooks:
 
-    rake repos:webhooks
+    bundle exec rake repos:webhooks
 
 ### Assess priority
 
 Lists web traffic statistics over past two weeks:
 
-    rake repos:traffic
+    bundle exec rake repos:traffic
 
 ## Non-code tasks
 
@@ -188,22 +188,22 @@ Lists web traffic statistics over past two weeks:
 
 Prints the errors in contacts:
 
-    rake crm:check
+    bundle exec rake crm:check
 
 Prints the contacts with non-reactive support:
 
-    rake crm:statuses
+    bundle exec rake crm:statuses
 
 ### Check OCP Resources links ⏰
 
 Lints the Resources section of the OCP website:
 
-    rake resources:check
+    bundle exec rake resources:check
 
 Prints all links from the Resources section of the OCP website:
 
-    rake resources:links
+    bundle exec rake resources:links
 
 Prints the bit.ly links from the Resources section of the OCP website as tab-separated values:
 
-    rake resources:bitly
+    bundle exec rake resources:bitly
