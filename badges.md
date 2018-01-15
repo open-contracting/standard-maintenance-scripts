@@ -11,7 +11,7 @@ Name|Build|Dependencies
 [ocds-extensions](https://github.com/open-contracting/ocds-extensions)|-|-
 [ocds-faker](https://github.com/open-contracting/ocds-faker)|[![Build Status](https://travis-ci.org/open-contracting/ocds-faker.svg)](https://travis-ci.org/open-contracting/ocds-faker)|-
 [ocds-merge](https://github.com/open-contracting/ocds-merge)|[![Build Status](https://travis-ci.org/open-contracting/ocds-merge.svg)](https://travis-ci.org/open-contracting/ocds-merge)|-
-[ocds-show](https://github.com/open-contracting/ocds-show)|-|-
+[ocds-show](https://github.com/open-contracting/ocds-show)|[![Build Status](https://travis-ci.org/open-contracting/ocds-show.svg)](https://travis-ci.org/open-contracting/ocds-show)|-
 [ocds-show-ppp](https://github.com/open-contracting/ocds-show-ppp)|-|-
 [ocdskit](https://github.com/open-contracting/ocdskit)|[![Build Status](https://travis-ci.org/open-contracting/ocdskit.svg)](https://travis-ci.org/open-contracting/ocdskit)|-
 [ocds_sphinx_directives](https://github.com/open-contracting/ocds_sphinx_directives)|[![Build Status](https://travis-ci.org/open-contracting/ocds_sphinx_directives.svg)](https://travis-ci.org/open-contracting/ocds_sphinx_directives)|-
@@ -40,6 +40,7 @@ Name|Build|Dependencies
 [ocds_contract_suppliers_extension](https://github.com/open-contracting/ocds_contract_suppliers_extension)|[![Build Status](https://travis-ci.org/open-contracting/ocds_contract_suppliers_extension.svg)](https://travis-ci.org/open-contracting/ocds_contract_suppliers_extension)|-
 [ocds_documentation_extension](https://github.com/open-contracting/ocds_documentation_extension)|[![Build Status](https://travis-ci.org/open-contracting/ocds_documentation_extension.svg)](https://travis-ci.org/open-contracting/ocds_documentation_extension)|-
 [ocds_enquiry_extension](https://github.com/open-contracting/ocds_enquiry_extension)|[![Build Status](https://travis-ci.org/open-contracting/ocds_enquiry_extension.svg)](https://travis-ci.org/open-contracting/ocds_enquiry_extension)|-
+[ocds_exchangeRate_extension](https://github.com/open-contracting/ocds_exchangeRate_extension)|[![Build Status](https://travis-ci.org/open-contracting/ocds_exchangeRate_extension.svg)](https://travis-ci.org/open-contracting/ocds_exchangeRate_extension)|-
 [ocds_extendsContractID_extension](https://github.com/open-contracting/ocds_extendsContractID_extension)|[![Build Status](https://travis-ci.org/open-contracting/ocds_extendsContractID_extension.svg)](https://travis-ci.org/open-contracting/ocds_extendsContractID_extension)|-
 [ocds_finance_extension](https://github.com/open-contracting/ocds_finance_extension)|[![Build Status](https://travis-ci.org/open-contracting/ocds_finance_extension.svg)](https://travis-ci.org/open-contracting/ocds_finance_extension)|-
 [ocds_location_extension](https://github.com/open-contracting/ocds_location_extension)|[![Build Status](https://travis-ci.org/open-contracting/ocds_location_extension.svg)](https://travis-ci.org/open-contracting/ocds_location_extension)|-
