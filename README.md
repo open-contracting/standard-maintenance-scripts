@@ -1,5 +1,7 @@
 # Standard maintenance scripts
 
+Tasks that should be run manually periodically have a ⏰ icon.
+
 ## Setup
 
     pip install -r requirements.txt
@@ -20,6 +22,11 @@ The standard [`.travis.yml`](fixtures/.travis.yml) file performs:
   * JSON (readable by Python)
 * Various checks against OCDS schema, extensions, etc.
 
+To run the tests locally, run the setup commands above, change into a repository's folder, then:
+
+    flake8 --max-line-length 119
+    py.test -rs path/to/standard-maintenance-scripts/tests/test_json.py
+
 To create a pull request to set up a new repository, enable the repository on [travis-ci.org](https://travis-ci.org), then:
 
     git checkout -b travis
@@ -27,11 +34,6 @@ To create a pull request to set up a new repository, enable the repository on [t
     git add .travis.yml
     git commit -m 'Add .travis.yml'
     git push -u origin travis
-
-To run the tests locally, run the setup commands above, change into a repository's folder, then:
-
-    flake8 --max-line-length 119
-    py.test -rs path/to/standard-maintenance-scripts/tests/test_json.py
 
 ### extension-schema.json
 
@@ -45,7 +47,7 @@ If changes are made to `extension-schema.json`, changes may be needed to:
 * [extension_creator](https://github.com/open-contracting/extension_creator): [`entry.js`](https://github.com/open-contracting/extension_creator/blob/gh-pages/entry.js#L125) `extension.json` line (and recompile `app.js`)
 * CoVE: [schema.py](https://github.com/OpenDataServices/cove/blob/master/cove_ocds/lib/schema.py#L116) `apply_extensions` method
 
-## Tools
+## Miscellaneous tasks
 
 List tasks:
 
@@ -60,17 +62,19 @@ Check whether `~/.aspell.en.pws` contains unwanted words:
 
     invoke check_aspell_dictionary
 
-Check for files have unexpected permissions:
+Check for files have unexpected permissions ⏰:
 
     find . \! -perm 644 -type f -not -path '*/.git/*' -o \! -perm 755 -type d
 
-Check for files with TODOs that should be made into GitHub issues (skipping Git, vendored, translation, and generated files):
+Check for TODOs that should be made into GitHub issues (skipping Git, vendored, translation, and generated files) ⏰:
 
     grep -R -i --exclude-dir .git --exclude-dir _static --exclude-dir LC_MESSAGES --exclude app.js --exclude conf.py '\btodo' .
 
+## Code tasks
+
 ### Review GitHub organization configuration
 
-Lists organization members not employed by the Open Contracting Partnership or its helpdesk teams:
+Lists organization members not employed by the Open Contracting Partnership or its helpdesk teams ⏰:
 
     rake org:members
 
@@ -98,11 +102,11 @@ Merges pull requests from a given branch:
 
 ### Change GitHub repository configuration
 
-Disables empty wikis and lists repositories with invalid names, unexpected configurations, etc.:
+Disables empty wikis and lists repositories with invalid names, unexpected configurations, etc. ⏰:
 
     rake fix:lint_repos
 
-Protects default branches:
+Protects default branches ⏰:
 
     rake fix:protect_branches
 
@@ -112,7 +116,7 @@ Prepares repositories for archival (`REPOS` is a comma-separated list of reposit
 
 ### Modify local repositories
 
-Regenerates the [badges page](badges.md):
+Regenerates the [badges page](badges.md) ⏰:
 
     rake local:badges
 
@@ -128,7 +132,7 @@ Updates extension.json to its new format:
 
     rake local:extension_json BASEDIR=extensions
 
-### Review GitHub repository metadata and configuration
+### Review GitHub repository metadata and configuration ⏰
 
 The next tasks make no changes, but may require the user to perform an action depending on the output.
 
@@ -172,13 +176,15 @@ Lists non-Travis, non-Requires.io webhooks:
 
     rake repos:webhooks
 
-## Assess priority
+### Assess priority
 
 Lists web traffic statistics over past two weeks:
 
     rake repos:traffic
 
-## Check Redmine's consistency and coherence
+## Non-code tasks
+
+### Check Redmine's consistency and coherence ⏰
 
 Prints the errors in contacts:
 
@@ -188,7 +194,7 @@ Prints the contacts with non-reactive support:
 
     rake crm:statuses
 
-## Check OCP Resources links
+### Check OCP Resources links ⏰
 
 Lints the Resources section of the OCP website:
 
