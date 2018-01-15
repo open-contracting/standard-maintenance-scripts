@@ -11,7 +11,6 @@ namespace :org do
       # Open Data Services Co-op
       # http://opendataservices.coop
       'bjwebb', # Ben Webb
-      'caprenter', # David Carpenter
       'duncandewhurst', # Duncan Dewhurst
       'edugomez', # Eduardo Gomez
       'julijahansen', # Julija Hansen
