@@ -205,8 +205,8 @@ def validate_letter_case(*args):
     """
     Prints and returns the number of errors relating to the letter case of properties and definitions.
     """
-    properties_exceptions = {'former_value'}
-    definition_exceptions = {'record'}
+    properties_exceptions = {'former_value'}  # deprecated
+    definition_exceptions = {'record'}  # 2.0 fix
 
     def block(path, data, pointer):
         errors = 0
@@ -268,6 +268,15 @@ def validate_null_type(path, data, pointer='', should_be_nullable=True):
     """
     errors = 0
 
+    null_exceptions = {
+        '/definitions/Amendment/properties/changes/items/properties/property',  # deprecated
+    }
+    non_null_exceptions = {
+        '/definitions/Organization/properties/id',  # 2.0 fix
+        '/definitions/OrganizationReference/properties/id',  # 2.0 fix
+        '/definitions/RelatedProcess/properties/id',  # 2.0 fix
+    }
+
     if isinstance(data, list):
         for index, item in enumerate(data):
             errors += validate_null_type(path, item, pointer='{}/{}'.format(pointer, index))
@@ -278,10 +287,10 @@ def validate_null_type(path, data, pointer='', should_be_nullable=True):
             if should_be_nullable:
                 # A special case: If it's not required (should be nullable), but isn't nullable, it's okay if and only
                 # if it's an array of references or objects.
-                if not nullable and not array_of_refs_or_objects:
+                if not nullable and not array_of_refs_or_objects and pointer not in null_exceptions:
                     errors += 1
                     warnings.warn('{} has optional but non-nullable {} at {}'.format(path, data['type'], pointer))
-            elif nullable:
+            elif nullable and pointer not in non_null_exceptions:
                 errors += 1
                 warnings.warn('{} has required but nullable {} at {}'.format(path, data['type'], pointer))
 
@@ -490,6 +499,8 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
     """
     errors = 0
 
+    # JSON Schema doesn't UpperCamelCase definitions, doesn't pair enums with codelists, and doesn't include `id`
+    # fields in objects within arrays.
     json_schema_exceptions = {
         'json-schema-draft-4.json',
         'meta-schema.json',
@@ -512,7 +523,6 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
     if not full_schema:
         errors += validate_deep_properties(path, data)
 
-    # JSON Schema has definitions that aren't UpperCamelCase.
     if all(basename not in path for basename in json_schema_exceptions):
         errors += validate_letter_case(path, data)
 
@@ -661,14 +671,11 @@ def test_json_merge_patch():
         schemas[basename] = requests.get(url_pattern.format(basename)).json()
 
         if basename == 'release-schema.json':
+            # TODO: See https://github.com/open-contracting/standard/pull/646
             schemas[basename]['definitions']['Tender']['properties']['additionalProcurementCategories']['items']['type'] = ['string']  # noqa
 
             # TODO: See https://github.com/open-contracting/standard/issues/630
-            schemas[basename]['definitions']['Amendment']['properties']['changes']['items']['properties']['property']['type'] = ['string', 'null']  # noqa
             schemas[basename]['definitions']['Item']['properties']['unit']['type'] = ['object', 'null']  # noqa
-            schemas[basename]['definitions']['Organization']['properties']['id']['type'] = ['string', 'null']  # noqa
-            schemas[basename]['definitions']['OrganizationReference']['properties']['id']['type'] = ['string', 'integer', 'null']  # noqa
-            schemas[basename]['definitions']['RelatedProcess']['properties']['id']['type'] = ['string', 'null']  # noqa
 
             path = os.path.join(os.getcwd(), 'extension.json')
             with open(path) as f:
