@@ -159,8 +159,7 @@ namespace :fix do
         end
       end
 
-      # Treat standard_extension_template as an extension except with respect to these checks.
-      if extension?(repo.name) and repo.name != 'standard_extension_template'
+      if extension?(repo.name, true)
         if !repo.name[/\Aocds_\w+_extension\z/]
           puts "#{repo.name} is not a valid extension name"
         end

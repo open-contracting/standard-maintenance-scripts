@@ -51,9 +51,12 @@ def repos
   end
 end
 
-def extension?(name)
+def extension?(name, no_profiles_or_templates=false)
   # This should match the logic in `test_json.py`.
-  other_extensions = ['api_extension', 'ocds_performance_failures', 'public-private-partnerships', 'standard_extension_template']
+  other_extensions = ['api_extension', 'ocds_performance_failures']
+  unless no_profiles_or_templates
+    other_extensions+= ['public-private-partnerships', 'standard_extension_template']
+  end
   name.start_with?('ocds') && name.end_with?('extension') || other_extensions.include?(name)
 end
 
