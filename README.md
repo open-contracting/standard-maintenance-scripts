@@ -186,6 +186,10 @@ Lists web traffic statistics over past two weeks:
 
 ### Check Redmine's consistency and coherence ⏰
 
+Lists users not employed by the Open Contracting Partnership or its helpdesk teams:
+
+    bundle exec rake crm:users
+
 Prints the errors in contacts:
 
     bundle exec rake crm:check

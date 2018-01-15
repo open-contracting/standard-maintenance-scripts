@@ -27,22 +27,27 @@ namespace :crm do
     credentials
   end
 
+  def crm_api_client
+    @crm_api_client ||= begin
+      client = Faraday.new
+      client.basic_auth(ENV.fetch('username'), ENV.fetch('password'))
+      client
+    end
+  end
+
   def csv_from_url(url, options={})
     CSV.parse(open(url).read, options.merge(headers: true))
   end
 
   # See https://www.redmineup.com/pages/help/crm/listing-contacts-api
   def contacts_from_crm(suffix='')
-    client = Faraday.new
-    client.basic_auth(ENV.fetch('username'), ENV.fetch('password'))
-
     offset = 0
     url = "https://crm.open-contracting.org/contacts.json?limit=100&offset=%d#{suffix}"
 
     contacts = []
 
     loop do
-      data = JSON.parse(client.get(url % offset).body)
+      data = JSON.parse(crm_api_client.get(url % offset).body)
       contacts += data['contacts']
 
       if contacts.size < data['total_count']
@@ -61,6 +66,63 @@ namespace :crm do
 
   def contact_error(contact, message, suffix='')
     puts "#{contact_link(contact, suffix)} #{message}"
+  end
+
+  desc 'Lists users not employed by the Open Contracting Partnership or its helpdesk teams'
+  task :users do
+    # Last updated 2018-01-15
+    known_users = [
+      'Redmine Admin',
+      'API Access',
+
+      # Open Contracting Partnership
+      # https://www.open-contracting.org/about/team/
+      'Carey Kluttz',
+      'Gavin Hayman',
+      'Georg Neumann',
+      'Hera Hussain',
+      'James McKinney',
+      'Karolis Granickas',
+      'Katherine Wikrent',
+      'Kathrin Frauscher',
+      'Lindsey Marchessault',
+      'Leigh Manasco',
+      'Marie Goumballa',
+
+      # Open Data Services Co-op
+      # http://opendataservices.coop
+      'Bob Harper',
+      'Ben Webb',
+      'David Raznick',
+      'David Spencer',
+      'Duncan Dewhurst',
+      'Eduardo Gomez',
+      'Jack Lord',
+      'Julija Hansen',
+      'Rob Redpath',
+      'Rory Scott',
+      'Steven Flower',
+      'Tim Davies',
+
+      # Iniciativa Latinoamericana por los Datos Abiertos
+      # https://idatosabiertos.org/acerca-de-nosotros/
+      'Catalina Demidchuk',
+      'Fabrizio Scrollini',
+      'Juan Pane',
+      'Oscar Montiel',
+      'Yohanna Lisnichuk',
+    ]
+
+    users = JSON.parse(crm_api_client.get("https://crm.open-contracting.org/users.json?limit=100").body)['users']
+
+    names = users.map{ |user| "#{user['firstname']} #{user['lastname']}" }
+
+    puts names - known_users
+
+    difference = known_users - names
+    if difference.any?
+      puts "remove from tasks/crm.rake: #{difference.join(', ')}"
+    end
   end
 
   desc 'Prints the errors in contacts'

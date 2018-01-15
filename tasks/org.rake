@@ -1,7 +1,7 @@
 namespace :org do
-  desc 'Lists organization members'
+  desc 'Lists organization members not employed by the Open Contracting Partnership or its helpdesk teams'
   task :members do
-    # Last updated 2017-08-14
+    # Last updated 2018-01-15
     known_members = [
       # Open Contracting Partnership
       # https://www.open-contracting.org/about/team/
@@ -11,12 +11,12 @@ namespace :org do
       # Open Data Services Co-op
       # http://opendataservices.coop
       'bjwebb', # Ben Webb
+      'kindly', # David Raznick
       'duncandewhurst', # Duncan Dewhurst
       'edugomez', # Eduardo Gomez
-      'julijahansen', # Julija Hansen
-      'kindly', # David Raznick
-      'robredpath', # Rob Redpath
       'scatteredink', # Jack Lord
+      'julijahansen', # Julija Hansen
+      'robredpath', # Rob Redpath
       'timgdavies', # Tim Davies
 
       # Iniciativa Latinoamericana por los Datos Abiertos
