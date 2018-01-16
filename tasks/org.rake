@@ -8,7 +8,7 @@ namespace :org do
       'jpmckinney', # James McKinney
       'lindseyam', # Lindsey Marchessault
 
-      # Open Data Services Co-op
+      # Open Data Services Co-operative Limited
       # http://opendataservices.coop
       'bjwebb', # Ben Webb
       'kindly', # David Raznick

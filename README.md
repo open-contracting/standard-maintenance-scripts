@@ -190,6 +190,10 @@ Lists users not employed by the Open Contracting Partnership or its helpdesk tea
 
     bundle exec rake crm:users
 
+Lists groups with missing or unexpected users:
+
+    bundle exec rake crm:groups
+
 Prints the errors in contacts:
 
     bundle exec rake crm:check

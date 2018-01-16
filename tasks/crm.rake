@@ -6,6 +6,62 @@ CREDENTIALS_PATH = File.join(Dir.home, '.credentials', 'drive-ruby-quickstart.ya
 SCOPE = Google::Apis::DriveV2::AUTH_DRIVE_METADATA_READONLY
 
 namespace :crm do
+  # Last updated 2018-01-15
+  REDMINE_GENERIC_USERS = [
+    'Redmine Admin',
+    'API Access',
+  ]
+
+  # Open Contracting Partnership
+  # https://www.open-contracting.org/about/team/
+  REDMINE_OCP_USERS = [
+    'Carey Kluttz',
+    'Gavin Hayman',
+    'Georg Neumann',
+    'Hera Hussain',
+    'James McKinney',
+    'Karolis Granickas',
+    'Katherine Wikrent',
+    'Kathrin Frauscher',
+    'Lindsey Marchessault',
+    'Leigh Manasco',
+    'Marie Goumballa',
+  ]
+
+  # Open Data Services Co-operative Limited
+  # http://opendataservices.coop
+  REDMINE_ODS_USERS_OCDS = [
+    'Duncan Dewhurst',
+    'Julija Hansen',
+    'Tim Davies',
+  ]
+
+  REDMINE_ODS_USERS_TECH = [
+    'Bob Harper',
+    'Ben Webb',
+    'David Raznick',
+    'David Spencer',
+    'Eduardo Gomez',
+    'Jack Lord',
+    'Rob Redpath',
+    'Rory Scott',
+    'Steven Flower',
+  ]
+
+  REDMINE_ODS_USERS = REDMINE_ODS_USERS_OCDS + REDMINE_ODS_USERS_TECH
+
+  # Iniciativa Latinoamericana por los Datos Abiertos
+  # https://idatosabiertos.org/acerca-de-nosotros/
+  REDMINE_ILDA_USERS = [
+    'Catalina Demidchuk',
+    'Fabrizio Scrollini',
+    'Juan Pane',
+    'Oscar Montiel',
+    'Yohanna Lisnichuk',
+  ]
+
+  REDMINE_ALL_USERS = REDMINE_GENERIC_USERS + REDMINE_OCP_USERS + REDMINE_ODS_USERS + REDMINE_ILDA_USERS
+
   # See https://developers.google.com/drive/v2/web/quickstart/ruby
   def authorize
     FileUtils.mkdir_p(File.dirname(CREDENTIALS_PATH))
@@ -35,6 +91,10 @@ namespace :crm do
     end
   end
 
+  def crm_api_client_get(url)
+    JSON.parse(crm_api_client.get("https://crm.open-contracting.org#{url}").body)
+  end
+
   def csv_from_url(url, options={})
     CSV.parse(open(url).read, options.merge(headers: true))
   end
@@ -42,12 +102,12 @@ namespace :crm do
   # See https://www.redmineup.com/pages/help/crm/listing-contacts-api
   def contacts_from_crm(suffix='')
     offset = 0
-    url = "https://crm.open-contracting.org/contacts.json?limit=100&offset=%d#{suffix}"
+    url = "/contacts.json?limit=100&offset=%d#{suffix}"
 
     contacts = []
 
     loop do
-      data = JSON.parse(crm_api_client.get(url % offset).body)
+      data = crm_api_client_get(url % offset)
       contacts += data['contacts']
 
       if contacts.size < data['total_count']
@@ -70,50 +130,9 @@ namespace :crm do
 
   desc 'Lists users not employed by the Open Contracting Partnership or its helpdesk teams'
   task :users do
-    # Last updated 2018-01-15
-    known_users = [
-      'Redmine Admin',
-      'API Access',
+    known_users = REDMINE_ALL_USERS
 
-      # Open Contracting Partnership
-      # https://www.open-contracting.org/about/team/
-      'Carey Kluttz',
-      'Gavin Hayman',
-      'Georg Neumann',
-      'Hera Hussain',
-      'James McKinney',
-      'Karolis Granickas',
-      'Katherine Wikrent',
-      'Kathrin Frauscher',
-      'Lindsey Marchessault',
-      'Leigh Manasco',
-      'Marie Goumballa',
-
-      # Open Data Services Co-op
-      # http://opendataservices.coop
-      'Bob Harper',
-      'Ben Webb',
-      'David Raznick',
-      'David Spencer',
-      'Duncan Dewhurst',
-      'Eduardo Gomez',
-      'Jack Lord',
-      'Julija Hansen',
-      'Rob Redpath',
-      'Rory Scott',
-      'Steven Flower',
-      'Tim Davies',
-
-      # Iniciativa Latinoamericana por los Datos Abiertos
-      # https://idatosabiertos.org/acerca-de-nosotros/
-      'Catalina Demidchuk',
-      'Fabrizio Scrollini',
-      'Juan Pane',
-      'Oscar Montiel',
-      'Yohanna Lisnichuk',
-    ]
-
-    users = JSON.parse(crm_api_client.get("https://crm.open-contracting.org/users.json?limit=100").body)['users']
+    users = crm_api_client_get("/users.json?limit=100")['users']
 
     names = users.map{ |user| "#{user['firstname']} #{user['lastname']}" }
 
@@ -122,6 +141,50 @@ namespace :crm do
     difference = known_users - names
     if difference.any?
       puts "remove from tasks/crm.rake: #{difference.join(', ')}"
+    end
+  end
+
+  desc 'Lists groups with missing or unexpected users'
+  task :groups do
+    groups = {
+      5 => [:exactly, REDMINE_OCP_USERS],
+      4 => [:exactly, REDMINE_ODS_USERS + ['API Access']],
+      33 => [:exactly, REDMINE_ILDA_USERS],
+      44 => [:exactly, REDMINE_OCP_USERS + REDMINE_ODS_USERS + REDMINE_ILDA_USERS],
+      43 => [:exactly, REDMINE_ODS_USERS_OCDS + REDMINE_ILDA_USERS],
+      23 => [:only, REDMINE_OCP_USERS + REDMINE_ODS_USERS],
+      6 => [:except, REDMINE_ALL_USERS],
+    }
+
+    groups.each do |group_id, (modifier, known_users)|
+      group = crm_api_client_get("/groups/#{group_id}.json?include=users")['group']
+
+      users = group['users'].map{ |user| user['name'] }
+
+      case modifier
+      when :exactly
+        difference = users - known_users
+        if difference.any?
+          puts "https://crm.open-contracting.org/groups/#{group_id}/edit?tab=users: #{group['name']}: remove #{difference.join(', ')}"
+        end
+
+        difference = known_users - users
+        if difference.any?
+          puts "https://crm.open-contracting.org/groups/#{group_id}/edit?tab=users: #{group['name']}: add #{difference.join(', ')}"
+        end
+      when :only
+        difference = users - known_users
+        if difference.any?
+          puts "https://crm.open-contracting.org/groups/#{group_id}/edit?tab=users: #{group['name']}: remove #{difference.join(', ')}"
+        end
+      when :except
+        intersection = users & known_users
+        if intersection.any?
+          puts "https://crm.open-contracting.org/groups/#{group_id}/edit?tab=users: #{group['name']}: remove #{intersection.join(', ')}"
+        end
+      else
+        raise "unexpected modifier #{modifier}"
+      end
     end
   end
 
