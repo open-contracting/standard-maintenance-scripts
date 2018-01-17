@@ -100,6 +100,12 @@ Merges pull requests from a given branch:
 
     bundle exec rake pulls:merge REF=branch
 
+### Prepare for a release of OCDS
+
+Reviews open pull requests and recent changes to core extensions:
+
+    bundle exec rake release:review_extensions
+
 ### Change GitHub repository configuration
 
 Disables empty wikis and lists repositories with invalid names, unexpected configurations, etc. ⏰:

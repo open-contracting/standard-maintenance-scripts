@@ -178,16 +178,6 @@ namespace :fix do
 
   desc 'Sets topics of extensions'
   task :set_topics do
-    core_extensions = {}
-    JSON.load(open('http://standard.open-contracting.org/extension_registry/master/extensions.json').read)['extensions'].each do |extension|
-      match = extension['url'].match(%r{\Ahttps://raw\.githubusercontent\.com/[^/]+/([^/]+)/master/\z})
-      if match
-        core_extensions[match[1]] = extension.fetch('core')
-      else
-        raise "couldn't determine extension name: #{extension['url']}"
-      end
-    end
-
     repos.each do |repo|
       topics = []
 

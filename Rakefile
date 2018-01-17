@@ -70,6 +70,21 @@ def variables(*keys)
   end
 end
 
+def core_extensions
+  @core_extensions ||= begin
+    core_extensions = {}
+    JSON.load(open('http://standard.open-contracting.org/extension_registry/master/extensions.json').read)['extensions'].each do |extension|
+      match = extension['url'].match(%r{\Ahttps://raw\.githubusercontent\.com/[^/]+/([^/]+)/master/\z})
+      if match
+        core_extensions[match[1]] = extension.fetch('core')
+      else
+        raise "couldn't determine extension name: #{extension['url']}"
+      end
+    end
+    core_extensions
+  end
+end
+
 desc 'Report which non-extension repositories are not cloned'
 task :uncloned do
   extension_repositories = Set.new
