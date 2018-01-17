@@ -124,10 +124,6 @@ namespace :crm do
     "http://crm.open-contracting.org/contacts/#{contact['id']}#{suffix}".ljust(45 + suffix.size)
   end
 
-  def contact_error(contact, message, suffix='')
-    puts "#{contact_link(contact, suffix)} #{message}"
-  end
-
   desc 'Lists users not employed by the Open Contracting Partnership or its helpdesk teams'
   task :users do
     known_users = REDMINE_ALL_USERS
@@ -212,6 +208,7 @@ namespace :crm do
         'civil society',
         'donor',
         'government agency',
+        'industry association',
         'private sector',
       ]),
       person_types: Set.new([ # optional
@@ -231,6 +228,13 @@ namespace :crm do
       ]),
     }
 
+    ERRORS = {}
+
+    def add_contact_error(contact, message, suffix='')
+      ERRORS[message] ||= []
+      ERRORS[message] << contact_link(contact, suffix)
+    end
+
     contacts.each do |contact|
       is_company = contact['is_company']
       last_name = contact['last_name']
@@ -242,7 +246,7 @@ namespace :crm do
       disjoint_sets.each do |key, group|
         groups[key] = tags.select{ |tag| disjoint_sets[key].include?(tag) }
         if groups[key].size > 1
-          contact_error(contact, "remove one of #{groups[key].join(', ')}")
+          add_contact_error(contact, "remove one of #{groups[key].join(', ')}")
         end
       end
 
@@ -267,17 +271,21 @@ namespace :crm do
         end
 
         if !last_name.empty?
-          contact_error(contact, "remove 'Last name' value", '/edit')
+          add_contact_error(contact, "remove 'Last name' value", '/edit')
         end
       else
         unexpected_tags += groups.values.flatten - groups[:person_types]
 
         if !company.empty? && !companies.key?(company) && company != 'Independent Consultant'
-          contact_error(contact, "create company contact for '#{company}'")
+          add_contact_error(contact, "create company contact for '#{company}'")
         end
 
         if last_name.empty? || last_name == '-'
-          contact_error(contact, "add 'Last name' value", '/edit')
+          message = "add 'Last name' value"
+          if last_name == '-'
+            message += " instead of '-'"
+          end
+          add_contact_error(contact, message, '/edit')
         end
       end
 
@@ -288,23 +296,35 @@ namespace :crm do
         elsif !tags.include?('government agency')
           message << " or add 'government agency'"
         end
-        contact_error(contact, message)
+        add_contact_error(contact, message)
       end
 
       expected_groups.each do |key|
         if groups[key].empty?
-          contact_error(contact, "add one of #{disjoint_sets[key].to_a.join(', ')}")
+          add_contact_error(contact, "add one of #{disjoint_sets[key].to_a.join(', ')}")
         end
       end
 
-      empty_address_components = expected_address_components.select{ |key| contact['address'][key].empty? }
+      empty_address_components = expected_address_components.select{ |key| contact['address'][key].nil? || contact['address'][key].empty? }
       if empty_address_components.any?
-        contact_error(contact, "set #{empty_address_components.join(', ')} in 'Address' field", '/edit')
+        message = "set #{empty_address_components.join(', ')} in 'Address' field"
+        if is_company
+          message += ' for company'
+        else
+          message += ' for person'
+        end
+        add_contact_error(contact, message, '/edit')
       end
 
       if tags.include?('support provider') && !company.empty?
-        contact_error(contact, "remove 'support provider' from individual and add to company")
+        add_contact_error(contact, "remove 'support provider' from individual and add to company")
       end
+    end
+
+    ERRORS.sort_by{ |message, links| [links.size, message] }.reverse_each do |message, links|
+      puts "#{message} (#{links.size})"
+      puts links
+      puts
     end
   end
 
