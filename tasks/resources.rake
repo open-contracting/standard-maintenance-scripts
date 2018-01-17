@@ -214,7 +214,7 @@ namespace :resources do
 
           # We only check original URLs because Bit.ly doesn't allow changing URL destinations.
           if !url[%r{\A(?:https://docs\.google\.com/document/d/[^/]+/edit|https://docs\.google\.com/spreadsheets/d/[^/]+/copy|https://docs\.google\.com/spreadsheets/d/[^/]+/edit#gid=\d+|https://drive.google.com/drive/folders/[^/?]+|https://drive\.google\.com/file/d/[^/]+/view|https://drive\.google\.com/open\?id=[^&]+)\z}]
-            errors << "expected #{location} to match URL pattern (#{url}) (remove '?usp=sharing', '#heading=…', '/u/0', '/a/open-contracting.org', etc.)"
+            errors << "expected #{location} to match URL pattern (#{url}) (remove '?ts=…', '?usp=sharing', '#heading=…', '/u/0', '/a/open-contracting.org', etc.)"
           end
         end
 
