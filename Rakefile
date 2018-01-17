@@ -42,7 +42,7 @@ end
 
 def repos
   @repos ||= begin
-    repos = client.repos(organization, per_page: 100, accept: 'application/vnd.github.drax-preview+json')
+    repos = client.repos(organization, per_page: 100, accept: 'application/vnd.github.drax-preview+json') # licenses
     if ENV['REPOS']
       repos.select{ |repo| ENV['REPOS'].include?(repo.name) }
     else

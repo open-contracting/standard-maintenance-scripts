@@ -7,6 +7,7 @@ gem 'hashdiff'
 gem 'htmlentities'
 gem 'netrc'
 gem 'nokogiri'
-gem 'octokit'
+# See https://github.com/octokit/octokit.rb/pull/978
+gem 'octokit', git: 'git://github.com/jpmckinney/octokit.rb.git', branch: 'pr/977'
 gem 'rake'
 gem 'safe_yaml'

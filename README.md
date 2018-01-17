@@ -110,13 +110,13 @@ Protects default branches ⏰:
 
     bundle exec rake fix:protect_branches
 
-Prepares repositories for archival (`REPOS` is a comma-separated list of repository names):
-
-    bundle exec rake fix:archive_repos REPOS=…
-
 Sets topics of extensions ⏰:
 
     bundle exec rake:fix:set_topics
+
+Prepares repositories for archival (`REPOS` is a comma-separated list of repository names):
+
+    bundle exec rake fix:archive_repos REPOS=…
 
 ### Modify local repositories
 

@@ -12,7 +12,7 @@ end
 
 def disable_projects(repo, message)
   if repo.has_projects
-    projects = client.projects(repo.full_name, accept: 'application/vnd.github.inertia-preview+json')
+    projects = client.projects(repo.full_name, accept: 'application/vnd.github.inertia-preview+json') # projects
     if projects.none?
       client.edit_repository(repo.full_name, has_projects: false)
       puts "#{repo.html_url}/settings #{'disabled projects'.bold}"
@@ -74,7 +74,7 @@ namespace :fix do
 
   desc 'Protects default branches'
   task :protect_branches do
-    headers = {accept: 'application/vnd.github.loki-preview+json'}
+    headers = {accept: 'application/vnd.github.loki-preview+json'} # branch_protection
 
     known_contexts = Set.new([
       # Unconfigured.
@@ -172,6 +172,40 @@ namespace :fix do
         unexpected_protected_branches.each do |branch|
           puts "- #{branch.name}"
         end
+      end
+    end
+  end
+
+  desc 'Sets topics of extensions'
+  task :set_topics do
+    core_extensions = {}
+    JSON.load(open('http://standard.open-contracting.org/extension_registry/master/extensions.json').read)['extensions'].each do |extension|
+      match = extension['url'].match(%r{\Ahttps://raw\.githubusercontent\.com/[^/]+/([^/]+)/master/\z})
+      if match
+        core_extensions[match[1]] = extension.fetch('core')
+      else
+        raise "couldn't determine extension name: #{extension['url']}"
+      end
+    end
+
+    repos.each do |repo|
+      topics = []
+
+      if extension?(repo.name, true)
+        topics << 'ocds-extension'
+        if core_extensions.key?(repo.name)
+          if core_extensions[repo.name]
+            topics << 'ocds-core-extension'
+          else
+            topics << 'ocds-community-extension'
+          end
+        else
+          puts "couldn't find extension in registry: #{repo.name}"
+        end
+      end
+
+      if topics.any?
+        client.replace_all_topics(repo.full_name, topics, accept: 'application/vnd.github.mercy-preview+json')
       end
     end
   end

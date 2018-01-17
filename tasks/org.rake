@@ -28,7 +28,7 @@ namespace :org do
       'yolile', # Yohanna Lisnichuk
     ]
 
-    people = client.org_members(organization) + client.org_invitations(organization, accept: 'application/vnd.github.korra-preview')
+    people = client.org_members(organization) + client.org_invitations(organization)
 
     names = people.map{ |member| member.login.downcase }
 

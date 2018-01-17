@@ -233,7 +233,7 @@ Report issues for this extension in the [ocds-extensions repository](https://git
     data = {}
 
     repos.each do |repo|
-      data[repo.name] = client.views(repo.full_name, per: 'week', accept: 'application/vnd.github.spiderman-preview')
+      data[repo.name] = client.views(repo.full_name, per: 'week', accept: 'application/vnd.github.spiderman-preview') # traffic
     end
 
     data.sort{ |a, b|
