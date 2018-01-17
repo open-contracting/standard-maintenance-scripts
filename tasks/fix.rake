@@ -23,6 +23,55 @@ def disable_projects(repo, message)
 end
 
 namespace :fix do
+  desc 'Disables empty wikis and lists repositories with invalid names, unexpected configurations, etc.'
+  task :lint_repos do
+    repos.each do |repo|
+      if repo.has_wiki
+        response = Faraday.get("#{repo.html_url}/wiki")
+        if response.status == 302 && response.headers['location'] == repo.html_url
+          client.edit_repository(repo.full_name, has_wiki: false)
+          puts "#{repo.html_url}/settings #{'disabled wiki'.bold}"
+        end
+      end
+
+      if extension?(repo.name, true)
+        if !repo.name[/\Aocds_\w+_extension\z/]
+          puts "#{repo.name} is not a valid extension name"
+        end
+
+        disable_issues(repo, 'should be moved and disabled')
+        disable_projects(repo, 'should be moved and disabled')
+      end
+
+      if repo.private
+        puts "#{repo.html_url} is private"
+      end
+
+      {
+        # The only deployments should be for GitHub Pages.
+        deployments: {
+          path: ' (deployments)',
+          filter: -> (datum) { datum.environment != 'github-pages' },
+        },
+        # Repositories shouldn't have deploy keys.
+        keys: {
+          path: '/settings/keys',
+        },
+      }.each do |rel, config|
+        filter = config[:filter] || -> (datum) { true }
+        formatter = config[:formatter] || -> (datum) { "- #{datum.inspect}" }
+
+        data = repo.rels[rel].get.data.select(&filter)
+        if data.any?
+          puts "#{repo.html_url}#{config[:path]}"
+          data.each do |datum|
+            puts formatter.call(datum)
+          end
+        end
+      end
+    end
+  end
+
   desc 'Protects default branches'
   task :protect_branches do
     headers = {accept: 'application/vnd.github.loki-preview+json'}
@@ -145,55 +194,6 @@ namespace :fix do
       end
     else
       abort "You must set the REPOS environment variable to archive repositories."
-    end
-  end
-
-  desc 'Disables empty wikis and lists repositories with invalid names, unexpected configurations, etc.'
-  task :lint_repos do
-    repos.each do |repo|
-      if repo.has_wiki
-        response = Faraday.get("#{repo.html_url}/wiki")
-        if response.status == 302 && response.headers['location'] == repo.html_url
-          client.edit_repository(repo.full_name, has_wiki: false)
-          puts "#{repo.html_url}/settings #{'disabled wiki'.bold}"
-        end
-      end
-
-      if extension?(repo.name, true)
-        if !repo.name[/\Aocds_\w+_extension\z/]
-          puts "#{repo.name} is not a valid extension name"
-        end
-
-        disable_issues(repo, 'should be moved and disabled')
-        disable_projects(repo, 'should be moved and disabled')
-      end
-
-      if repo.private
-        puts "#{repo.html_url} is private"
-      end
-
-      {
-        # The only deployments should be for GitHub Pages.
-        deployments: {
-          path: ' (deployments)',
-          filter: -> (datum) { datum.environment != 'github-pages' },
-        },
-        # Repositories shouldn't have deploy keys.
-        keys: {
-          path: '/settings/keys',
-        },
-      }.each do |rel, config|
-        filter = config[:filter] || -> (datum) { true }
-        formatter = config[:formatter] || -> (datum) { "- #{datum.inspect}" }
-
-        data = repo.rels[rel].get.data.select(&filter)
-        if data.any?
-          puts "#{repo.html_url}#{config[:path]}"
-          data.each do |datum|
-            puts formatter.call(datum)
-          end
-        end
-      end
     end
   end
 end

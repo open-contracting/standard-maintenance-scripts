@@ -22,7 +22,7 @@ namespace :repos do
     end
   end
 
-  desc 'Checks Travis configurations'
+  desc 'Lists repositories with missing or unexpected Travis configuration'
   task :travis do
     def read(repo, path)
       Base64.decode64(client.contents(repo, path: path).content)

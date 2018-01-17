@@ -114,6 +114,10 @@ Prepares repositories for archival (`REPOS` is a comma-separated list of reposit
 
     bundle exec rake fix:archive_repos REPOS=…
 
+Sets topics of extensions ⏰:
+
+    bundle exec rake:fix:set_topics
+
 ### Modify local repositories
 
 Regenerates the [badges page](badges.md) ⏰:
@@ -136,17 +140,17 @@ Updates extension.json to its new format:
 
 The next tasks make no changes, but may require the user to perform an action depending on the output.
 
+Lists repositories with number of issues, PRs, branches, milestones and whether wiki, pages, issues, projects are enabled:
+
+    bundle exec rake repos:status [ORG=open-contracting]
+
 Lists repositories with missing or unexpected Travis configuration:
 
     bundle exec rake repos:travis
 
-Lists repositories with many unexpected, old branches (so that merged branches without new commits may be deleted):
+Lists repositories with unexpected, old branches (so that merged branches without new commits may be deleted):
 
     bundle exec rake repos:branches [EXCLUDE=branch1,branch2]
-
-Lists repositories with number of issues, PRs, branches, milestones and whether wiki, pages, issues, projects are enabled:
-
-    bundle exec rake repos:status [ORG=open-contracting]
 
 Lists extension repositories with missing template content:
 
