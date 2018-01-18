@@ -352,7 +352,7 @@ def validate_codelist_enum(*args):
                             expected = set([row['Code'] for row in reader])
 
                             # Add None if the field is nullable.
-                            if 'null' in types:
+                            if 'string' in types and 'null' in types:
                                 expected.add(None)
 
                             if actual != expected:
