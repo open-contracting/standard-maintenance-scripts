@@ -130,10 +130,6 @@ Regenerates the [badges page](badges.md) ⏰:
 
     bundle exec rake local:badges
 
-Sets the enum in a JSON Schema to match the codes in the CSV files of closed codelists:
-
-    bundle exec rake local:codelists BASEDIR=extensions
-
 Adds template content to extension readmes:
 
     bundle exec rake local:readmes BASEDIR=extensions
