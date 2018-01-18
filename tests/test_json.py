@@ -15,6 +15,12 @@ from jsonschema import FormatChecker
 from jsonschema.validators import Draft4Validator as validator
 
 
+def custom_warning_formatter(message, category, filename, lineno, line=None):
+    return str(message).replace(os.getcwd() + os.sep, '')
+
+
+warnings.formatwarning = custom_warning_formatter
+
 repo_name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', os.getcwd()))
 
 # For identifying extensions, see https://github.com/open-contracting/standard-development-handbook/issues/16
@@ -24,7 +30,7 @@ other_extensions = ('api_extension', 'ocds_performance_failures', 'public-privat
 is_extension = repo_name.startswith('ocds') and repo_name.endswith('extension') or repo_name in other_extensions
 
 # The codelists defined in the standard.
-external_codelists = [
+external_codelists = {
     'awardStatus.csv',
     'contractStatus.csv',
     'currency.csv',
@@ -34,7 +40,7 @@ external_codelists = [
     'procurementCategory.csv',
     'releaseTag.csv',
     'tenderStatus.csv',
-]
+}
 
 # TODO: See https://github.com/open-contracting/standard-maintenance-scripts/issues/29
 url = 'https://raw.githubusercontent.com/open-contracting/standard/3920a12d203df31dc3d31ca64736dab54445c597/standard/schema/meta-schema.json'  # noqa
@@ -199,8 +205,8 @@ def validate_letter_case(*args):
     """
     Prints and returns the number of errors relating to the letter case of properties and definitions.
     """
-    properties_exceptions = {'former_value'}
-    definition_exceptions = {'record'}
+    properties_exceptions = {'former_value'}  # deprecated
+    definition_exceptions = {'record'}  # 2.0 fix
 
     def block(path, data, pointer):
         errors = 0
@@ -211,12 +217,12 @@ def validate_letter_case(*args):
             for key in data.keys():
                 if not re.search(r'^[a-z][A-Za-z]+$', key) and key not in properties_exceptions:
                     errors += 1
-                    print('{} {}/{} should be lowerCamelCase ASCII letters'.format(path, pointer, key))
+                    warnings.warn('{} {}/{} should be lowerCamelCase ASCII letters'.format(path, pointer, key))
         elif parent == 'definitions':
             for key in data.keys():
                 if not re.search(r'^[A-Z][A-Za-z]+$', key) and key not in definition_exceptions:
                     errors += 1
-                    print('{} {}/{} should be UpperCamelCase ASCII letters'.format(path, pointer, key))
+                    warnings.warn('{} {}/{} should be UpperCamelCase ASCII letters'.format(path, pointer, key))
 
         return errors
 
@@ -246,10 +252,10 @@ def validate_title_description_type(*args):
             for field in required_fields:
                 if field not in data or not data[field] or not data[field].strip():
                     errors += 1
-                    print('{} is missing {}/{}'.format(path, pointer, field))
+                    warnings.warn('{} is missing {}/{}'.format(path, pointer, field))
             if 'type' not in data and '$ref' not in data:
                 errors += 1
-                print('{0} is missing {1}/type or {1}/$ref'.format(path, pointer))
+                warnings.warn('{0} is missing {1}/type or {1}/$ref'.format(path, pointer))
 
         return errors
 
@@ -262,6 +268,15 @@ def validate_null_type(path, data, pointer='', should_be_nullable=True):
     """
     errors = 0
 
+    null_exceptions = {
+        '/definitions/Amendment/properties/changes/items/properties/property',  # deprecated
+    }
+    non_null_exceptions = {
+        '/definitions/Organization/properties/id',  # 2.0 fix
+        '/definitions/OrganizationReference/properties/id',  # 2.0 fix
+        '/definitions/RelatedProcess/properties/id',  # 2.0 fix
+    }
+
     if isinstance(data, list):
         for index, item in enumerate(data):
             errors += validate_null_type(path, item, pointer='{}/{}'.format(pointer, index))
@@ -272,12 +287,12 @@ def validate_null_type(path, data, pointer='', should_be_nullable=True):
             if should_be_nullable:
                 # A special case: If it's not required (should be nullable), but isn't nullable, it's okay if and only
                 # if it's an array of references or objects.
-                if not nullable and not array_of_refs_or_objects:
+                if not nullable and not array_of_refs_or_objects and pointer not in null_exceptions:
                     errors += 1
-                    print('{} has optional but non-nullable {} at {}'.format(path, data['type'], pointer))
-            elif nullable:
+                    warnings.warn('{} has optional but non-nullable {} at {}'.format(path, data['type'], pointer))
+            elif nullable and pointer not in non_null_exceptions:
                 errors += 1
-                print('{} has required but nullable {} at {}'.format(path, data['type'], pointer))
+                warnings.warn('{} has required but nullable {} at {}'.format(path, data['type'], pointer))
 
         required = data.get('required', [])
 
@@ -315,12 +330,12 @@ def validate_codelist_enum(*args):
                 if ('string' in types and 'enum' in data or 'array' in types and 'enum' in data['items']):
                     # Open codelists shouldn't set `enum`.
                     errors += 1
-                    print('{} must not set `enum` for open codelist at {}'.format(path, pointer))
+                    warnings.warn('{} must not set `enum` for open codelist at {}'.format(path, pointer))
             else:
                 if 'string' in types and 'enum' not in data or 'array' in types and 'enum' not in data['items']:
                     # Fields with closed codelists should set `enum`.
                     errors += 1
-                    print('{} must set `enum` for closed codelist at {}'.format(path, pointer))
+                    warnings.warn('{} must set `enum` for closed codelist at {}'.format(path, pointer))
 
                     actual = None
                 elif 'string' in types:
@@ -337,7 +352,7 @@ def validate_codelist_enum(*args):
                             expected = set([row['Code'] for row in reader])
 
                             # Add None if the field is nullable.
-                            if 'null' in types:
+                            if 'string' in types and 'null' in types:
                                 expected.add(None)
 
                             if actual != expected:
@@ -354,7 +369,7 @@ def validate_codelist_enum(*args):
                                     removed = ''
 
                                 errors += 1
-                                print('{} has mismatch between `enum` and codelist at {}{}{}'.format(
+                                warnings.warn('{} has mismatch between `enum` and codelist at {}{}{}'.format(
                                     path, pointer, added, removed))
 
                         break
@@ -363,11 +378,48 @@ def validate_codelist_enum(*args):
                     # extension, but that is not an error.
                     if is_extension and data['codelist'] not in external_codelists:
                         errors += 1
-                        print('{} names nonexistent codelist {}'.format(path, data['codelist']))
+                        warnings.warn('{} names nonexistent codelist {}'.format(path, data['codelist']))
         elif 'enum' in data and parent != 'items' or 'items' in data and 'enum' in data['items']:
             # Fields with `enum` should set closed codelists.
             errors += 1
-            print('{} has `enum` without codelist at {}'.format(path, pointer))
+            warnings.warn('{} has `enum` without codelist at {}'.format(path, pointer))
+
+        return errors
+
+    return traverse(block)(*args)
+
+
+def validate_items_type(*args):
+    """
+    Prints and returns the number of errors relating to the `type` of `items`.
+    """
+    exceptions = {
+        '/definitions/Amendment/properties/changes/items',  # deprecated
+        '/definitions/record/properties/releases/oneOf/0/items',  # `type` is `object`
+    }
+
+    valid_types = {
+        'array',
+        'number',
+        'string',
+    }
+
+    def block(path, data, pointer):
+        errors = 0
+
+        parent = pointer.rsplit('/', 1)[-1]
+
+        if parent == 'items' and 'type' in data:
+            if isinstance(data['type'], str):
+                types = [data['type']]
+            else:
+                types = data['type']
+
+            invalid_type = next((_type for _type in types if _type not in valid_types), None)
+
+            if invalid_type and pointer not in exceptions:
+                errors += 1
+                warnings.warn('{} {} is an invalid `type` for `items` {}'.format(path, invalid_type, pointer))
 
         return errors
 
@@ -378,7 +430,10 @@ def validate_deep_properties(*args):
     """
     Prints and returns the number of errors relating to deep objects, which should be modeled as new definitions.
     """
-    exceptions = {'/definitions/Item/properties/unit', '/definitions/Amendment/properties/changes/items'}
+    exceptions = {
+        '/definitions/Item/properties/unit',
+        '/definitions/Amendment/properties/changes/items',  # deprecated
+    }
 
     def block(path, data, pointer):
         parts = pointer.rsplit('/', 2)
@@ -399,8 +454,10 @@ def validate_object_id(*args):
     """
     Prints and returns the number of errors relating objects within arrays lacking `id` fields.
     """
-    # `changes` is deprecated, and `records` uses `ocid`.
-    exceptions = {'changes', 'records'}
+    exceptions = {
+        'changes',  # deprecated
+        'records',  # uses `ocid` not `id`
+    }
 
     def block(path, data, pointer):
         errors = 0
@@ -416,7 +473,7 @@ def validate_object_id(*args):
             if 'properties' in data['items'] and 'id' not in data['items']['properties']:
                 if 'versionedRelease' not in pointer and grandparent != 'oneOf' and parent not in exceptions:
                     errors += 1
-                    print('{} object array has no `id` property at {}'.format(path, pointer))
+                    warnings.warn('{} object array has no `id` property at {}'.format(path, pointer))
 
         return errors
 
@@ -430,7 +487,7 @@ def validate_ref(path, data):
         # `repr` causes the references to be loaded, if possible.
         repr(ref)
     except JsonRefError as e:
-        print('{} has {} at {}'.format(path, e.message, '/'.join(e.path)))
+        warnings.warn('{} has {} at {}'.format(path, e.message, '/'.join(e.path)))
         return 1
 
     return 0
@@ -442,27 +499,30 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
     """
     errors = 0
 
-    json_schema_exceptions = [
+    # JSON Schema doesn't UpperCamelCase definitions, doesn't pair enums with codelists, and doesn't include `id`
+    # fields in objects within arrays.
+    json_schema_exceptions = {
         'json-schema-draft-4.json',
         'meta-schema.json',
         'meta-schema-patch.json',
-    ]
+    }
 
     for error in validator(schema, format_checker=FormatChecker()).iter_errors(data):
         errors += 1
-        print(json.dumps(error.instance, indent=2, separators=(',', ': ')))
-        print('{} ({})\n'.format(error.message, '/'.join(error.absolute_schema_path)))
+        warnings.warn(json.dumps(error.instance, indent=2, separators=(',', ': ')))
+        warnings.warn('{} ({})\n'.format(error.message, '/'.join(error.absolute_schema_path)))
 
     if errors:
-        print('{} is not valid JSON Schema ({} errors)'.format(path, errors))
+        warnings.warn('{} is not valid JSON Schema ({} errors)'.format(path, errors))
 
     if all(basename not in path for basename in json_schema_exceptions):
         errors += validate_codelist_enum(path, data)
 
+    errors += validate_items_type(path, data)
+
     if not full_schema:
         errors += validate_deep_properties(path, data)
 
-    # JSON Schema has definitions that aren't UpperCamelCase.
     if all(basename not in path for basename in json_schema_exceptions):
         errors += validate_letter_case(path, data)
 
@@ -473,10 +533,10 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
         # errors += validate_null_type(path, data)
         errors += validate_ref(path, data)
 
-        object_id_exceptions = json_schema_exceptions + [
+        object_id_exceptions = json_schema_exceptions | {
             'entry-schema.json',
             'versioned-release-validation-schema.json',
-        ]
+        }
 
         if all(basename not in path for basename in object_id_exceptions):
             errors += validate_object_id(path, JsonRef.replace_refs(data))
@@ -505,7 +565,7 @@ def test_indent():
     for path, text, data in walk_json_data():
         # See https://github.com/open-contracting/standard-maintenance-scripts/issues/2
         indent2 = json.dumps(data, indent=2, separators=(',', ': ')) + '\n'
-        assert text == indent2, "{} is not indented as expected (use `ocdskit indent` to fix indentation)".format(path)
+        assert text == indent2, "{} is not indented as expected, run: ocdskit indent {}".format(path, path)
 
 
 def test_json_schema():
@@ -611,33 +671,17 @@ def test_json_merge_patch():
         schemas[basename] = requests.get(url_pattern.format(basename)).json()
 
         if basename == 'release-schema.json':
-            # TODO: See https://github.com/open-contracting/standard/issues/630
-            schemas[basename]['definitions']['OrganizationReference']['properties']['name']['type'] = ['string']  # noqa
-            schemas[basename]['definitions']['Amendment']['properties']['changes']['items']['properties']['property']['type'] = ['string', 'null']  # noqa
-            schemas[basename]['definitions']['Item']['properties']['unit']['type'] = ['object', 'null']  # noqa
-            schemas[basename]['definitions']['Organization']['properties']['id']['type'] = ['string', 'null']  # noqa
-            schemas[basename]['definitions']['OrganizationReference']['properties']['id']['type'] = ['string', 'integer', 'null']  # noqa
-            schemas[basename]['definitions']['RelatedProcess']['properties']['id']['type'] = ['string', 'null']  # noqa
+            # TODO: See https://github.com/open-contracting/standard/pull/646
+            schemas[basename]['definitions']['Tender']['properties']['additionalProcurementCategories']['items']['type'] = ['string']  # noqa
 
-            # TODO: See https://github.com/open-contracting/standard/issues/603
-            schemas[basename]['definitions']['Classification']['description'] = 'TODO'
-            schemas[basename]['definitions']['Identifier']['description'] = 'TODO'
-            schemas[basename]['definitions']['Milestone']['description'] = 'TODO'
-            schemas[basename]['definitions']['Organization']['properties']['address']['description'] = 'TODO'
-            schemas[basename]['definitions']['Organization']['properties']['address']['title'] = 'TODO'
-            schemas[basename]['definitions']['Organization']['properties']['contactPoint']['description'] = 'TODO'
-            schemas[basename]['definitions']['Organization']['properties']['contactPoint']['title'] = 'TODO'
-            schemas[basename]['definitions']['Period']['description'] = 'TODO'
-            schemas[basename]['definitions']['Planning']['properties']['budget']['description'] = 'TODO'
-            schemas[basename]['definitions']['Planning']['properties']['budget']['title'] = 'TODO'
-            schemas[basename]['definitions']['Value']['description'] = 'TODO'
-            schemas[basename]['description'] = 'TODO'
+            # TODO: See https://github.com/open-contracting/standard/issues/630
+            schemas[basename]['definitions']['Item']['properties']['unit']['type'] = ['object', 'null']  # noqa
 
             path = os.path.join(os.getcwd(), 'extension.json')
             with open(path) as f:
                 data = json.load(f, object_pairs_hook=OrderedDict)
                 for extension_url in data.get('dependencies', []):
-                    external_codelists.extend(requests.get(extension_url).json().get('codelists', []))
+                    external_codelists.update(requests.get(extension_url).json().get('codelists', []))
                     schema_url = '{}/{}'.format(extension_url.rsplit('/', 1)[0], basename)
                     json_merge_patch.merge(schemas[basename], requests.get(schema_url).json())
 

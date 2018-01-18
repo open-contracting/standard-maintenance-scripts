@@ -13,6 +13,7 @@ require 'google/apis/drive_v2'
 require 'googleauth'
 require 'googleauth/stores/file_token_store'
 require 'hashdiff'
+require 'htmlentities'
 require 'nokogiri'
 require 'octokit'
 require 'safe_yaml'
@@ -41,7 +42,7 @@ end
 
 def repos
   @repos ||= begin
-    repos = client.repos(organization, per_page: 100, accept: 'application/vnd.github.drax-preview+json')
+    repos = client.repos(organization, per_page: 100, accept: 'application/vnd.github.drax-preview+json') # licenses
     if ENV['REPOS']
       repos.select{ |repo| ENV['REPOS'].include?(repo.name) }
     else
@@ -50,9 +51,12 @@ def repos
   end
 end
 
-def extension?(name)
+def extension?(name, no_profiles_or_templates=false)
   # This should match the logic in `test_json.py`.
-  other_extensions = ['api_extension', 'ocds_performance_failures', 'public-private-partnerships', 'standard_extension_template']
+  other_extensions = ['api_extension', 'ocds_performance_failures']
+  unless no_profiles_or_templates
+    other_extensions+= ['public-private-partnerships', 'standard_extension_template']
+  end
   name.start_with?('ocds') && name.end_with?('extension') || other_extensions.include?(name)
 end
 
@@ -63,6 +67,21 @@ def variables(*keys)
       abort "usage: rake #{ARGV[0]} #{keys.map{ |key| "#{key}=value" }.join(' ')}"
     end
     value
+  end
+end
+
+def core_extensions
+  @core_extensions ||= begin
+    core_extensions = {}
+    JSON.load(open('http://standard.open-contracting.org/extension_registry/master/extensions.json').read)['extensions'].each do |extension|
+      match = extension['url'].match(%r{\Ahttps://raw\.githubusercontent\.com/[^/]+/([^/]+)/master/\z})
+      if match
+        core_extensions[match[1]] = extension.fetch('core')
+      else
+        raise "couldn't determine extension name: #{extension['url']}"
+      end
+    end
+    core_extensions
   end
 end
 

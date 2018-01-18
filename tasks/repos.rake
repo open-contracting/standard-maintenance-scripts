@@ -22,7 +22,7 @@ namespace :repos do
     end
   end
 
-  desc 'Checks Travis configurations'
+  desc 'Lists repositories with missing or unexpected Travis configuration'
   task :travis do
     def read(repo, path)
       Base64.decode64(client.contents(repo, path: path).content)
@@ -72,7 +72,7 @@ Report issues for this extension in the [ocds-extensions repository](https://git
     END
 
     repos.each do |repo|
-      if extension?(repo.name) && !Base64.decode64(client.readme(repo.full_name).content)[template]
+      if extension?(repo.name, true) && !Base64.decode64(client.readme(repo.full_name).content)[template]
         puts "#{repo.html_url}#readme #{'missing content'.bold}"
       end
     end
@@ -119,7 +119,7 @@ Report issues for this extension in the [ocds-extensions repository](https://git
 
   desc 'Lists non-default issue labels'
   task :labels do
-    default_labels = ['bug', 'duplicate', 'enhancement', 'help wanted', 'invalid', 'question', 'wontfix']
+    default_labels = ['bug', 'duplicate', 'enhancement', 'good first issue', 'help wanted', 'invalid', 'question', 'wontfix']
 
     repos.each do |repo|
       labels = repo.rels[:labels].get.data.map(&:name)
@@ -172,7 +172,9 @@ Report issues for this extension in the [ocds-extensions repository](https://git
   desc 'Lists non-Travis, non-Requires.io webhooks'
   task :webhooks do
     repos.each do |repo|
-      data = repo.rels[:hooks].get.data.reject{ |datum| datum.name == 'travis' || datum.config.url == 'https://requires.io/github/web-hook/' }
+      data = repo.rels[:hooks].get.data.reject do |datum|
+        %w(gemnasium travis).include?(datum.name) || datum.config.url == 'https://requires.io/github/web-hook/'
+      end
       if data.any?
         puts "#{repo.html_url}/settings/hooks"
         data.each do |datum|
@@ -231,7 +233,7 @@ Report issues for this extension in the [ocds-extensions repository](https://git
     data = {}
 
     repos.each do |repo|
-      data[repo.name] = client.views(repo.full_name, per: 'week', accept: 'application/vnd.github.spiderman-preview')
+      data[repo.name] = client.views(repo.full_name, per: 'week', accept: 'application/vnd.github.spiderman-preview') # traffic
     end
 
     data.sort{ |a, b|

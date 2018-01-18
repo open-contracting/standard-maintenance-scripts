@@ -1,23 +1,22 @@
 namespace :org do
-  desc 'Lists organization members'
+  desc 'Lists organization members not employed by the Open Contracting Partnership or its helpdesk teams'
   task :members do
-    # Last updated 2017-08-14
+    # Last updated 2018-01-15
     known_members = [
       # Open Contracting Partnership
       # https://www.open-contracting.org/about/team/
       'jpmckinney', # James McKinney
       'lindseyam', # Lindsey Marchessault
 
-      # Open Data Services Co-op
+      # Open Data Services Co-operative Limited
       # http://opendataservices.coop
       'bjwebb', # Ben Webb
-      'caprenter', # David Carpenter
+      'kindly', # David Raznick
       'duncandewhurst', # Duncan Dewhurst
       'edugomez', # Eduardo Gomez
-      'julijahansen', # Julija Hansen
-      'kindly', # David Raznick
-      'robredpath', # Rob Redpath
       'scatteredink', # Jack Lord
+      'julijahansen', # Julija Hansen
+      'robredpath', # Rob Redpath
       'timgdavies', # Tim Davies
 
       # Iniciativa Latinoamericana por los Datos Abiertos
@@ -29,7 +28,7 @@ namespace :org do
       'yolile', # Yohanna Lisnichuk
     ]
 
-    people = client.org_members(organization) + client.org_invitations(organization, accept: 'application/vnd.github.korra-preview')
+    people = client.org_members(organization) + client.org_invitations(organization)
 
     names = people.map{ |member| member.login.downcase }
 

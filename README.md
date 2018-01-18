@@ -1,5 +1,7 @@
 # Standard maintenance scripts
 
+Tasks that should be run manually periodically have a ⏰ icon.
+
 ## Setup
 
     pip install -r requirements.txt
@@ -20,6 +22,11 @@ The standard [`.travis.yml`](fixtures/.travis.yml) file performs:
   * JSON (readable by Python)
 * Various checks against OCDS schema, extensions, etc.
 
+To run the tests locally, run the setup commands above, change into a repository's folder, then:
+
+    flake8 --max-line-length 119
+    py.test -rs path/to/standard-maintenance-scripts/tests/test_json.py
+
 To create a pull request to set up a new repository, enable the repository on [travis-ci.org](https://travis-ci.org), then:
 
     git checkout -b travis
@@ -27,11 +34,6 @@ To create a pull request to set up a new repository, enable the repository on [t
     git add .travis.yml
     git commit -m 'Add .travis.yml'
     git push -u origin travis
-
-To run the tests locally, run the setup commands above, change into a repository's folder, then:
-
-    flake8 --max-line-length 119
-    py.test -rs path/to/standard-maintenance-scripts/tests/test_json.py
 
 ### extension-schema.json
 
@@ -45,12 +47,12 @@ If changes are made to `extension-schema.json`, changes may be needed to:
 * [extension_creator](https://github.com/open-contracting/extension_creator): [`entry.js`](https://github.com/open-contracting/extension_creator/blob/gh-pages/entry.js#L125) `extension.json` line (and recompile `app.js`)
 * CoVE: [schema.py](https://github.com/OpenDataServices/cove/blob/master/cove_ocds/lib/schema.py#L116) `apply_extensions` method
 
-## Tools
+## Miscellaneous tasks
 
 List tasks:
 
     invoke -l
-    rake -AT
+    bundle exec rake -AT
 
 Download all extensions to a directory:
 
@@ -60,120 +62,162 @@ Check whether `~/.aspell.en.pws` contains unwanted words:
 
     invoke check_aspell_dictionary
 
-Check for files have unexpected permissions:
+Check for files have unexpected permissions ⏰:
 
     find . \! -perm 644 -type f -not -path '*/.git/*' -o \! -perm 755 -type d
 
-Check for files with TODOs that should be made into GitHub issues (skipping Git, vendored, translation, and generated files):
+Check for TODOs that should be made into GitHub issues (skipping Git, vendored, translation, and generated files) ⏰:
 
     grep -R -i --exclude-dir .git --exclude-dir _static --exclude-dir LC_MESSAGES --exclude app.js --exclude conf.py '\btodo' .
 
+## Code tasks
+
 ### Review GitHub organization configuration
 
-Lists organization members not employed by the Open Contracting Partnership or its helpdesk teams:
+Lists organization members not employed by the Open Contracting Partnership or its helpdesk teams ⏰:
 
-    rake org:members
+    bundle exec rake org:members
 
 ### Manage pull requests
 
 Lists the pull requests from a given branch:
 
-    rake pulls:list REF=branch
+    bundle exec rake pulls:list REF=branch
 
 Creates pull requests from a given branch:
 
-    rake pulls:create REF=branch BODY=description
+    bundle exec rake pulls:create REF=branch BODY=description
 
 Replaces the descriptions of pull requests from a given branch:
 
-    rake pulls:update REF=branch BODY=description
+    bundle exec rake pulls:update REF=branch BODY=description
 
 Compares the given branch to the default branch:
 
-    rake pulls:compare REF=branch
+    bundle exec rake pulls:compare REF=branch
 
 Merges pull requests from a given branch:
 
-    rake pulls:merge REF=branch
+    bundle exec rake pulls:merge REF=branch
+
+### Prepare for a release of OCDS
+
+Reviews open pull requests and recent changes to core extensions:
+
+    bundle exec rake release:review_extensions
 
 ### Change GitHub repository configuration
 
-Disables empty wikis and lists repositories with invalid names, unexpected configurations, etc.:
+Disables empty wikis and lists repositories with invalid names, unexpected configurations, etc. ⏰:
 
-    rake fix:lint_repos
+    bundle exec rake fix:lint_repos
 
-Protects default branches:
+Protects default branches ⏰:
 
-    rake fix:protect_branches
+    bundle exec rake fix:protect_branches
+
+Sets topics of extensions ⏰:
+
+    bundle exec rake:fix:set_topics
 
 Prepares repositories for archival (`REPOS` is a comma-separated list of repository names):
 
-    rake fix:archive_repos REPOS=…
+    bundle exec rake fix:archive_repos REPOS=…
 
 ### Modify local repositories
 
-Regenerates the [badges page](badges.md):
+Regenerates the [badges page](badges.md) ⏰:
 
-    rake local:badges
-
-Sets the enum in a JSON Schema to match the codes in the CSV files of closed codelists:
-
-    rake local:codelists BASEDIR=extensions
+    bundle exec rake local:badges
 
 Adds template content to extension readmes:
 
-    rake local:readmes BASEDIR=extensions
+    bundle exec rake local:readmes BASEDIR=extensions
 
 Updates extension.json to its new format:
 
-    rake local:extension_json BASEDIR=extensions
+    bundle exec rake local:extension_json BASEDIR=extensions
 
-### Review GitHub repository metadata and configuration
+### Review GitHub repository metadata and configuration ⏰
 
 The next tasks make no changes, but may require the user to perform an action depending on the output.
 
-Lists repositories with missing or unexpected Travis configuration:
-
-    rake repos:travis
-
-Lists repositories with many unexpected, old branches (so that merged branches without new commits may be deleted):
-
-    rake repos:branches [EXCLUDE=branch1,branch2]
-
 Lists repositories with number of issues, PRs, branches, milestones and whether wiki, pages, issues, projects are enabled:
 
-    rake repos:status [ORG=open-contracting]
+    bundle exec rake repos:status [ORG=open-contracting]
+
+Lists repositories with missing or unexpected Travis configuration:
+
+    bundle exec rake repos:travis
+
+Lists repositories with unexpected, old branches (so that merged branches without new commits may be deleted):
+
+    bundle exec rake repos:branches [EXCLUDE=branch1,branch2]
 
 Lists extension repositories with missing template content:
 
-    rake repos:readmes
+    bundle exec rake repos:readmes
 
 Lists missing or unexpected licenses:
 
-    rake repos:licenses
+    bundle exec rake repos:licenses
 
 Lists repository descriptions:
 
-    rake repos:descriptions
+    bundle exec rake repos:descriptions
 
 Lists non-default issue labels:
 
-    rake repos:labels
+    bundle exec rake repos:labels
 
 Lists non-extension releases:
 
-    rake repos:releases
+    bundle exec rake repos:releases
 
 Lists unreleased tags:
 
-    rake repos:tags
+    bundle exec rake repos:tags
 
 Lists non-Travis, non-Requires.io webhooks:
 
-    rake repos:webhooks
+    bundle exec rake repos:webhooks
 
-## Assess priority
+### Assess priority
 
 Lists web traffic statistics over past two weeks:
 
-    rake repos:traffic
+    bundle exec rake repos:traffic
+
+## Non-code tasks
+
+### Check Redmine's consistency and coherence ⏰
+
+Lists users not employed by the Open Contracting Partnership or its helpdesk teams:
+
+    bundle exec rake crm:users
+
+Lists groups with missing or unexpected users:
+
+    bundle exec rake crm:groups
+
+Prints the errors in contacts:
+
+    bundle exec rake crm:check
+
+Prints the contacts with non-reactive support:
+
+    bundle exec rake crm:statuses
+
+### Check OCP Resources links ⏰
+
+Lints the Resources section of the OCP website:
+
+    bundle exec rake resources:check
+
+Prints all links from the Resources section of the OCP website:
+
+    bundle exec rake resources:links
+
+Prints the bit.ly links from the Resources section of the OCP website as tab-separated values:
+
+    bundle exec rake resources:bitly
