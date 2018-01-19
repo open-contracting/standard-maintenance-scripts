@@ -270,11 +270,12 @@ def validate_null_type(path, data, pointer='', should_be_nullable=True):
 
     null_exceptions = {
         '/definitions/Amendment/properties/changes/items/properties/property',  # deprecated
-    }
-    non_null_exceptions = {
         '/definitions/Organization/properties/id',  # 2.0 fix
         '/definitions/OrganizationReference/properties/id',  # 2.0 fix
         '/definitions/RelatedProcess/properties/id',  # 2.0 fix
+    }
+    non_null_exceptions = {
+        '/definitions/LotDetails',  # actually can be null
     }
 
     if isinstance(data, list):
@@ -530,6 +531,7 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
     # `definitions` from core.
     if full_schema:
         # TODO: https://github.com/open-contracting/standard/issues/630
+        # TODO: https://github.com/open-contracting/ocds-extensions/issues/50
         # errors += validate_null_type(path, data)
         errors += validate_ref(path, data)
 
@@ -671,16 +673,14 @@ def test_json_merge_patch():
         schemas[basename] = requests.get(url_pattern.format(basename)).json()
 
         if basename == 'release-schema.json':
-            # TODO: See https://github.com/open-contracting/standard/pull/646
-            schemas[basename]['definitions']['Tender']['properties']['additionalProcurementCategories']['items']['type'] = ['string']  # noqa
-
-            # TODO: See https://github.com/open-contracting/standard/issues/630
-            schemas[basename]['definitions']['Item']['properties']['unit']['type'] = ['object', 'null']  # noqa
-
             path = os.path.join(os.getcwd(), 'extension.json')
             with open(path) as f:
                 data = json.load(f, object_pairs_hook=OrderedDict)
-                for extension_url in data.get('dependencies', []):
+                dependencies = data.get('dependencies', [])
+                if repo_name == 'ocds_lots_extension':
+                    # ocds_lots_extension extends Bid, which otherwise lacks title, description and type.
+                    dependencies.append('https://raw.githubusercontent.com/open-contracting/ocds_bid_extension/master/extension.json')  # noqa
+                for extension_url in dependencies:
                     external_codelists.update(requests.get(extension_url).json().get('codelists', []))
                     schema_url = '{}/{}'.format(extension_url.rsplit('/', 1)[0], basename)
                     json_merge_patch.merge(schemas[basename], requests.get(schema_url).json())
