@@ -519,7 +519,8 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
     if all(basename not in path for basename in json_schema_exceptions):
         errors += validate_codelist_enum(path, data)
 
-    errors += validate_items_type(path, data)
+    if 'entry-schema.json' not in path:
+        errors += validate_items_type(path, data)
 
     if not full_schema:
         errors += validate_deep_properties(path, data)
