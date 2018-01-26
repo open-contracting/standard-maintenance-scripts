@@ -47,6 +47,12 @@ If changes are made to `extension-schema.json`, changes may be needed to:
 * [extension_creator](https://github.com/open-contracting/extension_creator): [`entry.js`](https://github.com/open-contracting/extension_creator/blob/gh-pages/entry.js#L125) `extension.json` line (and recompile `app.js`)
 * CoVE: [schema.py](https://github.com/OpenDataServices/cove/blob/master/cove_ocds/lib/schema.py#L116) `apply_extensions` method
 
+### entry-schema.json
+
+If changes are made to `entry-schema.json`, changes may be needed to:
+
+* extension registry maintenance scripts
+
 ## Miscellaneous tasks
 
 List tasks:
