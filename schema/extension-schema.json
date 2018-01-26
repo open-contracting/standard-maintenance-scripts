@@ -1,5 +1,4 @@
 {
-  "id": "http://example.com",
   "$schema": "http://json-schema.org/draft-04/schema#",
   "title": "Extension schema",
   "description": "Schema for extension.json file in an OCDS extension bundle.",
