@@ -1,7 +1,13 @@
 import csv
+import json
 import os
+import re
 import warnings
 from io import StringIO
+
+import requests
+from jsonschema import FormatChecker
+from jsonschema.validators import Draft4Validator as validator
 
 
 # Copied from test_json.py.
@@ -109,7 +115,40 @@ def test_valid():
 
 def test_codelist():
     """
-    Ensures all codelists files are valid.
+    Ensures all codelists files are valid against codelist-schema.json.
     """
-    pass
-    # TODO: Checks CSV headers for codelists (Code, Title, Description)
+    path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'schema', 'codelist-schema.json')
+    if os.path.isfile(path):
+        with open(path) as f:
+            schema = json.load(f)
+    else:
+        url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/master/schema/codelist-schema.json'  # noqa
+        schema = requests.get(url).json()
+
+    any_errors = False
+
+    for path, text, reader in walk_csv_data():
+        errors = 0
+
+        if is_codelist(reader):
+            data = []
+            for row in reader:
+                item = {}
+                for k, v in row.items():
+                    if k == 'Code' or v:
+                        if k == 'Section':
+                            # TODO: https://github.com/open-contracting/ocds-extensions/issues/57
+                            item[k] = re.split(r', |/', v)
+                        else:
+                            item[k] = v
+                data.append(item)
+
+            for error in validator(schema, format_checker=FormatChecker()).iter_errors(data):
+                    errors += 1
+                    warnings.warn('{} ({})\n'.format(error.message, '/'.join(error.absolute_schema_path)))
+
+            if errors:
+                any_errors = True
+                warnings.warn('{} is not a valid codelist'.format(path, errors))
+
+    assert not any_errors

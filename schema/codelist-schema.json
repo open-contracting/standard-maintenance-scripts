@@ -1,0 +1,82 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "Code"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "Code": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9-]*$"
+      },
+      "Title": {
+        "type": "string",
+        "minLength": 1
+      },
+      "Description": {
+        "type": "string",
+        "minLength": 1
+      },
+      "Category": {
+        "type": "string",
+        "minLength": 1
+      },
+      "Deprecated": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^\\d+\\.\\d+$"
+      },
+      "Extension": {
+        "type": "string",
+        "minLength": 1
+      },
+      "Section": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "string",
+          "enum": [
+            "award",
+            "bid",
+            "bidder",
+            "contract",
+            "implementation",
+            "planning",
+            "preQualification",
+            "tender"
+          ]
+        }
+      },
+      "Source": {
+        "type": "string",
+        "minLength": 1
+      },
+      "URI Pattern": {
+        "type": "string",
+        "minLength": 1,
+        "format": "uri"
+      },
+      "URI_Pattern": {
+        "type": "string",
+        "minLength": 1,
+        "format": "uri"
+      },
+      "Valid Until": {
+        "type": "string",
+        "minLength": 1,
+        "format": "^(\\d{4}/\\d{4}|\\d{4}-\\d{2})$"
+      },
+      "Title_en": {
+        "type": "string",
+        "minLength": 1
+      },
+      "Description_en": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  }
+}
