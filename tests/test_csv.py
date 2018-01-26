@@ -83,7 +83,7 @@ def test_valid():
                             cells = [cell]
 
                         for cell in cells:
-                            if cell != cell.strip():
+                            if cell is not None and cell != cell.strip():
                                 errors += 1
                                 warnings.warn('{} {} "{}" has leading or trailing whitespace at {},{}'.format(
                                     path, header, cell, row_index, col_index))
@@ -100,7 +100,7 @@ def test_valid():
             expected = output.getvalue()
 
             # TODO: `standard` should be made to conform as well.
-            if is_codelist and text != expected:
+            if is_extension and text != expected:
                 errors += 1
                 warnings.warn('{} is improperly formatted:\n{}\n{}'.format(path, repr(text), repr(expected)))
 
