@@ -35,24 +35,6 @@ To create a pull request to set up a new repository, enable the repository on [t
     git commit -m 'Add .travis.yml'
     git push -u origin travis
 
-### extension-schema.json
-
-This repository holds `extension-schema.json` against which each extension's `extension.json` is tested. The schema is documented in [standard_extension_template](https://github.com/open-contracting/standard_extension_template#extensionjson). It should largely be the same as [`entry-schema.json`](https://github.com/open-contracting/extension_registry/blob/master/entry-schema.json), documented in [extension_registry](https://github.com/open-contracting/extension_registry#entryjson).
-
-If changes are made to `extension-schema.json`, changes may be needed to:
-
-* Each extension and profile: `extension.json`
-* [standard_extension_template](https://github.com/open-contracting/standard_extension_template): [`README.md`](https://github.com/open-contracting/standard_extension_template#extensionjson), `extension.json`
-* [extension_registry](https://github.com/open-contracting/extension_registry): [`README.md`](https://github.com/open-contracting/extension_registry#entryjson), `entry-schema.json`, all `entry.json` files, `compile.py`, `new.py`, `sync.py`
-* [extension_creator](https://github.com/open-contracting/extension_creator): [`entry.js`](https://github.com/open-contracting/extension_creator/blob/gh-pages/entry.js#L125) `extension.json` line (and recompile `app.js`)
-* CoVE: [schema.py](https://github.com/OpenDataServices/cove/blob/master/cove_ocds/lib/schema.py#L116) `apply_extensions` method
-
-### entry-schema.json
-
-If changes are made to `entry-schema.json`, changes may be needed to:
-
-* extension registry maintenance scripts
-
 ## Miscellaneous tasks
 
 List tasks:
