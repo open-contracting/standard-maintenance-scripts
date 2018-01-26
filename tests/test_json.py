@@ -300,10 +300,13 @@ def validate_null_type(path, data, pointer='', should_be_nullable=True):
                 for k, v in data[key].items():
                     errors += validate_null_type(path, v, pointer='{}/{}/{}'.format(pointer, key, k),
                                                  should_be_nullable=k not in required)
-            elif key in ('definitions', 'items'):
+            elif key == 'definitions':
                 for k, v in data[key].items():
                     errors += validate_null_type(path, v, pointer='{}/{}/{}'.format(pointer, key, k),
                                                  should_be_nullable=False)
+            elif key == 'items':
+                errors += validate_null_type(path, data[key], pointer='{}/{}'.format(pointer, key),
+                                             should_be_nullable=False)
             else:
                 errors += validate_null_type(path, value, pointer='{}/{}'.format(pointer, key))
 
@@ -535,13 +538,15 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
     # `full_schema` is set to not expect extensions to repeat `title`, `description`, `type`, `required` and
     # `definitions` from core.
     if full_schema:
-        errors += validate_null_type(path, data)
-        errors += validate_ref(path, data)
-
         object_id_exceptions = json_schema_exceptions | {
             'entry-schema.json',
             'versioned-release-validation-schema.json',
         }
+
+        errors += validate_ref(path, data)
+
+        if 'extension-schema.json' not in path:
+            errors += validate_null_type(path, data)
 
         if all(basename not in path for basename in object_id_exceptions):
             errors += validate_object_id(path, JsonRef.replace_refs(data))
