@@ -13,10 +13,7 @@
       "Code": {
         "title": "Code",
         "description": "The value to use in OCDS data.",
-        "type": [
-          "string",
-          "null"
-        ],
+        "type": "string",
         "pattern": "^[A-Za-z0-9-]*$"
       },
       "Title": {

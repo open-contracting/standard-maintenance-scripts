@@ -135,12 +135,13 @@ def test_codelist():
             for row in reader:
                 item = {}
                 for k, v in row.items():
-                    if k == 'Code' or v:
-                        if k == 'Section':
-                            # TODO: https://github.com/open-contracting/ocds-extensions/issues/57
-                            item[k] = re.split(r', |/', v)
-                        else:
-                            item[k] = v
+                    if k == 'Section':
+                        # TODO: https://github.com/open-contracting/ocds-extensions/issues/57
+                        item[k] = re.split(r', |/', v)
+                    elif k == 'Code' or v:
+                        item[k] = v
+                    else:
+                        item[k] = None
                 data.append(item)
 
             for error in validator(schema, format_checker=FormatChecker()).iter_errors(data):
