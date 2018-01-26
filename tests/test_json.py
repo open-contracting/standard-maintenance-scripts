@@ -505,6 +505,11 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
         'json-schema-draft-4.json',
         'meta-schema.json',
         'meta-schema-patch.json',
+        'codelist-schema.json',
+    }
+    ocds_schema_extensions = {
+        'codelist-schema.json',
+        'entry-schema.json',
     }
 
     for error in validator(schema, format_checker=FormatChecker()).iter_errors(data):
@@ -518,7 +523,7 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
     if all(basename not in path for basename in json_schema_exceptions):
         errors += validate_codelist_enum(path, data)
 
-    if 'entry-schema.json' not in path:
+    if all(basename not in path for basename in ocds_schema_extensions):
         errors += validate_items_type(path, data)
 
     if not full_schema:

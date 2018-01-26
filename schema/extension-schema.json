@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "title": "Extension schema",
-  "description": "Schema for extension.json file in an OCDS extension bundle.",
+  "description": "Schema for extension.json file in an OCDS extension.",
   "type": "object",
   "required": [
     "description",
@@ -12,7 +12,7 @@
   "properties": {
     "codelists": {
       "title": "Extension codelists",
-      "description": "Codelists for this extension",
+      "description": "Codelists for this extension.",
       "type": "array",
       "minItems": 1,
       "items" : {
@@ -23,7 +23,7 @@
     },
     "compatibility": {
       "title": "Compatibility",
-      "description": "Minor versions of the OCDS standard this extension works with",
+      "description": "Minor versions of OCDS this extension works with.",
       "type": "array",
       "minItems": 1,
       "items":{
@@ -86,7 +86,7 @@
     },
     "version": {
       "title": "Version",
-      "description": "Version of the extension. This may be completely separate from the version of the OCDS standard this extension is compatible with (use compatibility for that).",
+      "description": "Version of the extension. This may be completely separate from the version of OCDS this extension is compatible with (use compatibility for that).",
       "type": "string",
       "minLength": 1
     }

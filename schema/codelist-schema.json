@@ -1,5 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Codelist schema",
+  "description": "Schema for OCDS codelist CSV files.",
   "type": "array",
   "items": {
     "type": "object",
@@ -9,32 +11,67 @@
     "additionalProperties": false,
     "properties": {
       "Code": {
-        "type": "string",
+        "title": "Code",
+        "description": "The value to use in OCDS data.",
+        "type": [
+          "string",
+          "null"
+        ],
         "pattern": "^[A-Za-z0-9-]*$"
       },
       "Title": {
-        "type": "string",
+        "title": "Title",
+        "description": "A short title for the code.",
+        "type": [
+          "string",
+          "null"
+        ],
         "minLength": 1
       },
       "Description": {
-        "type": "string",
+        "title": "Description",
+        "description": "A longer-form description of the code.",
+        "type": [
+          "string",
+          "null"
+        ],
         "minLength": 1
       },
       "Category": {
-        "type": "string",
+        "title": "Category",
+        "description": "The publication level of the code.",
+        "type": [
+          "string",
+          "null"
+        ],
         "minLength": 1
       },
       "Deprecated": {
-        "type": "string",
+        "title": "Deprecated",
+        "description": "The minor version of OCDS in which the code was deprecated.",
+        "type": [
+          "string",
+          "null"
+        ],
         "minLength": 1,
         "pattern": "^\\d+\\.\\d+$"
       },
       "Extension": {
-        "type": "string",
+        "title": "Extension",
+        "description": "The title of the OCDS extension from which the code is sourced.",
+        "type": [
+          "string",
+          "null"
+        ],
         "minLength": 1
       },
       "Section": {
-        "type": "array",
+        "title": "Section",
+        "description": "The only OCDS objects in which this documentType code should be used.",
+        "type": [
+          "array",
+          "null"
+        ],
         "minItems": 1,
         "items": {
           "type": "string",
@@ -51,30 +88,60 @@
         }
       },
       "Source": {
-        "type": "string",
+        "title": "Source",
+        "description": "The third-party source for the code.",
+        "type": [
+          "string",
+          "null"
+        ],
         "minLength": 1
       },
       "URI Pattern": {
-        "type": "string",
+        "title": "URI Pattern",
+        "description": "The pattern to which URLs following this scheme should adhere.",
+        "type": [
+          "string",
+          "null"
+        ],
         "minLength": 1,
         "format": "uri"
       },
       "URI_Pattern": {
-        "type": "string",
+        "title": "URI Pattern",
+        "description": "The pattern to which URLs following this scheme should adhere.",
+        "type": [
+          "string",
+          "null"
+        ],
         "minLength": 1,
         "format": "uri"
       },
       "Valid Until": {
-        "type": "string",
+        "title": "Valid Until",
+        "description": "The date past which the code is no longer valid for use.",
+        "type": [
+          "string",
+          "null"
+        ],
         "minLength": 1,
         "format": "^(\\d{4}/\\d{4}|\\d{4}-\\d{2})$"
       },
       "Title_en": {
-        "type": "string",
+        "title": "Title",
+        "description": "A short title for the code.",
+        "type": [
+          "string",
+          "null"
+        ],
         "minLength": 1
       },
       "Description_en": {
-        "type": "string",
+        "title": "Description",
+        "description": "A longer-form description of the code.",
+        "type": [
+          "string",
+          "null"
+        ],
         "minLength": 1
       }
     }
