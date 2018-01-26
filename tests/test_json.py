@@ -243,10 +243,12 @@ def validate_title_description_type(*args):
         if parent not in schema_fields and grandparent not in schema_sections:
             for field in required_fields:
                 if field not in data or not data[field] or not data[field].strip():
-                    errors += 1
+                    # TODO: https://github.com/open-contracting/standard-maintenance-scripts/issues/27
+                    # errors += 1
                     warnings.warn('{} is missing {}/{}'.format(path, pointer, field))
             if 'type' not in data and '$ref' not in data:
-                errors += 1
+                # TODO: https://github.com/open-contracting/standard-maintenance-scripts/issues/27
+                # errors += 1
                 warnings.warn('{0} is missing {1}/type or {1}/$ref'.format(path, pointer))
 
         return errors
@@ -281,10 +283,14 @@ def validate_null_type(path, data, pointer='', should_be_nullable=True):
                 # A special case: If it's not required (should be nullable), but isn't nullable, it's okay if and only
                 # if it's an array of references or objects.
                 if not nullable and not array_of_refs_or_objects and pointer not in null_exceptions:
-                    errors += 1
+                    # TODO: https://github.com/open-contracting/standard/issues/630
+                    # TODO: https://github.com/open-contracting/ocds-extensions/issues/50
+                    # errors += 1
                     warnings.warn('{} has optional but non-nullable {} at {}'.format(path, data['type'], pointer))
             elif nullable and pointer not in non_null_exceptions:
-                errors += 1
+                # TODO: https://github.com/open-contracting/standard/issues/630
+                # TODO: https://github.com/open-contracting/ocds-extensions/issues/50
+                # errors += 1
                 warnings.warn('{} has required but nullable {} at {}'.format(path, data['type'], pointer))
 
         required = data.get('required', [])
@@ -294,10 +300,13 @@ def validate_null_type(path, data, pointer='', should_be_nullable=True):
                 for k, v in data[key].items():
                     errors += validate_null_type(path, v, pointer='{}/{}/{}'.format(pointer, key, k),
                                                  should_be_nullable=k not in required)
-            elif key in ('definitions', 'items'):
+            elif key == 'definitions':
                 for k, v in data[key].items():
                     errors += validate_null_type(path, v, pointer='{}/{}/{}'.format(pointer, key, k),
                                                  should_be_nullable=False)
+            elif key == 'items':
+                errors += validate_null_type(path, data[key], pointer='{}/{}'.format(pointer, key),
+                                             should_be_nullable=False)
             else:
                 errors += validate_null_type(path, value, pointer='{}/{}'.format(pointer, key))
 
@@ -499,6 +508,11 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
         'json-schema-draft-4.json',
         'meta-schema.json',
         'meta-schema-patch.json',
+        'codelist-schema.json',
+    }
+    ocds_schema_extensions = {
+        'codelist-schema.json',
+        'entry-schema.json',
     }
 
     for error in validator(schema, format_checker=FormatChecker()).iter_errors(data):
@@ -512,7 +526,7 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
     if all(basename not in path for basename in json_schema_exceptions):
         errors += validate_codelist_enum(path, data)
 
-    if 'entry-schema.json' not in path:
+    if all(basename not in path for basename in ocds_schema_extensions):
         errors += validate_items_type(path, data)
 
     if not full_schema:
@@ -524,23 +538,22 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
     # `full_schema` is set to not expect extensions to repeat `title`, `description`, `type`, `required` and
     # `definitions` from core.
     if full_schema:
-        # TODO: https://github.com/open-contracting/standard/issues/630
-        # TODO: https://github.com/open-contracting/ocds-extensions/issues/50
-        # errors += validate_null_type(path, data)
-        errors += validate_ref(path, data)
-
         object_id_exceptions = json_schema_exceptions | {
             'entry-schema.json',
             'versioned-release-validation-schema.json',
         }
 
+        errors += validate_ref(path, data)
+
+        if 'extension-schema.json' not in path:
+            errors += validate_null_type(path, data)
+
         if all(basename not in path for basename in object_id_exceptions):
             errors += validate_object_id(path, JsonRef.replace_refs(data))
 
-        # TODO: https://github.com/open-contracting/standard-maintenance-scripts/issues/27
         # `versioned-release-validation-schema.json` omits `title` and `description`.
-        # if 'versioned-release-validation-schema.json' not in path:
-        #     errors += validate_title_description_type(path, data)
+        if 'versioned-release-validation-schema.json' not in path:
+            errors += validate_title_description_type(path, data)
 
     assert errors == 0
 
