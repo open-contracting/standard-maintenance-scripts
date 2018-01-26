@@ -210,6 +210,7 @@ namespace :crm do
         'government agency',
         'industry association',
         'private sector',
+        'service provider',
       ]),
       person_types: Set.new([ # optional
         'procurement expert',

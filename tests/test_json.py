@@ -5,7 +5,6 @@ import re
 import warnings
 from collections import OrderedDict
 from copy import deepcopy
-from io import StringIO
 
 import json_merge_patch
 import pytest
@@ -118,7 +117,7 @@ def walk_csv_data(top=os.getcwd()):
         if name.endswith('.csv'):
             path = os.path.join(root, name)
             with open(path, 'r') as f:
-                yield (path, csv.DictReader(StringIO(f.read())))
+                yield (path, csv.DictReader(f))
 
 
 def is_json_schema(data):
@@ -126,13 +125,6 @@ def is_json_schema(data):
     Returns whether the data is a JSON Schema.
     """
     return '$schema' in data or 'definitions' in data or 'properties' in data
-
-
-def is_codelist(reader):
-    """
-    Returns whether the CSV is a codelist.
-    """
-    return 'Code' in reader.fieldnames
 
 
 def merge(*objs):
@@ -396,6 +388,7 @@ def validate_items_type(*args):
     """
     exceptions = {
         '/definitions/Amendment/properties/changes/items',  # deprecated
+        '/definitions/AmendmentUnversioned/properties/changes/items',  # deprecated
         '/definitions/record/properties/releases/oneOf/0/items',  # `type` is `object`
     }
 
@@ -597,7 +590,7 @@ def test_extension_json():
 
     expected = set()
 
-    for path, data in walk_csv_data(os.path.join(os.getcwd(), 'codelists')):
+    for path, _ in walk_csv_data(os.path.join(os.getcwd(), 'codelists')):
         if 'codelists' in path.split(os.sep):
             expected.add(os.path.basename(path))
 
