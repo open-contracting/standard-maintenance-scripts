@@ -636,13 +636,13 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
             codelist_files = set()
             for csvpath, reader in walk_csv_data():
                 if is_codelist(reader) and 'extensions' not in csvpath.split(os.sep):
-                     name = os.path.basename(csvpath)
-                     if name.startswith('+') or name.startswith('-'):
+                    name = os.path.basename(csvpath)
+                    if name.startswith('+') or name.startswith('-'):
                         if name[1:] not in external_codelists:
                             errors += 1
                             warnings.warn('{} {} modifies non-existent codelist'.format(path, name))
-                     else:
-                         codelist_files.add(name)
+                    else:
+                        codelist_files.add(name)
 
             codelist_values = collect_codelist_values(path, data)
             if is_extension:
