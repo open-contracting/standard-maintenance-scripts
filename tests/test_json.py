@@ -118,7 +118,7 @@ def walk_json_data(top=cwd):
     for root, name in walk(top):
         if name.endswith('.json'):
             path = os.path.join(root, name)
-            with open(path, 'r') as f:
+            with open(path) as f:
                 text = f.read()
                 if text:
                     try:
@@ -134,7 +134,7 @@ def walk_csv_data(top=cwd):
     for root, name in walk(top):
         if name.endswith('.csv'):
             path = os.path.join(root, name)
-            with open(path, 'r') as f:
+            with open(path) as f:
                 yield (path, csv.DictReader(f))
 
 
@@ -453,7 +453,7 @@ def validate_codelist_enum(*args):
                     # extension, but that is not an error. This duplicates a test in `validate_json_schema`.
                     if is_extension and data['codelist'] not in external_codelists:
                         errors += 1
-                        warnings.warn('{} has missing codelist: {}'.format(path, data['codelist']))
+                        warnings.warn('{} is missing codelist: {}'.format(path, data['codelist']))
         elif 'enum' in data and parent != 'items' or 'items' in data and 'enum' in data['items']:
             # Fields with `enum` should set closed codelists.
             errors += 1
@@ -634,7 +634,7 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
         if all(basename not in path for basename in exceptions):
             codelist_files = set()
             for csvpath, reader in walk_csv_data():
-                if is_codelist(reader) and 'extensions' not in csvpath.split(os.sep):
+                if is_codelist(reader) and (is_extension or 'extensions' not in csvpath.split(os.sep)):
                     name = os.path.basename(csvpath)
                     if name.startswith('+') or name.startswith('-'):
                         if name[1:] not in external_codelists:
@@ -657,7 +657,7 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
                 warnings.warn('{} has unused codelists: {}'.format(path, ', '.join(unused_codelists)))
             if missing_codelists:
                 errors += 1
-                warnings.warn('{} has missing codelists: {}'.format(path, ', '.join(missing_codelists)))
+                warnings.warn('{} is missing codelists: {}'.format(path, ', '.join(missing_codelists)))
     else:
         errors += validate_deep_properties(path, data)
 
@@ -747,7 +747,7 @@ def test_empty_files():
         elif not name == '__init__.py' and not name.endswith('.png'):
             path = os.path.join(root, name)
             try:
-                with open(path, 'r') as f:
+                with open(path) as f:
                     text = f.read()
             except UnicodeDecodeError as e:
                 assert False, 'UnicodeDecodeError: {} {}'.format(e, path)

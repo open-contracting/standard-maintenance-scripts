@@ -44,7 +44,7 @@ def walk_csv_data(top=os.getcwd()):
     for root, name in walk(top):
         if name.endswith('.csv'):
             path = os.path.join(root, name)
-            with open(path, 'r') as f:
+            with open(path, newline='') as f:
                 text = f.read()
                 yield (path, text, csv.DictReader(StringIO(text)))
 
