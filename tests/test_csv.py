@@ -49,6 +49,7 @@ def walk_csv_data(top=os.getcwd()):
                 yield (path, text, csv.DictReader(StringIO(text)))
 
 
+# Copied from test_json.py.
 def is_codelist(reader):
     """
     Returns whether the CSV is a codelist.
@@ -108,7 +109,8 @@ def test_valid():
         # TODO: `standard` should be made to conform as well.
         if is_extension and text != expected:
             errors += 1
-            warnings.warn('{} is improperly formatted:\n{}\n{}'.format(path, repr(text), repr(expected)))
+            warnings.warn('{} is improperly formatted (e.g. missing trailing newline, extra quoting characters, '
+                          'non-"\\n" line terminator):\n{}\n{}'.format(path, repr(text), repr(expected)))
 
     assert errors == 0
 
@@ -150,6 +152,5 @@ def test_codelist():
 
             if errors:
                 any_errors = True
-                warnings.warn('{} is not a valid codelist'.format(path, errors))
 
     assert not any_errors
