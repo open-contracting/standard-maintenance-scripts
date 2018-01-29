@@ -14,32 +14,44 @@ from jsonschema import FormatChecker
 from jsonschema.validators import Draft4Validator as validator
 
 
-def custom_warning_formatter(message, category, filename, lineno, line=None):
-    return str(message).replace(os.getcwd() + os.sep, '')
+other_extensions = (
+    'api_extension',
+    'ocds_performance_failures',
+    'public-private-partnerships',
+    'standard_extension_template',
+)
 
-
-warnings.formatwarning = custom_warning_formatter
-
-repo_name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', os.getcwd()))
-
-# For identifying extensions, see https://github.com/open-contracting/standard-development-handbook/issues/16
-# This should match the logic in `Rakefile`.
-other_extensions = ('api_extension', 'ocds_performance_failures', 'public-private-partnerships',
-                    'standard_extension_template')
-is_extension = repo_name.startswith('ocds') and repo_name.endswith('extension') or repo_name in other_extensions
-
-# The codelists defined in the standard.
+# The codelists defined in `standard/schema/codelists`. XXX Hardcoding.
 external_codelists = {
+    'awardCriteria.csv',
     'awardStatus.csv',
     'contractStatus.csv',
     'currency.csv',
+    'documentType.csv',
+    'extendedProcurementCategory.csv',
     'initiationType.csv',
+    'itemClassificationScheme.csv',
+    'locationGazeteer.csv',
     'method.csv',
     'milestoneStatus.csv',
+    'milestoneType.csv',
+    'partyRole.csv',
     'procurementCategory.csv',
+    'relatedProcess.csv',
+    'relatedProcessScheme.csv',
     'releaseTag.csv',
+    'submissionMethod.csv',
     'tenderStatus.csv',
+    'unitClassificationScheme.csv',
 }
+
+cwd = os.getcwd()
+
+repo_name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', cwd))
+
+# This should match the logic in `Rakefile`. XXX Hardcoding.
+# For identifying extensions, see https://github.com/open-contracting/standard-development-handbook/issues/16
+is_extension = repo_name.startswith('ocds') and repo_name.endswith('extension') or repo_name in other_extensions
 
 # TODO: See https://github.com/open-contracting/standard-maintenance-scripts/issues/29
 url = 'https://raw.githubusercontent.com/open-contracting/standard/3920a12d203df31dc3d31ca64736dab54445c597/standard/schema/meta-schema.json'  # noqa
@@ -81,7 +93,14 @@ if is_extension:
     metaschema['properties']['deprecated']['type'] = ['object', 'null']
 
 
-def walk(top=os.getcwd()):
+def custom_warning_formatter(message, category, filename, lineno, line=None):
+    return str(message).replace(cwd + os.sep, '')
+
+
+warnings.formatwarning = custom_warning_formatter
+
+
+def walk(top=cwd):
     """
     Yields all files, except third-party files under `_static` directories.
     """
@@ -93,7 +112,7 @@ def walk(top=os.getcwd()):
             yield (root, name)
 
 
-def walk_json_data(top=os.getcwd()):
+def walk_json_data(top=cwd):
     """
     Yields all JSON data.
     """
@@ -109,7 +128,7 @@ def walk_json_data(top=os.getcwd()):
                         assert False, '{} is not valid JSON ({})'.format(path, e)
 
 
-def walk_csv_data(top=os.getcwd()):
+def walk_csv_data(top=cwd):
     """
     Yields all CSV data.
     """
@@ -170,6 +189,25 @@ def merge_obj(result, obj, pointer=''):  # changed code
             continue
         result[key] = value
     return result
+
+
+def collect_codelist_values(path, data, pointer=''):
+    """
+    Collects `codelist` values from JSON Schema.
+    """
+    codelists = set()
+
+    if isinstance(data, list):
+        for index, item in enumerate(data):
+            codelists.update(collect_codelist_values(path, item, pointer='{}/{}'.format(pointer, index)))
+    elif isinstance(data, dict):
+        if 'codelist' in data:
+            codelists.add(data['codelist'])
+
+        for key, value in data.items():
+            codelists.update(collect_codelist_values(path, value, pointer='{}/{}'.format(pointer, key)))
+
+    return codelists
 
 
 def traverse(block):
@@ -406,10 +444,10 @@ def validate_codelist_enum(*args):
                         break
                 else:
                     # When validating a patched schema, the above code will fail to find the core codelists in an
-                    # extension, but that is not an error.
+                    # extension, but that is not an error. This duplicates a test in `validate_json_schema`.
                     if is_extension and data['codelist'] not in external_codelists:
                         errors += 1
-                        warnings.warn('{} names nonexistent codelist {}'.format(path, data['codelist']))
+                        warnings.warn('{} has missing codelist: {}'.format(path, data['codelist']))
         elif 'enum' in data and parent != 'items' or 'items' in data and 'enum' in data['items']:
             # Fields with `enum` should set closed codelists.
             errors += 1
@@ -568,8 +606,7 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
     if all(basename not in path for basename in exceptions):
         errors += validate_letter_case(path, data)
 
-    # `full_schema` is set to not expect extensions to repeat `title`, `description`, `type`, `required` and
-    # `definitions` from core.
+    # `full_schema` is set to not expect extensions to repeat information from core.
     if full_schema:
         exceptions_plus_versioned = exceptions | {
             'versioned-release-validation-schema.json',
@@ -587,6 +624,33 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
         # Extensions aren't expected to repeat `title`, `description`, `type`.
         if all(basename not in path for basename in exceptions_plus_versioned):
             errors += validate_title_description_type(path, data)
+        # Extensions aren't expected to repeat referenced codelist CSV files.
+        if all(basename not in path for basename in exceptions):
+            codelist_files = set()
+            for csvpath, _ in walk_csv_data(os.path.join(cwd, 'codelists')):
+                 name = os.path.basename(csvpath)
+                 if name.startswith('+') or name.startswith('-'):
+                    if name[1:] not in external_codelists:
+                        errors += 1
+                        warnings.warn('{} {} modifies non-existent codelist'.format(path, name))
+                 else:
+                     codelist_files.add(name)
+
+            codelist_values = collect_codelist_values(path, data)
+            if is_extension:
+                all_codelist_files = codelist_files | external_codelists
+            else:
+                all_codelist_files = codelist_files
+
+            unused_codelists = [codelist for codelist in codelist_files if codelist not in codelist_values]
+            missing_codelists = [codelist for codelist in codelist_values if codelist not in all_codelist_files]
+
+            if unused_codelists:
+                errors += 1
+                warnings.warn('{} has unused codelists: {}'.format(path, ', '.join(unused_codelists)))
+            if missing_codelists:
+                errors += 1
+                warnings.warn('{} has missing codelists: {}'.format(path, ', '.join(missing_codelists)))
     else:
         errors += validate_deep_properties(path, data)
 
@@ -636,13 +700,9 @@ def test_extension_json():
         url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/master/schema/extension-schema.json'  # noqa
         schema = requests.get(url).json()
 
-    expected = set()
+    expected = {os.path.basename(path) for path, _ in walk_csv_data(os.path.join(cwd, 'codelists'))}
 
-    for path, _ in walk_csv_data(os.path.join(os.getcwd(), 'codelists')):
-        if 'codelists' in path.split(os.sep):
-            expected.add(os.path.basename(path))
-
-    path = os.path.join(os.getcwd(), 'extension.json')
+    path = os.path.join(cwd, 'extension.json')
     if os.path.isfile(path):
         with open(path) as f:
             data = json.load(f, object_pairs_hook=OrderedDict)
@@ -715,7 +775,7 @@ def test_json_merge_patch():
         schemas[basename] = requests.get(url_pattern.format(basename)).json()
 
         if basename == 'release-schema.json':
-            path = os.path.join(os.getcwd(), 'extension.json')
+            path = os.path.join(cwd, 'extension.json')
             with open(path) as f:
                 data = json.load(f, object_pairs_hook=OrderedDict)
                 dependencies = data.get('dependencies', [])
