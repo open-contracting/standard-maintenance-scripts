@@ -151,6 +151,5 @@ def test_codelist():
 
             if errors:
                 any_errors = True
-                warnings.warn('{} is not a valid codelist'.format(path, errors))
 
     assert not any_errors
