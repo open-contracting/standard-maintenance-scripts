@@ -49,6 +49,7 @@ def walk_csv_data(top=os.getcwd()):
                 yield (path, text, csv.DictReader(StringIO(text)))
 
 
+# Copied from test_json.py.
 def is_codelist(reader):
     """
     Returns whether the CSV is a codelist.

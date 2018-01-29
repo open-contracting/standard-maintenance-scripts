@@ -146,6 +146,13 @@ def is_json_schema(data):
     return '$schema' in data or 'definitions' in data or 'properties' in data
 
 
+def is_codelist(reader):
+    """
+    Returns whether the CSV is a codelist.
+    """
+    return 'Code' in reader.fieldnames
+
+
 def merge(*objs):
     """
     Copied from json_merge_patch.
@@ -627,14 +634,15 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
         # Extensions aren't expected to repeat referenced codelist CSV files.
         if all(basename not in path for basename in exceptions):
             codelist_files = set()
-            for csvpath, _ in walk_csv_data(os.path.join(cwd, 'codelists')):
-                 name = os.path.basename(csvpath)
-                 if name.startswith('+') or name.startswith('-'):
-                    if name[1:] not in external_codelists:
-                        errors += 1
-                        warnings.warn('{} {} modifies non-existent codelist'.format(path, name))
-                 else:
-                     codelist_files.add(name)
+            for csvpath, reader in walk_csv_data():
+                if is_codelist(reader) and 'extensions' not in csvpath.split(os.sep):
+                     name = os.path.basename(csvpath)
+                     if name.startswith('+') or name.startswith('-'):
+                        if name[1:] not in external_codelists:
+                            errors += 1
+                            warnings.warn('{} {} modifies non-existent codelist'.format(path, name))
+                     else:
+                         codelist_files.add(name)
 
             codelist_values = collect_codelist_values(path, data)
             if is_extension:
