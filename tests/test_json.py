@@ -264,9 +264,38 @@ def validate_null_type(path, data, pointer='', should_be_nullable=True):
 
     null_exceptions = {
         '/definitions/Amendment/properties/changes/items/properties/property',  # deprecated
-        '/definitions/Organization/properties/id',  # 2.0 fix
-        '/definitions/OrganizationReference/properties/id',  # 2.0 fix
-        '/definitions/RelatedProcess/properties/id',  # 2.0 fix
+
+        # API extension adds metadata fields to which this rule doesn't apply.
+        '/properties/packageMetadata',
+        '/properties/packageMetadata/properties/uri',
+        '/properties/packageMetadata/properties/publishedDate',
+        '/properties/packageMetadata/properties/publisher',
+        '/properties/links',
+        '/properties/links/properties/all',
+        '/properties/links/properties/next',
+        '/properties/links/properties/prev',
+
+        # API extension removes the `required` field, making these optional but non-nullable.
+        '/properties/uri',
+        '/properties/version',
+        '/properties/publishedDate',
+        '/properties/publisher',
+
+        # 2.0 fixes.
+        # See https://github.com/open-contracting/standard/issues/650
+        '/definitions/Organization/properties/id',
+        '/definitions/OrganizationReference/properties/id',
+        '/definitions/RelatedProcess/properties/id',
+        '/definitions/ParticipationFee/properties/id',
+        '/definitions/Lot/properties/id',
+        '/definitions/LotGroup/properties/id',
+        '/definitions/Risk/properties/id',
+        '/definitions/Shareholder/properties/id',
+        '/definitions/Charge/properties/id',
+        '/definitions/Metric/properties/id',
+        '/definitions/Observation/properties/id',
+        '/definitions/PerformanceFailure/properties/id',
+        '/definitions/Tariff/properties/id',
     }
     non_null_exceptions = {
         '/definitions/LotDetails',  # actually can be null
@@ -431,12 +460,13 @@ def validate_items_type(*args):
 
 def validate_deep_properties(*args):
     """
-    Prints and returns the number of errors relating to deep objects, which should be modeled as new definitions.
+    Prints warnings relating to deep objects, which, if appropriate, should be modeled as new definitions.
     """
     exceptions = {
-        '/definitions/Item/properties/unit',
         '/definitions/Amendment/properties/changes/items',  # deprecated
     }
+    if is_extension:
+        exceptions.add('/definitions/Item/properties/unit')  # avoid repetition in extensions
 
     def block(path, data, pointer):
         parts = pointer.rsplit('/', 2)
@@ -502,18 +532,24 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
     """
     errors = 0
 
-    # JSON Schema doesn't UpperCamelCase definitions, doesn't pair enums with codelists, and doesn't include `id`
-    # fields in objects within arrays.
+    # Non-OCDS schema don't:
+    # * pair "enum" and "codelist"
+    # * disallow "null" in "type" of "items"
+    # * UpperCamelCase definitions and lowerCamelCase properties
+    # * allow "null" in the "type" of optional fields
+    # * include "id" fields in objects within arrays
+    # * require "title", "description" and "type" properties
     json_schema_exceptions = {
         'json-schema-draft-4.json',
         'meta-schema.json',
         'meta-schema-patch.json',
-        'codelist-schema.json',
     }
-    ocds_schema_extensions = {
+    ocds_schema_exceptions = {
         'codelist-schema.json',
         'entry-schema.json',
+        'extension-schema.json',
     }
+    exceptions = json_schema_exceptions | ocds_schema_exceptions
 
     for error in validator(schema, format_checker=FormatChecker()).iter_errors(data):
         errors += 1
@@ -523,37 +559,36 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
     if errors:
         warnings.warn('{} is not valid JSON Schema ({} errors)'.format(path, errors))
 
-    if all(basename not in path for basename in json_schema_exceptions):
+    if all(basename not in path for basename in exceptions):
         errors += validate_codelist_enum(path, data)
 
-    if all(basename not in path for basename in ocds_schema_extensions):
+    if all(basename not in path for basename in exceptions):
         errors += validate_items_type(path, data)
 
-    if not full_schema:
-        errors += validate_deep_properties(path, data)
-
-    if all(basename not in path for basename in json_schema_exceptions):
+    if all(basename not in path for basename in exceptions):
         errors += validate_letter_case(path, data)
 
     # `full_schema` is set to not expect extensions to repeat `title`, `description`, `type`, `required` and
     # `definitions` from core.
     if full_schema:
-        object_id_exceptions = json_schema_exceptions | {
-            'entry-schema.json',
+        exceptions_plus_versioned = exceptions | {
             'versioned-release-validation-schema.json',
         }
 
+        # Extensions aren't expected to repeat referenced `definitions`.
         errors += validate_ref(path, data)
 
-        if 'extension-schema.json' not in path:
+        # Extensions aren't expected to repeat `required`.
+        if all(basename not in path for basename in exceptions_plus_versioned):
             errors += validate_null_type(path, data)
-
-        if all(basename not in path for basename in object_id_exceptions):
+        # Extensions aren't expected to repeat referenced `definitions`.
+        if all(basename not in path for basename in exceptions_plus_versioned):
             errors += validate_object_id(path, JsonRef.replace_refs(data))
-
-        # `versioned-release-validation-schema.json` omits `title` and `description`.
-        if 'versioned-release-validation-schema.json' not in path:
+        # Extensions aren't expected to repeat `title`, `description`, `type`.
+        if all(basename not in path for basename in exceptions_plus_versioned):
             errors += validate_title_description_type(path, data)
+    else:
+        errors += validate_deep_properties(path, data)
 
     assert errors == 0
 
