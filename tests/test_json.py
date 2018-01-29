@@ -31,7 +31,6 @@ external_codelists = {
     'extendedProcurementCategory.csv',
     'initiationType.csv',
     'itemClassificationScheme.csv',
-    'locationGazeteer.csv',
     'method.csv',
     'milestoneStatus.csv',
     'milestoneType.csv',
