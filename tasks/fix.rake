@@ -173,6 +173,8 @@ namespace :fix do
           puts "- #{branch.name}"
         end
       end
+
+      print '.'
     end
   end
 
