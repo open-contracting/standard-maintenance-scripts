@@ -106,8 +106,7 @@ def test_valid():
         writer.writerows(rows)
         expected = output.getvalue()
 
-        # TODO: `standard` should be made to conform as well.
-        if is_extension and text != expected:
+        if text != expected:
             errors += 1
             warnings.warn('{} is improperly formatted (e.g. missing trailing newline, extra quoting characters, '
                           'non-"\\n" line terminator):\n{}\n{}'.format(path, repr(text), repr(expected)))
