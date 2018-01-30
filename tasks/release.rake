@@ -15,7 +15,7 @@ namespace :release do
         end
 
         if compare.status == 'ahead'
-          puts "#{compare.html_url} #{compare.ahead_by} commits to #{repo.default_branch} since #{latest_release.tag_name}."
+          puts "#{compare.html_url} #{compare.ahead_by} commits to #{repo.default_branch} since #{latest_release.tag_name}"
         end
       end
     end
