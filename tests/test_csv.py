@@ -1,7 +1,6 @@
 import csv
 import json
 import os
-import re
 import warnings
 from io import StringIO
 
@@ -138,8 +137,7 @@ def test_codelist():
                 item = {}
                 for k, v in row.items():
                     if k == 'Section':
-                        # TODO: https://github.com/open-contracting/ocds-extensions/issues/57
-                        item[k] = re.split(r', |/', v)
+                        item[k] = v.split(', ')
                     elif k == 'Code' or v:
                         item[k] = v
                     else:

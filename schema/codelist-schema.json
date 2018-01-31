@@ -60,7 +60,7 @@
       },
       "Section": {
         "title": "Section",
-        "description": "The only OCDS objects in which this documentType code should be used.",
+        "description": "The only OCDS objects in which this documentType code should be used. (This field is a ', '-delimited value in the CSV file.)",
         "type": [
           "array",
           "null"
