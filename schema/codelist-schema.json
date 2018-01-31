@@ -6,7 +6,9 @@
   "items": {
     "type": "object",
     "required": [
-      "Code"
+      "Code",
+      "Title",
+      "Description"
     ],
     "additionalProperties": false,
     "properties": {
@@ -19,19 +21,13 @@
       "Title": {
         "title": "Title",
         "description": "A short title for the code.",
-        "type": [
-          "string",
-          "null"
-        ],
+        "type": "string",
         "minLength": 1
       },
       "Description": {
         "title": "Description",
         "description": "A longer-form description of the code.",
-        "type": [
-          "string",
-          "null"
-        ],
+        "type": "string",
         "minLength": 1
       },
       "Category": {
@@ -103,7 +99,7 @@
         "minLength": 1,
         "format": "uri"
       },
-      "URI_Pattern": {
+      "URI Pattern": {
         "title": "URI Pattern",
         "description": "The pattern to which URLs following this scheme should adhere.",
         "type": [
@@ -122,24 +118,6 @@
         ],
         "minLength": 1,
         "format": "^(\\d{4}/\\d{4}|\\d{4}-\\d{2})$"
-      },
-      "Title_en": {
-        "title": "Title",
-        "description": "A short title for the code.",
-        "type": [
-          "string",
-          "null"
-        ],
-        "minLength": 1
-      },
-      "Description_en": {
-        "title": "Description",
-        "description": "A longer-form description of the code.",
-        "type": [
-          "string",
-          "null"
-        ],
-        "minLength": 1
       }
     }
   }
