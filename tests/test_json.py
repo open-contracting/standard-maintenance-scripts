@@ -545,26 +545,20 @@ def validate_object_id(*args):
         'Related Process',
     }
 
-
     def block(path, data, pointer):
         errors = 0
 
-        parts = pointer.rsplit('/')
-        if len(parts) >= 3:
-            grandparent = parts[-2]
-        else:
-            grandparent = None
-        parent = parts[-1]
+        parent = pointer.rsplit('/')[-1]
 
         if 'type' in data and data['type'] == 'array' and 'properties' in data['items']:
             required = data['items'].get('required', [])
 
-            if ('id' not in data['items']['properties'] and parent not in exceptions):
+            if 'id' not in data['items']['properties'] and parent not in exceptions:
                 errors += 1
                 warnings.warn('{} object array has no `id` property at {}'.format(path, pointer))
 
             if ('id' not in required and not data.get('wholeListMerge') and
-                parent not in exceptions and data['items']['title'] not in ref_title_exceptions):
+                    parent not in exceptions and data['items']['title'] not in ref_title_exceptions):
                 # 2.0 fixes.
                 warnings.warn('{} object array should require `id` property at {}'.format(path, pointer))
 
