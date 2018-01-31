@@ -47,4 +47,19 @@ namespace :release do
       end
     end
   end
+
+  desc 'Removes specific releases of core extensions'
+  task :undo_release_extensions do
+    ref = variables('REF')[0]
+
+    repos.each do |repo|
+      release = client.releases(repo.full_name).find{ |release| release.tag_name == ref }
+      if release
+        success = client.delete_release(release.url)
+        if success
+          puts "#{repo.html_url} deleted #{ref} release (still need to delete local (git tag -d #{ref}) and remote (git push origin :#{ref}) tags)"
+        end
+      end
+    end
+  end
 end

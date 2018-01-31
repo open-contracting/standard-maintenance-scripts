@@ -632,6 +632,7 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
             errors += validate_title_description_type(path, data)
         # Extensions aren't expected to repeat referenced codelist CSV files.
         if all(basename not in path for basename in exceptions):
+            # TODO: Standard has codelists used by different schema. This code assumes each schema uses all codelists.
             codelist_files = set()
             for csvpath, reader in walk_csv_data():
                 if is_codelist(reader) and (is_extension or 'extensions' not in csvpath.split(os.sep)):

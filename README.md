@@ -98,7 +98,11 @@ Reviews open pull requests and recent changes to core extensions:
 
 Releases new versions of core extensions:
 
-    bundle exec rake release:release_extensions REF=v7.8.9 NAME="Fixed version for OCDS 7.8.9"
+    bundle exec rake release:release_extensions REF=v7.8.9
+
+Removes specific releases of core extensions:
+
+    bundle exec rake release:undo_release_extensions REF=v7.8.9
 
 ### Change GitHub repository configuration
 
