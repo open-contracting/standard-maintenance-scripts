@@ -53,7 +53,7 @@ repo_name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', cwd))
 is_extension = repo_name.startswith('ocds') and repo_name.endswith('extension') or repo_name in other_extensions
 
 # TODO: See https://github.com/open-contracting/standard-maintenance-scripts/issues/29
-url = 'https://raw.githubusercontent.com/open-contracting/standard/3920a12d203df31dc3d31ca64736dab54445c597/standard/schema/meta-schema.json'  # noqa
+url = 'https://raw.githubusercontent.com/open-contracting/standard/1.1.3-dev/standard/schema/meta-schema.json'  # noqa
 metaschema = requests.get(url).json()
 
 # jsonmerge fields for OCDS 1.0.
@@ -464,7 +464,7 @@ def validate_codelist_enum(*args):
     return traverse(block)(*args)
 
 
-def validate_items_type(*args):
+def validate_items_type(path, data, additional_valid_types=None):
     """
     Prints and returns the number of errors relating to the `type` of `items`.
     """
@@ -479,6 +479,8 @@ def validate_items_type(*args):
         'number',
         'string',
     }
+    if additional_valid_types:
+        valid_types.update(additional_valid_types)
 
     def block(path, data, pointer):
         errors = 0
@@ -499,7 +501,7 @@ def validate_items_type(*args):
 
         return errors
 
-    return traverse(block)(*args)
+    return traverse(block)(path, data)
 
 
 def validate_deep_properties(*args):
@@ -617,7 +619,10 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
         errors += validate_codelist_enum(path, data)
 
     if all(basename not in path for basename in exceptions):
-        errors += validate_items_type(path, data)
+        kwargs = {}
+        if 'versioned-release-validation-schema.json' in path:
+            kwargs['additional_valid_types'] = ['object']
+        errors += validate_items_type(path, data, **kwargs)
 
     if all(basename not in path for basename in exceptions):
         errors += validate_letter_case(path, data)
