@@ -118,6 +118,10 @@ def test_codelist():
     """
     Ensures all codelists files are valid against codelist-schema.json.
     """
+    exceptions = {
+        'currency.csv': "'Description' is a required property",
+    }
+
     path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'schema', 'codelist-schema.json')
     if os.path.isfile(path):
         with open(path) as f:
@@ -145,7 +149,8 @@ def test_codelist():
                 data.append(item)
 
             for error in validator(schema, format_checker=FormatChecker()).iter_errors(data):
+                if exceptions.get(os.path.basename(path)) != error.message:
                     any_errors = True
-                    warnings.warn('{} ({})\n'.format(error.message, '/'.join(error.absolute_schema_path)))
+                    warnings.warn('{}: {} ({})\n'.format(path, error.message, '/'.join(error.absolute_schema_path)))
 
     assert not any_errors
