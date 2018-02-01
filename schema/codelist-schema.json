@@ -51,7 +51,7 @@
       },
       "Extension": {
         "title": "Extension",
-        "description": "The title of the OCDS extension from which the code is sourced.",
+        "description": "The title of the OCDS extension from which the code is sourced, or 'OCDS Core'.",
         "type": [
           "string",
           "null"
@@ -87,7 +87,8 @@
           "string",
           "null"
         ],
-        "minLength": 1
+        "minLength": 1,
+        "format": "uri"
       },
       "URI Pattern": {
         "title": "URI Pattern",

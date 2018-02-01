@@ -57,7 +57,7 @@ namespace :release do
       if release
         success = client.delete_release(release.url)
         if success
-          puts "#{repo.html_url} deleted #{ref} release (still need to delete local (git tag -d #{ref}) and remote (git push origin :#{ref}) tags)"
+          puts "#{repo.html_url} deleted #{ref} release: still need to delete local and remote tags: git tag -d #{ref}; git push origin :#{ref}"
         end
       end
     end
