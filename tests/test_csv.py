@@ -106,7 +106,7 @@ def test_valid():
         writer.writerows(rows)
         expected = output.getvalue()
 
-        if text != expected and not translated:
+        if text != expected and not translated and repo_name != 'sample-data':
             errors += 1
             warnings.warn('{} is improperly formatted (e.g. missing trailing newline, extra quoting characters, '
                           'non-"\\n" line terminator):\n{}\n{}'.format(path, repr(text), repr(expected)))
