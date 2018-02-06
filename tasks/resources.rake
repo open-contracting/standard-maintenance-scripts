@@ -11,6 +11,27 @@ namespace :resources do
       @google_id ||= dereferenced_url['google.com'] && dereferenced_url[%r{/([^/]{25,})/}, 1]
     end
 
+    def type
+      case dereferenced_url
+      when %r{\Ahttps://docs\.google\.com/(?:document|spreadsheets)/d/[^/]+/\z}
+        'bare'
+      when %r{\Ahttps://docs\.google\.com/(?:document|presentation)/d/[^/]+/edit\z},
+           %r{\Ahttps://docs\.google\.com/spreadsheets/d/[^/]+/edit#gid=\d+\z},
+           %r{\Ahttps://docs.google.com/document/d/[^/]+/edit(?:\?usp=sharing|#heading=h\.[a-z0-9]+)\z}
+        'edit'
+      when %r{\Ahttps://docs\.google\.com/spreadsheets/d/[^/]+/copy\z}
+        'copy'
+      when %r{\Ahttps://drive\.google\.com/drive/folders/[^/?]+\z}
+        'folder'
+      when %r{\Ahttps://drive\.google\.com/file/d/[^/]+/view\z}
+        'view'
+      when %r{\Ahttps://drive\.google\.com/open\?id=[^&]+\z}
+        'open'
+      else
+        raise dereferenced_url
+      end
+    end
+
     def dereferenced_url
       @dereferenced_url ||= begin
         if url['bit.ly']
@@ -97,6 +118,7 @@ namespace :resources do
       'Name',
       'Language',
       'Link',
+      'Link type',
       'Bit.ly link',
       'Resource link',
     ], col_sep: "\t")
@@ -108,6 +130,7 @@ namespace :resources do
             HTMLEntities.new.decode(resource['title']),
             resource_language(resource),
             resource_url.dereferenced_url,
+            resource_url.type,
             resource_url.url,
             "https://www.open-contracting.org/wp-admin/post.php?post=#{resource['id']}&action=edit",
           ]
@@ -115,7 +138,7 @@ namespace :resources do
       end
     end
 
-    rows.sort_by{ |row| row[3] }.each do |row|
+    rows.sort_by{ |row| row[4] }.each do |row|
       puts CSV.generate_line(row, col_sep: "\t")
     end
   end
@@ -213,7 +236,7 @@ namespace :resources do
           end
 
           # We only check original URLs because Bit.ly doesn't allow changing URL destinations.
-          if !url[%r{\A(?:https://docs\.google\.com/document/d/[^/]+/edit|https://docs\.google\.com/spreadsheets/d/[^/]+/copy|https://docs\.google\.com/spreadsheets/d/[^/]+/edit#gid=\d+|https://drive.google.com/drive/folders/[^/?]+|https://drive\.google\.com/file/d/[^/]+/view|https://drive\.google\.com/open\?id=[^&]+)\z}]
+          if !url[%r{\A(?:https://docs\.google\.com/document/d/[^/]+/edit|https://docs\.google\.com/spreadsheets/d/[^/]+/copy|https://docs\.google\.com/spreadsheets/d/[^/]+/edit#gid=\d+|https://drive\.google\.com/drive/folders/[^/?]+|https://drive\.google\.com/file/d/[^/]+/view|https://drive\.google\.com/open\?id=[^&]+)\z}]
             errors << "expected #{location} to match URL pattern (#{url}) (remove '?ts=…', '?usp=sharing', '#heading=…', '/u/0', '/a/open-contracting.org', etc.)"
           end
         end
@@ -221,8 +244,7 @@ namespace :resources do
         # Expect URLs to respond with status code HTTP 200 OK.
         begin
           status = Faraday.get(url).status
-          # `/copy` and `/open` are expected to redirect.
-          if url[%r{\A(?:https://docs\.google\.com/(?:document|spreadsheets)/d/[^/]+/|https://docs\.google\.com/spreadsheets/d/[^/]+/copy|https://drive\.google\.com/open\?id=[^&]+)\z}]
+          if %w(bare copy open).include?(resource_url.type)
             expected = 302
           else
             expected = 200
