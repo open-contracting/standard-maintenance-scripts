@@ -13,13 +13,13 @@ namespace :resources do
 
     def type
       case dereferenced_url
-      when %r{\Ahttps://docs\.google\.com/(?:document|spreadsheets)/d/[^/]+/\z}
-        'bare'
       when %r{\Ahttps://docs\.google\.com/(?:document|presentation)/d/[^/]+/edit\z},
            %r{\Ahttps://docs\.google\.com/spreadsheets/d/[^/]+/edit#gid=\d+\z},
            %r{\Ahttps://docs.google.com/document/d/[^/]+/edit(?:\?usp=sharing|#heading=h\.[a-z0-9]+)\z}
         'edit'
-      when %r{\Ahttps://docs\.google\.com/spreadsheets/d/[^/]+/copy\z}
+      when %r{\Ahttps://docs\.google\.com/(?:document|spreadsheets)/d/[^/]+/\z}
+        'bare'
+      when %r{\Ahttps://docs\.google\.com/(?:document|spreadsheets)/d/[^/]+/copy\z}
         'copy'
       when %r{\Ahttps://drive\.google\.com/drive/folders/[^/?]+\z}
         'folder'
