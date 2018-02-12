@@ -188,7 +188,7 @@ Report issues for this extension in the [ocds-extensions repository](https://git
   task :status do
     format = '%-50s  %12s  %11s  %11s  %11s  %s  %s  %s  %s  %s'
 
-    repos.partition{ |repo| extension?(repo.name) }.each do |set|
+    repos.partition{ |repo| !extension?(repo.name) }.each do |set|
       # Number of open issues
       # Number of open pull requests
       # Number of branches, excluding default, pull, upstream, excluded branches
@@ -242,7 +242,7 @@ Report issues for this extension in the [ocds-extensions repository](https://git
       else
         b[1].uniques <=> a[1].uniques
       end
-    }.partition{ |name, _| extension?(name) }.each do |set|
+    }.partition{ |name, _| !extension?(name) }.each do |set|
       puts
       set.each do |name, datum|
         puts '%-45s %2d uniques %3d views' % [name, datum.uniques, datum.count]
