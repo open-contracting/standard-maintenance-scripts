@@ -130,6 +130,7 @@ namespace :crm do
   task :users do
     known_users = REDMINE_ALL_USERS
 
+    # https://www.redmine.org/projects/redmine/wiki/Rest_Users
     users = crm_api_client_get("/users.json?limit=100")['users']
 
     names = users.map{ |user| "#{user['firstname']} #{user['lastname']}" }
@@ -154,6 +155,7 @@ namespace :crm do
     }
 
     groups.each do |group_id, (modifier, known_users)|
+      # https://www.redmine.org/projects/redmine/wiki/Rest_Groups
       group = crm_api_client_get("/groups/#{group_id}.json?include=users")['group']
 
       users = group['users'].map{ |user| user['name'] }
