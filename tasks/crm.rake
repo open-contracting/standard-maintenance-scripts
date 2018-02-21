@@ -26,6 +26,7 @@ namespace :crm do
     'Lindsey Marchessault',
     'Leigh Manasco',
     'Marie Goumballa',
+    'Nicolás Penagos',
   ]
 
   # Open Data Services Co-operative Limited
@@ -34,6 +35,7 @@ namespace :crm do
     'Duncan Dewhurst',
     'Julija Hansen',
     'Tim Davies',
+    'Tim Williams',
   ]
 
   REDMINE_ODS_USERS_TECH = [
@@ -41,7 +43,6 @@ namespace :crm do
     'Ben Webb',
     'David Raznick',
     'David Spencer',
-    'Eduardo Gomez',
     'Jack Lord',
     'Rob Redpath',
     'Rory Scott',
@@ -57,6 +58,7 @@ namespace :crm do
     'Fabrizio Scrollini',
     'Juan Pane',
     'Oscar Montiel',
+    'Sebastian Oliva',
     'Yohanna Lisnichuk',
   ]
 
@@ -148,7 +150,6 @@ namespace :crm do
       33 => [:exactly, REDMINE_ILDA_USERS],
       44 => [:exactly, REDMINE_OCP_USERS + REDMINE_ODS_USERS + REDMINE_ILDA_USERS],
       43 => [:exactly, REDMINE_ODS_USERS_OCDS + REDMINE_ILDA_USERS],
-      23 => [:only, REDMINE_OCP_USERS + REDMINE_ODS_USERS],
       6 => [:except, REDMINE_ALL_USERS],
     }
 
