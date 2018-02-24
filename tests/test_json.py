@@ -602,7 +602,6 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
     }
     ocds_schema_exceptions = {
         'codelist-schema.json',
-        'entry-schema.json',
         'extension-schema.json',
     }
     exceptions = json_schema_exceptions | ocds_schema_exceptions
