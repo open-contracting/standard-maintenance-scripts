@@ -15,6 +15,7 @@ namespace :crm do
   # Open Contracting Partnership
   # https://www.open-contracting.org/about/team/
   REDMINE_OCP_USERS = [
+    'Bernadine Fernz',
     'Carey Kluttz',
     'Gavin Hayman',
     'Georg Neumann',
@@ -24,7 +25,6 @@ namespace :crm do
     'Katherine Wikrent',
     'Kathrin Frauscher',
     'Lindsey Marchessault',
-    'Leigh Manasco',
     'Marie Goumballa',
     'Nicolás Penagos',
   ]
@@ -53,13 +53,17 @@ namespace :crm do
 
   # Iniciativa Latinoamericana por los Datos Abiertos
   # https://idatosabiertos.org/acerca-de-nosotros/
-  REDMINE_ILDA_USERS = [
+  REDMINE_ILDA_USERS_OCDS = [
     'Catalina Demidchuk',
-    'Fabrizio Scrollini',
-    'Juan Pane',
+    'María Esther Cervantes',
     'Oscar Montiel',
     'Sebastian Oliva',
     'Yohanna Lisnichuk',
+  ]
+
+  REDMINE_ILDA_USERS = REDMINE_ILDA_USERS_OCDS + [
+    'Fabrizio Scrollini',
+    'Juan Pane',
   ]
 
   REDMINE_ALL_USERS = REDMINE_GENERIC_USERS + REDMINE_OCP_USERS + REDMINE_ODS_USERS + REDMINE_ILDA_USERS
@@ -146,11 +150,17 @@ namespace :crm do
   desc 'Lists groups with missing or unexpected users'
   task :groups do
     groups = {
+      # Open Contracting Partnership
       5 => [:exactly, REDMINE_OCP_USERS],
+      # Open Data Services
       4 => [:exactly, REDMINE_ODS_USERS + ['API Access']],
+      # Iniciativa Latinoamericana por los Datos Abiertos
       33 => [:exactly, REDMINE_ILDA_USERS],
+      # Everyone (OCP and Helpdesks)
       44 => [:exactly, REDMINE_OCP_USERS + REDMINE_ODS_USERS + REDMINE_ILDA_USERS],
-      43 => [:exactly, REDMINE_ODS_USERS_OCDS + REDMINE_ILDA_USERS],
+      # Helpdesk analysts
+      43 => [:exactly, REDMINE_ODS_USERS_OCDS + REDMINE_ILDA_USERS_OCDS],
+      # Partners and Consultants
       6 => [:except, REDMINE_ALL_USERS],
     }
 
