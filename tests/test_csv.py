@@ -64,7 +64,6 @@ def test_valid():
     errors = 0
 
     for path, text, reader in walk_csv_data():
-        translated = 'codelists_translated' in path.split(os.sep)
         width = len(reader.fieldnames)
         rows = [row for row in reader]
         columns = []
@@ -90,7 +89,7 @@ def test_valid():
                         cells = [cell]
 
                     for cell in cells:
-                        if cell is not None and cell != cell.strip() and not translated:
+                        if cell is not None and cell != cell.strip():
                             errors += 1
                             warnings.warn('{} {} "{}" has leading or trailing whitespace at {},{}'.format(
                                 path, header, cell, row_index, col_index))
@@ -106,7 +105,7 @@ def test_valid():
         writer.writerows(rows)
         expected = output.getvalue()
 
-        if text != expected and not translated and repo_name != 'sample-data':
+        if text != expected and repo_name != 'sample-data':
             errors += 1
             warnings.warn('{} is improperly formatted (e.g. missing trailing newline, extra quoting characters, '
                           'non-"\\n" line terminator):\n{}\n{}'.format(path, repr(text), repr(expected)))
@@ -133,9 +132,7 @@ def test_codelist():
     any_errors = False
 
     for path, text, reader in walk_csv_data():
-        translated = 'codelists_translated' in path.split(os.sep)
-
-        if is_codelist(reader) and not translated:
+        if is_codelist(reader):
             data = []
             for row in reader:
                 item = {}
