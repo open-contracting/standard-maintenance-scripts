@@ -15,6 +15,7 @@ namespace :crm do
   # Open Contracting Partnership
   # https://www.open-contracting.org/about/team/
   REDMINE_OCP_USERS = [
+    'Bernadine Fernz',
     'Carey Kluttz',
     'Gavin Hayman',
     'Georg Neumann',
@@ -24,8 +25,8 @@ namespace :crm do
     'Katherine Wikrent',
     'Kathrin Frauscher',
     'Lindsey Marchessault',
-    'Leigh Manasco',
     'Marie Goumballa',
+    'Nicolás Penagos',
   ]
 
   # Open Data Services Co-operative Limited
@@ -34,6 +35,7 @@ namespace :crm do
     'Duncan Dewhurst',
     'Julija Hansen',
     'Tim Davies',
+    'Tim Williams',
   ]
 
   REDMINE_ODS_USERS_TECH = [
@@ -41,7 +43,6 @@ namespace :crm do
     'Ben Webb',
     'David Raznick',
     'David Spencer',
-    'Eduardo Gomez',
     'Jack Lord',
     'Rob Redpath',
     'Rory Scott',
@@ -52,12 +53,17 @@ namespace :crm do
 
   # Iniciativa Latinoamericana por los Datos Abiertos
   # https://idatosabiertos.org/acerca-de-nosotros/
-  REDMINE_ILDA_USERS = [
+  REDMINE_ILDA_USERS_OCDS = [
     'Catalina Demidchuk',
+    'María Esther Cervantes',
+    'Oscar Montiel',
+    'Sebastian Oliva',
+    'Yohanna Lisnichuk',
+  ]
+
+  REDMINE_ILDA_USERS = REDMINE_ILDA_USERS_OCDS + [
     'Fabrizio Scrollini',
     'Juan Pane',
-    'Oscar Montiel',
-    'Yohanna Lisnichuk',
   ]
 
   REDMINE_ALL_USERS = REDMINE_GENERIC_USERS + REDMINE_OCP_USERS + REDMINE_ODS_USERS + REDMINE_ILDA_USERS
@@ -128,6 +134,7 @@ namespace :crm do
   task :users do
     known_users = REDMINE_ALL_USERS
 
+    # https://www.redmine.org/projects/redmine/wiki/Rest_Users
     users = crm_api_client_get("/users.json?limit=100")['users']
 
     names = users.map{ |user| "#{user['firstname']} #{user['lastname']}" }
@@ -143,16 +150,22 @@ namespace :crm do
   desc 'Lists groups with missing or unexpected users'
   task :groups do
     groups = {
+      # Open Contracting Partnership
       5 => [:exactly, REDMINE_OCP_USERS],
+      # Open Data Services
       4 => [:exactly, REDMINE_ODS_USERS + ['API Access']],
+      # Iniciativa Latinoamericana por los Datos Abiertos
       33 => [:exactly, REDMINE_ILDA_USERS],
+      # Everyone (OCP and Helpdesks)
       44 => [:exactly, REDMINE_OCP_USERS + REDMINE_ODS_USERS + REDMINE_ILDA_USERS],
-      43 => [:exactly, REDMINE_ODS_USERS_OCDS + REDMINE_ILDA_USERS],
-      23 => [:only, REDMINE_OCP_USERS + REDMINE_ODS_USERS],
+      # Helpdesk analysts
+      43 => [:exactly, REDMINE_ODS_USERS_OCDS + REDMINE_ILDA_USERS_OCDS],
+      # Partners and Consultants
       6 => [:except, REDMINE_ALL_USERS],
     }
 
     groups.each do |group_id, (modifier, known_users)|
+      # https://www.redmine.org/projects/redmine/wiki/Rest_Groups
       group = crm_api_client_get("/groups/#{group_id}.json?include=users")['group']
 
       users = group['users'].map{ |user| user['name'] }

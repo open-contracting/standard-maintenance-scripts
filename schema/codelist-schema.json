@@ -46,7 +46,6 @@
           "string",
           "null"
         ],
-        "minLength": 1,
         "pattern": "^\\d+\\.\\d+$"
       },
       "Extension": {
@@ -87,7 +86,6 @@
           "string",
           "null"
         ],
-        "minLength": 1,
         "format": "uri"
       },
       "URI Pattern": {
@@ -97,17 +95,6 @@
           "string",
           "null"
         ],
-        "minLength": 1,
-        "format": "uri"
-      },
-      "URI Pattern": {
-        "title": "URI Pattern",
-        "description": "The pattern to which URLs following this scheme should adhere.",
-        "type": [
-          "string",
-          "null"
-        ],
-        "minLength": 1,
         "format": "uri"
       },
       "Valid Until": {
@@ -117,8 +104,7 @@
           "string",
           "null"
         ],
-        "minLength": 1,
-        "format": "^(\\d{4}/\\d{4}|\\d{4}-\\d{2})$"
+        "pattern": "^(\\d{4}/\\d{4}|\\d{4}-\\d{2})$"
       }
     }
   }
