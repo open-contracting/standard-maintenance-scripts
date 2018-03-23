@@ -26,8 +26,8 @@ If changes are made to `extension-schema.json`, changes may be needed to:
 
 If changes are made to the extension registry's `extensions.json` or `extensions.js`, changes may be needed to:
 
-* [ocds_sphinx_directives](https://github.com/open-contracting/ocds_sphinx_directives): `ocds_sphinx_directives.py` `download_extensions` method
 * [public-private-partnerships](https://github.com/open-contracting/public-private-partnerships): `apply-extensions.py`
+* [sphinxcontrib-opencontracting](https://github.com/open-contracting/sphinxcontrib-opencontracting): `opencontracting.py` `download_extensions` method
 * [standard](https://github.com/open-contracting/standard): `extensions.js`, `get-readmes.py`
 * [standard-maintenance-scripts](https://github.com/open-contracting/standard-maintenance-scripts): `tasks.py` `download_extensions` task, `Rakefile` `uncloned` task and `core_extensions` method
 

@@ -249,4 +249,16 @@ Report issues for this extension in the [ocds-extensions repository](https://git
       end
     end
   end
+
+  desc 'Lists the dependencies to use in OCDS documentation'
+  task :dependencies do
+    {
+      'open-contracting/documentation-support' => 'ocds_documentation_support',
+      'open-contracting/sphinxcontrib-opencontracting' => 'sphinxcontrib-opencontracting',
+      'OpenDataServices/sphinxcontrib-jsonschema' => 'sphinxcontrib-jsonschema',
+      'OpenDataServices/sphinxcontrib-opendataservices' => 'sphinxcontrib-opendataservices',
+    }.each do |full_name, egg_name|
+      puts "-e git+https://github.com/#{full_name}.git@#{client.commits(full_name, per_page: 1)[0].sha}#egg=#{egg_name}"
+    end
+  end
 end

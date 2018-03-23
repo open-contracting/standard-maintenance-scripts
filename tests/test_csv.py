@@ -17,9 +17,6 @@ def custom_warning_formatter(message, category, filename, lineno, line=None):
 # Copied from test_json.py.
 warnings.formatwarning = custom_warning_formatter
 repo_name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', os.getcwd()))
-other_extensions = ('api_extension', 'ocds_performance_failures', 'public-private-partnerships',
-                    'standard_extension_template')
-is_extension = repo_name.startswith('ocds') and repo_name.endswith('extension') or repo_name in other_extensions
 
 
 # Copied from test_json.py.
@@ -121,13 +118,35 @@ def test_codelist():
         'currency.csv': "'Description' is a required property",
     }
 
+    array_columns = ('Framework', 'Section')
+
     path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'schema', 'codelist-schema.json')
     if os.path.isfile(path):
         with open(path) as f:
-            schema = json.load(f)
+            codelist_schema = json.load(f)
     else:
         url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/master/schema/codelist-schema.json'  # noqa
-        schema = requests.get(url).json()
+        codelist_schema = requests.get(url).json()
+
+    minus_schema = {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "Code"
+        ],
+        "additionalProperties": False,
+        "properties": {
+          "Code": {
+            "title": "Code",
+            "description": "The value to use in OCDS data.",
+            "type": "string",
+            "pattern": "^[A-Za-z0-9-]*$"
+          }
+        }
+      }
+    }
 
     any_errors = False
 
@@ -137,13 +156,18 @@ def test_codelist():
             for row in reader:
                 item = {}
                 for k, v in row.items():
-                    if k == 'Section':
+                    if k in array_columns:
                         item[k] = v.split(', ')
                     elif k == 'Code' or v:
                         item[k] = v
                     else:
                         item[k] = None
                 data.append(item)
+
+            if os.path.basename(path).startswith('-'):
+                schema = minus_schema
+            else:
+                schema = codelist_schema
 
             for error in validator(schema, format_checker=FormatChecker()).iter_errors(data):
                 if exceptions.get(os.path.basename(path)) != error.message:

@@ -52,6 +52,8 @@ repo_name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', cwd))
 # For identifying extensions, see https://github.com/open-contracting/standard-development-handbook/issues/16
 is_extension = repo_name.startswith('ocds') and repo_name.endswith('extension') or repo_name in other_extensions
 
+is_profile = repo_name in ('public-private-partnerships', 'standard_profile_template')
+
 # TODO: See https://github.com/open-contracting/standard-maintenance-scripts/issues/29
 url = 'https://raw.githubusercontent.com/open-contracting/standard/1.1.3-dev/standard/schema/meta-schema.json'  # noqa
 metaschema = requests.get(url).json()
@@ -90,6 +92,10 @@ del metaschema['definitions']['stringArray']['minItems']
 if is_extension:
     # See https://github.com/open-contracting/ocds_milestone_documents_extension/blob/master/release-schema.json#L9
     metaschema['properties']['deprecated']['type'] = ['object', 'null']
+
+if is_profile:
+    # Allow null'ing a property in a profile.
+    metaschema['type'] = ['object', 'null']
 
 
 def custom_warning_formatter(message, category, filename, lineno, line=None):
@@ -216,6 +222,25 @@ def collect_codelist_values(path, data, pointer=''):
     return codelists
 
 
+def difference(actual, expected):
+    """
+    Returns strings describing the differences between actual and expected values.
+    """
+    added = actual - expected
+    if added:
+        added = '; added {}'.format(added)
+    else:
+        added = ''
+
+    removed = expected - actual
+    if removed:
+        removed = '; removed {}'.format(removed)
+    else:
+        removed = ''
+
+    return added, removed
+
+
 def traverse(block):
     """
     Implements common logic used by methods below.
@@ -290,10 +315,10 @@ def validate_title_description_type(*args):
                     # TODO: https://github.com/open-contracting/standard-maintenance-scripts/issues/27
                     # errors += 1
                     warnings.warn('{} is missing {}/{}'.format(path, pointer, field))
-            if 'type' not in data and '$ref' not in data:
+            if 'type' not in data and '$ref' not in data and 'oneOf' not in data:
                 # TODO: https://github.com/open-contracting/standard-maintenance-scripts/issues/27
                 # errors += 1
-                warnings.warn('{0} is missing {1}/type or {1}/$ref'.format(path, pointer))
+                warnings.warn('{0} is missing {1}/type or {1}/$ref or {1}/oneOf'.format(path, pointer))
 
         return errors
 
@@ -396,7 +421,9 @@ def validate_codelist_enum(*args):
         parent = pointer.rsplit('/', 1)[-1]
 
         if 'codelist' in data:
-            if isinstance(data['type'], str):
+            if 'type' not in data:  # e.g. if changing an existing property
+                types = ['array']  # assumption
+            elif isinstance(data['type'], str):
                 types = [data['type']]
             else:
                 types = data['type']
@@ -431,17 +458,7 @@ def validate_codelist_enum(*args):
                                 expected.add(None)
 
                             if actual != expected:
-                                added = actual - expected
-                                if added:
-                                    added = '; added {}'.format(added)
-                                else:
-                                    added = ''
-
-                                removed = expected - actual
-                                if removed:
-                                    removed = '; removed {}'.format(removed)
-                                else:
-                                    removed = ''
+                                added, removed = difference(actual, expected)
 
                                 errors += 1
                                 warnings.warn('{} has mismatch between `enum` and codelist at {}{}{}'.format(
@@ -536,6 +553,7 @@ def validate_object_id(*args):
     exceptions = {
         'changes',  # deprecated
         'records',  # uses `ocid` not `id`
+        '0',  # linked releases
     }
 
     ref_title_exceptions = {
@@ -550,17 +568,20 @@ def validate_object_id(*args):
     def block(path, data, pointer):
         errors = 0
 
-        parent = pointer.rsplit('/')[-1]
+        parts = pointer.split('/')
+        parent = parts[-1]
 
-        if 'type' in data and data['type'] == 'array' and 'properties' in data['items']:
+        # If it's an array of objects.
+        if ('type' in data and data['type'] == 'array' and 'properties' in data['items'] and
+                parent not in exceptions and 'versionedRelease' not in parts):
             required = data['items'].get('required', [])
 
-            if 'id' not in data['items']['properties'] and parent not in exceptions:
+            if 'id' not in data['items']['properties']:
                 errors += 1
                 warnings.warn('{} object array has no `id` property at {}'.format(path, pointer))
 
             if ('id' not in required and not data.get('wholeListMerge') and
-                    parent not in exceptions and data['items']['title'] not in ref_title_exceptions):
+                    data['items'].get('title') not in ref_title_exceptions):
                 # 2.0 fixes.
                 warnings.warn('{} object array should require `id` property at {}'.format(path, pointer))
 
@@ -632,23 +653,30 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
             'versioned-release-validation-schema.json',
         }
 
+        exceptions_plus_versioned_and_packages = exceptions_plus_versioned | {
+            'record-package-schema.json',
+            'release-package-schema.json',
+        }
+
         # Extensions aren't expected to repeat referenced `definitions`.
         errors += validate_ref(path, data)
 
         # Extensions aren't expected to repeat `required`.
         if all(basename not in path for basename in exceptions_plus_versioned):
             errors += validate_null_type(path, data)
-        # Extensions aren't expected to repeat referenced `definitions`.
-        if all(basename not in path for basename in exceptions_plus_versioned):
-            errors += validate_object_id(path, JsonRef.replace_refs(data))
         # Extensions aren't expected to repeat `title`, `description`, `type`.
         if all(basename not in path for basename in exceptions_plus_versioned):
             errors += validate_title_description_type(path, data)
+        # Extensions aren't expected to repeat referenced `definitions`.
+        if all(basename not in path for basename in exceptions_plus_versioned):
+            errors += validate_object_id(path, JsonRef.replace_refs(data))
         # Extensions aren't expected to repeat referenced codelist CSV files.
-        if all(basename not in path for basename in exceptions):
-            # TODO: Standard has codelists used by different schema. This code assumes each schema uses all codelists.
+        if all(basename not in path for basename in exceptions_plus_versioned_and_packages):
+            # TODO: Standard has multiple schema. This code assumes each schema uses all codelists. So, for now, we
+            # skip these warnings for packages.
             codelist_files = set()
             for csvpath, reader in walk_csv_data():
+                # Core and profiles may hve codelists from extensions in an extensions directory.
                 if is_codelist(reader) and (is_extension or 'extensions' not in csvpath.split(os.sep)):
                     name = os.path.basename(csvpath)
                     if name.startswith('+') or name.startswith('-'):
@@ -739,7 +767,12 @@ def test_extension_json():
             except requests.exceptions.ConnectionError as e:
                 assert False, '{} on {}'.format(e, url)
 
-        assert expected == set(data.get('codelists', []))
+        actual = set(data.get('codelists', []))
+        if actual != expected:
+            added, removed = difference(actual, expected)
+            assert False, '{} has mismatch with schema{}{}'.format(
+                path, added, removed)
+
     else:
         assert False, 'expected an extension.json file'
 
@@ -754,12 +787,24 @@ def test_empty_files():
         'release-package-schema.json',
         'release-schema.json',
     )
+    exceptions = {
+        # Sphinx
+        '.doctree',
+        '.inv',
+        '.pickle',
+        # Gettext
+        '.mo',
+        # Images
+        '.png',
+        # Python
+        '.pyc',
+    }
 
     for root, name in walk():
         if name == 'versioned-release-validation-schema.json':
             assert False, 'versioned-release-validation-schema.json should be removed'
-        # __init__.py files are allowed to be empty. PNG files raise UnicodeDecodeError exceptions.
-        elif not name == '__init__.py' and not name.endswith('.png'):
+        # __init__.py files are allowed to be empty. Some files raise UnicodeDecodeError exceptions.
+        elif not name == '__init__.py' and os.path.splitext(name)[1] not in exceptions:
             path = os.path.join(root, name)
             try:
                 with open(path) as f:

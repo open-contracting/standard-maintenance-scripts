@@ -57,6 +57,22 @@
         ],
         "minLength": 1
       },
+      "Framework": {
+        "title": "Framework",
+        "description": "A reference to The World Bank Framework for Disclosure in Public Private Patnership Projects.",
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "string",
+          "pattern": "^[XVI]+(\\.\\d+)+$"
+        }
+      },
+      "Notes": {
+        "title": "Notes",
+        "description": "Notes on the application of the code",
+        "type": "string",
+        "pattern": "^milestone/type = [A-Za-z]+$"
+      },
       "Section": {
         "title": "Section",
         "description": "The only OCDS objects in which this documentType code should be used. (This field is a ', '-delimited value in the CSV file.)",
@@ -88,6 +104,15 @@
         ],
         "format": "uri"
       },
+      "Summary required": {
+        "title": "Summary required",
+        "description": "",
+        "type": "string",
+        "enum": [
+          "No",
+          "Yes"
+        ]
+      },
       "URI Pattern": {
         "title": "URI Pattern",
         "description": "The pattern to which URLs following this scheme should adhere.",
@@ -104,7 +129,7 @@
           "string",
           "null"
         ],
-        "pattern": "^(\\d{4}/\\d{4}|\\d{4}-\\d{2})$"
+        "pattern": "^(\\d{4}/\\d{4}|\\d{4}-\\d{2}(/\\d{4}-\\d{2})?)$"
       }
     }
   }
