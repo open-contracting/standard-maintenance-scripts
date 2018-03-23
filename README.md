@@ -27,6 +27,8 @@ To run the tests locally, run the setup commands above, change into a repository
     flake8 --max-line-length 119
     py.test -rs path/to/standard-maintenance-scripts/tests
 
+To run the tests locally against an unreleased version of the standard, replace `http://standard.open-contracting.org/schema/VERSION` with `http://standard.open-contracting.org/BRANCH/en`.
+
 To create a pull request to set up a new repository, enable the repository on [travis-ci.org](https://travis-ci.org), then:
 
     git checkout -b travis
