@@ -18,6 +18,7 @@ def custom_warning_formatter(message, category, filename, lineno, line=None):
 warnings.formatwarning = custom_warning_formatter
 repo_name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', os.getcwd()))
 
+
 # Copied from test_json.py.
 def walk(top=os.getcwd()):
     """
