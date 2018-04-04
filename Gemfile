@@ -5,6 +5,7 @@ gem 'faraday'
 gem 'google-api-client'
 gem 'hashdiff'
 gem 'htmlentities'
+gem 'mail'
 gem 'netrc'
 gem 'nokogiri'
 # See https://github.com/octokit/octokit.rb/pull/978
