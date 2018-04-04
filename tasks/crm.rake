@@ -1,10 +1,3 @@
-# See https://developers.google.com/drive/v2/web/quickstart/ruby
-OOB_URI = 'urn:ietf:wg:oauth:2.0:oob'
-APPLICATION_NAME = 'Drive API Ruby Quickstart'
-CLIENT_SECRETS_PATH = 'client_secret.json'
-CREDENTIALS_PATH = File.join(Dir.home, '.credentials', 'drive-ruby-quickstart.yaml')
-SCOPE = Google::Apis::DriveV2::AUTH_DRIVE_METADATA_READONLY
-
 namespace :crm do
   # Last updated 2018-01-15
   REDMINE_GENERIC_USERS = [
@@ -384,11 +377,6 @@ namespace :crm do
     csv_from_url(url).each do |row|
       countries[row.fetch('ISO3166-1-Alpha-3')] = row
     end
-
-    # Google Drive data.
-    service = Google::Apis::DriveV2::DriveService.new
-    service.client_options.application_name = APPLICATION_NAME
-    service.authorization = authorize
 
     folders = {}
     q = "'0B5qzJROt-jZ0Ui1hSGlLdkxoY0E' in parents" # "1. Publishers" folder
