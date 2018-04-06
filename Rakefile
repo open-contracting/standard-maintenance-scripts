@@ -14,11 +14,19 @@ require 'googleauth'
 require 'googleauth/stores/file_token_store'
 require 'hashdiff'
 require 'htmlentities'
+require 'mail'
 require 'nokogiri'
 require 'octokit'
 require 'safe_yaml'
 
 SafeYAML::OPTIONS[:default_mode] = :safe
+
+# See https://developers.google.com/drive/v2/web/quickstart/ruby
+OOB_URI = 'urn:ietf:wg:oauth:2.0:oob'
+APPLICATION_NAME = 'Drive API Ruby Quickstart'
+CLIENT_SECRETS_PATH = 'client_secret.json'
+CREDENTIALS_PATH = File.join(Dir.home, '.credentials', 'drive-ruby-quickstart.yaml')
+SCOPE = Google::Apis::DriveV2::AUTH_DRIVE_METADATA_READONLY
 
 def s(condition)
   condition && 'Y'.green || 'N'.blue
@@ -33,6 +41,15 @@ def client
     client = Octokit::Client.new(netrc: true)
     client.login
     client
+  end
+end
+
+def service
+  @service ||= begin
+    service = Google::Apis::DriveV2::DriveService.new
+    service.client_options.application_name = APPLICATION_NAME
+    service.authorization = authorize
+    service
   end
 end
 
