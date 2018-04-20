@@ -44,6 +44,13 @@ external_codelists = {
     'unitClassificationScheme.csv',
 }
 
+# For example, ocds_lots_extension extends Bid, which otherwise lacks title, description and type.
+optional_dependencies = {
+    'ocds_lots_extension': ['open-contracting/ocds_bid_extension'],
+    'ocds_options_extension': ['open-contracting/ocds_lots_extension', 'open-contracting/ocds_bid_extension'],
+    'ocds_recurrence_extension': ['open-contracting/ocds_lots_extension', 'open-contracting/ocds_bid_extension'],
+}
+
 cwd = os.getcwd()
 
 repo_name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', cwd))
@@ -846,9 +853,9 @@ def test_json_merge_patch():
             with open(path) as f:
                 data = json.load(f, object_pairs_hook=OrderedDict)
                 dependencies = data.get('dependencies', [])
-                if repo_name == 'ocds_lots_extension':
-                    # ocds_lots_extension extends Bid, which otherwise lacks title, description and type.
-                    dependencies.append('https://raw.githubusercontent.com/open-contracting/ocds_bid_extension/master/extension.json')  # noqa
+                if repo_name in optional_dependencies:
+                    for dependency in optional_dependencies[repo_name]:
+                        dependencies.append('https://raw.githubusercontent.com/{}/master/extension.json'.format(dependency))  # noqa
                 for extension_url in dependencies:
                     external_codelists.update(requests.get(extension_url).json().get('codelists', []))
                     schema_url = '{}/{}'.format(extension_url.rsplit('/', 1)[0], basename)
