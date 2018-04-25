@@ -13,30 +13,30 @@ namespace :org do
       'bjwebb', # Ben Webb
       'kindly', # David Raznick
       'duncandewhurst', # Duncan Dewhurst
-      'edugomez', # Eduardo Gomez
       'scatteredink', # Jack Lord
-      'julijahansen', # Julija Hansen
       'robredpath', # Rob Redpath
       'timgdavies', # Tim Davies
+      'Tim0th1', # Tim Williams
 
       # Iniciativa Latinoamericana por los Datos Abiertos
       # https://idatosabiertos.org/acerca-de-nosotros/
-      'cdemidchuk', # Catalina Demidchuk
       'juanpane', # Juan Pane
       'scrollif', # Fabrizio Scrollini
       'tlacoyodefrijol', # Oscar Montiel
       'yolile', # Yohanna Lisnichuk
     ]
 
-    people = client.org_members(organization) + client.org_invitations(organization)
+    organizations.each do |organization|
+      people = client.org_members(organization) + client.org_invitations(organization)
 
-    names = people.map{ |member| member.login.downcase }
+      names = people.map{ |member| member.login.downcase }
 
-    puts names - known_members
+      puts names - known_members
 
-    difference = known_members - names
-    if difference.any?
-      puts "remove from tasks/org.rake: #{difference.join(', ')}"
+      difference = known_members - names
+      if difference.any?
+        puts "remove from tasks/org.rake: #{difference.join(', ')}"
+      end
     end
   end
 end
