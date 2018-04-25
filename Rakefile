@@ -53,17 +53,25 @@ def service
   end
 end
 
-def organization
-  @organization ||= ENV['ORG'] || 'open-contracting'
+def organizations
+  @organizations ||= begin
+    if ENV['ORGS']
+      ENV['ORGS'].split(',')
+    else
+      ['open-contracting', 'open-contracting-extensions']
+    end
+  end
 end
 
 def repos
   @repos ||= begin
-    repos = client.repos(organization, per_page: 100, accept: 'application/vnd.github.drax-preview+json') # licenses
-    if ENV['REPOS']
-      repos.select{ |repo| ENV['REPOS'].include?(repo.name) }
-    else
-      repos
+    organizations.reduce([]) do |memo, organization|
+      repos = client.repos(organization, per_page: 100, accept: 'application/vnd.github.drax-preview+json') # licenses
+      if ENV['REPOS']
+        memo + repos.select{ |repo| ENV['REPOS'].include?(repo.name) }
+      else
+        memo + repos
+      end
     end
   end
 end
