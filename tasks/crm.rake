@@ -26,7 +26,6 @@ namespace :crm do
   # http://opendataservices.coop
   REDMINE_ODS_USERS_OCDS = [
     'Duncan Dewhurst',
-    'Julija Hansen',
     'Tim Davies',
     'Tim Williams',
   ]

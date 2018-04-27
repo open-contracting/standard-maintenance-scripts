@@ -22,7 +22,7 @@ namespace :org do
       # https://idatosabiertos.org/acerca-de-nosotros/
       'juanpane', # Juan Pane
       'scrollif', # Fabrizio Scrollini
-      'tlacoyodefrijol', # Oscar Montiel
+      'tian2992', # Sebastian Oliva
       'yolile', # Yohanna Lisnichuk
     ]
 
