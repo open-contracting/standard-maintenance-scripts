@@ -47,9 +47,7 @@ namespace :crm do
   # Iniciativa Latinoamericana por los Datos Abiertos
   # https://idatosabiertos.org/acerca-de-nosotros/
   REDMINE_ILDA_USERS_OCDS = [
-    'Catalina Demidchuk',
     'María Esther Cervantes',
-    'Oscar Montiel',
     'Sebastian Oliva',
     'Yohanna Lisnichuk',
   ]
