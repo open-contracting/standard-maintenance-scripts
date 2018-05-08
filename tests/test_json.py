@@ -349,23 +349,23 @@ def validate_title_description_type(*args):
     def block(path, data, pointer):
         errors = 0
 
-        parts = pointer.rsplit('/', 2)
-        if len(parts) == 3:
+        parts = pointer.rsplit('/')
+        if len(parts) >= 3:
             grandparent = parts[-2]
         else:
             grandparent = None
         parent = parts[-1]
 
-        # Don't look for metadata fields on non-user-defined objects.
+        # Look for metadata fields on user-defined objects only.
         if parent not in schema_fields and grandparent not in schema_sections:
             for field in required_fields:
-                if field not in data or not data[field] or not data[field].strip():
+                # Exception: api_extension has a concise links section.
+                if (field not in data or not data[field] or not data[field].strip()) and 'links' not in parts:
                     # TODO: https://github.com/open-contracting/standard-maintenance-scripts/issues/27
                     # errors += 1
                     warnings.warn('{} is missing {}/{}'.format(path, pointer, field))
             if 'type' not in data and '$ref' not in data and 'oneOf' not in data:
-                # TODO: https://github.com/open-contracting/standard-maintenance-scripts/issues/27
-                # errors += 1
+                errors += 1
                 warnings.warn('{0} is missing {1}/type or {1}/$ref or {1}/oneOf'.format(path, pointer))
 
         return errors
@@ -397,6 +397,11 @@ def validate_null_type(path, data, pointer='', should_be_nullable=True):
         '/properties/version',
         '/properties/publishedDate',
         '/properties/publisher',
+        # API extension doesn't require the hoisted fields at the record-level.
+        '/definitions/record/properties/packageMetadata',
+        '/definitions/record/properties/packageMetadata/properties/uri',
+        '/definitions/record/properties/packageMetadata/properties/publishedDate',
+        '/definitions/record/properties/packageMetadata/properties/publisher',
 
         # 2.0 fixes.
         # See https://github.com/open-contracting/standard/issues/650
