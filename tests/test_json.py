@@ -3,7 +3,7 @@ import json
 import os
 import re
 import warnings
-from collections import OrderedDict
+from collections import UserDict
 from copy import deepcopy
 
 import json_merge_patch
@@ -49,6 +49,7 @@ optional_dependencies = {
     'ocds_lots_extension': ['open-contracting/ocds_bid_extension'],
     'ocds_options_extension': ['open-contracting/ocds_lots_extension', 'open-contracting/ocds_bid_extension'],
     'ocds_recurrence_extension': ['open-contracting/ocds_lots_extension', 'open-contracting/ocds_bid_extension'],
+    'public-private-partnerships': ['open-contracting/ocds_location_extension'],
 }
 
 cwd = os.getcwd()
@@ -57,9 +58,11 @@ repo_name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', cwd))
 
 # This should match the logic in `Rakefile`. XXX Hardcoding.
 # For identifying extensions, see https://github.com/open-contracting/standard-development-handbook/issues/16
-is_extension = repo_name.startswith('ocds') and repo_name.endswith('extension') or repo_name in other_extensions
+is_extension = (repo_name.startswith('ocds') and repo_name.endswith('extension') or
+                repo_name.startswith('ocds-for-') or repo_name in other_extensions)
 
-is_profile = repo_name in ('public-private-partnerships', 'standard_profile_template')
+# Assumes that only profiles have Makefiles.
+is_profile = is_extension and os.path.isfile(os.path.join(cwd, 'Makefile'))
 
 # TODO: See https://github.com/open-contracting/standard-maintenance-scripts/issues/29
 url = 'https://raw.githubusercontent.com/open-contracting/standard/1.1.3-dev/standard/schema/meta-schema.json'  # noqa
@@ -112,6 +115,24 @@ def custom_warning_formatter(message, category, filename, lineno, line=None):
 warnings.formatwarning = custom_warning_formatter
 
 
+class RejectingDict(UserDict):
+    """
+    Allows a key to be set at most once, in order to raise an error on duplicate keys in JSON.
+    """
+    def __setitem__(self, k, v):
+        # See https://tools.ietf.org/html/rfc7493#section-2.3
+        if k in self.keys():
+            raise ValueError('Key set more than once {}'.format(k))
+        else:
+            return super().__setitem__(k, v)
+
+
+def object_pairs_hook(pairs):
+    rejecting_dict = RejectingDict(pairs)
+    # We return the wrapped dict, not the RejectingDict itself, because jsonschema checks the type.
+    return rejecting_dict.data
+
+
 def walk(top=cwd):
     """
     Yields all files, except third-party files under `_static` directories.
@@ -135,7 +156,7 @@ def walk_json_data(top=cwd):
                 text = f.read()
                 if text:
                     try:
-                        yield (path, text, json.loads(text, object_pairs_hook=OrderedDict))
+                        yield (path, text, json.loads(text, object_pairs_hook=object_pairs_hook))
                     except json.decoder.JSONDecodeError as e:
                         assert False, '{} is not valid JSON ({})'.format(path, e)
 
@@ -185,6 +206,14 @@ def merge_obj(result, obj, pointer=''):  # changed code
     if not isinstance(obj, dict):
         return obj
 
+    # new code
+    removal_exceptions = {
+        '/properties/buyer',  # becomes publicAuthority
+        '/definitions/Award/properties/suppliers',  # becomes preferredBidders
+        '/definitions/Budget/properties/project',
+        '/definitions/Budget/properties/projectID',
+    }
+
     for key, value in obj.items():
         if isinstance(value, dict):
             target = result.get(key)
@@ -195,13 +224,26 @@ def merge_obj(result, obj, pointer=''):  # changed code
             merge_obj(result[key], value, pointer='{}/{}'.format(pointer, key))  # changed code
             continue
 
-        if key in result:  # new code
-            if key == 'deprecated' and value is None:  # ocds_milestone_documents_extension
-                warnings.warn('reintroduces {}'.format(pointer))
-            elif key == 'required' and value == []:  # api_extension
-                warnings.warn('empties {}/{}'.format(pointer, key))
+        # new code
+        if key in result:
+            pointer_and_key = '{}/{}'.format(pointer, key)
+            if (value is None and pointer_and_key == '/definitions/Milestone/properties/documents/deprecated' and
+                    repo_name == 'ocds_milestone_documents_extension'):
+                warnings.warn('re-adds {}'.format(pointer))
+            elif (value == [] and pointer_and_key == '/required' and
+                    repo_name == 'api_extension'):
+                warnings.warn('empties {}'.format(pointer_and_key))
+            elif repo_name == 'public-private-partnerships':
+                if pointer_and_key == '/properties/tag/items/enum':
+                    warnings.warn('overwrites {}'.format(pointer_and_key))
+                elif value is None and 'deprecated' in result[key]:
+                    warnings.warn('removes deprecated {}'.format(pointer_and_key))
+                elif value is None and pointer_and_key in removal_exceptions:
+                    warnings.warn('removes {}'.format(pointer_and_key))
+                else:
+                    raise Exception('unexpectedly overwrites {}'.format(pointer_and_key))
             else:
-                raise Exception('unexpectedly overwrites {}/{}'.format(pointer, key))
+                raise Exception('unexpectedly overwrites {}'.format(pointer_and_key))
 
         if value is None:
             result.pop(key, None)
@@ -362,6 +404,7 @@ def validate_null_type(path, data, pointer='', should_be_nullable=True):
         '/definitions/Organization/properties/id',
         '/definitions/OrganizationReference/properties/id',
         '/definitions/RelatedProcess/properties/id',
+        # Extensions.
         '/definitions/ParticipationFee/properties/id',
         '/definitions/Lot/properties/id',
         '/definitions/LotGroup/properties/id',
@@ -479,9 +522,11 @@ def validate_codelist_enum(*args):
                         errors += 1
                         warnings.warn('{} is missing codelist: {}'.format(path, data['codelist']))
         elif 'enum' in data and parent != 'items' or 'items' in data and 'enum' in data['items']:
-            # Fields with `enum` should set closed codelists.
-            errors += 1
-            warnings.warn('{} has `enum` without codelist at {}'.format(path, pointer))
+            # Exception: This profile overwrites `enum`.
+            if repo_name != 'public-private-partnerships' or pointer != '/properties/tag':
+                # Fields with `enum` should set closed codelists.
+                errors += 1
+                warnings.warn('{} has `enum` without codelist at {}'.format(path, pointer))
 
         return errors
 
@@ -570,10 +615,9 @@ def validate_object_id(*args):
         '/definitions/Organization',
         '/definitions/OrganizationReference',
         '/definitions/RelatedProcess',
-        # ocds_lots_extension
+        # Extensions.
         '/definitions/Lot',
         '/definitions/LotGroup',
-        # ocds_participationFee_extension
         '/definitions/ParticipationFee',
     }
 
@@ -641,6 +685,7 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
         'meta-schema-patch.json',
     }
     ocds_schema_exceptions = {
+        'base-release-schema.json',  # is a copy
         'codelist-schema.json',
         'extension-schema.json',
     }
@@ -690,13 +735,14 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
         if all(basename not in path for basename in exceptions_plus_versioned):
             errors += validate_object_id(path, JsonRef.replace_refs(data))
         # Extensions aren't expected to repeat referenced codelist CSV files.
+        # TODO: This code assumes each schema uses all codelists. So, for now, skip package schema.
         if all(basename not in path for basename in exceptions_plus_versioned_and_packages):
-            # TODO: Standard has multiple schema. This code assumes each schema uses all codelists. So, for now, we
-            # skip these warnings for packages.
             codelist_files = set()
             for csvpath, reader in walk_csv_data():
-                # Core and profiles may hve codelists from extensions in an extensions directory.
-                if is_codelist(reader) and (is_extension or 'extensions' not in csvpath.split(os.sep)):
+                components = csvpath.split(os.sep)
+                # Core and profiles may have codelists from extensions under `extensions` or `compiledCodelists`.
+                if is_codelist(reader) and ((is_extension and not is_profile) or ('extensions' not in components and
+                        'compiledCodelists' not in components)):
                     name = os.path.basename(csvpath)
                     if name.startswith('+') or name.startswith('-'):
                         if name[1:] not in external_codelists:
@@ -719,7 +765,7 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
                 warnings.warn('{} has unused codelists: {}'.format(path, ', '.join(unused_codelists)))
             if missing_codelists:
                 errors += 1
-                warnings.warn('{} is missing codelists: {}'.format(path, ', '.join(missing_codelists)))
+                warnings.warn('repository is missing codelists: {}'.format(', '.join(missing_codelists)))
     else:
         errors += validate_deep_properties(path, data)
 
@@ -734,15 +780,19 @@ def test_valid():
         pass  # fails if the JSON can't be read
 
 
-@pytest.mark.skipif(not is_extension, reason='not an extension (test_indent)')
 def test_indent():
     """
     Ensures all JSON files are valid and formatted for humans.
     """
+    external_exceptions = {
+        'json-schema-draft-4.json',  # http://json-schema.org/draft-04/schema
+    }
+
     for path, text, data in walk_json_data():
-        # See https://github.com/open-contracting/standard-maintenance-scripts/issues/2
-        indent2 = json.dumps(data, indent=2, separators=(',', ': ')) + '\n'
-        assert text == indent2, "{} is not indented as expected, run: ocdskit indent {}".format(path, path)
+        if os.path.basename(path) not in external_exceptions:
+            # See https://github.com/open-contracting/standard-maintenance-scripts/issues/2
+            indent2 = json.dumps(data, indent=2, separators=(',', ': ')) + '\n'
+            assert text == indent2, "{} is not indented as expected, run: ocdskit indent {}".format(path, path)
 
 
 def test_json_schema():
@@ -774,7 +824,7 @@ def test_extension_json():
     path = os.path.join(cwd, 'extension.json')
     if os.path.isfile(path):
         with open(path) as f:
-            data = json.load(f, object_pairs_hook=OrderedDict)
+            data = json.load(f, object_pairs_hook=object_pairs_hook)
 
         validate_json_schema(path, data, schema)
 
@@ -796,7 +846,6 @@ def test_extension_json():
         assert False, 'expected an extension.json file'
 
 
-@pytest.mark.skipif(not is_extension, reason='not an extension (test_empty_files)')
 def test_empty_files():
     """
     Ensures an extension has no empty files and no versioned-release-validation-schema.json file.
@@ -806,7 +855,16 @@ def test_empty_files():
         'release-package-schema.json',
         'release-schema.json',
     )
-    exceptions = {
+
+    # Some files raise UnicodeDecodeError exceptions.
+    filename_exceptions = {
+        '.DS_Store',
+        'chromedriver',
+        'chromedriver_mac64.zip',
+        # __init__.py files are allowed to be empty.
+        '__init__.py',
+    }
+    extension_exceptions = {
         # Sphinx
         '.doctree',
         '.inv',
@@ -814,16 +872,16 @@ def test_empty_files():
         # Gettext
         '.mo',
         # Images
+        '.ico',
         '.png',
         # Python
         '.pyc',
     }
 
     for root, name in walk():
-        if name == 'versioned-release-validation-schema.json':
+        if is_extension and name == 'versioned-release-validation-schema.json':
             assert False, 'versioned-release-validation-schema.json should be removed'
-        # __init__.py files are allowed to be empty. Some files raise UnicodeDecodeError exceptions.
-        elif not name == '__init__.py' and os.path.splitext(name)[1] not in exceptions:
+        elif not name in filename_exceptions and os.path.splitext(name)[1] not in extension_exceptions:
             path = os.path.join(root, name)
             try:
                 with open(path) as f:
@@ -863,7 +921,7 @@ def test_json_merge_patch():
         if basename == 'release-schema.json':
             path = os.path.join(cwd, 'extension.json')
             with open(path) as f:
-                data = json.load(f, object_pairs_hook=OrderedDict)
+                data = json.load(f, object_pairs_hook=object_pairs_hook)
                 dependencies = data.get('dependencies', [])
                 if repo_name in optional_dependencies:
                     for dependency in optional_dependencies[repo_name]:
