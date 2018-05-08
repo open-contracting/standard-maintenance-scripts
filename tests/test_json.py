@@ -867,6 +867,7 @@ def test_empty_files():
     filename_exceptions = {
         '.DS_Store',
         'chromedriver',
+        'chromedriver_linux64.zip',
         'chromedriver_mac64.zip',
         # __init__.py files are allowed to be empty.
         '__init__.py',
