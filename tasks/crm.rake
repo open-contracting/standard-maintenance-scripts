@@ -3,6 +3,7 @@ namespace :crm do
   REDMINE_GENERIC_USERS = [
     'Redmine Admin',
     'API Access',
+    'Time Tracking',
   ]
 
   # Open Contracting Partnership
@@ -26,17 +27,17 @@ namespace :crm do
   # http://opendataservices.coop
   REDMINE_ODS_USERS_OCDS = [
     'Duncan Dewhurst',
-    'Julija Hansen',
     'Tim Davies',
     'Tim Williams',
   ]
 
   REDMINE_ODS_USERS_TECH = [
-    'Bob Harper',
     'Ben Webb',
+    'Bibiana Cristofol',
     'David Raznick',
     'David Spencer',
     'Jack Lord',
+    'James Baster',
     'Rob Redpath',
     'Rory Scott',
     'Steven Flower',
@@ -47,9 +48,7 @@ namespace :crm do
   # Iniciativa Latinoamericana por los Datos Abiertos
   # https://idatosabiertos.org/acerca-de-nosotros/
   REDMINE_ILDA_USERS_OCDS = [
-    'Catalina Demidchuk',
     'María Esther Cervantes',
-    'Oscar Montiel',
     'Sebastian Oliva',
     'Yohanna Lisnichuk',
   ]
@@ -59,7 +58,12 @@ namespace :crm do
     'Juan Pane',
   ]
 
-  REDMINE_ALL_USERS = REDMINE_GENERIC_USERS + REDMINE_OCP_USERS + REDMINE_ODS_USERS + REDMINE_ILDA_USERS
+  REDMINE_EXTERNAL_USERS = [
+    'Rob Davidson',  # James McKinney
+    'Ramon Olivas',  # Nicolás Penagos
+  ]
+
+  REDMINE_ALL_USERS = REDMINE_GENERIC_USERS + REDMINE_OCP_USERS + REDMINE_ODS_USERS + REDMINE_ILDA_USERS + REDMINE_EXTERNAL_USERS
 
   # See https://developers.google.com/drive/v2/web/quickstart/ruby
   def authorize
@@ -154,7 +158,7 @@ namespace :crm do
       # Helpdesk analysts
       43 => [:exactly, REDMINE_ODS_USERS_OCDS + REDMINE_ILDA_USERS_OCDS],
       # Partners and Consultants
-      6 => [:except, REDMINE_ALL_USERS],
+      6 => [:exactly, REDMINE_EXTERNAL_USERS],
     }
 
     groups.each do |group_id, (modifier, known_users)|
@@ -215,12 +219,16 @@ namespace :crm do
         'donor',
         'government agency',
         'industry association',
+        'media',
         'private sector',
         'service provider',
       ]),
+      additional_organization_types: Set.new([ # optional
+        'infrastructure',
+        'support provider',
+      ]),
       person_types: Set.new([ # optional
         'procurement expert',
-        'staff',
         'translator',
       ]),
       geographic_levels: Set.new([
@@ -242,7 +250,7 @@ namespace :crm do
       ERRORS[message] << contact_link(contact, suffix)
     end
 
-    contacts.each do |contact|
+    contacts.sort_by{ |contact| contact['id'] }.each do |contact|
       is_company = contact['is_company']
       last_name = contact['last_name']
       company = contact['company']
