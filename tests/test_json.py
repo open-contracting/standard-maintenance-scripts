@@ -910,9 +910,7 @@ def test_json_merge_patch():
         'versioned-release-validation-schema.json',
     )
 
-    # TODO: See https://github.com/open-contracting/standard-maintenance-scripts/issues/16
-    url_pattern = 'https://raw.githubusercontent.com/open-contracting/standard/1.1.3-dev/standard/schema/{}'
-    # url_pattern = 'http://standard.open-contracting.org/latest/en/{}'
+    url_pattern = 'http://standard.open-contracting.org/latest/en/{}'
 
     for basename in basenames:
         schemas[basename] = requests.get(url_pattern.format(basename)).json()
