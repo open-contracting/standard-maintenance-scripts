@@ -64,8 +64,7 @@ is_extension = (repo_name.startswith('ocds') and repo_name.endswith('extension')
 # Assumes that only profiles have Makefiles.
 is_profile = is_extension and os.path.isfile(os.path.join(cwd, 'Makefile'))
 
-# TODO: See https://github.com/open-contracting/standard-maintenance-scripts/issues/29
-url = 'https://raw.githubusercontent.com/open-contracting/standard/1.1.3-dev/standard/schema/meta-schema.json'  # noqa
+url = 'https://raw.githubusercontent.com/open-contracting/standard/1.1/standard/schema/meta-schema.json'
 metaschema = requests.get(url).json()
 
 # jsonmerge fields for OCDS 1.0.
