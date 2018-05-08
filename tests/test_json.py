@@ -563,13 +563,18 @@ def validate_object_id(*args):
         '0',  # linked releases
     }
 
-    ref_title_exceptions = {
-        # 2.0 fixes.
-        # See https://github.com/open-contracting/standard/issues/650
-        'Amendment',
-        'Organization',
-        'Organization reference',
-        'Related Process',
+    # 2.0 fixes.
+    # See https://github.com/open-contracting/standard/issues/650
+    required_id_exceptions = {
+        '/definitions/Amendment',
+        '/definitions/Organization',
+        '/definitions/OrganizationReference',
+        '/definitions/RelatedProcess',
+        # ocds_lots_extension
+        '/definitions/Lot',
+        '/definitions/LotGroup',
+        # ocds_participationFee_extension
+        '/definitions/ParticipationFee',
     }
 
     def block(path, data, pointer):
@@ -582,15 +587,22 @@ def validate_object_id(*args):
         if ('type' in data and data['type'] == 'array' and 'properties' in data['items'] and
                 parent not in exceptions and 'versionedRelease' not in parts):
             required = data['items'].get('required', [])
+            if hasattr(data['items'], '__reference__'):
+                original = data['items'].__reference__['$ref'][1:]
+            else:
+                original = pointer
 
             if 'id' not in data['items']['properties']:
                 errors += 1
                 warnings.warn('{} object array has no `id` property at {}'.format(path, pointer))
 
-            if ('id' not in required and not data.get('wholeListMerge') and
-                    data['items'].get('title') not in ref_title_exceptions):
-                # 2.0 fixes.
-                warnings.warn('{} object array should require `id` property at {}'.format(path, pointer))
+            if 'id' not in required and not data.get('wholeListMerge') and original not in required_id_exceptions:
+                errors += 1
+                if original == pointer:
+                    warnings.warn('{} object array should require `id` property at {}'.format(path, pointer))
+                else:
+                    warnings.warn('{} object array should require `id` property at {} (from {})'.format(
+                        path, original, pointer))
 
         return errors
 
