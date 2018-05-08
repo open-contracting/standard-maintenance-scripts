@@ -226,6 +226,7 @@ def merge_obj(result, obj, pointer=''):  # changed code
         # new code
         if key in result:
             pointer_and_key = '{}/{}'.format(pointer, key)
+            # Exceptions.
             if (value is None and pointer_and_key == '/definitions/Milestone/properties/documents/deprecated' and
                     repo_name == 'ocds_milestone_documents_extension'):
                 warnings.warn('re-adds {}'.format(pointer))
@@ -744,9 +745,11 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
             codelist_files = set()
             for csvpath, reader in walk_csv_data():
                 components = csvpath.split(os.sep)
-                # Core and profiles may have codelists from extensions under `extensions` or `compiledCodelists`.
-                if is_codelist(reader) and ((is_extension and not is_profile) or ('extensions' not in components and
-                        'compiledCodelists' not in components)):
+                if is_codelist(reader) and (
+                        # Take all codelists in extensions.
+                        (is_extension and not is_profile) or
+                        # Take non-extension codelists in core and profiles.
+                        ('extensions' not in components and 'compiledCodelists' not in components)):
                     name = os.path.basename(csvpath)
                     if name.startswith('+') or name.startswith('-'):
                         if name[1:] not in external_codelists:
@@ -885,7 +888,7 @@ def test_empty_files():
     for root, name in walk():
         if is_extension and name == 'versioned-release-validation-schema.json':
             assert False, 'versioned-release-validation-schema.json should be removed'
-        elif not name in filename_exceptions and os.path.splitext(name)[1] not in extension_exceptions:
+        elif name not in filename_exceptions and os.path.splitext(name)[1] not in extension_exceptions:
             path = os.path.join(root, name)
             try:
                 with open(path) as f:
@@ -893,7 +896,7 @@ def test_empty_files():
             except UnicodeDecodeError as e:
                 assert False, 'UnicodeDecodeError: {} {}'.format(e, path)
             if name in basenames:
-                # standard_extension_template is allowed to have empty schema files.
+                # Exception: standard_extension_template is allowed to have empty schema files.
                 if repo_name != 'standard_extension_template':
                     assert json.loads(text), '{} is empty and should be removed'.format(path)
             else:
