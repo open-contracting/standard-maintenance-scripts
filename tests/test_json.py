@@ -44,14 +44,6 @@ external_codelists = {
     'unitClassificationScheme.csv',
 }
 
-# For example, ocds_lots_extension extends Bid, which otherwise lacks title, description and type.
-optional_dependencies = {
-    'ocds_lots_extension': ['open-contracting/ocds_bid_extension'],
-    'ocds_options_extension': ['open-contracting/ocds_lots_extension', 'open-contracting/ocds_bid_extension'],
-    'ocds_recurrence_extension': ['open-contracting/ocds_lots_extension', 'open-contracting/ocds_bid_extension'],
-    'public-private-partnerships': ['open-contracting/ocds_location_extension'],
-}
-
 cwd = os.getcwd()
 
 repo_name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', cwd))
@@ -921,21 +913,22 @@ def test_json_merge_patch():
 
     url_pattern = 'http://standard.open-contracting.org/latest/en/{}'
 
+    def get_dependencies(extension, basename):
+        dependencies = extension.get('dependencies', []) + extension.get('testDependencies', [])
+        for url in dependencies:
+            dependency = requests.get(url).json()
+            external_codelists.update(dependency.get('codelists', []))
+            schema_url = '{}/{}'.format(url.rsplit('/', 1)[0], basename)
+            json_merge_patch.merge(schemas[basename], requests.get(schema_url).json())
+            get_dependencies(dependency, basename)
+
     for basename in basenames:
         schemas[basename] = requests.get(url_pattern.format(basename)).json()
 
         if basename == 'release-schema.json':
             path = os.path.join(cwd, 'extension.json')
             with open(path) as f:
-                data = json.load(f, object_pairs_hook=object_pairs_hook)
-                dependencies = data.get('dependencies', [])
-                if repo_name in optional_dependencies:
-                    for dependency in optional_dependencies[repo_name]:
-                        dependencies.append('https://raw.githubusercontent.com/{}/master/extension.json'.format(dependency))  # noqa
-                for extension_url in dependencies:
-                    external_codelists.update(requests.get(extension_url).json().get('codelists', []))
-                    schema_url = '{}/{}'.format(extension_url.rsplit('/', 1)[0], basename)
-                    json_merge_patch.merge(schemas[basename], requests.get(schema_url).json())
+                get_dependencies(json.load(f, object_pairs_hook=object_pairs_hook), basename)
 
     # This loop is somewhat unnecessary, as repositories contain at most one of each schema file.
     for path, text, data in walk_json_data():
