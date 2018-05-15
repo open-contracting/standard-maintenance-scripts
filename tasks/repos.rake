@@ -137,7 +137,7 @@ Report issues for this extension in the [ocds-extensions repository](https://git
 
   desc 'Lists non-extension releases'
   task :releases do
-    expected_extension_tags = Set.new(['ppp', 'v1.1', 'v1.1.1'])
+    expected_extension_tags = Set.new(['ppp', 'v1.1', 'v1.1.1', 'v1.1.3'])
 
     repos.each do |repo|
       data = repo.rels[:releases].get.data
