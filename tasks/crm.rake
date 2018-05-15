@@ -222,6 +222,7 @@ namespace :crm do
         'media',
         'private sector',
         'service provider',
+        'staff',
       ]),
       additional_organization_types: Set.new([ # optional
         'infrastructure',
