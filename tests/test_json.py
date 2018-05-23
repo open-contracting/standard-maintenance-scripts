@@ -354,8 +354,7 @@ def validate_title_description_type(*args):
             for field in required_fields:
                 # Exception: api_extension has a concise links section.
                 if (field not in data or not data[field] or not data[field].strip()) and 'links' not in parts:
-                    # TODO: https://github.com/open-contracting/standard-maintenance-scripts/issues/27
-                    # errors += 1
+                    errors += 1
                     warnings.warn('{} is missing {}/{}'.format(path, pointer, field))
             if 'type' not in data and '$ref' not in data and 'oneOf' not in data:
                 errors += 1
@@ -380,21 +379,6 @@ def validate_null_type(path, data, pointer='', should_be_nullable=True):
         '/properties/packageMetadata/properties/uri',
         '/properties/packageMetadata/properties/publishedDate',
         '/properties/packageMetadata/properties/publisher',
-        '/properties/links',
-        '/properties/links/properties/all',
-        '/properties/links/properties/next',
-        '/properties/links/properties/prev',
-
-        # API extension removes the `required` field, making these optional but non-nullable.
-        '/properties/uri',
-        '/properties/version',
-        '/properties/publishedDate',
-        '/properties/publisher',
-        # API extension doesn't require the hoisted fields at the record-level.
-        '/definitions/record/properties/packageMetadata',
-        '/definitions/record/properties/packageMetadata/properties/uri',
-        '/definitions/record/properties/packageMetadata/properties/publishedDate',
-        '/definitions/record/properties/packageMetadata/properties/publisher',
 
         # 2.0 fixes.
         # See https://github.com/open-contracting/standard/issues/650
@@ -428,14 +412,10 @@ def validate_null_type(path, data, pointer='', should_be_nullable=True):
                 # A special case: If it's not required (should be nullable), but isn't nullable, it's okay if and only
                 # if it's an array of references or objects.
                 if not nullable and not array_of_refs_or_objects and pointer not in null_exceptions:
-                    # TODO: https://github.com/open-contracting/standard/issues/630
-                    # TODO: https://github.com/open-contracting/ocds-extensions/issues/50
-                    # errors += 1
+                    errors += 1
                     warnings.warn('{} has optional but non-nullable {} at {}'.format(path, data['type'], pointer))
             elif nullable and pointer not in non_null_exceptions:
-                # TODO: https://github.com/open-contracting/standard/issues/630
-                # TODO: https://github.com/open-contracting/ocds-extensions/issues/50
-                # errors += 1
+                errors += 1
                 warnings.warn('{} has required but nullable {} at {}'.format(path, data['type'], pointer))
 
         required = data.get('required', [])
@@ -727,8 +707,8 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
         # Extensions aren't expected to repeat referenced `definitions`.
         errors += validate_ref(path, data)
 
-        # Extensions aren't expected to repeat `required`.
-        if all(basename not in path for basename in exceptions_plus_versioned):
+        # Extensions aren't expected to repeat `required`. Packages don't have merge rules.
+        if all(basename not in path for basename in exceptions_plus_versioned_and_packages):
             errors += validate_null_type(path, data)
         # Extensions aren't expected to repeat `title`, `description`, `type`.
         if all(basename not in path for basename in exceptions_plus_versioned):
@@ -916,7 +896,9 @@ def test_json_merge_patch():
         'versioned-release-validation-schema.json',
     )
 
-    url_pattern = 'http://standard.open-contracting.org/latest/en/{}'
+    # TODO: Waiting for release after 1.1.3.
+    # url_pattern = 'http://standard.open-contracting.org/latest/en/{}'
+    url_pattern = 'https://raw.githubusercontent.com/open-contracting/standard/missing-properties/standard/schema/{}'
 
     def get_dependencies(extension, basename):
         dependencies = extension.get('dependencies', []) + extension.get('testDependencies', [])
