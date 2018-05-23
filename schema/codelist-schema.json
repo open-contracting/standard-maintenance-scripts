@@ -32,7 +32,7 @@
       },
       "Category": {
         "title": "Category",
-        "description": "The publication level of the code.",
+        "description": "A single category by which to filter codes. The extension's documentation should explain the categorization system.",
         "type": [
           "string",
           "null"

@@ -467,9 +467,14 @@ def validate_codelist_enum(*args):
 
         parent = pointer.rsplit('/', 1)[-1]
 
+        cached_types = {
+            '/definitions/Metric/properties/id': ['string'],
+            '/definitions/Milestone/properties/code': ['string', 'null'],
+        }
+
         if 'codelist' in data:
             if 'type' not in data:  # e.g. if changing an existing property
-                types = ['array']  # assumption
+                types = cached_types.get(pointer, ['array'])
             elif isinstance(data['type'], str):
                 types = [data['type']]
             else:
