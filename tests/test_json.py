@@ -590,6 +590,12 @@ def validate_object_id(*args):
         '0',  # linked releases
     }
 
+    # An array of objects without `id` fields are rare, but allowed.
+    # See http://standard.open-contracting.org/latest/en/schema/merging/#whole-list-merge
+    id_presence_extensions = {
+        '/definitions/Location',  # /definitions/Planning/properties/project/properties/locations
+    }
+
     # 2.0 fixes.
     # See https://github.com/open-contracting/standard/issues/650
     required_id_exceptions = {
@@ -618,9 +624,13 @@ def validate_object_id(*args):
             else:
                 original = pointer
 
-            if 'id' not in data['items']['properties']:
+            if 'id' not in data['items']['properties'] and original not in id_presence_extensions:
                 errors += 1
-                warnings.warn('{} object array has no `id` property at {}'.format(path, pointer))
+                if original == pointer:
+                    warnings.warn('{} object array has no `id` property at {}'.format(path, pointer))
+                else:
+                    warnings.warn('{} object array has no `id` property at {} (from {})'.format(
+                        path, original, pointer))
 
             if 'id' not in required and not data.get('wholeListMerge') and original not in required_id_exceptions:
                 errors += 1
