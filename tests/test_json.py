@@ -908,7 +908,7 @@ def test_json_merge_patch():
 
     # TODO: Waiting for release after 1.1.3.
     # url_pattern = 'http://standard.open-contracting.org/latest/en/{}'
-    url_pattern = 'https://raw.githubusercontent.com/open-contracting/standard/missing-properties/standard/schema/{}'
+    url_pattern = 'https://raw.githubusercontent.com/open-contracting/standard/1.1-dev/standard/schema/{}'
 
     def get_dependencies(extension, basename):
         dependencies = extension.get('dependencies', []) + extension.get('testDependencies', [])
