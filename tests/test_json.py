@@ -856,8 +856,10 @@ def test_empty_files():
         'chromedriver',
         'chromedriver_linux64.zip',
         'chromedriver_mac64.zip',
-        # __init__.py files are allowed to be empty.
+        # Python
         '__init__.py',
+        # Python packages
+        'dependency_links.txt',
     }
     extension_exceptions = {
         # Sphinx
@@ -871,6 +873,8 @@ def test_empty_files():
         '.png',
         # Python
         '.pyc',
+        # Python packages
+        '.gz',
     }
 
     for root, name in walk():
