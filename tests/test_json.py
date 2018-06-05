@@ -889,7 +889,7 @@ def test_empty_files():
                 assert False, 'UnicodeDecodeError: {} {}'.format(e, path)
             if name in basenames:
                 # Exception: standard_extension_template is allowed to have empty schema files.
-                if repo_name != 'standard_extension_template':
+                if repo_name not in ('standard_extension_template', 'standard_profile_template'):
                     assert json.loads(text), '{} is empty and should be removed'.format(path)
             else:
                 assert text.strip(), '{} is empty and should be removed'.format(path)
