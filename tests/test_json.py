@@ -845,6 +845,7 @@ def test_empty_files():
     Ensures an extension has no empty files and no versioned-release-validation-schema.json file.
     """
     basenames = (
+        '.keep',
         'record-package-schema.json',
         'release-package-schema.json',
         'release-schema.json',
@@ -888,7 +889,7 @@ def test_empty_files():
             except UnicodeDecodeError as e:
                 assert False, 'UnicodeDecodeError: {} {}'.format(e, path)
             if name in basenames:
-                # Exception: standard_extension_template is allowed to have empty schema files.
+                # Exception: Templates are allowed to have empty schema files.
                 if repo_name not in ('standard_extension_template', 'standard_profile_template'):
                     assert json.loads(text), '{} is empty and should be removed'.format(path)
             else:
