@@ -24,7 +24,7 @@ namespace :pulls do
             pull = client.create_pull_request(repo.full_name, repo.default_branch, ref, title, body)
             puts "#{pull.html_url} #{title.bold}"
           rescue Octokit::UnprocessableEntity => e
-            if e.errors[0][:message][/\ANo commits between master and \S+\z/]
+            if e.errors[0][:message][/\ANo commits between \S+ and \S+\z/]
               client.delete_branch(repo.full_name, ref)
             else
               raise e
@@ -74,14 +74,18 @@ namespace :pulls do
     repos.each do |repo|
       pull = repo.rels[:pulls].get.data.find{ |pull| pull.head.ref == ref }
       if pull
-        diff = client.compare(repo.full_name, repo.default_branch, ref, accept: 'application/vnd.github.v3.diff')
+        begin
+          diff = client.compare(repo.full_name, repo.default_branch, ref, accept: 'application/vnd.github.v3.diff')
 
-        puts "#{pull.html_url} #{pull.rels[:comments].get.data.size.to_s.bold} comments"
-        puts "#{pull.html_url}/files"
-        puts diff
-        puts "press enter to continue"
+          puts "#{pull.html_url} #{pull.rels[:comments].get.data.size.to_s.bold} comments"
+          puts "#{pull.html_url}/files"
+          puts diff
+          puts "press enter to continue"
 
-        $stdin.gets
+          $stdin.gets
+        rescue Octokit::InternalServerError => e
+          puts "#{pull.html_url} #{e.to_s.bold}"
+        end
       end
     end
   end
