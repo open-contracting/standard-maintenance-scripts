@@ -30,7 +30,8 @@ namespace :local do
     repos.partition{ |repo| !extension?(repo.name) }.each_with_index do |set, index|
       output << ''
 
-      if index.zero?
+      dependencies = index.zero?
+      if dependencies
         output << "## Repositories"
       else
         output << "## Extensions"
@@ -38,8 +39,8 @@ namespace :local do
 
       output += [
         '',
-        'Name|Build|Dependencies',
-        '-|-|-',
+        'Name|Build' + (dependencies ? '|Dependencies' : ''),
+        '-|-' + (dependencies ? '|-' : ''),
       ]
 
       set.each do |repo|
@@ -63,7 +64,7 @@ namespace :local do
         hook = hooks.find{ |datum| datum.config.url == 'https://requires.io/github/web-hook/' }
         if hook && hook.active
           line << "[![Requirements Status](https://requires.io/github/#{repo.full_name}/requirements.svg)](https://requires.io/github/#{repo.full_name}/requirements/)"
-        else
+        elsif dependencies
           line << '-'
         end
 
