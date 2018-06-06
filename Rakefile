@@ -21,6 +21,10 @@ require 'safe_yaml'
 
 SafeYAML::OPTIONS[:default_mode] = :safe
 
+OTHER_EXTENSIONS = ['api_extension', 'ocds_performance_failures']
+OTHER_PROFILES = ['public-private-partnerships']
+TEMPLATES = ['standard_extension_template', 'standard_profile_template']
+
 # See https://developers.google.com/drive/v2/web/quickstart/ruby
 OOB_URI = 'urn:ietf:wg:oauth:2.0:oob'
 APPLICATION_NAME = 'Drive API Ruby Quickstart'
@@ -76,13 +80,13 @@ def repos
   end
 end
 
-def extension?(name, no_profiles_or_templates=false)
+def profile?(name)
+  name.start_with?('ocds-for-') || OTHER_PROFILES.include?(name)
+end
+
+def extension?(name, no_profiles_or_templates: false)
   # This should match the logic in `test_json.py`.
-  other_extensions = ['api_extension', 'ocds_performance_failures']
-  unless no_profiles_or_templates
-    other_extensions+= ['public-private-partnerships', 'standard_extension_template']
-  end
-  name.start_with?('ocds') && name.end_with?('extension') || other_extensions.include?(name)
+  name.start_with?('ocds') && name.end_with?('extension') || OTHER_EXTENSIONS.include?(name) || !no_profiles_or_templates && (profile?(name) || TEMPLATES.include?(name))
 end
 
 def variables(*keys)

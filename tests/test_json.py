@@ -19,6 +19,7 @@ other_extensions = (
     'ocds_performance_failures',
     'public-private-partnerships',
     'standard_extension_template',
+    'standard_profile_template',
 )
 
 # The codelists defined in `standard/schema/codelists`. XXX Hardcoding.

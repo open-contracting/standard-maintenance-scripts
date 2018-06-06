@@ -72,7 +72,7 @@ Report issues for this extension in the [ocds-extensions repository](https://git
     END
 
     repos.each do |repo|
-      if extension?(repo.name, true) && !Base64.decode64(client.readme(repo.full_name).content)[template]
+      if extension?(repo.name, no_profiles_or_templates: true) && !Base64.decode64(client.readme(repo.full_name).content)[template]
         puts "#{repo.html_url}#readme #{'missing content'.bold}"
       end
     end
@@ -173,7 +173,7 @@ Report issues for this extension in the [ocds-extensions repository](https://git
   task :webhooks do
     repos.each do |repo|
       data = repo.rels[:hooks].get.data.reject do |datum|
-        %w(gemnasium travis).include?(datum.name) || datum.config.url == 'https://requires.io/github/web-hook/'
+        %w(travis).include?(datum.name) || datum.config.url == 'https://requires.io/github/web-hook/'
       end
       if data.any?
         puts "#{repo.html_url}/settings/hooks"
