@@ -25,7 +25,7 @@ The standard [`.travis.yml`](fixtures/.travis.yml) file performs:
 To run the tests locally, run the setup commands above, change into a repository's folder, then:
 
     flake8 --max-line-length 119
-    pytest -rs path/to/standard-maintenance-scripts/tests
+    py.test -rs path/to/standard-maintenance-scripts/tests
 
 To run the tests locally against an unreleased version of the standard, replace `http://standard.open-contracting.org/schema/VERSION` with `http://standard.open-contracting.org/BRANCH/en`.
 
