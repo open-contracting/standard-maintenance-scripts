@@ -1,6 +1,8 @@
+import csv
+import os
 import re
 from collections import defaultdict
-from os.path import expanduser
+from io import StringIO
 from urllib.parse import urlparse
 
 import requests
@@ -9,21 +11,26 @@ from invoke import run, task
 
 @task
 def download_extensions(ctx, path):
+    url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/master/extension_versions.csv'
+
+    repos = set()
+    for version in csv.DictReader(StringIO(requests.get(url).text)):
+        parts = urlparse(version['Base URL'])
+        if parts.netloc == 'raw.githubusercontent.com':
+            repos.add('/'.join(parts.path.split('/')[1:3]))
+        else:
+            print('{} not supported'.format(parts.netloc))
+
     path = path.rstrip('/')
-
-    url = 'http://standard.open-contracting.org/extension_registry/master/extensions.json'
-
-    for extension in requests.get(url).json()['extensions']:
-        if extension['active']:
-            components = urlparse(extension['url']).path.split('/')
-            repo = '/'.join(components[1:3])
-            command = 'git clone git@github.com:{}.git {}/{}'.format(repo, path, components[2])
-            run(command)
+    for repo in repos:
+        directory = '{}/{}'.format(path, repo.split('/', 1)[1])
+        if not os.path.isdir(directory):
+            run('git clone git@github.com:{}.git {}'.format(repo, directory))
 
 
 @task
 def check_aspell_dictionary(ctx):
-    with open(expanduser('~/.aspell.en.pws'), 'r', encoding='iso-8859-1') as f:
+    with open(os.path.expanduser('~/.aspell.en.pws'), 'r', encoding='iso-8859-1') as f:
         aspell = f.read()
 
     def report(method, exceptions):

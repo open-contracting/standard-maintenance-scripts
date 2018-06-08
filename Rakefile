@@ -101,15 +101,23 @@ end
 
 def core_extensions
   @core_extensions ||= begin
-    core_extensions = {}
-    JSON.load(open('http://standard.open-contracting.org/extension_registry/master/extensions.json').read)['extensions'].each do |extension|
-      match = extension['url'].match(%r{\Ahttps://raw\.githubusercontent\.com/[^/]+/([^/]+)/master/\z})
-      if match
-        core_extensions[match[1]] = extension.fetch('core')
+    base_url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/master/'
+
+    ids_to_repos = {}
+    CSV.parse(open("#{base_url}/extension_versions.csv").read, headers: true).each do |version|
+      parts = URI.parse(version.fetch('Base URL'))
+      if parts.hostname == 'raw.githubusercontent.com'
+        ids_to_repos[version.fetch('Id')] = parts.path.split('/')[1..2].join('/')
       else
-        raise "couldn't determine extension name: #{extension['url']}"
+        puts "#{parts.hostname} not supported"
       end
     end
+
+    core_extensions = {}
+    CSV.parse(open("#{base_url}/extensions.csv").read, headers: true).each do |extension|
+      core_extensions[ids_to_repos.fetch(extension.fetch('Id'))] = extension.fetch('Core') == 'true'
+    end
+
     core_extensions
   end
 end

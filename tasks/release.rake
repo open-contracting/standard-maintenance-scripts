@@ -3,7 +3,9 @@ namespace :release do
   desc 'Reviews open pull requests and recent changes to core extensions'
   task :review_extensions do
     repos.each do |repo|
-      if core_extensions[repo.name]
+      if extension?(repo.name, profiles: false, templates: false) && !core_extensions.key?(repo.full_name)
+        puts "extension not in registry: #{repo.full_name}"
+      elsif core_extensions[repo.full_name]
         pull_requests = repo.rels[:pulls].get.data
         latest_release = repo.rels[:releases].get.data[0]
         compare = client.compare(repo.full_name, latest_release.tag_name, repo.default_branch)
@@ -27,7 +29,9 @@ namespace :release do
     name = "Fixed version for OCDS #{ref[1..-1]}"
 
     repos.each do |repo|
-      if core_extensions[repo.name]
+      if extension?(repo.name, profiles: false, templates: false) && !core_extensions.key?(repo.full_name)
+        puts "extension not in registry: #{repo.full_name}"
+      elsif core_extensions[repo.full_name]
         content = Base64.decode64(client.readme(repo.full_name).content)
         match = content.match(/^### #{ref}\n\n([^#]+)/)
         if match
