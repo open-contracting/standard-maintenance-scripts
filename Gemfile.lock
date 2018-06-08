@@ -1,5 +1,5 @@
 GIT
-  remote: git://github.com/jpmckinney/octokit.rb.git
+  remote: https://github.com/jpmckinney/octokit.rb.git
   revision: f1b73abaa9a66202243f7f55c60c915d4181c8b3
   branch: pr/977
   specs:
@@ -88,4 +88,4 @@ DEPENDENCIES
   safe_yaml
 
 BUNDLED WITH
-   1.16.0
+   1.16.2
