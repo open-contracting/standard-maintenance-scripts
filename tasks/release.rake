@@ -48,7 +48,7 @@ namespace :release do
     end
   end
 
-  desc 'Removes specific releases of core extensions'
+  desc 'Removes specific releases of repositories'
   task :undo_release_extensions do
     ref = variables('REF')[0]
 
