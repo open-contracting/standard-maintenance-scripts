@@ -681,6 +681,8 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
         'base-release-schema.json',  # is a copy
         'codelist-schema.json',
         'extension-schema.json',
+        'extensions-schema.json',
+        'extension_versions-schema.json',
     }
     exceptions = json_schema_exceptions | ocds_schema_exceptions
 
