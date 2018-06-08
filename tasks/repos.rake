@@ -72,7 +72,7 @@ Report issues for this extension in the [ocds-extensions repository](https://git
     END
 
     repos.each do |repo|
-      if extension?(repo.name, no_profiles_or_templates: true) && !Base64.decode64(client.readme(repo.full_name).content)[template]
+      if extension?(repo.name, profiles: false, templates: false) && !Base64.decode64(client.readme(repo.full_name).content)[template]
         puts "#{repo.html_url}#readme #{'missing content'.bold}"
       end
     end
@@ -260,5 +260,71 @@ Report issues for this extension in the [ocds-extensions repository](https://git
     }.each do |full_name, egg_name|
       puts "-e git+https://github.com/#{full_name}.git@#{client.commits(full_name, per_page: 1)[0].sha}#egg=#{egg_name}"
     end
+  end
+
+  desc 'Lists extension versions for the extension registry'
+  task :extension_versions do
+    identifiers = {
+      'additionalContactPoints' => 'additionalContactPoint',
+      'bid' => 'bids',
+      'budget_breakdown' => 'budget',
+      'budget_projects' => 'budget_project',
+      'contract_signatories' => 'signatories',
+      'documentation' => 'documentation_details',
+      'enquiry' => 'enquiries',
+      'multiple_buyers' => 'contract',
+      'participationFee' => 'participation_fee',
+      'partyDetails_scale' => 'partyScale',
+      'public-private-partnerships' => 'ppp',
+      'riskAllocation' => 'risk_allocation',
+      'transactions_relatedMilestone' => 'transaction_milestones',
+
+      # Not in registry (yet).
+      'api' => false,
+      'exchangeRate' => false,
+      'contractRegister' => false,
+      'coveredBy' => false,
+      'for-eu' => false,
+      'for-gpa' => false,
+      'memberOf' => false,
+      'options' => false,
+      'procurementMethodModalities' => false,
+      'recurrence' => false,
+    }
+
+    lines = []
+
+    lines << CSV.generate_line(['Id', 'Date', 'Version', 'Base URL', 'Download URL'])
+    repos.each do |repo|
+      if extension?(repo.name, templates: false)
+        data = repo.rels[:releases].get.data
+        id = repo.name.gsub(/\Aocds[_-]|[_-]extension/, '')
+        id = identifiers.fetch(id, id)
+
+        if id != false
+          lines << CSV.generate_line([
+            id,
+            nil,
+            repo.default_branch,
+            "https://raw.githubusercontent.com/#{repo.full_name}/#{repo.default_branch}/",
+            "#{repo.html_url}/archive/#{repo.default_branch}.zip",
+          ])
+
+          if data.any?
+            data.each do |datum|
+              lines << CSV.generate_line([
+                id,
+                datum.published_at.strftime('%Y-%m-%d'),
+                datum.tag_name,
+                "https://raw.githubusercontent.com/#{repo.full_name}/#{datum.tag_name}/",
+                datum.zipball_url,
+              ])
+            end
+          end
+        end
+      end
+    end
+
+    puts lines.sort
   end
 end

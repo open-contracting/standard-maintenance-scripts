@@ -102,7 +102,7 @@ Releases new versions of core extensions:
 
     bundle exec rake release:release_extensions REF=v7.8.9
 
-Removes specific releases of core extensions:
+Removes specific releases of *repositories*:
 
     bundle exec rake release:undo_release_extensions REF=v7.8.9
 

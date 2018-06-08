@@ -27,7 +27,7 @@ namespace :local do
       '# Project Build and Dependency Status',
     ]
 
-    repos.partition{ |repo| !extension?(repo.name, no_profiles_or_templates: true) }.each_with_index do |set, index|
+    repos.partition{ |repo| !extension?(repo.name, profiles: false, templates: false) }.each_with_index do |set, index|
       output << ''
 
       dependencies = index.zero?

@@ -84,9 +84,9 @@ def profile?(name)
   name.start_with?('ocds-for-') || OTHER_PROFILES.include?(name)
 end
 
-def extension?(name, no_profiles_or_templates: false)
+def extension?(name, profiles: true, templates: true)
   # This should match the logic in `test_json.py`.
-  name.start_with?('ocds') && name.end_with?('extension') || OTHER_EXTENSIONS.include?(name) || !no_profiles_or_templates && (profile?(name) || TEMPLATES.include?(name))
+  name.start_with?('ocds') && name.end_with?('extension') || OTHER_EXTENSIONS.include?(name) || profiles && profile?(name) || templates && TEMPLATES.include?(name)
 end
 
 def variables(*keys)

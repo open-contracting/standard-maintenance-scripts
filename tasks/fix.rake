@@ -34,7 +34,7 @@ namespace :fix do
         end
       end
 
-      if extension?(repo.name, no_profiles_or_templates: true)
+      if extension?(repo.name, profiles: false, templates: false)
         if !repo.name[/\Aocds_\w+_extension\z/]
           puts "#{repo.name} is not a valid extension name"
         end
@@ -183,7 +183,7 @@ namespace :fix do
     repos.each do |repo|
       topics = []
 
-      if extension?(repo.name, no_profiles_or_templates: true)
+      if extension?(repo.name, profiles: false, templates: false)
         topics << 'ocds-extension'
         if core_extensions.key?(repo.name)
           if core_extensions[repo.name]

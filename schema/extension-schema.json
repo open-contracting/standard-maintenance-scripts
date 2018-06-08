@@ -27,7 +27,7 @@
       "minItems": 1,
       "items": {
         "type": "string",
-        "format": "^\\d+\\.\\d+$"
+        "pattern": "^\\d+\\.\\d+$"
       }
     },
     "description": {
