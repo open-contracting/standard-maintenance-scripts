@@ -101,21 +101,16 @@ end
 
 def core_extensions
   @core_extensions ||= begin
-    base_url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/master/'
+    core_extensions = {}
 
-    ids_to_repos = {}
-    CSV.parse(open("#{base_url}/extension_versions.csv").read, headers: true).each do |version|
-      parts = URI.parse(version.fetch('Base URL'))
+    url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/master/build/extension_versions_wide.csv'
+    CSV.parse(open(url).read, headers: true).each do |row|
+      parts = URI.parse(row.fetch('Base URL'))
       if parts.hostname == 'raw.githubusercontent.com'
-        ids_to_repos[version.fetch('Id')] = parts.path.split('/')[1..2].join('/')
+        core_extensions[parts.path.split('/')[1..2].join('/')] = row.fetch('Core') == 'true'
       else
         puts "#{parts.hostname} not supported"
       end
-    end
-
-    core_extensions = {}
-    CSV.parse(open("#{base_url}/extensions.csv").read, headers: true).each do |extension|
-      core_extensions[ids_to_repos.fetch(extension.fetch('Id'))] = extension.fetch('Core') == 'true'
     end
 
     core_extensions
