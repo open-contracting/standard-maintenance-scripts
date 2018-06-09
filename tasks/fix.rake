@@ -185,14 +185,14 @@ namespace :fix do
 
       if extension?(repo.name, profiles: false, templates: false)
         topics << 'ocds-extension'
-        if core_extensions.key?(repo.name)
-          if core_extensions[repo.name]
+        if core_extensions.key?(repo.full_name)
+          if core_extensions[repo.full_name]
             topics << 'ocds-core-extension'
           else
             topics << 'ocds-community-extension'
           end
         else
-          puts "couldn't find extension in registry: #{repo.name}"
+          puts "extension not in registry: #{repo.full_name}"
         end
       end
 

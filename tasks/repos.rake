@@ -279,17 +279,19 @@ Report issues for this extension in the [ocds-extensions repository](https://git
       'riskAllocation' => 'risk_allocation',
       'transactions_relatedMilestone' => 'transaction_milestones',
 
-      # Not in registry (yet).
+      # Extensions not in registry (yet).
       'api' => false,
       'exchangeRate' => false,
       'contractRegister' => false,
       'coveredBy' => false,
-      'for-eu' => false,
-      'for-gpa' => false,
       'memberOf' => false,
       'options' => false,
       'procurementMethodModalities' => false,
       'recurrence' => false,
+
+      # Profiles not in registry (yet).
+      'for-eu' => false,
+      'for-gpa' => false,
     }
 
     lines = []
