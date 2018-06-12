@@ -24,6 +24,13 @@ If changes are made to `extension-schema.json`, changes may be needed to:
 * [standard_extension_template](https://github.com/open-contracting/standard_extension_template): [`README.md`](https://github.com/open-contracting/standard_extension_template#extensionjson)
 * CoVE: [schema.py](https://github.com/OpenDataServices/cove/blob/master/cove_ocds/lib/schema.py#L116) `apply_extensions` method
 
+If fields in `extension-schema.json` are renamed, removed or restructured, changes may be needed to:
+
+* [documentation-support](https://github.com/open-contracting/public-private-partnerships): `apply_extensions` method (`name`)
+* [sphinxcontrib-opencontracting](https://github.com/open-contracting/sphinxcontrib-opencontracting): `ExtensionList` class (`name`, `description`) and `ExtensionSelectorTable` class (`name`, `description`, `documentationUrl`)
+* [standard](https://github.com/open-contracting/standard): `fetch_core_extensions.py` (`codelists`)
+* [standard-maintenance-scripts](https://github.com/open-contracting/standard-maintenance-scripts): `test_json.py` `test_extension_json` method
+
 ## CSV files
 
 ### Codelist files
@@ -37,9 +44,10 @@ If changes are made to the headers of codelist files, changes may be needed to:
 
 ### Extension registry files
 
-If changes are made to the extension registry's `extensions.csv` or `extension_versions.csv`, changes may be needed to:
+If changes are made to the registry's `extensions.csv` or `extension_versions.csv`, changes may be needed to:
 
 * [documentation-support](https://github.com/open-contracting/documentation-support): `__init__.py` `apply_extensions` method
-* [sphinxcontrib-opencontracting](https://github.com/open-contracting/sphinxcontrib-opencontracting): `opencontracting.py` `extension_versions_csv_reader` method and callers
+* [extension_registry.py](https://github.com/open-contracting/extension_registry.py)
+* [sphinxcontrib-opencontracting](https://github.com/open-contracting/sphinxcontrib-opencontracting): `opencontracting.py` `extension_registry` method and callers
 * [standard](https://github.com/open-contracting/standard): `extensions.js`, `fetch_core_extensions.py`
 * [standard-maintenance-scripts](https://github.com/open-contracting/standard-maintenance-scripts): `tasks.py` `download_extensions` task, `Rakefile` `uncloned` task and `core_extensions` method and callers
