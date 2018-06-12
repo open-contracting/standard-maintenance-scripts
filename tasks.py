@@ -1,11 +1,7 @@
-import csv
 import os
 import re
 from collections import defaultdict
-from io import StringIO
-from urllib.parse import urlparse
 
-import requests
 from invoke import run, task
 from ocdsextensionregistry import ExtensionRegistry
 
