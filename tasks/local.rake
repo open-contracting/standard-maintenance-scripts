@@ -119,6 +119,7 @@ Report issues for this extension in the [ocds-extensions repository](https://git
       repo_name = File.basename(path)
 
       if Dir.exist?(path) && extension?(repo_name)
+        full_name = File.read(File.join(path, '.git', 'config')).match(/git@github.com:(\S+)\.git/)[1]
         file_path = File.join(path, 'extension.json')
         content = JSON.load(File.read(file_path))
         expected = Marshal.load(Marshal.dump(content))
@@ -145,13 +146,19 @@ Report issues for this extension in the [ocds-extensions repository](https://git
         end
 
         if !content.key?('documentationUrl')
-          content['documentationUrl'] = { 'en' => "https://github.com/open-contracting/#{repo_name}" }
+          content['documentationUrl'] = { 'en' => "https://github.com/#{full_name}" }
         end
 
         codelists = Set.new(Dir[File.join(path, 'codelists', '*')].map{ |path| File.basename(path) })
 
         if String === content['codelists'] || codelists != Set.new(content['codelists'])
           content['codelists'] = codelists.to_a.sort
+        end
+
+        schemas = Set.new(Dir[File.join(path, '*-schema.json')].map{ |path| File.basename(path) })
+
+        if String === content['schemas'] || schemas != Set.new(content['schemas'])
+          content['schemas'] = schemas.to_a.sort
         end
 
         if expected != content

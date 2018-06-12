@@ -816,7 +816,8 @@ def test_extension_json():
         url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/master/schema/extension-schema.json'  # noqa
         schema = requests.get(url).json()
 
-    expected = {os.path.basename(path) for path, _ in walk_csv_data(os.path.join(cwd, 'codelists'))}
+    expected_codelists = {os.path.basename(path) for path, _ in walk_csv_data(os.path.join(cwd, 'codelists'))}
+    expected_schemas = {os.path.basename(path) for path, _, _ in walk_json_data()} - {'extension.json'}
 
     path = os.path.join(cwd, 'extension.json')
     if os.path.isfile(path):
@@ -825,7 +826,8 @@ def test_extension_json():
 
         validate_json_schema(path, data, schema)
 
-        urls = data.get('dependencies', []) + list(data['documentationUrl'].values())
+        urls = data.get('dependencies', []) + data.get('testDependencies', []) + \
+            list(data['documentationUrl'].values())
         for url in urls:
             try:
                 status_code = requests.head(url).status_code
@@ -833,12 +835,17 @@ def test_extension_json():
             except requests.exceptions.ConnectionError as e:
                 assert False, '{} on {}'.format(e, url)
 
-        actual = set(data.get('codelists', []))
-        if actual != expected:
-            added, removed = difference(actual, expected)
+        actual_codelists = set(data.get('codelists', []))
+        if actual_codelists != expected_codelists:
+            added, removed = difference(actual_codelists, expected_codelists)
             assert False, '{} has mismatch with schema{}{}'.format(
                 path, added, removed)
 
+        actual_schemas = set(data.get('schemas', []))
+        if actual_schemas != expected_schemas:
+            added, removed = difference(actual_schemas, expected_schemas)
+            assert False, '{} has mismatch with schema{}{}'.format(
+                path, added, removed)
     else:
         assert False, 'expected an extension.json file'
 
