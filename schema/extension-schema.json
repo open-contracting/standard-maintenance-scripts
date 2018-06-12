@@ -90,12 +90,6 @@
         "format": "uri",
         "pattern": "^.+/extension\\.json$"
       }
-    },
-    "version": {
-      "title": "Version",
-      "description": "Version of the extension. This may be completely separate from the version of OCDS this extension is compatible with (use compatibility for that).",
-      "type": "string",
-      "minLength": 1
     }
   }
 }
