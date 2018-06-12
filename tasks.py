@@ -7,25 +7,20 @@ from urllib.parse import urlparse
 
 import requests
 from invoke import run, task
+from ocdsextensionregistry import ExtensionRegistry
 
 
 @task
 def download_extensions(ctx, path):
+    path = path.rstrip('/')
+
     url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/master/extension_versions.csv'
 
-    repos = set()
-    for version in csv.DictReader(StringIO(requests.get(url).text)):
-        parts = urlparse(version['Base URL'])
-        if parts.netloc == 'raw.githubusercontent.com':
-            repos.add('/'.join(parts.path.split('/')[1:3]))
-        else:
-            print('{} not supported'.format(parts.netloc))
-
-    path = path.rstrip('/')
-    for repo in repos:
-        directory = '{}/{}'.format(path, repo.split('/', 1)[1])
+    registry = ExtensionRegistry(url)
+    for extension in registry:
+        directory = os.path.join(path, extension.repository_name)
         if not os.path.isdir(directory):
-            run('git clone git@github.com:{}.git {}'.format(repo, directory))
+            run('git clone {} {}'.format(extension.repository_url, directory))
 
 
 @task

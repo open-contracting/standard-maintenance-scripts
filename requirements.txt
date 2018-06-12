@@ -3,6 +3,7 @@ invoke
 json-merge-patch
 jsonref
 jsonschema
+ocdsextensionregistry
 pytest
 requests
 rfc3987
