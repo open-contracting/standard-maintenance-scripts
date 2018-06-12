@@ -845,7 +845,7 @@ def test_extension_json():
 
 def test_empty_files():
     """
-    Ensures an extension has no empty files and no versioned-release-validation-schema.json file.
+    Ensures a repository has no empty files and an extension has no versioned-release-validation-schema.json file.
     """
     basenames = (
         '.keep',
@@ -857,6 +857,7 @@ def test_empty_files():
     # Some files raise UnicodeDecodeError exceptions.
     filename_exceptions = {
         '.DS_Store',
+        'cache.sqlite',
         'chromedriver',
         'chromedriver_linux64.zip',
         'chromedriver_mac64.zip',
