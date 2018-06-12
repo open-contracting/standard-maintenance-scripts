@@ -106,19 +106,20 @@ def core_extensions
     ids_to_repos = {}
     CSV.parse(open("#{base_url}/extension_versions.csv").read, headers: true).each do |version|
       parts = URI.parse(version.fetch('Base URL'))
+      # Assumes different versions of the same extension use the same repository.
       if parts.hostname == 'raw.githubusercontent.com'
         ids_to_repos[version.fetch('Id')] = parts.path.split('/')[1..2].join('/')
       else
-        puts "#{parts.hostname} not supported"
+        raise "#{parts.hostname} not supported"
       end
     end
 
-    core_extensions = {}
+    repos_to_core = {}
     CSV.parse(open("#{base_url}/extensions.csv").read, headers: true).each do |extension|
-      core_extensions[ids_to_repos.fetch(extension.fetch('Id'))] = extension.fetch('Core') == 'true'
+      repos_to_core[ids_to_repos.fetch(extension.fetch('Id'))] = extension.fetch('Core') == 'true'
     end
 
-    core_extensions
+    repos_to_core
   end
 end
 

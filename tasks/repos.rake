@@ -186,19 +186,20 @@ Report issues for this extension in the [ocds-extensions repository](https://git
 
   desc 'Lists repositories with number of issues, PRs, branches, milestones and whether wiki, pages, issues, projects are enabled'
   task :status do
-    format = '%-50s  %12s  %11s  %11s  %11s  %s  %s  %s  %s  %s'
+    format = '%-50s  %12s  %11s  %11s  %11s  %11s  %s  %s  %s  %s  %s'
 
     repos.partition{ |repo| !extension?(repo.name) }.each do |set|
       # Number of open issues
       # Number of open pull requests
       # Number of branches, excluding default, pull, upstream, excluded branches
       # Number of open milestones
+      # Number of open projects
       # Whether the repo has a wiki
       # Whether the repo has GitHub Pages
       # Whether the repo has issues enabled
       # Whether the repo has projects enabled
       # The top contributor (e.g. to decide who to contact)
-      puts '%-50s   %s  %s  %s  %s  %s  %s  %s  %s  %s' % ['', '#I', '#P', '#B', '#M', 'W', 'P', 'I', 'P', 'C']
+      puts '%-50s   %s  %s  %s  %s  %s  %s  %s  %s  %s  %s' % ['', '#I', '#P', '#B', '#M', '#R', 'W', 'P', 'I', 'P', 'C']
 
       set.sort{ |a, b|
         if a.open_issues == b.open_issues
@@ -212,12 +213,19 @@ Report issues for this extension in the [ocds-extensions repository](https://git
         # to widespread cleanup work), which is not useful information.
         top_contributor = repo.rels[:contributors].get.data.find{ |contributor| contributor.login != 'jpmckinney' }
 
+        if repo.has_projects
+          projects = client.projects(repo.full_name, accept: 'application/vnd.github.inertia-preview+json').size # projects
+        else
+          projects = 0
+        end
+
         puts format % [
           repo.name,
           i(repo.open_issues - pull_requests),
           i(pull_requests),
           i(non_default_or_pull_or_upstream_or_excluded_branches(repo).size),
           i(repo.rels[:milestones].get.data.size),
+          i(projects),
           s(repo.has_wiki),
           s(repo.has_pages),
           s(repo.has_issues),
@@ -260,73 +268,5 @@ Report issues for this extension in the [ocds-extensions repository](https://git
     }.each do |full_name, egg_name|
       puts "-e git+https://github.com/#{full_name}.git@#{client.commits(full_name, per_page: 1)[0].sha}#egg=#{egg_name}"
     end
-  end
-
-  desc 'Lists extension versions for the extension registry'
-  task :extension_versions do
-    identifiers = {
-      'additionalContactPoints' => 'additionalContactPoint',
-      'bid' => 'bids',
-      'budget_breakdown' => 'budget',
-      'budget_projects' => 'budget_project',
-      'contract_signatories' => 'signatories',
-      'documentation' => 'documentation_details',
-      'enquiry' => 'enquiries',
-      'multiple_buyers' => 'contract',
-      'participationFee' => 'participation_fee',
-      'partyDetails_scale' => 'partyScale',
-      'public-private-partnerships' => 'ppp',
-      'riskAllocation' => 'risk_allocation',
-      'transactions_relatedMilestone' => 'transaction_milestones',
-
-      # Extensions not in registry (yet).
-      'api' => false,
-      'exchangeRate' => false,
-      'contractRegister' => false,
-      'coveredBy' => false,
-      'memberOf' => false,
-      'options' => false,
-      'procurementMethodModalities' => false,
-      'recurrence' => false,
-
-      # Profiles not in registry (yet).
-      'for-eu' => false,
-      'for-gpa' => false,
-    }
-
-    lines = []
-
-    lines << CSV.generate_line(['Id', 'Date', 'Version', 'Base URL', 'Download URL'])
-    repos.each do |repo|
-      if extension?(repo.name, templates: false)
-        data = repo.rels[:releases].get.data
-        id = repo.name.gsub(/\Aocds[_-]|[_-]extension/, '')
-        id = identifiers.fetch(id, id)
-
-        if id != false
-          lines << CSV.generate_line([
-            id,
-            nil,
-            repo.default_branch,
-            "https://raw.githubusercontent.com/#{repo.full_name}/#{repo.default_branch}/",
-            "#{repo.html_url}/archive/#{repo.default_branch}.zip",
-          ])
-
-          if data.any?
-            data.each do |datum|
-              lines << CSV.generate_line([
-                id,
-                datum.published_at.strftime('%Y-%m-%d'),
-                datum.tag_name,
-                "https://raw.githubusercontent.com/#{repo.full_name}/#{datum.tag_name}/",
-                datum.zipball_url,
-              ])
-            end
-          end
-        end
-      end
-    end
-
-    puts lines.sort
   end
 end
