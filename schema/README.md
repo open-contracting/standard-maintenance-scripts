@@ -24,6 +24,13 @@ If changes are made to `extension-schema.json`, changes may be needed to:
 * [standard_extension_template](https://github.com/open-contracting/standard_extension_template): [`README.md`](https://github.com/open-contracting/standard_extension_template#extensionjson)
 * CoVE: [schema.py](https://github.com/OpenDataServices/cove/blob/master/cove_ocds/lib/schema.py#L116) `apply_extensions` method
 
+If fields in `extension-schema.json` are renamed, removed or restructured, changes may be needed to:
+
+* [documentation-support](https://github.com/open-contracting/public-private-partnerships): `apply_extensions` method (`name`)
+* [sphinxcontrib-opencontracting](https://github.com/open-contracting/sphinxcontrib-opencontracting): `ExtensionList` (`name`, `description`) and `ExtensionSelectorTable` (`name`, `description`, `documentationUrl`)
+* [standard](https://github.com/open-contracting/standard): `fetch_core_extensions.py` (`codelists`)
+* [standard-maintenance-scripts](https://github.com/open-contracting/standard-maintenance-scripts): `test_json.py` `test_extension_json`
+
 ## CSV files
 
 ### Codelist files
