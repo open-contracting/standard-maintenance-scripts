@@ -101,19 +101,25 @@ end
 
 def core_extensions
   @core_extensions ||= begin
-    core_extensions = {}
+    base_url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/master/'
 
-    url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/master/build/extension_versions_wide.csv'
-    CSV.parse(open(url).read, headers: true).each do |row|
-      parts = URI.parse(row.fetch('Base URL'))
+    ids_to_repos = {}
+    CSV.parse(open("#{base_url}/extension_versions.csv").read, headers: true).each do |version|
+      parts = URI.parse(version.fetch('Base URL'))
+      # Assumes different versions of the same extension use the same repository.
       if parts.hostname == 'raw.githubusercontent.com'
-        core_extensions[parts.path.split('/')[1..2].join('/')] = row.fetch('Core') == 'true'
+        ids_to_repos[version.fetch('Id')] = parts.path.split('/')[1..2].join('/')
       else
-        puts "#{parts.hostname} not supported"
+        raise "#{parts.hostname} not supported"
       end
     end
 
-    core_extensions
+    repos_to_core = {}
+    CSV.parse(open("#{base_url}/extensions.csv").read, headers: true).each do |extension|
+      repos_to_core[ids_to_repos.fetch(extension.fetch('Id'))] = extension.fetch('Core') == 'true'
+    end
+
+    repos_to_core
   end
 end
 
