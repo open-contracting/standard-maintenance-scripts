@@ -414,10 +414,10 @@ def validate_null_type(path, data, pointer='', should_be_nullable=True):
                 # if it's an array of references or objects.
                 if not nullable and not array_of_refs_or_objects and pointer not in null_exceptions:
                     errors += 1
-                    warnings.warn('ERROR: {} has optional but non-nullable {} at {}'.format(path, data['type'], pointer))
+                    warnings.warn('ERROR: {}: optional but non-nullable {} at {}'.format(path, data['type'], pointer))
             elif nullable and pointer not in non_null_exceptions:
                 errors += 1
-                warnings.warn('ERROR: {} has required but nullable {} at {}'.format(path, data['type'], pointer))
+                warnings.warn('ERROR: {}: required but nullable {} at {}'.format(path, data['type'], pointer))
 
         required = data.get('required', [])
 
