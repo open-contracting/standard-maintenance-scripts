@@ -320,12 +320,12 @@ def validate_letter_case(*args):
             for key in data.keys():
                 if not re.search(r'^[a-z][A-Za-z]+$', key) and key not in properties_exceptions:
                     errors += 1
-                    warnings.warn('{} {}/{} should be lowerCamelCase ASCII letters'.format(path, pointer, key))
+                    warnings.warn('ERROR: {} {}/{} should be lowerCamelCase ASCII letters'.format(path, pointer, key))
         elif parent == 'definitions':
             for key in data.keys():
                 if not re.search(r'^[A-Z][A-Za-z]+$', key) and key not in definition_exceptions:
                     errors += 1
-                    warnings.warn('{} {}/{} should be UpperCamelCase ASCII letters'.format(path, pointer, key))
+                    warnings.warn('ERROR: {} {}/{} should be UpperCamelCase ASCII letters'.format(path, pointer, key))
 
         return errors
 
@@ -356,10 +356,10 @@ def validate_title_description_type(*args):
                 # Exception: api_extension has a concise links section.
                 if (field not in data or not data[field] or not data[field].strip()) and 'links' not in parts:
                     errors += 1
-                    warnings.warn('{} is missing {}/{}'.format(path, pointer, field))
+                    warnings.warn('ERROR: {} is missing {}/{}'.format(path, pointer, field))
             if 'type' not in data and '$ref' not in data and 'oneOf' not in data:
                 errors += 1
-                warnings.warn('{0} is missing {1}/type or {1}/$ref or {1}/oneOf'.format(path, pointer))
+                warnings.warn('ERROR: {0} is missing {1}/type or {1}/$ref or {1}/oneOf'.format(path, pointer))
 
         return errors
 
@@ -414,10 +414,10 @@ def validate_null_type(path, data, pointer='', should_be_nullable=True):
                 # if it's an array of references or objects.
                 if not nullable and not array_of_refs_or_objects and pointer not in null_exceptions:
                     errors += 1
-                    warnings.warn('{} has optional but non-nullable {} at {}'.format(path, data['type'], pointer))
+                    warnings.warn('ERROR: {}: optional but non-nullable {} at {}'.format(path, data['type'], pointer))
             elif nullable and pointer not in non_null_exceptions:
                 errors += 1
-                warnings.warn('{} has required but nullable {} at {}'.format(path, data['type'], pointer))
+                warnings.warn('ERROR: {}: required but nullable {} at {}'.format(path, data['type'], pointer))
 
         required = data.get('required', [])
 
@@ -465,12 +465,12 @@ def validate_codelist_enum(*args):
                 if ('string' in types and 'enum' in data or 'array' in types and 'enum' in data['items']):
                     # Open codelists shouldn't set `enum`.
                     errors += 1
-                    warnings.warn('{} must not set `enum` for open codelist at {}'.format(path, pointer))
+                    warnings.warn('ERROR: {} must not set `enum` for open codelist at {}'.format(path, pointer))
             else:
                 if 'string' in types and 'enum' not in data or 'array' in types and 'enum' not in data['items']:
                     # Fields with closed codelists should set `enum`.
                     errors += 1
-                    warnings.warn('{} must set `enum` for closed codelist at {}'.format(path, pointer))
+                    warnings.warn('ERROR: {} must set `enum` for closed codelist at {}'.format(path, pointer))
 
                     actual = None
                 elif 'string' in types:
@@ -494,7 +494,7 @@ def validate_codelist_enum(*args):
                                 added, removed = difference(actual, expected)
 
                                 errors += 1
-                                warnings.warn('{} has mismatch between `enum` and codelist at {}{}{}'.format(
+                                warnings.warn('ERROR: {} has mismatch between `enum` and codelist at {}{}{}'.format(
                                     path, pointer, added, removed))
 
                         break
@@ -503,13 +503,13 @@ def validate_codelist_enum(*args):
                     # extension, but that is not an error. This duplicates a test in `validate_json_schema`.
                     if is_extension and data['codelist'] not in external_codelists:
                         errors += 1
-                        warnings.warn('{} is missing codelist: {}'.format(path, data['codelist']))
+                        warnings.warn('ERROR: {} is missing codelist: {}'.format(path, data['codelist']))
         elif 'enum' in data and parent != 'items' or 'items' in data and 'enum' in data['items']:
             # Exception: This profile overwrites `enum`.
             if repo_name != 'public-private-partnerships' or pointer != '/properties/tag':
                 # Fields with `enum` should set closed codelists.
                 errors += 1
-                warnings.warn('{} has `enum` without codelist at {}'.format(path, pointer))
+                warnings.warn('ERROR: {} has `enum` without codelist at {}'.format(path, pointer))
 
         return errors
 
@@ -549,7 +549,7 @@ def validate_items_type(path, data, additional_valid_types=None):
 
             if invalid_type and pointer not in exceptions:
                 errors += 1
-                warnings.warn('{} {} is an invalid `type` for `items` {}'.format(path, invalid_type, pointer))
+                warnings.warn('ERROR: {} {} is an invalid `type` for `items` {}'.format(path, invalid_type, pointer))
 
         return errors
 
@@ -628,17 +628,17 @@ def validate_object_id(*args):
             if 'id' not in data['items']['properties'] and original not in id_presence_extensions:
                 errors += 1
                 if original == pointer:
-                    warnings.warn('{} object array has no `id` property at {}'.format(path, pointer))
+                    warnings.warn('ERROR: {} object array has no `id` property at {}'.format(path, pointer))
                 else:
-                    warnings.warn('{} object array has no `id` property at {} (from {})'.format(
+                    warnings.warn('ERROR: {} object array has no `id` property at {} (from {})'.format(
                         path, original, pointer))
 
             if 'id' not in required and not data.get('wholeListMerge') and original not in required_id_exceptions:
                 errors += 1
                 if original == pointer:
-                    warnings.warn('{} object array should require `id` property at {}'.format(path, pointer))
+                    warnings.warn('ERROR: {} object array should require `id` property at {}'.format(path, pointer))
                 else:
-                    warnings.warn('{} object array should require `id` property at {} (from {})'.format(
+                    warnings.warn('ERROR: {} object array should require `id` property at {} (from {})'.format(
                         path, original, pointer))
 
         return errors
@@ -653,7 +653,7 @@ def validate_ref(path, data):
         # `repr` causes the references to be loaded, if possible.
         repr(ref)
     except JsonRefError as e:
-        warnings.warn('{} has {} at {}'.format(path, e.message, '/'.join(e.path)))
+        warnings.warn('ERROR: {} has {} at {}'.format(path, e.message, '/'.join(e.path)))
         return 1
 
     return 0
@@ -688,11 +688,11 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
 
     for error in validator(schema, format_checker=FormatChecker()).iter_errors(data):
         errors += 1
-        warnings.warn(json.dumps(error.instance, indent=2, separators=(',', ': ')))
-        warnings.warn('{} ({})\n'.format(error.message, '/'.join(error.absolute_schema_path)))
+        warnings.error(json.dumps(error.instance, indent=2, separators=(',', ': ')))
+        warnings.warn('ERROR: {} ({})\n'.format(error.message, '/'.join(error.absolute_schema_path)))
 
     if errors:
-        warnings.warn('{} is not valid JSON Schema ({} errors)'.format(path, errors))
+        warnings.warn('ERROR: {} is not valid JSON Schema ({} errors)'.format(path, errors))
 
     if all(basename not in path for basename in exceptions):
         errors += validate_codelist_enum(path, data)
@@ -744,7 +744,7 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
                     if name.startswith('+') or name.startswith('-'):
                         if name[1:] not in external_codelists:
                             errors += 1
-                            warnings.warn('{} {} modifies non-existent codelist'.format(path, name))
+                            warnings.warn('ERROR: {} {} modifies non-existent codelist'.format(path, name))
                     else:
                         codelist_files.add(name)
 
@@ -757,12 +757,14 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
             unused_codelists = [codelist for codelist in codelist_files if codelist not in codelist_values]
             missing_codelists = [codelist for codelist in codelist_values if codelist not in all_codelist_files]
 
-            if unused_codelists:
-                errors += 1
-                warnings.warn('{} has unused codelists: {}'.format(path, ', '.join(unused_codelists)))
-            if missing_codelists:
-                errors += 1
-                warnings.warn('repository is missing codelists: {}'.format(', '.join(missing_codelists)))
+            # TODO: Remove `not is_profile` once OCDS for PPPs refactor is complete.
+            if not is_profile:
+                if unused_codelists:
+                    errors += 1
+                    warnings.warn('ERROR: {} has unused codelists: {}'.format(path, ', '.join(unused_codelists)))
+                if missing_codelists:
+                    errors += 1
+                    warnings.warn('ERROR: repository is missing codelists: {}'.format(', '.join(missing_codelists)))
     else:
         errors += validate_deep_properties(path, data)
 
