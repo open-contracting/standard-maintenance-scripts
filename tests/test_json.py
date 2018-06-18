@@ -789,7 +789,6 @@ def test_indent():
 
     for path, text, data in walk_json_data():
         if os.path.basename(path) not in external_exceptions:
-            # See https://github.com/open-contracting/standard-maintenance-scripts/issues/2
             indent2 = json.dumps(data, indent=2, separators=(',', ': ')) + '\n'
             assert text == indent2, "{} is not indented as expected, run: ocdskit indent {}".format(path, path)
 
