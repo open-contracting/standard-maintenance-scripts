@@ -3,7 +3,7 @@ import json
 import os
 import re
 import warnings
-from collections import UserDict
+from collections import defaultdict, UserDict
 from copy import deepcopy
 
 import json_merge_patch
@@ -205,6 +205,12 @@ def merge_obj(result, obj, pointer=''):  # changed code
         '/definitions/Budget/properties/project',
         '/definitions/Budget/properties/projectID',
     }
+    overwrite_exceptions = {
+        # public-private-partnerships
+        '/properties/tag/items/enum',
+        '/properties/initiationType/description',
+        '/properties/initiationType/enum',
+    }
 
     for key, value in obj.items():
         if isinstance(value, dict):
@@ -221,13 +227,13 @@ def merge_obj(result, obj, pointer=''):  # changed code
             pointer_and_key = '{}/{}'.format(pointer, key)
             # Exceptions.
             if (value is None and pointer_and_key == '/definitions/Milestone/properties/documents/deprecated' and
-                    repo_name == 'ocds_milestone_documents_extension'):
+                    repo_name in ('ocds_milestone_documents_extension', 'public-private-partnerships')):
                 warnings.warn('re-adds {}'.format(pointer))
             elif (value == [] and pointer_and_key == '/required' and
                     repo_name == 'api_extension'):
                 warnings.warn('empties {}'.format(pointer_and_key))
             elif repo_name == 'public-private-partnerships':
-                if pointer_and_key == '/properties/tag/items/enum':
+                if pointer_and_key in overwrite_exceptions:
                     warnings.warn('overwrites {}'.format(pointer_and_key))
                 elif value is None and 'deprecated' in result[key]:
                     warnings.warn('removes deprecated {}'.format(pointer_and_key))
@@ -443,6 +449,12 @@ def validate_codelist_enum(*args):
     """
     Prints and returns the number of errors relating to codelists in a JSON Schema.
     """
+    enum_exceptions = {
+        # public-private-partnerships
+        '/properties/tag',
+        '/properties/initiationType',
+    }
+
     def block(path, data, pointer):
         errors = 0
 
@@ -506,7 +518,7 @@ def validate_codelist_enum(*args):
                         warnings.warn('ERROR: {} is missing codelist: {}'.format(path, data['codelist']))
         elif 'enum' in data and parent != 'items' or 'items' in data and 'enum' in data['items']:
             # Exception: This profile overwrites `enum`.
-            if repo_name != 'public-private-partnerships' or pointer != '/properties/tag':
+            if repo_name != 'public-private-partnerships' or pointer not in enum_exceptions:
                 # Fields with `enum` should set closed codelists.
                 errors += 1
                 warnings.warn('ERROR: {} has `enum` without codelist at {}'.format(path, pointer))
@@ -659,7 +671,7 @@ def validate_ref(path, data):
     return 0
 
 
-def validate_json_schema(path, data, schema, full_schema=not is_extension):
+def validate_json_schema(path, data, schema, full_schema=not is_extension, top=cwd):
     """
     Prints and asserts errors in a JSON Schema.
     """
@@ -688,7 +700,7 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
 
     for error in validator(schema, format_checker=FormatChecker()).iter_errors(data):
         errors += 1
-        warnings.error(json.dumps(error.instance, indent=2, separators=(',', ': ')))
+        warnings.warn(json.dumps(error.instance, indent=2, separators=(',', ': ')))
         warnings.warn('ERROR: {} ({})\n'.format(error.message, '/'.join(error.absolute_schema_path)))
 
     if errors:
@@ -733,13 +745,13 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
         # TODO: This code assumes each schema uses all codelists. So, for now, skip package schema.
         if all(basename not in path for basename in exceptions_plus_versioned_and_packages):
             codelist_files = set()
-            for csvpath, reader in walk_csv_data():
-                components = csvpath.split(os.sep)
+            for csvpath, reader in walk_csv_data(top):
+                parts = csvpath.replace(top, '').split(os.sep)  # maybe inelegant way to isolate consolidated extension
                 if is_codelist(reader) and (
                         # Take all codelists in extensions.
                         (is_extension and not is_profile) or
                         # Take non-extension codelists in core and profiles.
-                        ('extensions' not in components and 'compiledCodelists' not in components)):
+                        not any(c in parts for c in ('extensions', 'compiledCodelists', 'consolidatedExtension'))):
                     name = os.path.basename(csvpath)
                     if name.startswith('+') or name.startswith('-'):
                         if name[1:] not in external_codelists:
@@ -757,14 +769,12 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension):
             unused_codelists = [codelist for codelist in codelist_files if codelist not in codelist_values]
             missing_codelists = [codelist for codelist in codelist_values if codelist not in all_codelist_files]
 
-            # TODO: Remove `not is_profile` once OCDS for PPPs refactor is complete.
-            if not is_profile:
-                if unused_codelists:
-                    errors += 1
-                    warnings.warn('ERROR: {} has unused codelists: {}'.format(path, ', '.join(unused_codelists)))
-                if missing_codelists:
-                    errors += 1
-                    warnings.warn('ERROR: repository is missing codelists: {}'.format(', '.join(missing_codelists)))
+            if unused_codelists:
+                errors += 1
+                warnings.warn('ERROR: {} has unused codelists: {}'.format(path, ', '.join(unused_codelists)))
+            if missing_codelists:
+                errors += 1
+                warnings.warn('ERROR: repository is missing codelists: {}'.format(', '.join(missing_codelists)))
     else:
         errors += validate_deep_properties(path, data)
 
@@ -789,7 +799,6 @@ def test_indent():
 
     for path, text, data in walk_json_data():
         if os.path.basename(path) not in external_exceptions:
-            # See https://github.com/open-contracting/standard-maintenance-scripts/issues/2
             indent2 = json.dumps(data, indent=2, separators=(',', ': ')) + '\n'
             assert text == indent2, "{} is not indented as expected, run: ocdskit indent {}".format(path, path)
 
@@ -908,7 +917,13 @@ def test_json_merge_patch():
     Ensures all extension JSON Schema successfully patch and change core JSON Schema, generating schema that are valid
     JSON Schema Draft 4, use codelists correctly, and have required metadata.
     """
-    schemas = {}
+    directories = [cwd]
+
+    consolidated_extension = os.path.join(cwd, 'schema', 'consolidatedExtension')
+    if os.path.isdir(consolidated_extension):
+        directories.append(consolidated_extension)
+
+    schemas = defaultdict(dict)
 
     basenames = (
         'record-package-schema.json',
@@ -927,30 +942,36 @@ def test_json_merge_patch():
             dependency = requests.get(url).json()
             external_codelists.update(dependency.get('codelists', []))
             schema_url = '{}/{}'.format(url.rsplit('/', 1)[0], basename)
-            json_merge_patch.merge(schemas[basename], requests.get(schema_url).json())
+            json_merge_patch.merge(schemas[directory][basename], requests.get(schema_url).json())
             get_dependencies(dependency, basename)
 
-    for basename in basenames:
-        schemas[basename] = requests.get(url_pattern.format(basename)).json()
+    for directory in directories:
+        for basename in basenames:
+            schemas[directory][basename] = requests.get(url_pattern.format(basename)).json()
 
-        if basename == 'release-schema.json':
-            path = os.path.join(cwd, 'extension.json')
-            with open(path) as f:
-                get_dependencies(json.load(f, object_pairs_hook=object_pairs_hook), basename)
+            if basename == 'release-schema.json':
+                path = os.path.join(directory, 'extension.json')
+                with open(path) as f:
+                    get_dependencies(json.load(f, object_pairs_hook=object_pairs_hook), basename)
 
-    # This loop is somewhat unnecessary, as repositories contain at most one of each schema file.
-    for path, text, data in walk_json_data():
-        if is_json_schema(data):
-            basename = os.path.basename(path)
-            if basename in basenames:
-                unpatched = deepcopy(schemas[basename])
-                try:
-                    patched = merge(unpatched, data)
-                except Exception as e:
-                    assert False, 'Exception: {} {}'.format(e, path)
+        # This loop is somewhat unnecessary, as repositories contain at most one of each schema file.
+        for path, text, data in walk_json_data(directory):
+            # Don't process the JSON files in the consolidated extension while processed the root directory.
+            if directory == cwd and consolidated_extension in path:
+                continue
 
-                # All metadata should be present.
-                validate_json_schema(path, patched, metaschema, full_schema=True)
+            if is_json_schema(data):
+                basename = os.path.basename(path)
+                if basename in basenames:
+                    unpatched = deepcopy(schemas[directory][basename])
+                    try:
+                        patched = merge(unpatched, data)
+                    except Exception as e:
+                        assert False, 'Exception: {} {}'.format(e, path)
 
-                # Empty patches aren't allowed. json_merge_patch mutates `unpatched`, so `schemas[basename]` is tested.
-                assert patched != schemas[basename]
+                    # All metadata should be present.
+                    validate_json_schema(path, patched, metaschema, full_schema=True, top=directory)
+
+                    # Empty patches aren't allowed. json_merge_patch mutates `unpatched`, so
+                    # `schemas[directory][basename]` is tested.
+                    assert patched != schemas[directory][basename]
