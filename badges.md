@@ -8,6 +8,7 @@ Name|Build|Dependencies
 [documentation-support](https://github.com/open-contracting/documentation-support)|[![Build Status](https://travis-ci.org/open-contracting/documentation-support.svg)](https://travis-ci.org/open-contracting/documentation-support)|[![Requirements Status](https://requires.io/github/open-contracting/documentation-support/requirements.svg)](https://requires.io/github/open-contracting/documentation-support/requirements/)
 [extension_creator](https://github.com/open-contracting/extension_creator)|-|-
 [extension_registry](https://github.com/open-contracting/extension_registry)|[![Build Status](https://travis-ci.org/open-contracting/extension_registry.svg)](https://travis-ci.org/open-contracting/extension_registry)|-
+[extension_registry.py](https://github.com/open-contracting/extension_registry.py)|[![Build Status](https://travis-ci.org/open-contracting/extension_registry.py.svg)](https://travis-ci.org/open-contracting/extension_registry.py)|[![Requirements Status](https://requires.io/github/open-contracting/extension_registry.py/requirements.svg)](https://requires.io/github/open-contracting/extension_registry.py/requirements/)
 [glossary](https://github.com/open-contracting/glossary)|-|-
 [json-schema-random](https://github.com/open-contracting/json-schema-random)|-|-
 [ocds-extensions](https://github.com/open-contracting/ocds-extensions)|-|-
