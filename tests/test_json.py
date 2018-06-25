@@ -793,12 +793,16 @@ def test_indent():
     """
     Ensures all JSON files are valid and formatted for humans.
     """
-    external_exceptions = {
+    path_exceptions = {
+        # Directories
+        'real-examples',  # sample-data
+        # Files
         'json-schema-draft-4.json',  # http://json-schema.org/draft-04/schema
     }
 
     for path, text, data in walk_json_data():
-        if os.path.basename(path) not in external_exceptions:
+        parts = path.split(os.sep)
+        if not any(exception in parts for exception in path_exceptions):
             indent2 = json.dumps(data, indent=2, separators=(',', ': ')) + '\n'
             assert text == indent2, "{} is not indented as expected, run: ocdskit indent {}".format(path, path)
 
@@ -866,7 +870,10 @@ def test_empty_files():
     )
 
     # Some files raise UnicodeDecodeError exceptions.
-    filename_exceptions = {
+    path_exceptions = {
+        # Directories
+        'real-examples',  # sample-data
+        # Files
         '.DS_Store',
         'cache.sqlite',
         'chromedriver',
@@ -878,10 +885,8 @@ def test_empty_files():
         'dependency_links.txt',
     }
     extension_exceptions = {
-        # Sphinx
-        '.doctree',
-        '.inv',
-        '.pickle',
+        # Excel
+        '.xlsx',
         # Gettext
         '.mo',
         # Images
@@ -891,13 +896,19 @@ def test_empty_files():
         '.pyc',
         # Python packages
         '.gz',
+        # Sphinx
+        '.doctree',
+        '.inv',
+        '.pickle',
     }
 
     for root, name in walk():
+        path = os.path.join(root, name)
+        parts = path.split(os.sep)
+
         if is_extension and name == 'versioned-release-validation-schema.json':
             assert False, 'versioned-release-validation-schema.json should be removed'
-        elif name not in filename_exceptions and os.path.splitext(name)[1] not in extension_exceptions:
-            path = os.path.join(root, name)
+        elif not any(e in parts for e in path_exceptions) and os.path.splitext(name)[1] not in extension_exceptions:
             try:
                 with open(path) as f:
                     text = f.read()
