@@ -8,7 +8,7 @@ This repository holds `codelist-schema.json`, against which codelist CSV files a
 
 If changes are made to `codelist-schema.json`, changes may be needed to:
 
-* [standard](https://github.com/open-contracting/standard), extensions, profiles and templates: codelist CSV files
+* [standard](https://github.com/open-contracting/standard), extensions, profiles and templates: codelist CSV files (below)
 * [standard-maintenance-scripts](https://github.com/open-contracting/standard-maintenance-scripts): `test_csv.py`
 
 ### extension-schema.json
@@ -26,7 +26,7 @@ If changes are made to `extension-schema.json`, changes may be needed to:
 
 If fields in `extension-schema.json` are renamed, removed or restructured, changes may be needed to:
 
-* [documentation-support](https://github.com/open-contracting/public-private-partnerships): `apply_extensions` method (`name`)
+* [documentation-support](https://github.com/open-contracting/documentation-support): `profile_builder.py`
 * [sphinxcontrib-opencontracting](https://github.com/open-contracting/sphinxcontrib-opencontracting): `ExtensionList` class (`name`, `description`) and `ExtensionSelectorTable` class (`name`, `description`, `documentationUrl`)
 * [standard](https://github.com/open-contracting/standard): `fetch_core_extensions.py` (`codelists`)
 * [standard-maintenance-scripts](https://github.com/open-contracting/standard-maintenance-scripts): `test_json.py` `test_extension_json` method
@@ -37,7 +37,7 @@ If fields in `extension-schema.json` are renamed, removed or restructured, chang
 
 If changes are made to the headers of codelist files, changes may be needed to:
 
-* [documentation-support](https://github.com/open-contracting/public-private-partnerships): `apply_extensions` method
+* [documentation-support](https://github.com/open-contracting/documentation-support): `babel_extractors.py`, `translation.py`
 * [ocdskit](https://github.com/open-contracting/ocdskit): `set-closed-codelist-enums` command
 * [standard](https://github.com/open-contracting/standard): `fetch_currency_codelist.py`
 * [standard-maintenance-scripts](https://github.com/open-contracting/standard-maintenance-scripts): `test_csv.py`, `test_json.py`
@@ -46,7 +46,7 @@ If changes are made to the headers of codelist files, changes may be needed to:
 
 If changes are made to the registry's `extensions.csv` or `extension_versions.csv`, changes may be needed to:
 
-* [documentation-support](https://github.com/open-contracting/documentation-support): `__init__.py` `apply_extensions` method
+* [documentation-support](https://github.com/open-contracting/documentation-support): `profile_builder.py`
 * [extension_registry.py](https://github.com/open-contracting/extension_registry.py)
 * [sphinxcontrib-opencontracting](https://github.com/open-contracting/sphinxcontrib-opencontracting): `opencontracting.py` `extension_registry` method and callers
 * [standard](https://github.com/open-contracting/standard): `extensions.js`, `fetch_core_extensions.py`
