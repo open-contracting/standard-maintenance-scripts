@@ -22,6 +22,11 @@ other_extensions = (
     'standard_profile_template',
 )
 
+exceptional_extensions = (
+    'ocds_ppp_extension',
+    'public-private-partnerships',
+)
+
 # The codelists defined in `standard/schema/codelists`. XXX Hardcoding.
 external_codelists = {
     'awardCriteria.csv',
@@ -95,8 +100,8 @@ if is_extension:
     # See https://github.com/open-contracting/ocds_milestone_documents_extension/blob/master/release-schema.json#L9
     metaschema['properties']['deprecated']['type'] = ['object', 'null']
 
-if repo_name == 'ocds_ppp_extension':
-    # Allow null'ing a property in this extension.
+if repo_name in exceptional_extensions:
+    # Allow null'ing a property in these repositories.
     metaschema['type'] = ['object', 'null']
 
 
@@ -206,7 +211,6 @@ def merge_obj(result, obj, pointer=''):  # changed code
         '/definitions/Budget/properties/projectID',
     }
     overwrite_exceptions = {
-        # ocds_ppp_extension
         '/properties/tag/items/enum',
         '/properties/initiationType/description',
         '/properties/initiationType/enum',
@@ -232,7 +236,7 @@ def merge_obj(result, obj, pointer=''):  # changed code
             elif (value == [] and pointer_and_key == '/required' and
                     repo_name == 'api_extension'):
                 warnings.warn('empties {}'.format(pointer_and_key))
-            elif repo_name == 'ocds_ppp_extension':
+            elif repo_name in exceptional_extensions:
                 if pointer_and_key in overwrite_exceptions:
                     warnings.warn('overwrites {}'.format(pointer_and_key))
                 elif value is None and 'deprecated' in result[key]:
@@ -450,7 +454,6 @@ def validate_codelist_enum(*args):
     Prints and returns the number of errors relating to codelists in a JSON Schema.
     """
     enum_exceptions = {
-        # ocds_ppp_extension
         '/properties/tag',
         '/properties/initiationType',
     }
@@ -518,7 +521,7 @@ def validate_codelist_enum(*args):
                         warnings.warn('ERROR: {} is missing codelist: {}'.format(path, data['codelist']))
         elif 'enum' in data and parent != 'items' or 'items' in data and 'enum' in data['items']:
             # Exception: This profile overwrites `enum`.
-            if repo_name != 'ocds_ppp_extension' or pointer not in enum_exceptions:
+            if repo_name not in exceptional_extensions or pointer not in enum_exceptions:
                 # Fields with `enum` should set closed codelists.
                 errors += 1
                 warnings.warn('ERROR: {} has `enum` without codelist at {}'.format(path, pointer))
