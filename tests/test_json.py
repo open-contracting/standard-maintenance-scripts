@@ -3,7 +3,7 @@ import json
 import os
 import re
 import warnings
-from collections import defaultdict, UserDict
+from collections import UserDict
 from copy import deepcopy
 
 import json_merge_patch
