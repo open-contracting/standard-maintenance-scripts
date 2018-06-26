@@ -26,7 +26,7 @@ If changes are made to `extension-schema.json`, changes may be needed to:
 
 If fields in `extension-schema.json` are renamed, removed or restructured, changes may be needed to:
 
-* [documentation-support](https://github.com/open-contracting/documentation-support): `profile_builder.py`
+* [documentation-support](https://github.com/open-contracting/documentation-support): `profile_builder.py` (`name`, `codelists`)
 * [sphinxcontrib-opencontracting](https://github.com/open-contracting/sphinxcontrib-opencontracting): `ExtensionList` class (`name`, `description`) and `ExtensionSelectorTable` class (`name`, `description`, `documentationUrl`)
 * [standard](https://github.com/open-contracting/standard): `fetch_core_extensions.py` (`codelists`)
 * [standard-maintenance-scripts](https://github.com/open-contracting/standard-maintenance-scripts): `test_json.py` `test_extension_json` method
