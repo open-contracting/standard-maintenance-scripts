@@ -152,9 +152,16 @@ def test_codelist():
     any_errors = False
 
     for path, text, reader in walk_csv_data():
+        codes_seen = set()
         if is_codelist(reader):
             data = []
             for row in reader:
+                code = row['Code']
+                if code in codes_seen:
+                    any_errors = True
+                    warnings.warn('{}: Duplicate code "{}" on line {}'.format(path, code, reader.line_num))
+                codes_seen.add(code)
+
                 item = {}
                 for k, v in row.items():
                     if k in array_columns:
