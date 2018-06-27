@@ -756,7 +756,7 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension, top=c
                         # Take non-extension codelists in core and profiles.
                         not any(c in parts for c in ('extensions', 'compiledCodelists'))):
                     name = os.path.basename(csvpath)
-                    if name.startswith('+') or name.startswith('-'):
+                    if name.startswith(('+', '-')):
                         if name[1:] not in external_codelists:
                             errors += 1
                             warnings.warn('ERROR: {} {} modifies non-existent codelist'.format(path, name))
