@@ -16,7 +16,7 @@
         "title": "Code",
         "description": "The value to use in OCDS data.",
         "type": "string",
-        "pattern": "^[A-Za-z0-9-]*$"
+        "pattern": "^[A-Za-z0-9-]+$"
       },
       "Title": {
         "title": "Title",
