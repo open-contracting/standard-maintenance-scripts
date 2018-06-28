@@ -261,7 +261,7 @@ Report issues for this extension in the [ocds-extensions repository](https://git
   desc 'Lists the dependencies to use in OCDS documentation'
   task :dependencies do
     {
-      'open-contracting/documentation-support' => 'ocds_documentation_support',
+      'open-contracting/documentation-support' => 'ocdsdocumentationsupport',
       'open-contracting/sphinxcontrib-opencontracting' => 'sphinxcontrib-opencontracting',
       'OpenDataServices/sphinxcontrib-jsonschema' => 'sphinxcontrib-jsonschema',
       'OpenDataServices/sphinxcontrib-opendataservices' => 'sphinxcontrib-opendataservices',
