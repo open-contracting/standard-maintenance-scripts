@@ -104,6 +104,11 @@ if repo_name in exceptional_extensions:
     # Allow null'ing a property in these repositories.
     metaschema['type'] = ['object', 'null']
 
+if is_profile:
+    extensiondir = os.path.join(cwd, 'schema', 'profile')
+else:
+    extensiondir = cwd
+
 
 def custom_warning_formatter(message, category, filename, lineno, line=None):
     return str(message).replace(cwd + os.sep, '')
@@ -756,7 +761,7 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension, top=c
                         # Take non-extension codelists in core and profiles.
                         not any(c in parts for c in ('extensions', 'compiledCodelists'))):
                     name = os.path.basename(csvpath)
-                    if name.startswith('+') or name.startswith('-'):
+                    if name.startswith(('+', '-')):
                         if name[1:] not in external_codelists:
                             errors += 1
                             warnings.warn('ERROR: {} {} modifies non-existent codelist'.format(path, name))
@@ -834,9 +839,9 @@ def test_extension_json():
         url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/master/schema/extension-schema.json'  # noqa
         schema = requests.get(url).json()
 
-    expected = {os.path.basename(path) for path, _ in walk_csv_data(os.path.join(cwd, 'codelists'))}
+    expected = {os.path.basename(path) for path, _ in walk_csv_data(os.path.join(extensiondir, 'codelists'))}
 
-    path = os.path.join(cwd, 'extension.json')
+    path = os.path.join(extensiondir, 'extension.json')
     if os.path.isfile(path):
         with open(path) as f:
             data = json.load(f, object_pairs_hook=object_pairs_hook)
@@ -957,7 +962,7 @@ def test_json_merge_patch():
         schemas[basename] = requests.get(url_pattern.format(basename)).json()
 
         if basename == 'release-schema.json':
-            path = os.path.join(cwd, 'extension.json')
+            path = os.path.join(extensiondir, 'extension.json')
             with open(path) as f:
                 get_dependencies(json.load(f, object_pairs_hook=object_pairs_hook), basename)
 
