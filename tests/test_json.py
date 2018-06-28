@@ -181,6 +181,13 @@ def is_json_schema(data):
     return '$schema' in data or 'definitions' in data or 'properties' in data
 
 
+def is_json_merge_patch(data):
+    """
+    Returns whether the data is a JSON Merge Patch.
+    """
+    return '$schema' not in data and ('definitions' in data or 'properties' in data)
+
+
 def is_codelist(reader):
     """
     Returns whether the CSV is a codelist.
@@ -968,7 +975,7 @@ def test_json_merge_patch():
 
     # This loop is somewhat unnecessary, as repositories contain at most one of each schema file.
     for path, text, data in walk_json_data():
-        if is_json_schema(data):
+        if is_json_merge_patch(data):
             basename = os.path.basename(path)
             if basename in basenames:
                 unpatched = deepcopy(schemas[basename])
