@@ -14,23 +14,6 @@ from jsonschema import FormatChecker
 from jsonschema.validators import Draft4Validator as validator
 
 
-other_extensions = (
-    'api_extension',
-    'ocds_performance_failures',
-    # Profiles
-    'european-union',
-    'government-procurement-agreement',
-    'public-private-partnerships',
-    # Templates
-    'standard_extension_template',
-    'standard_profile_template',
-)
-
-exceptional_extensions = (
-    'ocds_ppp_extension',
-    'public-private-partnerships',
-)
-
 # The codelists defined in `standard/schema/codelists`. XXX Hardcoding.
 external_codelists = {
     'awardCriteria.csv',
@@ -54,16 +37,16 @@ external_codelists = {
     'unitClassificationScheme.csv',
 }
 
+exceptional_extensions = (
+    'ocds_ppp_extension',
+    'public-private-partnerships',
+)
+
 cwd = os.getcwd()
-
 repo_name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', cwd))
-
-# This should match the logic in `Rakefile`. XXX Hardcoding.
-# For identifying extensions, see https://github.com/open-contracting/standard-development-handbook/issues/16
-is_extension = (repo_name.startswith('ocds') and repo_name.endswith('extension') or repo_name in other_extensions)
-
-# Assumes that only profiles have Makefiles.
-is_profile = is_extension and os.path.isfile(os.path.join(cwd, 'Makefile'))
+is_profile = os.path.isfile(os.path.join(cwd, 'Makefile')) and repo_name != 'standard'
+is_extension = os.path.isfile(os.path.join(cwd, 'extension.json')) or is_profile
+extensiondir = os.path.join(cwd, 'schema', 'profile') if is_profile else cwd
 
 url = 'https://raw.githubusercontent.com/open-contracting/standard/1.1/standard/schema/meta-schema.json'
 metaschema = requests.get(url).json()
@@ -106,11 +89,6 @@ if is_extension:
 if repo_name in exceptional_extensions:
     # Allow null'ing a property in these repositories.
     metaschema['type'] = ['object', 'null']
-
-if is_profile:
-    extensiondir = os.path.join(cwd, 'schema', 'profile')
-else:
-    extensiondir = cwd
 
 
 def custom_warning_formatter(message, category, filename, lineno, line=None):
@@ -708,7 +686,6 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension, top=c
         'meta-schema-patch.json',
     }
     ocds_schema_exceptions = {
-        'base-release-schema.json',  # is a copy
         'codelist-schema.json',
         'extension-schema.json',
         'extensions-schema.json',
@@ -768,8 +745,8 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension, top=c
                 if is_codelist(reader) and (
                         # Take all codelists in extensions.
                         (is_extension and not is_profile) or
-                        # Take non-extension codelists in core and profiles.
-                        not any(c in parts for c in ('extensions', 'compiledCodelists'))):
+                        # Take non-extension codelists in core, and non-core codelists in profiles.
+                        not any(c in parts for c in ('extensions', 'patched'))):
                     name = os.path.basename(csvpath)
                     if name.startswith(('+', '-')):
                         if name[1:] not in external_codelists:
