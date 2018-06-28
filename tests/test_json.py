@@ -17,7 +17,11 @@ from jsonschema.validators import Draft4Validator as validator
 other_extensions = (
     'api_extension',
     'ocds_performance_failures',
+    # Profiles
+    'european-union',
+    'government-procurement-agreement',
     'public-private-partnerships',
+    # Templates
     'standard_extension_template',
     'standard_profile_template',
 )
@@ -56,8 +60,7 @@ repo_name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', cwd))
 
 # This should match the logic in `Rakefile`. XXX Hardcoding.
 # For identifying extensions, see https://github.com/open-contracting/standard-development-handbook/issues/16
-is_extension = (repo_name.startswith('ocds') and repo_name.endswith('extension') or
-                repo_name.startswith('ocds-for-') or repo_name in other_extensions)
+is_extension = (repo_name.startswith('ocds') and repo_name.endswith('extension') or repo_name in other_extensions)
 
 # Assumes that only profiles have Makefiles.
 is_profile = is_extension and os.path.isfile(os.path.join(cwd, 'Makefile'))
