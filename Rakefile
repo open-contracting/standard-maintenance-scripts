@@ -85,7 +85,6 @@ def profile?(name)
 end
 
 def extension?(name, profiles: true, templates: true)
-  # This should match the logic in `test_json.py`.
   name.start_with?('ocds') && name.end_with?('extension') || OTHER_EXTENSIONS.include?(name) || profiles && profile?(name) || templates && TEMPLATES.include?(name)
 end
 
