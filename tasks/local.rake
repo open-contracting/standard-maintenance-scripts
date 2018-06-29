@@ -27,23 +27,32 @@ namespace :local do
       '# Project Build and Dependency Status',
     ]
 
-    documentation_and_dependencies = [
-      'standard',
+    documentation_dependencies = [
       'documentation-support',
       'sphinxcontrib-opencontracting',
       'standard_theme',
     ]
 
-    legacy = [
-      'standard-legacy-staticsites',
-      'open-contracting.github.io',
+    other_repositories = [
+      'api-specification',
+      'extension_registry',
+      'glossary',
+      'infrastructure',
+      'ocds-extensions',
+      'standard',
     ]
 
-    non_tools = documentation_and_dependencies + legacy
+    legacy = [
+      'open-contracting.github.io',
+      'standard-legacy-staticsites',
+    ]
+
+    non_tools = documentation_dependencies + other + legacy
 
     sections = {
-      'Documentation and dependencies' => -> (repo) { documentation_and_dependencies.include?(repo.name) },
-      'Tools and miscellaneous' => -> (repo) { !extension?(repo.name) && !non_tools.include?(repo.name) },
+      'Tools' => -> (repo) { !extension?(repo.name) && !non_tools.include?(repo.name) },
+      'Documentation dependencies' => -> (repo) { documentation_dependencies.include?(repo.name) },
+      'Other repositories' => -> (repo) { other_repositories.include?(repo.name) },
       'Templates' => -> (repo) { template?(repo.name) },
       'Profiles' => -> (repo) { profile?(repo.name) },
       'Extensions' => -> (repo) { extension?(repo.name, profiles: false, templates: false) },
