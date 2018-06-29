@@ -22,7 +22,7 @@ require 'safe_yaml'
 SafeYAML::OPTIONS[:default_mode] = :safe
 
 OTHER_EXTENSIONS = ['api_extension', 'ocds_performance_failures']
-OTHER_PROFILES = ['european-union', 'government-procurement-agreement', 'public-private-partnerships']
+PROFILES = ['european-union', 'government-procurement-agreement', 'public-private-partnerships']
 TEMPLATES = ['standard_extension_template', 'standard_profile_template']
 
 # See https://developers.google.com/drive/v2/web/quickstart/ruby
@@ -81,11 +81,15 @@ def repos
 end
 
 def profile?(name)
-  OTHER_PROFILES.include?(name)
+  PROFILES.include?(name)
+end
+
+def template?(name)
+  TEMPLATES.include?(name)
 end
 
 def extension?(name, profiles: true, templates: true)
-  name.start_with?('ocds') && name.end_with?('extension') || OTHER_EXTENSIONS.include?(name) || profiles && profile?(name) || templates && TEMPLATES.include?(name)
+  name.start_with?('ocds') && name.end_with?('extension') || OTHER_EXTENSIONS.include?(name) || profiles && profile?(name) || templates && template?(name)
 end
 
 def variables(*keys)

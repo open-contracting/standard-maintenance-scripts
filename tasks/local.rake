@@ -27,15 +27,34 @@ namespace :local do
       '# Project Build and Dependency Status',
     ]
 
-    repos.partition{ |repo| !extension?(repo.name, profiles: false, templates: false) }.each_with_index do |set, index|
+    documentation_and_dependencies = [
+      'standard',
+      'documentation-support',
+      'sphinxcontrib-opencontracting',
+      'standard_theme',
+    ]
+
+    legacy = [
+      'standard-legacy-staticsites',
+      'open-contracting.github.io',
+    ]
+
+    non_tools = documentation_and_dependencies + legacy
+
+    sections = {
+      'Documentation and dependencies' => -> (repo) { documentation_and_dependencies.include?(repo.name) },
+      'Tools and miscellaneous' => -> (repo) { !extension?(repo.name) && !non_tools.include?(repo.name) },
+      'Templates' => -> (repo) { template?(repo.name) },
+      'Profiles' => -> (repo) { profile?(repo.name) },
+      'Extensions' => -> (repo) { extension?(repo.name, profiles: false, templates: false) },
+      'Legacy' => -> (repo) { legacy.include?(repo.name) },
+    }
+
+    sections.each_with_index do |(heading, condition), index|
       output << ''
 
       dependencies = index.zero?
-      if dependencies
-        output << "## Repositories"
-      else
-        output << "## Extensions"
-      end
+      output << "## #{heading}"
 
       output += [
         '',
@@ -43,7 +62,7 @@ namespace :local do
         '-|-' + (dependencies ? '|-' : ''),
       ]
 
-      set.each do |repo|
+      repos.select(&condition).each do |repo|
         begin
           hooks = repo.rels[:hooks].get.data
         rescue Octokit::NotFound
