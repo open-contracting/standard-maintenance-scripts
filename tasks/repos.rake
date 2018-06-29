@@ -188,7 +188,9 @@ Report issues for this extension in the [ocds-extensions repository](https://git
   task :status do
     format = '%-50s  %12s  %11s  %11s  %11s  %11s  %s  %s  %s  %s  %s'
 
-    repos.partition{ |repo| !extension?(repo.name) }.each do |set|
+    REPOSITORY_CATEGORIES.each do |heading, condition|
+      puts
+
       # Number of open issues
       # Number of open pull requests
       # Number of branches, excluding default, pull, upstream, excluded branches
@@ -199,9 +201,9 @@ Report issues for this extension in the [ocds-extensions repository](https://git
       # Whether the repo has issues enabled
       # Whether the repo has projects enabled
       # The top contributor (e.g. to decide who to contact)
-      puts '%-50s   %s  %s  %s  %s  %s  %s  %s  %s  %s  %s' % ['', '#I', '#P', '#B', '#M', '#R', 'W', 'P', 'I', 'P', 'C']
+      puts '%-50s   %s  %s  %s  %s  %s  %s  %s  %s  %s  %s' % [heading.upcase, '#I', '#P', '#B', '#M', '#R', 'W', 'P', 'I', 'P', 'C']
 
-      set.sort{ |a, b|
+      repos.select(&condition).sort{ |a, b|
         if a.open_issues == b.open_issues
           a.name <=> b.name
         else
