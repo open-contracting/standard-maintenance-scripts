@@ -21,9 +21,48 @@ require 'safe_yaml'
 
 SafeYAML::OPTIONS[:default_mode] = :safe
 
-OTHER_EXTENSIONS = ['api_extension', 'ocds_performance_failures']
-PROFILES = ['european-union', 'government-procurement-agreement', 'public-private-partnerships']
-TEMPLATES = ['standard_extension_template', 'standard_profile_template']
+OTHER_EXTENSIONS = [
+  'api_extension',
+  'ocds_performance_failures',
+]
+PROFILES = [
+  'european-union',
+  'government-procurement-agreement',
+  'public-private-partnerships',
+]
+TEMPLATES = [
+  'standard_extension_template',
+  'standard_profile_template',
+]
+
+documentation_dependencies = [
+  'documentation-support',
+  'sphinxcontrib-opencontracting',
+  'standard_theme',
+]
+other_repositories = [
+  'api-specification',
+  'extension_registry',
+  'glossary',
+  'infrastructure',
+  'ocds-extensions',
+  'standard',
+]
+legacy = [
+  'open-contracting.github.io',
+  'standard-legacy-staticsites',
+]
+non_tools = documentation_dependencies + other_repositories + legacy
+
+REPOSITORY_CATEGORIES = {
+  'Tools' => -> (repo) { !extension?(repo.name) && !non_tools.include?(repo.name) },
+  'Documentation dependencies' => -> (repo) { documentation_dependencies.include?(repo.name) },
+  'Other repositories' => -> (repo) { other_repositories.include?(repo.name) },
+  'Templates' => -> (repo) { template?(repo.name) },
+  'Profiles' => -> (repo) { profile?(repo.name) },
+  'Extensions' => -> (repo) { extension?(repo.name, profiles: false, templates: false) },
+  'Legacy' => -> (repo) { legacy.include?(repo.name) },
+}
 
 # See https://developers.google.com/drive/v2/web/quickstart/ruby
 OOB_URI = 'urn:ietf:wg:oauth:2.0:oob'

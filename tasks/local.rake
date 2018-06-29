@@ -27,39 +27,7 @@ namespace :local do
       '# Project Build and Dependency Status',
     ]
 
-    documentation_dependencies = [
-      'documentation-support',
-      'sphinxcontrib-opencontracting',
-      'standard_theme',
-    ]
-
-    other_repositories = [
-      'api-specification',
-      'extension_registry',
-      'glossary',
-      'infrastructure',
-      'ocds-extensions',
-      'standard',
-    ]
-
-    legacy = [
-      'open-contracting.github.io',
-      'standard-legacy-staticsites',
-    ]
-
-    non_tools = documentation_dependencies + other_repositories + legacy
-
-    sections = {
-      'Tools' => -> (repo) { !extension?(repo.name) && !non_tools.include?(repo.name) },
-      'Documentation dependencies' => -> (repo) { documentation_dependencies.include?(repo.name) },
-      'Other repositories' => -> (repo) { other_repositories.include?(repo.name) },
-      'Templates' => -> (repo) { template?(repo.name) },
-      'Profiles' => -> (repo) { profile?(repo.name) },
-      'Extensions' => -> (repo) { extension?(repo.name, profiles: false, templates: false) },
-      'Legacy' => -> (repo) { legacy.include?(repo.name) },
-    }
-
-    sections.each_with_index do |(heading, condition), index|
+    REPOSITORY_CATEGORIES.each do |heading, condition|
       output << ''
 
       output << "## #{heading}"
