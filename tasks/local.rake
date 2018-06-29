@@ -62,13 +62,12 @@ namespace :local do
     sections.each_with_index do |(heading, condition), index|
       output << ''
 
-      dependencies = index.zero?
       output << "## #{heading}"
 
       output += [
         '',
-        'Name|Build' + (dependencies ? '|Dependencies' : ''),
-        '-|-' + (dependencies ? '|-' : ''),
+        'Name|Build|Dependencies',
+        '-|-|-',
       ]
 
       repos.select(&condition).each do |repo|
@@ -92,7 +91,7 @@ namespace :local do
         hook = hooks.find{ |datum| datum.config.url == 'https://requires.io/github/web-hook/' }
         if hook && hook.active
           line << "[![Requirements Status](https://requires.io/github/#{repo.full_name}/requirements.svg)](https://requires.io/github/#{repo.full_name}/requirements/)"
-        elsif dependencies
+        else
           line << '-'
         end
 
