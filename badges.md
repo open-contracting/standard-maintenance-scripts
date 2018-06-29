@@ -1,36 +1,41 @@
 # Project Build and Dependency Status
 
-## Documentation and dependencies
+## Tools
 
 Name|Build|Dependencies
 -|-|-
-[documentation-support](https://github.com/open-contracting/documentation-support)|[![Build Status](https://travis-ci.org/open-contracting/documentation-support.svg)](https://travis-ci.org/open-contracting/documentation-support)|[![Requirements Status](https://requires.io/github/open-contracting/documentation-support/requirements.svg)](https://requires.io/github/open-contracting/documentation-support/requirements/)
-[sphinxcontrib-opencontracting](https://github.com/open-contracting/sphinxcontrib-opencontracting)|[![Build Status](https://travis-ci.org/open-contracting/sphinxcontrib-opencontracting.svg)](https://travis-ci.org/open-contracting/sphinxcontrib-opencontracting)|-
-[standard](https://github.com/open-contracting/standard)|[![Build Status](https://travis-ci.org/open-contracting/standard.svg)](https://travis-ci.org/open-contracting/standard)|[![Requirements Status](https://requires.io/github/open-contracting/standard/requirements.svg)](https://requires.io/github/open-contracting/standard/requirements/)
-[standard_theme](https://github.com/open-contracting/standard_theme)|-|-
+[extensions-data-collector](https://github.com/open-contracting/extensions-data-collector)|[![Build Status](https://travis-ci.org/open-contracting/extensions-data-collector.svg)](https://travis-ci.org/open-contracting/extensions-data-collector)|-
+[extension_creator](https://github.com/open-contracting/extension_creator)|-|-
+[extension_registry.py](https://github.com/open-contracting/extension_registry.py)|[![Build Status](https://travis-ci.org/open-contracting/extension_registry.py.svg)](https://travis-ci.org/open-contracting/extension_registry.py)|[![Requirements Status](https://requires.io/github/open-contracting/extension_registry.py/requirements.svg)](https://requires.io/github/open-contracting/extension_registry.py/requirements/)
+[json-schema-random](https://github.com/open-contracting/json-schema-random)|-|-
+[ocds-faker](https://github.com/open-contracting/ocds-faker)|[![Build Status](https://travis-ci.org/open-contracting/ocds-faker.svg)](https://travis-ci.org/open-contracting/ocds-faker)|-
+[ocds-merge](https://github.com/open-contracting/ocds-merge)|[![Build Status](https://travis-ci.org/open-contracting/ocds-merge.svg)](https://travis-ci.org/open-contracting/ocds-merge)|-
+[ocds-show](https://github.com/open-contracting/ocds-show)|[![Build Status](https://travis-ci.org/open-contracting/ocds-show.svg)](https://travis-ci.org/open-contracting/ocds-show)|-
+[ocds-show-ppp](https://github.com/open-contracting/ocds-show-ppp)|-|-
+[ocdsdata](https://github.com/open-contracting/ocdsdata)|[![Build Status](https://travis-ci.org/open-contracting/ocdsdata.svg)](https://travis-ci.org/open-contracting/ocdsdata)|-
+[ocdskit](https://github.com/open-contracting/ocdskit)|[![Build Status](https://travis-ci.org/open-contracting/ocdskit.svg)](https://travis-ci.org/open-contracting/ocdskit)|[![Requirements Status](https://requires.io/github/open-contracting/ocdskit/requirements.svg)](https://requires.io/github/open-contracting/ocdskit/requirements/)
+[sample-data](https://github.com/open-contracting/sample-data)|[![Build Status](https://travis-ci.org/open-contracting/sample-data.svg)](https://travis-ci.org/open-contracting/sample-data)|[![Requirements Status](https://requires.io/github/open-contracting/sample-data/requirements.svg)](https://requires.io/github/open-contracting/sample-data/requirements/)
+[standard-development-handbook](https://github.com/open-contracting/standard-development-handbook)|[![Build Status](https://travis-ci.org/open-contracting/standard-development-handbook.svg)](https://travis-ci.org/open-contracting/standard-development-handbook)|[![Requirements Status](https://requires.io/github/open-contracting/standard-development-handbook/requirements.svg)](https://requires.io/github/open-contracting/standard-development-handbook/requirements/)
+[standard-maintenance-scripts](https://github.com/open-contracting/standard-maintenance-scripts)|[![Build Status](https://travis-ci.org/open-contracting/standard-maintenance-scripts.svg)](https://travis-ci.org/open-contracting/standard-maintenance-scripts)|-
 
-## Tools and miscellaneous
+## Documentation dependencies
+
+Name|Build
+-|-
+[documentation-support](https://github.com/open-contracting/documentation-support)|[![Build Status](https://travis-ci.org/open-contracting/documentation-support.svg)](https://travis-ci.org/open-contracting/documentation-support)|[![Requirements Status](https://requires.io/github/open-contracting/documentation-support/requirements.svg)](https://requires.io/github/open-contracting/documentation-support/requirements/)
+[sphinxcontrib-opencontracting](https://github.com/open-contracting/sphinxcontrib-opencontracting)|[![Build Status](https://travis-ci.org/open-contracting/sphinxcontrib-opencontracting.svg)](https://travis-ci.org/open-contracting/sphinxcontrib-opencontracting)|
+[standard_theme](https://github.com/open-contracting/standard_theme)|-|
+
+## Other repositories
 
 Name|Build
 -|-
 [api-specification](https://github.com/open-contracting/api-specification)|-|
-[extensions-data-collector](https://github.com/open-contracting/extensions-data-collector)|[![Build Status](https://travis-ci.org/open-contracting/extensions-data-collector.svg)](https://travis-ci.org/open-contracting/extensions-data-collector)|
-[extension_creator](https://github.com/open-contracting/extension_creator)|-|
 [extension_registry](https://github.com/open-contracting/extension_registry)|[![Build Status](https://travis-ci.org/open-contracting/extension_registry.svg)](https://travis-ci.org/open-contracting/extension_registry)|
-[extension_registry.py](https://github.com/open-contracting/extension_registry.py)|[![Build Status](https://travis-ci.org/open-contracting/extension_registry.py.svg)](https://travis-ci.org/open-contracting/extension_registry.py)|[![Requirements Status](https://requires.io/github/open-contracting/extension_registry.py/requirements.svg)](https://requires.io/github/open-contracting/extension_registry.py/requirements/)
 [glossary](https://github.com/open-contracting/glossary)|-|
 [infrastructure](https://github.com/open-contracting/infrastructure)|-|
-[json-schema-random](https://github.com/open-contracting/json-schema-random)|-|
 [ocds-extensions](https://github.com/open-contracting/ocds-extensions)|-|
-[ocds-faker](https://github.com/open-contracting/ocds-faker)|[![Build Status](https://travis-ci.org/open-contracting/ocds-faker.svg)](https://travis-ci.org/open-contracting/ocds-faker)|
-[ocds-merge](https://github.com/open-contracting/ocds-merge)|[![Build Status](https://travis-ci.org/open-contracting/ocds-merge.svg)](https://travis-ci.org/open-contracting/ocds-merge)|
-[ocds-show](https://github.com/open-contracting/ocds-show)|[![Build Status](https://travis-ci.org/open-contracting/ocds-show.svg)](https://travis-ci.org/open-contracting/ocds-show)|
-[ocds-show-ppp](https://github.com/open-contracting/ocds-show-ppp)|-|
-[ocdsdata](https://github.com/open-contracting/ocdsdata)|[![Build Status](https://travis-ci.org/open-contracting/ocdsdata.svg)](https://travis-ci.org/open-contracting/ocdsdata)|
-[ocdskit](https://github.com/open-contracting/ocdskit)|[![Build Status](https://travis-ci.org/open-contracting/ocdskit.svg)](https://travis-ci.org/open-contracting/ocdskit)|[![Requirements Status](https://requires.io/github/open-contracting/ocdskit/requirements.svg)](https://requires.io/github/open-contracting/ocdskit/requirements/)
-[sample-data](https://github.com/open-contracting/sample-data)|[![Build Status](https://travis-ci.org/open-contracting/sample-data.svg)](https://travis-ci.org/open-contracting/sample-data)|[![Requirements Status](https://requires.io/github/open-contracting/sample-data/requirements.svg)](https://requires.io/github/open-contracting/sample-data/requirements/)
-[standard-development-handbook](https://github.com/open-contracting/standard-development-handbook)|[![Build Status](https://travis-ci.org/open-contracting/standard-development-handbook.svg)](https://travis-ci.org/open-contracting/standard-development-handbook)|[![Requirements Status](https://requires.io/github/open-contracting/standard-development-handbook/requirements.svg)](https://requires.io/github/open-contracting/standard-development-handbook/requirements/)
-[standard-maintenance-scripts](https://github.com/open-contracting/standard-maintenance-scripts)|[![Build Status](https://travis-ci.org/open-contracting/standard-maintenance-scripts.svg)](https://travis-ci.org/open-contracting/standard-maintenance-scripts)|
+[standard](https://github.com/open-contracting/standard)|[![Build Status](https://travis-ci.org/open-contracting/standard.svg)](https://travis-ci.org/open-contracting/standard)|[![Requirements Status](https://requires.io/github/open-contracting/standard/requirements.svg)](https://requires.io/github/open-contracting/standard/requirements/)
 
 ## Templates
 

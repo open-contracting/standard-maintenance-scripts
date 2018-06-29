@@ -47,7 +47,7 @@ namespace :local do
       'standard-legacy-staticsites',
     ]
 
-    non_tools = documentation_dependencies + other + legacy
+    non_tools = documentation_dependencies + other_repositories + legacy
 
     sections = {
       'Tools' => -> (repo) { !extension?(repo.name) && !non_tools.include?(repo.name) },
