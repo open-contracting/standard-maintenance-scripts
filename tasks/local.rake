@@ -108,16 +108,32 @@ Report issues for this extension in the [ocds-extensions repository](https://git
     end
   end
 
-  desc 'Update extension.json to its new format'
+  desc 'Update extension.json'
   task :extension_json do
+    schema = JSON.load(File.read(File.join(File.expand_path(File.dirname(__FILE__)), '..', 'schema', 'extension-schema.json')))
+
     each_path do |path, updated|
       repo_name = File.basename(path)
 
       if Dir.exist?(path) && extension?(repo_name)
+        full_name = File.read(File.join(path, '.git', 'config')).match(/git@github.com:(\S+)\.git/)[1]
         file_path = File.join(path, 'extension.json')
-        content = JSON.load(File.read(file_path))
-        expected = Marshal.load(Marshal.dump(content))
+        original = JSON.load(File.read(file_path))
+        expected = Marshal.load(Marshal.dump(original))
 
+        content = {}
+
+        # All extensions are presently only compatible with 1.1.
+        original['compatibility'] = ['1.1']
+
+        # Standardize the order of fields.
+        schema['properties'].each_key do |key|
+          if original.key?(key)
+            content[key] = original[key]
+          end
+        end
+
+        # Convert from old to new format.
         %w(name description).each do |field|
           if String === content[field]
             content[field] = { 'en' => content[field] }
@@ -140,16 +156,16 @@ Report issues for this extension in the [ocds-extensions repository](https://git
         end
 
         if !content.key?('documentationUrl')
-          content['documentationUrl'] = { 'en' => "https://github.com/open-contracting/#{repo_name}" }
+          content['documentationUrl'] = { 'en' => "https://github.com/#{full_name}" }
         end
 
         codelists = Set.new(Dir[File.join(path, 'codelists', '*')].map{ |path| File.basename(path) })
-
         if String === content['codelists'] || codelists != Set.new(content['codelists'])
           content['codelists'] = codelists.to_a.sort
         end
 
-        if expected != content
+        # Write the content, if changed.
+        if JSON.dump(content) != JSON.dump(expected)
           updated << repo_name
           File.open(file_path, 'w') do |f|
             f.write(JSON.pretty_generate(content) + "\n")
