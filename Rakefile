@@ -64,13 +64,6 @@ REPOSITORY_CATEGORIES = {
   'Legacy' => -> (repo) { legacy.include?(repo.name) },
 }
 
-# See https://developers.google.com/drive/v2/web/quickstart/ruby
-OOB_URI = 'urn:ietf:wg:oauth:2.0:oob'
-APPLICATION_NAME = 'Drive API Ruby Quickstart'
-CLIENT_SECRETS_PATH = 'client_secret.json'
-CREDENTIALS_PATH = File.join(Dir.home, '.credentials', 'drive-ruby-quickstart.yaml')
-SCOPE = Google::Apis::DriveV2::AUTH_DRIVE_METADATA_READONLY
-
 def s(condition)
   condition && 'Y'.green || 'N'.blue
 end
@@ -87,10 +80,33 @@ def client
   end
 end
 
+# See https://developers.google.com/drive/v2/web/quickstart/ruby
+def authorize
+  credentials_path = File.join(Dir.home, '.credentials', 'drive-ruby-quickstart.yaml')
+
+  FileUtils.mkdir_p(File.dirname(credentials_path))
+
+  client_id = Google::Auth::ClientId.from_file('client_secret.json')
+  token_store = Google::Auth::Stores::FileTokenStore.new(file: credentials_path)
+  authorizer = Google::Auth::UserAuthorizer.new(client_id, Google::Apis::DriveV2::AUTH_DRIVE_METADATA_READONLY, token_store)
+  user_id = 'default'
+  credentials = authorizer.get_credentials(user_id)
+
+  if credentials.nil?
+    puts 'Open the following URL in the browser and enter the resulting code after authorization'
+    oob_uri = 'urn:ietf:wg:oauth:2.0:oob'
+    puts authorizer.get_authorization_url(base_url: oob_uri)
+    code = gets
+    credentials = authorizer.get_and_store_credentials_from_code(user_id: user_id, code: code, base_url: oob_uri)
+  end
+
+  credentials
+end
+
 def service
   @service ||= begin
     service = Google::Apis::DriveV2::DriveService.new
-    service.client_options.application_name = APPLICATION_NAME
+    service.client_options.application_name = 'Drive API Ruby Quickstart'
     service.authorization = authorize
     service
   end
