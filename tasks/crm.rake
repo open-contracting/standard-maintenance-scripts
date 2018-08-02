@@ -32,6 +32,7 @@ namespace :crm do
   ]
 
   REDMINE_ODS_USERS_TECH = [
+    'Amy Guy',
     'Ben Webb',
     'Bibiana Cristofol',
     'David Raznick',

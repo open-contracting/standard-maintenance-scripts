@@ -10,13 +10,17 @@ namespace :org do
 
       # Open Data Services Co-operative Limited
       # http://opendataservices.coop
+      'bibianac', # Bibiana Cristofol
       'bjwebb', # Ben Webb
-      'kindly', # David Raznick
       'duncandewhurst', # Duncan Dewhurst
-      'scatteredink', # Jack Lord
+      'kindly', # David Raznick
+      'odscjames', # James Baster
+      'rhiaro', # Amy Guy
       'robredpath', # Rob Redpath
+      'rory09', # Rory Scott
+      'scatteredink', # Jack Lord
+      'tim0th1', # Tim Williams
       'timgdavies', # Tim Davies
-      'Tim0th1', # Tim Williams
 
       # Iniciativa Latinoamericana por los Datos Abiertos
       # https://idatosabiertos.org/acerca-de-nosotros/
@@ -31,11 +35,14 @@ namespace :org do
 
       names = people.map{ |member| member.login.downcase }
 
-      puts names - known_members
+      difference = names - known_members
+      if difference.any?
+        puts "#{organization}: add to tasks/org.rake: #{difference.join(', ')}"
+      end
 
       difference = known_members - names
       if difference.any?
-        puts "remove from tasks/org.rake: #{difference.join(', ')}"
+        puts "#{organization}: remove from tasks/org.rake: #{difference.join(', ')}"
       end
     end
   end
