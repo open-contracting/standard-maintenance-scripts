@@ -4,6 +4,7 @@
 
 Name|Build|Dependencies
 -|-|-
+[extension-explorer](https://github.com/open-contracting/extension-explorer)|-|-
 [extensions-data-collector](https://github.com/open-contracting/extensions-data-collector)|[![Build Status](https://travis-ci.org/open-contracting/extensions-data-collector.svg)](https://travis-ci.org/open-contracting/extensions-data-collector)|-
 [extension_creator](https://github.com/open-contracting/extension_creator)|-|-
 [extension_registry.py](https://github.com/open-contracting/extension_registry.py)|[![Build Status](https://travis-ci.org/open-contracting/extension_registry.py.svg)](https://travis-ci.org/open-contracting/extension_registry.py)|[![Requirements Status](https://requires.io/github/open-contracting/extension_registry.py/requirements.svg)](https://requires.io/github/open-contracting/extension_registry.py/requirements/)
