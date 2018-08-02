@@ -281,6 +281,7 @@ namespace :crm do
           if last_name == '-'
             message += " instead of '-'"
           end
+          message += " or check 'Company' box"
           add_contact_error(contact, message, '/edit')
         end
       end
