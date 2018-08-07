@@ -4,9 +4,10 @@
   "description": "Schema for extension.json file in an OCDS extension.",
   "type": "object",
   "required": [
+    "name",
     "description",
     "documentationUrl",
-    "name"
+    "compatibility"
   ],
   "additionalProperties": false,
   "properties": {
