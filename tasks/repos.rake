@@ -80,28 +80,42 @@ Report issues for this extension in the [ocds-extensions repository](https://git
 
   desc 'Lists missing or unexpected licenses'
   task :licenses do
-    repos.partition{ |repo| extension?(repo.name) }.each do |set|
+    repos.partition{ |repo| extension?(repo.name) }.each_with_index do |set, i|
       puts
+      licenses = {}
       set.each do |repo|
-        # The following licenses are acceptable:
-        # * Apache 2.0 for extensions and documentation
-        # * BSD 3-Clause for Python
-        # * MIT for CSS, JavaScript and Ruby
-        unless repo.license && (
-          repo.license.key == 'apache-2.0' && [nil, 'Python'].include?(repo.language) ||
-          repo.license.key == 'bsd-3-clause' && repo.language == 'Python' ||
-          repo.license.key == 'mit' && ['CSS', 'JavaScript', 'Ruby'].include?(repo.language)
-        )
-          line = repo.html_url
-          if repo.license
-            line << " #{repo.license.key.bold}"
-          else
-            line << " #{'missing'.bold}"
+        license = repo.license&.key.to_s
+        language = repo.language.to_s
+        licenses[license] ||= {}
+        licenses[license][language] ||= []
+        licenses[license][language] << repo.html_url
+      end
+
+      licenses.sort.each do |license, languages|
+        # Extensions, profiles and templates are expected to be Apache 2.0.
+        if i.zero? && license == 'apache-2.0'
+          next
+        end
+
+        if license.empty?
+          puts 'missing'.bold
+        else
+          puts license.bold
+        end
+
+        languages.sort.each do |language, repos|
+          # JavaScript and Ruby are expected to be MIT. Python is expected to be BSD 3-Clause.
+          if i.nonzero? && (license == 'mit' && %w(JavaScript Ruby).include?(language) || license == 'bsd-3-clause' && language == 'Python')
+            next
           end
-          if repo.language
-            line << " (#{repo.language})"
+
+          repos.each do |html_url|
+            line = html_url
+            if !language.empty?
+              line << " (#{language})"
+            end
+            puts line
           end
-          puts line
         end
       end
     end
@@ -119,11 +133,17 @@ Report issues for this extension in the [ocds-extensions repository](https://git
 
   desc 'Lists non-default issue labels'
   task :labels do
-    default_labels = ['bug', 'duplicate', 'enhancement', 'good first issue', 'help wanted', 'invalid', 'question', 'wontfix']
+    default_label_sets = [
+      # After late 2017.
+      ['bug', 'duplicate', 'enhancement', 'good first issue', 'help wanted', 'invalid', 'question', 'wontfix'],
+      # Before late 2017.
+      ['bug', 'duplicate', 'enhancement', 'help wanted', 'invalid', 'question', 'wontfix'],
+    ]
 
     repos.each do |repo|
       labels = repo.rels[:labels].get.data.map(&:name)
-      if labels & default_labels == default_labels
+      default_labels = default_label_sets.find{ |default_labels| labels & default_labels == default_labels }
+      if default_labels
         labels -= default_labels
       end
       if labels.any?
@@ -188,7 +208,9 @@ Report issues for this extension in the [ocds-extensions repository](https://git
   task :status do
     format = '%-50s  %12s  %11s  %11s  %11s  %11s  %s  %s  %s  %s  %s'
 
-    repos.partition{ |repo| !extension?(repo.name) }.each do |set|
+    REPOSITORY_CATEGORIES.each do |heading, condition|
+      puts
+
       # Number of open issues
       # Number of open pull requests
       # Number of branches, excluding default, pull, upstream, excluded branches
@@ -199,9 +221,9 @@ Report issues for this extension in the [ocds-extensions repository](https://git
       # Whether the repo has issues enabled
       # Whether the repo has projects enabled
       # The top contributor (e.g. to decide who to contact)
-      puts '%-50s   %s  %s  %s  %s  %s  %s  %s  %s  %s  %s' % ['', '#I', '#P', '#B', '#M', '#R', 'W', 'P', 'I', 'P', 'C']
+      puts '%-50s   %s  %s  %s  %s  %s  %s  %s  %s  %s  %s' % [heading.upcase, '#I', '#P', '#B', '#M', '#R', 'W', 'P', 'I', 'P', 'C']
 
-      set.sort{ |a, b|
+      repos.select(&condition).sort{ |a, b|
         if a.open_issues == b.open_issues
           a.name <=> b.name
         else
@@ -261,7 +283,7 @@ Report issues for this extension in the [ocds-extensions repository](https://git
   desc 'Lists the dependencies to use in OCDS documentation'
   task :dependencies do
     {
-      'open-contracting/documentation-support' => 'ocds_documentation_support',
+      'open-contracting/documentation-support' => 'ocdsdocumentationsupport',
       'open-contracting/sphinxcontrib-opencontracting' => 'sphinxcontrib-opencontracting',
       'OpenDataServices/sphinxcontrib-jsonschema' => 'sphinxcontrib-jsonschema',
       'OpenDataServices/sphinxcontrib-opendataservices' => 'sphinxcontrib-opendataservices',

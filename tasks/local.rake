@@ -27,23 +27,18 @@ namespace :local do
       '# Project Build and Dependency Status',
     ]
 
-    repos.partition{ |repo| !extension?(repo.name, profiles: false, templates: false) }.each_with_index do |set, index|
+    REPOSITORY_CATEGORIES.each do |heading, condition|
       output << ''
 
-      dependencies = index.zero?
-      if dependencies
-        output << "## Repositories"
-      else
-        output << "## Extensions"
-      end
+      output << "## #{heading}"
 
       output += [
         '',
-        'Name|Build' + (dependencies ? '|Dependencies' : ''),
-        '-|-' + (dependencies ? '|-' : ''),
+        'Name|Build|Dependencies',
+        '-|-|-',
       ]
 
-      set.each do |repo|
+      repos.select(&condition).each do |repo|
         begin
           hooks = repo.rels[:hooks].get.data
         rescue Octokit::NotFound
@@ -64,7 +59,7 @@ namespace :local do
         hook = hooks.find{ |datum| datum.config.url == 'https://requires.io/github/web-hook/' }
         if hook && hook.active
           line << "[![Requirements Status](https://requires.io/github/#{repo.full_name}/requirements.svg)](https://requires.io/github/#{repo.full_name}/requirements/)"
-        elsif dependencies
+        else
           line << '-'
         end
 
@@ -113,17 +108,32 @@ Report issues for this extension in the [ocds-extensions repository](https://git
     end
   end
 
-  desc 'Update extension.json to its new format'
+  desc 'Update extension.json'
   task :extension_json do
+    schema = JSON.load(File.read(File.join(File.expand_path(File.dirname(__FILE__)), '..', 'schema', 'extension-schema.json')))
+
     each_path do |path, updated|
       repo_name = File.basename(path)
 
       if Dir.exist?(path) && extension?(repo_name)
         full_name = File.read(File.join(path, '.git', 'config')).match(/git@github.com:(\S+)\.git/)[1]
         file_path = File.join(path, 'extension.json')
-        content = JSON.load(File.read(file_path))
-        expected = Marshal.load(Marshal.dump(content))
+        original = JSON.load(File.read(file_path))
+        expected = Marshal.load(Marshal.dump(original))
 
+        content = {}
+
+        # All extensions are presently only compatible with 1.1.
+        original['compatibility'] = ['1.1']
+
+        # Standardize the order of fields.
+        schema['properties'].each_key do |key|
+          if original.key?(key)
+            content[key] = original[key]
+          end
+        end
+
+        # Convert from old to new format.
         %w(name description).each do |field|
           if String === content[field]
             content[field] = { 'en' => content[field] }
@@ -150,7 +160,6 @@ Report issues for this extension in the [ocds-extensions repository](https://git
         end
 
         codelists = Set.new(Dir[File.join(path, 'codelists', '*')].map{ |path| File.basename(path) })
-
         if String === content['codelists'] || codelists != Set.new(content['codelists'])
           content['codelists'] = codelists.to_a.sort
         end
@@ -161,7 +170,8 @@ Report issues for this extension in the [ocds-extensions repository](https://git
           content['schemas'] = schemas.to_a.sort
         end
 
-        if expected != content
+        # Write the content, if changed.
+        if JSON.dump(content) != JSON.dump(expected)
           updated << repo_name
           File.open(file_path, 'w') do |f|
             f.write(JSON.pretty_generate(content) + "\n")

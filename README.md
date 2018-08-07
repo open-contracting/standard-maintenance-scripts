@@ -58,7 +58,7 @@ Check for files have unexpected permissions ⏰:
 
 Check for TODOs that should be made into GitHub issues (skipping Git, vendored, translation, and generated files) ⏰:
 
-    grep -R -i --exclude-dir .git --exclude-dir _static --exclude-dir LC_MESSAGES --exclude app.js --exclude conf.py '\btodo' .
+    grep -R -i --exclude-dir .git --exclude-dir _static --exclude-dir LC_MESSAGES --exclude app.js --exclude conf.py '\btodo\b' .
 
 Periodically [spell-check](http://ocds-standard-development-handbook.readthedocs.io/en/latest/standard/technical/spellcheck/) and [Markdownlint](http://ocds-standard-development-handbook.readthedocs.io/en/latest/coding/#linting) the `standard`, extension and profile repositories.
 

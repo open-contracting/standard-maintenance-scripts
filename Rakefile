@@ -21,16 +21,48 @@ require 'safe_yaml'
 
 SafeYAML::OPTIONS[:default_mode] = :safe
 
-OTHER_EXTENSIONS = ['api_extension', 'ocds_performance_failures']
-OTHER_PROFILES = ['public-private-partnerships']
-TEMPLATES = ['standard_extension_template', 'standard_profile_template']
+OTHER_EXTENSIONS = [
+  'api_extension',
+  'ocds_performance_failures',
+]
+PROFILES = [
+  'european-union',
+  'government-procurement-agreement',
+  'public-private-partnerships',
+]
+TEMPLATES = [
+  'standard_extension_template',
+  'standard_profile_template',
+]
 
-# See https://developers.google.com/drive/v2/web/quickstart/ruby
-OOB_URI = 'urn:ietf:wg:oauth:2.0:oob'
-APPLICATION_NAME = 'Drive API Ruby Quickstart'
-CLIENT_SECRETS_PATH = 'client_secret.json'
-CREDENTIALS_PATH = File.join(Dir.home, '.credentials', 'drive-ruby-quickstart.yaml')
-SCOPE = Google::Apis::DriveV2::AUTH_DRIVE_METADATA_READONLY
+documentation_dependencies = [
+  'documentation-support',
+  'sphinxcontrib-opencontracting',
+  'standard_theme',
+]
+other_repositories = [
+  'api-specification',
+  'extension_registry',
+  'glossary',
+  'infrastructure',
+  'ocds-extensions',
+  'standard',
+]
+legacy = [
+  'open-contracting.github.io',
+  'standard-legacy-staticsites',
+]
+non_tools = documentation_dependencies + other_repositories + legacy
+
+REPOSITORY_CATEGORIES = {
+  'Tools' => -> (repo) { !extension?(repo.name) && !non_tools.include?(repo.name) },
+  'Documentation dependencies' => -> (repo) { documentation_dependencies.include?(repo.name) },
+  'Other repositories' => -> (repo) { other_repositories.include?(repo.name) },
+  'Templates' => -> (repo) { template?(repo.name) },
+  'Profiles' => -> (repo) { profile?(repo.name) },
+  'Extensions' => -> (repo) { extension?(repo.name, profiles: false, templates: false) },
+  'Legacy' => -> (repo) { legacy.include?(repo.name) },
+}
 
 def s(condition)
   condition && 'Y'.green || 'N'.blue
@@ -48,10 +80,33 @@ def client
   end
 end
 
+# See https://developers.google.com/drive/v2/web/quickstart/ruby
+def authorize
+  credentials_path = File.join(Dir.home, '.credentials', 'drive-ruby-quickstart.yaml')
+
+  FileUtils.mkdir_p(File.dirname(credentials_path))
+
+  client_id = Google::Auth::ClientId.from_file('client_secret.json')
+  token_store = Google::Auth::Stores::FileTokenStore.new(file: credentials_path)
+  authorizer = Google::Auth::UserAuthorizer.new(client_id, Google::Apis::DriveV2::AUTH_DRIVE_METADATA_READONLY, token_store)
+  user_id = 'default'
+  credentials = authorizer.get_credentials(user_id)
+
+  if credentials.nil?
+    puts 'Open the following URL in the browser and enter the resulting code after authorization'
+    oob_uri = 'urn:ietf:wg:oauth:2.0:oob'
+    puts authorizer.get_authorization_url(base_url: oob_uri)
+    code = gets
+    credentials = authorizer.get_and_store_credentials_from_code(user_id: user_id, code: code, base_url: oob_uri)
+  end
+
+  credentials
+end
+
 def service
   @service ||= begin
     service = Google::Apis::DriveV2::DriveService.new
-    service.client_options.application_name = APPLICATION_NAME
+    service.client_options.application_name = 'Drive API Ruby Quickstart'
     service.authorization = authorize
     service
   end
@@ -81,12 +136,15 @@ def repos
 end
 
 def profile?(name)
-  name.start_with?('ocds-for-') || OTHER_PROFILES.include?(name)
+  PROFILES.include?(name)
+end
+
+def template?(name)
+  TEMPLATES.include?(name)
 end
 
 def extension?(name, profiles: true, templates: true)
-  # This should match the logic in `test_json.py`.
-  name.start_with?('ocds') && name.end_with?('extension') || OTHER_EXTENSIONS.include?(name) || profiles && profile?(name) || templates && TEMPLATES.include?(name)
+  name.start_with?('ocds') && name.end_with?('extension') || OTHER_EXTENSIONS.include?(name) || profiles && profile?(name) || templates && template?(name)
 end
 
 def variables(*keys)

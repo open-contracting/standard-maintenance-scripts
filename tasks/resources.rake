@@ -28,7 +28,7 @@ namespace :resources do
       when %r{\Ahttps://drive\.google\.com/open\?id=[^&]+\z}
         'open'
       else
-        raise dereferenced_url
+        nil
       end
     end
 

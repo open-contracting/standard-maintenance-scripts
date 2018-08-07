@@ -12,7 +12,6 @@ namespace :registry do
       'multiple_buyers' => 'contract',
       'participationFee' => 'participation_fee',
       'partyDetails_scale' => 'partyScale',
-      'public-private-partnerships' => 'ppp',
       'riskAllocation' => 'risk_allocation',
       'transactions_relatedMilestone' => 'transaction_milestones',
 
