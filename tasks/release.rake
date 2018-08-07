@@ -46,7 +46,7 @@ namespace :release do
             end
           end
         else
-          puts "#{repo.html_url} Couldn't find changelong in README.md"
+          puts "#{repo.html_url} Couldn't find changelog in README.md"
         end
       end
     end
