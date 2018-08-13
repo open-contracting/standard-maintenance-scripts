@@ -773,7 +773,7 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension, top=c
     else:
         errors += validate_deep_properties(path, data)
 
-    assert errors == 0
+    assert errors == 0, 'One or more JSON Schema files are invalid. See warnings below.'
 
 
 def test_valid():
@@ -795,11 +795,17 @@ def test_indent():
         'json-schema-draft-4.json',  # http://json-schema.org/draft-04/schema
     }
 
+    errors = 0
+
     for path, text, data in walk_json_data():
         parts = path.split(os.sep)
         if not any(exception in parts for exception in path_exceptions):
             indent2 = json.dumps(data, indent=2, separators=(',', ': ')) + '\n'
-            assert text == indent2, "{} is not indented as expected, run: ocdskit indent {}".format(path, path)
+            if text != indent2:
+                errors += 1
+                warnings.warn('ERROR: {} is not indented as expected, run: ocdskit indent {}'.format(path, path))
+
+    assert errors == 0, 'Files are not indented as expected. See warnings below. To correct all, run: ocdskit indent -r .'
 
 
 def test_json_schema():
