@@ -805,7 +805,7 @@ def test_indent():
                 errors += 1
                 warnings.warn('ERROR: {} is not indented as expected, run: ocdskit indent {}'.format(path, path))
 
-    assert errors == 0, 'Files are not indented as expected. See warnings below. To correct all, run: ocdskit indent -r .'
+    assert errors == 0, 'Files are not indented as expected. See warnings below, or run: ocdskit indent -r .'
 
 
 def test_json_schema():
