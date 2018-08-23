@@ -26,7 +26,6 @@ namespace :release do
   desc 'Releases new versions of core extensions'
   task :release_extensions do
     ref = variables('REF')[0]
-    name = "Fixed version for OCDS #{ref[1..-1]}"
 
     repos.each do |repo|
       if extension?(repo.name, profiles: false, templates: false) && !core_extensions.key?(repo.full_name)
@@ -36,7 +35,7 @@ namespace :release do
         match = content.match(/^### #{ref}\n\n([^#]+)/)
         if match
           begin
-            release = client.create_release(repo.full_name, ref, {name: name, body: match[1]})
+            release = client.create_release(repo.full_name, ref, {body: match[1]})
             puts release.html_url
           rescue Octokit::UnprocessableEntity => e
             if e.errors[0][:code] == 'already_exists'
