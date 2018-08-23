@@ -68,10 +68,10 @@ def test_valid():
         for row_index, row in enumerate(rows, 2):
             if len(row) != width:
                 errors += 1
-                warnings.warn('{} has {} not {} columns in row {}'.format(path, len(row), width, row_index))
+                warnings.warn('ERROR: {} has {} not {} columns in row {}'.format(path, len(row), width, row_index))
             if not any(row.values()):
                 errors += 1
-                warnings.warn('{} has empty row {}'.format(path, row_index))
+                warnings.warn('ERROR: {} has empty row {}'.format(path, row_index))
             else:
                 for col_index, (header, cell) in enumerate(row.items(), 1):
                     if col_index > len(columns):
@@ -88,13 +88,13 @@ def test_valid():
                     for cell in cells:
                         if cell is not None and cell != cell.strip():
                             errors += 1
-                            warnings.warn('{} {} "{}" has leading or trailing whitespace at {},{}'.format(
+                            warnings.warn('ERROR: {} {} "{}" has leading or trailing whitespace at {},{}'.format(
                                 path, header, cell, row_index, col_index))
 
         for col_index, column in enumerate(columns, 1):
             if not any(column):
                 errors += 1
-                warnings.warn('{} has empty column {}'.format(path, col_index))
+                warnings.warn('ERROR: {} has empty column {}'.format(path, col_index))
 
         output = StringIO()
         writer = csv.DictWriter(output, fieldnames=reader.fieldnames, lineterminator='\n')
@@ -104,10 +104,10 @@ def test_valid():
 
         if text != expected and repo_name != 'sample-data':
             errors += 1
-            warnings.warn('{} is improperly formatted (e.g. missing trailing newline, extra quoting characters, '
-                          'non-"\\n" line terminator):\n{}\n{}'.format(path, repr(text), repr(expected)))
+            warnings.warn('ERROR: {} is improperly formatted (e.g. missing trailing newline, extra quoting '
+                          'characters, non-"\\n" line terminator):\n{}\n{}'.format(path, repr(text), repr(expected)))
 
-    assert errors == 0
+    assert errors == 0, 'One or more codelist CSV files are invalid. See warnings below.'
 
 
 def test_codelist():
