@@ -602,7 +602,7 @@ def validate_object_id(*args):
     # An array of objects without `id` fields are rare, but allowed.
     # See http://standard.open-contracting.org/latest/en/schema/merging/#whole-list-merge
     id_presence_extensions = {
-        '/definitions/Location',  # /definitions/Planning/properties/project/properties/locations
+        '/definitions/Location',  # /definitions/Project/properties/locations
     }
 
     # 2.0 fixes.
