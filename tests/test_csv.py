@@ -1,3 +1,4 @@
+import _csv
 import csv
 import json
 import os
@@ -42,7 +43,12 @@ def walk_csv_data(top=os.getcwd()):
             path = os.path.join(root, name)
             with open(path, newline='') as f:
                 text = f.read()
-                yield (path, text, csv.DictReader(StringIO(text)))
+                reader = csv.DictReader(StringIO(text))
+                try:
+                    reader.fieldnames
+                except _csv.Error as e:
+                    assert False, '{} is not valid CSV ({})'.format(path, e)
+                yield (path, text, reader)
 
 
 # Copied from test_json.py.
@@ -61,6 +67,7 @@ def test_valid():
     errors = 0
 
     for path, text, reader in walk_csv_data():
+        codelist = is_codelist(reader)
         width = len(reader.fieldnames)
         rows = [row for row in reader]
         columns = []
@@ -92,7 +99,7 @@ def test_valid():
                                 path, header, cell, row_index, col_index))
 
         for col_index, column in enumerate(columns, 1):
-            if not any(column):
+            if not any(column) and codelist:
                 errors += 1
                 warnings.warn('ERROR: {} has empty column {}'.format(path, col_index))
 
