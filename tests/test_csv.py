@@ -43,7 +43,12 @@ def walk_csv_data(top=os.getcwd()):
             path = os.path.join(root, name)
             with open(path, newline='') as f:
                 text = f.read()
-                yield (path, text, csv.DictReader(StringIO(text)))
+                reader = csv.DictReader(StringIO(text))
+                try:
+                    reader.fieldnames
+                except _csv.Error as e:
+                    assert False, '{} is not valid CSV ({})'.format(path, e)
+                yield (path, text, reader)
 
 
 # Copied from test_json.py.
@@ -62,55 +67,52 @@ def test_valid():
     errors = 0
 
     for path, text, reader in walk_csv_data():
-        try:
-            codelist = is_codelist(reader)
-            width = len(reader.fieldnames)
-            rows = [row for row in reader]
-            columns = []
+        codelist = is_codelist(reader)
+        width = len(reader.fieldnames)
+        rows = [row for row in reader]
+        columns = []
 
-            for row_index, row in enumerate(rows, 2):
-                if len(row) != width:
-                    errors += 1
-                    warnings.warn('ERROR: {} has {} not {} columns in row {}'.format(path, len(row), width, row_index))
-                if not any(row.values()):
-                    errors += 1
-                    warnings.warn('ERROR: {} has empty row {}'.format(path, row_index))
-                else:
-                    for col_index, (header, cell) in enumerate(row.items(), 1):
-                        if col_index > len(columns):
-                            columns.append([])
-
-                        columns[col_index - 1].append(cell)
-
-                        # Extra cells are added to a None columns.
-                        if header is None and isinstance(cell, list):
-                            cells = cell
-                        else:
-                            cells = [cell]
-
-                        for cell in cells:
-                            if cell is not None and cell != cell.strip():
-                                errors += 1
-                                warnings.warn('ERROR: {} {} "{}" has leading or trailing whitespace at {},{}'.format(
-                                    path, header, cell, row_index, col_index))
-
-            for col_index, column in enumerate(columns, 1):
-                if not any(column) and codelist:
-                    errors += 1
-                    warnings.warn('ERROR: {} has empty column {}'.format(path, col_index))
-
-            output = StringIO()
-            writer = csv.DictWriter(output, fieldnames=reader.fieldnames, lineterminator='\n')
-            writer.writeheader()
-            writer.writerows(rows)
-            expected = output.getvalue()
-
-            if text != expected and repo_name != 'sample-data':
+        for row_index, row in enumerate(rows, 2):
+            if len(row) != width:
                 errors += 1
-                warnings.warn('ERROR: {} is improperly formatted (e.g. missing trailing newline, extra quoting '
-                              'characters, non-"\\n" line terminator):\n{}\n{}'.format(path, repr(text), repr(expected)))
-        except _csv.Error as e:
-            assert False, '{} is not valid CSV ({})'.format(path, e)
+                warnings.warn('ERROR: {} has {} not {} columns in row {}'.format(path, len(row), width, row_index))
+            if not any(row.values()):
+                errors += 1
+                warnings.warn('ERROR: {} has empty row {}'.format(path, row_index))
+            else:
+                for col_index, (header, cell) in enumerate(row.items(), 1):
+                    if col_index > len(columns):
+                        columns.append([])
+
+                    columns[col_index - 1].append(cell)
+
+                    # Extra cells are added to a None columns.
+                    if header is None and isinstance(cell, list):
+                        cells = cell
+                    else:
+                        cells = [cell]
+
+                    for cell in cells:
+                        if cell is not None and cell != cell.strip():
+                            errors += 1
+                            warnings.warn('ERROR: {} {} "{}" has leading or trailing whitespace at {},{}'.format(
+                                path, header, cell, row_index, col_index))
+
+        for col_index, column in enumerate(columns, 1):
+            if not any(column) and codelist:
+                errors += 1
+                warnings.warn('ERROR: {} has empty column {}'.format(path, col_index))
+
+        output = StringIO()
+        writer = csv.DictWriter(output, fieldnames=reader.fieldnames, lineterminator='\n')
+        writer.writeheader()
+        writer.writerows(rows)
+        expected = output.getvalue()
+
+        if text != expected and repo_name != 'sample-data':
+            errors += 1
+            warnings.warn('ERROR: {} is improperly formatted (e.g. missing trailing newline, extra quoting '
+                          'characters, non-"\\n" line terminator):\n{}\n{}'.format(path, repr(text), repr(expected)))
 
     assert errors == 0, 'One or more codelist CSV files are invalid. See warnings below.'
 
@@ -157,37 +159,34 @@ def test_codelist():
     any_errors = False
 
     for path, text, reader in walk_csv_data():
-        try:
-            codes_seen = set()
-            if is_codelist(reader):
-                data = []
-                for row in reader:
-                    code = row['Code']
-                    if code in codes_seen:
-                        any_errors = True
-                        warnings.warn('{}: Duplicate code "{}" on line {}'.format(path, code, reader.line_num))
-                    codes_seen.add(code)
+        codes_seen = set()
+        if is_codelist(reader):
+            data = []
+            for row in reader:
+                code = row['Code']
+                if code in codes_seen:
+                    any_errors = True
+                    warnings.warn('{}: Duplicate code "{}" on line {}'.format(path, code, reader.line_num))
+                codes_seen.add(code)
 
-                    item = {}
-                    for k, v in row.items():
-                        if k in array_columns:
-                            item[k] = v.split(', ')
-                        elif k == 'Code' or v:
-                            item[k] = v
-                        else:
-                            item[k] = None
-                    data.append(item)
+                item = {}
+                for k, v in row.items():
+                    if k in array_columns:
+                        item[k] = v.split(', ')
+                    elif k == 'Code' or v:
+                        item[k] = v
+                    else:
+                        item[k] = None
+                data.append(item)
 
-                if os.path.basename(path).startswith('-'):
-                    schema = minus_schema
-                else:
-                    schema = codelist_schema
+            if os.path.basename(path).startswith('-'):
+                schema = minus_schema
+            else:
+                schema = codelist_schema
 
-                for error in validator(schema, format_checker=FormatChecker()).iter_errors(data):
-                    if error.message != exceptions.get(os.path.basename(path)):
-                        any_errors = True
-                        warnings.warn('{}: {} ({})\n'.format(path, error.message, '/'.join(error.absolute_schema_path)))
-        except _csv.Error as e:
-            assert False, '{} is not valid CSV ({})'.format(path, e)
+            for error in validator(schema, format_checker=FormatChecker()).iter_errors(data):
+                if error.message != exceptions.get(os.path.basename(path)):
+                    any_errors = True
+                    warnings.warn('{}: {} ({})\n'.format(path, error.message, '/'.join(error.absolute_schema_path)))
 
     assert not any_errors
