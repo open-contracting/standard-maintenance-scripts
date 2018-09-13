@@ -29,6 +29,8 @@ To run the tests locally, run the setup commands above, change into a repository
 
 To run the tests locally against an unreleased version of the standard, replace `http://standard.open-contracting.org/schema/VERSION` with `http://standard.open-contracting.org/BRANCH/en`.
 
+To skip the JSON indentation test, set the `OCDS_NOINDENT` environment variable, with `export OCDS_NOINDENT=1` (Bash) or `setenv OCDS_NOINDENT 1` (fish).
+
 To create a pull request to set up a new repository, enable the repository on [travis-ci.org](https://travis-ci.org), then:
 
     git checkout -b travis
