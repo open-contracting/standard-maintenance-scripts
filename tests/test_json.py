@@ -603,6 +603,9 @@ def validate_object_id(*args):
     # See http://standard.open-contracting.org/latest/en/schema/merging/#whole-list-merge
     id_presence_extensions = {
         '/definitions/Location',  # /definitions/Project/properties/locations
+        # https://github.com/INAImexico/ocds_budgetLines_extension
+        '/definitions/BudgetLine',
+        '/definitions/Component',
     }
 
     # 2.0 fixes.
@@ -784,6 +787,7 @@ def test_valid():
         pass  # fails if the JSON can't be read
 
 
+@pytest.mark.skipif(os.environ.get('OCDS_NOINDENT', False), reason='skipped indentation')
 def test_indent():
     """
     Ensures all JSON files are valid and formatted for humans.
