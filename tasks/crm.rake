@@ -8,29 +8,33 @@ namespace :crm do
 
   # Open Contracting Partnership
   # https://www.open-contracting.org/about/team/
-  REDMINE_OCP_USERS = [
+  REDMINE_OCP_USERS_OCDS = [
     'Bernadine Fernz',
     'Carey Kluttz',
-    'Gavin Hayman',
-    'Georg Neumann',
     'Hera Hussain',
     'James McKinney',
     'Karolis Granickas',
+    'Lindsey Marchessault',
+    'Nicolás Penagos',
+  ]
+  REDMINE_OCP_USERS = REDMINE_OCP_USERS_OCDS + [
+    'Coby Jones',
+    'David Selassie Opoku',
+    'Gavin Hayman',
+    'Georg Neumann',
     'Katherine Wikrent',
     'Kathrin Frauscher',
-    'Lindsey Marchessault',
     'Marie Goumballa',
-    'Nicolás Penagos',
   ]
 
   # Open Data Services Co-operative Limited
   # http://opendataservices.coop
   REDMINE_ODS_USERS_OCDS = [
+    'Charlie Pinder',
     'Duncan Dewhurst',
-    'Tim Davies',
+    'Matt Marshall',
     'Tim Williams',
   ]
-
   REDMINE_ODS_USERS_TECH = [
     'Amy Guy',
     'Ben Webb',
@@ -43,17 +47,18 @@ namespace :crm do
     'Rory Scott',
     'Steven Flower',
   ]
-
+  REDMINE_ODS_COORDINATOR = [
+    'Rob Redpath',
+  ]
   REDMINE_ODS_USERS = REDMINE_ODS_USERS_OCDS + REDMINE_ODS_USERS_TECH
 
   # Iniciativa Latinoamericana por los Datos Abiertos
   # https://idatosabiertos.org/acerca-de-nosotros/
   REDMINE_ILDA_USERS_OCDS = [
     'María Esther Cervantes',
-    'Sebastian Oliva',
+    'Romina Fernández Valdez',
     'Yohanna Lisnichuk',
   ]
-
   REDMINE_ILDA_USERS = REDMINE_ILDA_USERS_OCDS + [
     'Fabrizio Scrollini',
     'Juan Pane',
@@ -133,10 +138,16 @@ namespace :crm do
       4 => [:exactly, REDMINE_ODS_USERS + ['API Access']],
       # Iniciativa Latinoamericana por los Datos Abiertos
       33 => [:exactly, REDMINE_ILDA_USERS],
-      # Everyone (OCP and Helpdesks)
-      44 => [:exactly, REDMINE_OCP_USERS + REDMINE_ODS_USERS + REDMINE_ILDA_USERS],
-      # Helpdesk analysts
+
+      # Everyone excluding ODS Tech Team
+      44 => [:exactly, REDMINE_OCP_USERS + REDMINE_ODS_USERS_OCDS + REDMINE_ILDA_USERS + REDMINE_ODS_COORDINATOR],
+      # OCP Program Managers & Helpdesk Teams
+      65 => [:exactly, REDMINE_OCP_USERS_OCDS + REDMINE_ODS_USERS_OCDS + REDMINE_ILDA_USERS_OCDS + REDMINE_ODS_COORDINATOR],
+
+      # Helpdesk Teams
       43 => [:exactly, REDMINE_ODS_USERS_OCDS + REDMINE_ILDA_USERS_OCDS],
+      # English Helpdesk Team
+      66 => [:exactly, REDMINE_ODS_USERS_OCDS],
       # Partners and Consultants
       6 => [:exactly, REDMINE_EXTERNAL_USERS],
     }
@@ -192,6 +203,14 @@ namespace :crm do
 
     address_components = ['country_code', 'region', 'city']
 
+    organization_tags = Set.new([ # optional
+      'priority',
+      'bhp',
+      'dfid',
+      'hivos',
+      'world bank',
+    ])
+
     disjoint_sets = {
       organization_types: Set.new([
         'academia',
@@ -205,6 +224,7 @@ namespace :crm do
         'staff',
       ]),
       additional_organization_types: Set.new([ # optional
+        'data user',
         'infrastructure',
         'support provider',
       ]),
@@ -271,6 +291,7 @@ namespace :crm do
         end
       else
         unexpected_tags += groups.values.flatten - groups[:person_types]
+        unexpected_tags += tags.select{ |tag| organization_tags.include?(tag) }
 
         if !company.empty? && !companies.key?(company) && company != 'Independent Consultant'
           add_contact_error(contact, "create company contact for '#{company}'")
@@ -322,36 +343,6 @@ namespace :crm do
       puts "#{message} (#{links.size})"
       puts links
       puts
-    end
-  end
-
-  desc 'Prints the contacts with non-reactive support'
-  task :statuses do
-    contacts = contacts_from_crm
-
-    sources = {
-      'Catalytic support' => 'https://docs.google.com/document/d/1RLuHaczux67git5G8dN_nN3R-ffjjCCcKA1rX1lH0LI/edit',
-      'Showcase and learning' => 'https://www.open-contracting.org/why-open-contracting/showcase-projects/',
-    }
-
-    statuses = {}
-    contacts.each do |contact|
-      value = contact['custom_fields'].find{ |custom_field| custom_field['id'] == 3 }['value']
-      if !['Reactive support', ''].include?(value)
-        statuses[value] ||= []
-        statuses[value] << contact
-      end
-    end
-
-    statuses.each do |value, contacts|
-      puts "\n#{value}"
-      if sources.key?(value)
-        puts "Primary source: #{sources[value]}"
-      end
-
-      contacts.each_with_index do |contact, i|
-        puts "#{'%2d' % (i + 1)}:  #{contact_link(contact, '/edit')}  #{contact['address']['country_code']}  #{contact['first_name']}"
-      end
     end
   end
 
