@@ -202,14 +202,6 @@ Lists groups with missing or unexpected users:
 
     bundle exec rake crm:groups
 
-Prints the errors in contacts:
-
-    bundle exec rake crm:check
-
-Prints the contacts with non-reactive support:
-
-    bundle exec rake crm:statuses
-
 ### Check OCP Resources links ⏰
 
 Lints the Resources section of the OCP website:
