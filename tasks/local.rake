@@ -165,7 +165,6 @@ Report issues for this extension in the [ocds-extensions repository](https://git
         end
 
         schemas = Set.new(Dir[File.join(path, '*-schema.json')].map{ |path| File.basename(path) })
-
         if String === content['schemas'] || schemas != Set.new(content['schemas'])
           content['schemas'] = schemas.to_a.sort
         end
