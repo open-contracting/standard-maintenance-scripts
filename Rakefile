@@ -41,7 +41,7 @@ extension_tools = [
   'extension_creator',
   'extension_registry.py',
 ]
-documentation_dependencies = [
+DOCUMENTATION_DEPENDENCIES = [
   'ocds-babel',
   'sphinxcontrib-opencontracting',
   'standard_theme',
@@ -54,59 +54,55 @@ miscellaneous_repositories = [
   'ocds-extensions',
   'standard',
 ]
-legacy = [
+LEGACY = [
   'open-contracting.github.io',
   'standard-legacy-staticsites',
 ]
-non_tools = documentation_dependencies + miscellaneous_repositories + legacy
+non_tools = DOCUMENTATION_DEPENDENCIES + miscellaneous_repositories + LEGACY
 
 REPOSITORY_CATEGORIES = {
   'Tools' => -> (repo) { !extension?(repo.name) && !non_tools.include?(repo.name) },
   'Extension tools' => -> (repo) { extension_tools.include?(repo.name) },
-  'Documentation dependencies' => -> (repo) { documentation_dependencies.include?(repo.name) },
+  'Documentation dependencies' => -> (repo) { DOCUMENTATION_DEPENDENCIES.include?(repo.name) },
   'Miscellaneous repositories' => -> (repo) { miscellaneous_repositories.include?(repo.name) },
   'Templates' => -> (repo) { template?(repo.name) },
   'Profiles' => -> (repo) { profile?(repo.name) },
   'Extensions' => -> (repo) { extension?(repo.name, profiles: false, templates: false) },
-  'Legacy' => -> (repo) { legacy.include?(repo.name) },
+  'Legacy' => -> (repo) { LEGACY.include?(repo.name) },
 }
 
 TECH_SUPPORT_PRIORITIES = {
   # Tools
-  'json-schema-random' => [''],
-  'lib-cove-ocds' => ['TBD'],
-  'kingfisher' => ['✴️', 'key tool'],
-  'ocds-faker' => [''],
-  'ocds-merge' => ['✴️✴️', 'reference implementation'],
-  'ocds-show' => [''],
-  'ocds-show-ppp' => [''],
-  'ocdskit' => ['✴️', 'key tool'],
-  'sample-data' => ['✴️', 'frequently visited'],
-  'standard-development-handbook' => ['✴️', 'key internal documentation'],
-  'standard-maintenance-scripts' => ['✴️', 'internal quality assurance'],
+  'json-schema-random' => ' ', # infrequently used
+  'lib-cove-ocds' => 'TBD',
+  'kingfisher' => '✴️', # key tool
+  'ocds-faker' => ' ', # infrequently used
+  'ocds-merge' => '✴️✴️', # reference implementation
+  'ocds-show' => ' ', # infrequently used
+  'ocds-show-ppp' => ' ', # infrequently used
+  'ocdskit' => '✴️', # key tool
+  'sample-data' => '✴️', # frequently used
+  'standard-development-handbook' => '✴️', # key internal documentation
+  'standard-maintenance-scripts' => '✴️', # internal quality assurance
+
   # Extension tools
-  'extension-explorer' => ['✴️✴️', 'extensions documentation'],
-  'extensions-data-collector' => ['TBD'],
-  'extension_creator' => [''],
-  'extension_registry.py' => ['✴️✴️', 'frequent dependency'],
-  # Documentation dependencies
-  'ocds-babel' => ['✴️✴️'],
-  'standard_theme' => ['✴️✴️'],
-  'sphinxcontrib-opencontracting' => ['✴️✴️'],
+  'extension-explorer' => '✴️✴️', # extensions documentation
+  'extensions-data-collector' => 'TBD',
+  'extension_creator' => ' ', # infrequently used
+  'extension_registry.py' => '✴️✴️', # frequent dependency
+
   # Miscellaneous repositories
-  'api-specification' => [''],
-  'european-union-support' => ['', 'scratch pad'],
-  'extension_registry' => ['✴️✴️', 'authoritative resource'],
-  'glossary' => ['TBD'],
-  'infrastructure' => ['✴️✴️', 'sector documentation'],
-  'ocds-extensions' => ['N/A'],
-  'standard' => ['✴️✴️✴️', 'core documentation'],
+  'api-specification' => ' ', # draft
+  'european-union-support' => ' ', # scratch pad
+  'extension_registry' => '✴️✴️', # authoritative resource
+  'glossary' => 'TBD',
+  'infrastructure' => '✴️✴️', # sector documentation
+  'ocds-extensions' => 'N/A',
+  'standard' => '✴️✴️✴️', # core documentation
+
   # Templates
-  'standard_extension_template' => ['✴️', 'public template'],
-  'standard_profile_template' => ['', 'internal template'],
-  # Legacy
-  'open-contracting.github.io' => [''],
-  'standard-legacy-staticsites' => [''],
+  'standard_extension_template' => '✴️', # public template
+  'standard_profile_template' => ' ', # internal template
 }
 
 def s(condition)

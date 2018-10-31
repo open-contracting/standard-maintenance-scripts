@@ -20,12 +20,16 @@ namespace :local do
     def tech_support_priority(repo)
       if extension?(repo.name, profiles: false, templates: false)
         if core_extensions[repo.full_name]
-          ['✴️✴️✴️', 'core extension']
+          '✴️✴️'
         else
-          ['✴️✴️']
+          '✴️'
         end
       elsif profile?(repo.name)
-        ['✴️✴️✴️']
+        '✴️✴️'
+      elsif DOCUMENTATION_DEPENDENCIES.include?(repo.name)
+        '✴️✴️'
+      elsif LEGACY.include?(repo.name)
+        'N/A'
       else
         TECH_SUPPORT_PRIORITIES.fetch(repo.name)
       end
@@ -67,8 +71,8 @@ namespace :local do
           ]
         else
           output += [
-            'Priority|Build|Dependencies|Name|Reason',
-            '-|-|-|-|-',
+            'Priority|Build|Dependencies|Name',
+            '-|-|-|-',
           ]
         end
 
@@ -82,7 +86,7 @@ namespace :local do
           end
 
           if ENV['ORG'] != 'open-contracting-partnership'
-            priority, reason = tech_support_priority(repo)
+            priority = tech_support_priority(repo)
 
             line << "#{priority}|"
           end
@@ -103,13 +107,7 @@ namespace :local do
             end
           end
 
-          line << "[#{repo.name}](#{repo.html_url})"
-
-          if ENV['ORG'] != 'open-contracting-partnership'
-            line << "|#{reason}"
-          end
-
-          output << line
+          output << line + "[#{repo.name}](#{repo.html_url})"
 
           print '.'
         end
