@@ -61,7 +61,7 @@ LEGACY = [
 non_tools = DOCUMENTATION_DEPENDENCIES + miscellaneous_repositories + LEGACY
 
 REPOSITORY_CATEGORIES = {
-  'Tools' => -> (repo) { !extension?(repo.name) && !non_tools.include?(repo.name) },
+  'Tools' => -> (repo) { !extension?(repo.name) && !extension_tools.include?(repo.name) && !non_tools.include?(repo.name) },
   'Extension tools' => -> (repo) { extension_tools.include?(repo.name) },
   'Documentation dependencies' => -> (repo) { DOCUMENTATION_DEPENDENCIES.include?(repo.name) },
   'Miscellaneous repositories' => -> (repo) { miscellaneous_repositories.include?(repo.name) },

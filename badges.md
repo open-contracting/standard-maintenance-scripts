@@ -9,10 +9,6 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 |Priority|Build|Dependencies|Name|
 |-|-|-|-|
 | |-|-|[european-union-support](https://github.com/open-contracting/european-union-support)|
-|✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/extension-explorer.svg)](https://travis-ci.org/open-contracting/extension-explorer)|-|[extension-explorer](https://github.com/open-contracting/extension-explorer)|
-|TBD|[![Build Status](https://travis-ci.org/open-contracting/extensions-data-collector.svg)](https://travis-ci.org/open-contracting/extensions-data-collector)|-|[extensions-data-collector](https://github.com/open-contracting/extensions-data-collector)|
-| |-|-|[extension_creator](https://github.com/open-contracting/extension_creator)|
-|✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/extension_registry.py.svg)](https://travis-ci.org/open-contracting/extension_registry.py)|[![Requirements Status](https://requires.io/github/open-contracting/extension_registry.py/requirements.svg)](https://requires.io/github/open-contracting/extension_registry.py/requirements/)|[extension_registry.py](https://github.com/open-contracting/extension_registry.py)|
 | |-|-|[json-schema-random](https://github.com/open-contracting/json-schema-random)|
 |✴️|[![Build Status](https://travis-ci.org/open-contracting/kingfisher.svg)](https://travis-ci.org/open-contracting/kingfisher)|[![Requirements Status](https://requires.io/github/open-contracting/kingfisher/requirements.svg)](https://requires.io/github/open-contracting/kingfisher/requirements/)|[kingfisher](https://github.com/open-contracting/kingfisher)|
 |TBD|-|-|[lib-cove-ocds](https://github.com/open-contracting/lib-cove-ocds)|
