@@ -17,20 +17,6 @@ end
 namespace :local do
   desc 'Regenerates the badges pages'
   task :badges do
-    if ENV['ORG']
-      filename = "badges-#{ENV['ORG']}.md"
-    else
-      filename = 'badges.md'
-    end
-
-    output = [
-      '# Project Statuses',
-      '',
-      'Tech support priority is assessed based on the impact of the project becoming unavailable and the degree of usage, which can be assessed based on [Python package downloads](http://www.pypi-stats.com/author/?q=30327), [GitHub traffic](https://github.com/open-contracting/standard-development-handbook/issues/76#issuecomment-334540063) and user feedback.',
-      '',
-      'In addition to the below, within the [OpenDataServices](https://github.com/OpenDataServices) organization, `cove` is critical (as a critical step in the implementation journey), and `sphinxcontrib-jsonschema` and `sphinxcontrib-opendataservices` are high (as dependencies of `standard`).'
-    ]
-
     def tech_support_priority(repo)
       if extension?(repo.name, profiles: false, templates: false)
         if core_extensions.key?(repo.full_name)
@@ -40,53 +26,86 @@ namespace :local do
         end
       elsif profile?(repo.name)
         ['high']
-      elsif ENV['ORG'].nil?
+      else
         TECH_SUPPORT_PRIORITIES.fetch(repo.name)
       end
     end
 
-    REPOSITORY_CATEGORIES.each do |heading, condition|
-      output << ''
+    if ENV['ORG']
+      filename = "badges-#{ENV['ORG']}.md"
+    else
+      filename = 'badges.md'
+    end
 
-      output << "## #{heading}"
+    output = [
+      '# Project Statuses',
+    ]
 
+    if ENV['ORG'] != 'open-contracting-partnership'
       output += [
         '',
-        'Name|Build|Dependencies|Priority|Reason',
-        '-|-|-|-|-',
+        'Tech support priority is assessed based on the impact of the project becoming unavailable and the degree of usage, which can be assessed based on [Python package downloads](http://www.pypi-stats.com/author/?q=30327), [GitHub traffic](https://github.com/open-contracting/standard-development-handbook/issues/76#issuecomment-334540063) and user feedback.',
+        '',
+        'In addition to the below, within the [OpenDataServices](https://github.com/OpenDataServices) organization, `cove` is critical (as a critical step in the implementation journey), and `sphinxcontrib-jsonschema` and `sphinxcontrib-opendataservices` are high (as dependencies of `standard`).'
       ]
+    end
 
-      repos.select(&condition).each do |repo|
-        priority, reason = tech_support_priority(repo)
+    REPOSITORY_CATEGORIES.each do |heading, condition|
+      matches = repos.select(&condition)
 
-        begin
-          hooks = repo.rels[:hooks].get.data
-        rescue Octokit::NotFound
-          hooks = []
-        end
+      if matches.any?
+        output += [
+          '',
+          "## #{heading}",
+          '',
+        ]
 
-        line = "[#{repo.name}](#{repo.html_url})|"
-
-        hook = hooks.find{ |datum| datum.name == 'travis' }
-        if hook && hook.active
-          line << "[![Build Status](https://travis-ci.org/#{repo.full_name}.svg)](https://travis-ci.org/#{repo.full_name})"
+        if ENV['ORG'] == 'open-contracting-partnership'
+          output += [
+            'Name|Build',
+            '-|-',
+          ]
         else
-          line << '-'
+          output += [
+            'Name|Build|Dependencies|Priority|Reason',
+            '-|-|-|-|-',
+          ]
         end
 
-        line << '|'
+        matches.each do |repo|
+          begin
+            hooks = repo.rels[:hooks].get.data
+          rescue Octokit::NotFound
+            hooks = []
+          end
 
-        hook = hooks.find{ |datum| datum.config.url == 'https://requires.io/github/web-hook/' }
-        if hook && hook.active
-          line << "[![Requirements Status](https://requires.io/github/#{repo.full_name}/requirements.svg)](https://requires.io/github/#{repo.full_name}/requirements/)"
-        else
-          line << '-'
+          line = "[#{repo.name}](#{repo.html_url})|"
+
+          hook = hooks.find{ |datum| datum.name == 'travis' }
+          if hook && hook.active
+            line << "[![Build Status](https://travis-ci.org/#{repo.full_name}.svg)](https://travis-ci.org/#{repo.full_name})"
+          else
+            line << '-'
+          end
+
+          line << '|'
+
+          if ENV['ORG'] != 'open-contracting-partnership'
+            hook = hooks.find{ |datum| datum.config.url == 'https://requires.io/github/web-hook/' }
+            if hook && hook.active
+              line << "[![Requirements Status](https://requires.io/github/#{repo.full_name}/requirements.svg)](https://requires.io/github/#{repo.full_name}/requirements/)"
+            else
+              line << '-'
+            end
+
+            priority, reason = tech_support_priority(repo)
+            line << "|#{priority}|#{reason}"
+          end
+
+          output << line
+
+          print '.'
         end
-
-
-        output << line + "|#{priority}|#{reason}"
-
-        print '.'
       end
     end
 

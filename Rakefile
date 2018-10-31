@@ -161,6 +161,8 @@ def organizations
   @organizations ||= begin
     if ENV['ORGS']
       ENV['ORGS'].split(',')
+    elsif ENV['ORG']
+      [ENV['ORG']]
     else
       ['open-contracting', 'open-contracting-extensions']
     end
