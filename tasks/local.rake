@@ -66,18 +66,18 @@ namespace :local do
 
         if ENV['ORG'] == 'open-contracting-partnership'
           output += [
-            'Build|Name',
-            '-|-',
+            '|Build|Name|',
+            '|-|-|',
           ]
         else
           output += [
-            'Priority|Build|Dependencies|Name',
-            '-|-|-|-',
+            '|Priority|Build|Dependencies|Name|',
+            '|-|-|-|-|',
           ]
         end
 
         matches.each do |repo|
-          line = ''
+          line = '|'
 
           begin
             hooks = repo.rels[:hooks].get.data
@@ -107,7 +107,7 @@ namespace :local do
             end
           end
 
-          output << line + "[#{repo.name}](#{repo.html_url})"
+          output << line + "[#{repo.name}](#{repo.html_url})|"
 
           print '.'
         end
