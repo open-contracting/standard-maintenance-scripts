@@ -19,13 +19,13 @@ namespace :local do
   task :badges do
     def tech_support_priority(repo)
       if extension?(repo.name, profiles: false, templates: false)
-        if core_extensions.key?(repo.full_name)
-          ['high']
+        if core_extensions[repo.full_name]
+          ['✴️✴️✴️', 'core']
         else
-          ['medium']
+          ['✴️✴️']
         end
       elsif profile?(repo.name)
-        ['high']
+        ['✴️✴️✴️']
       else
         TECH_SUPPORT_PRIORITIES.fetch(repo.name)
       end
@@ -46,7 +46,7 @@ namespace :local do
         '',
         'Tech support priority is assessed based on the impact of the project becoming unavailable and the degree of usage, which can be assessed based on [Python package downloads](http://www.pypi-stats.com/author/?q=30327), [GitHub traffic](https://github.com/open-contracting/standard-development-handbook/issues/76#issuecomment-334540063) and user feedback.',
         '',
-        'In addition to the below, within the [OpenDataServices](https://github.com/OpenDataServices) organization, `cove` is critical (as a critical step in the implementation journey), and `sphinxcontrib-jsonschema` and `sphinxcontrib-opendataservices` are high (as dependencies of `standard`).'
+        'In addition to the below, within the [OpenDataServices](https://github.com/OpenDataServices) organization, `cove` is critical (as a step in implementation), and `sphinxcontrib-jsonschema` and `sphinxcontrib-opendataservices` are high (as dependencies of `standard`).'
       ]
     end
 
