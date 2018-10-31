@@ -20,7 +20,7 @@ namespace :local do
     def tech_support_priority(repo)
       if extension?(repo.name, profiles: false, templates: false)
         if core_extensions[repo.full_name]
-          ['✴️✴️✴️', 'core']
+          ['✴️✴️✴️', 'core extension']
         else
           ['✴️✴️']
         end
@@ -62,44 +62,51 @@ namespace :local do
 
         if ENV['ORG'] == 'open-contracting-partnership'
           output += [
-            'Name|Build',
+            'Build|Name',
             '-|-',
           ]
         else
           output += [
-            'Name|Build|Dependencies|Priority|Reason',
+            'Priority|Build|Dependencies|Name|Reason',
             '-|-|-|-|-',
           ]
         end
 
         matches.each do |repo|
+          line = ''
+
           begin
             hooks = repo.rels[:hooks].get.data
           rescue Octokit::NotFound
             hooks = []
           end
 
-          line = "[#{repo.name}](#{repo.html_url})|"
+          if ENV['ORG'] != 'open-contracting-partnership'
+            priority, reason = tech_support_priority(repo)
+
+            line << "#{priority}|"
+          end
 
           hook = hooks.find{ |datum| datum.name == 'travis' }
           if hook && hook.active
-            line << "[![Build Status](https://travis-ci.org/#{repo.full_name}.svg)](https://travis-ci.org/#{repo.full_name})"
+            line << "[![Build Status](https://travis-ci.org/#{repo.full_name}.svg)](https://travis-ci.org/#{repo.full_name})|"
           else
-            line << '-'
+            line << '-|'
           end
-
-          line << '|'
 
           if ENV['ORG'] != 'open-contracting-partnership'
             hook = hooks.find{ |datum| datum.config.url == 'https://requires.io/github/web-hook/' }
             if hook && hook.active
-              line << "[![Requirements Status](https://requires.io/github/#{repo.full_name}/requirements.svg)](https://requires.io/github/#{repo.full_name}/requirements/)"
+              line << "[![Requirements Status](https://requires.io/github/#{repo.full_name}/requirements.svg)](https://requires.io/github/#{repo.full_name}/requirements/)|"
             else
-              line << '-'
+              line << '-|'
             end
+          end
 
-            priority, reason = tech_support_priority(repo)
-            line << "|#{priority}|#{reason}"
+          line << "[#{repo.name}](#{repo.html_url})"
+
+          if ENV['ORG'] != 'open-contracting-partnership'
+            line << "|#{reason}"
           end
 
           output << line
