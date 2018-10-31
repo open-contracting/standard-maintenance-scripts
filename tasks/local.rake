@@ -17,6 +17,24 @@ end
 namespace :local do
   desc 'Regenerates the badges pages'
   task :badges do
+    def tech_support_priority(repo)
+      if extension?(repo.name, profiles: false, templates: false)
+        if core_extensions[repo.full_name]
+          '✴️✴️'
+        else
+          '✴️'
+        end
+      elsif profile?(repo.name)
+        '✴️✴️'
+      elsif DOCUMENTATION_DEPENDENCIES.include?(repo.name)
+        '✴️✴️'
+      elsif LEGACY.include?(repo.name)
+        'N/A'
+      else
+        TECH_SUPPORT_PRIORITIES.fetch(repo.name)
+      end
+    end
+
     if ENV['ORG']
       filename = "badges-#{ENV['ORG']}.md"
     else
@@ -24,48 +42,75 @@ namespace :local do
     end
 
     output = [
-      '# Project Build and Dependency Status',
+      '# Project Statuses',
     ]
 
-    REPOSITORY_CATEGORIES.each do |heading, condition|
-      output << ''
-
-      output << "## #{heading}"
-
+    if ENV['ORG'] != 'open-contracting-partnership'
       output += [
         '',
-        'Name|Build|Dependencies',
-        '-|-|-',
+        'Tech support priority is assessed based on the impact of the project becoming unavailable and the degree of usage, which can be assessed based on [Python package downloads](http://www.pypi-stats.com/author/?q=30327), [GitHub traffic](https://github.com/open-contracting/standard-development-handbook/issues/76#issuecomment-334540063) and user feedback.',
+        '',
+        'In addition to the below, within the [OpenDataServices](https://github.com/OpenDataServices) organization, `cove` is critical (as a step in implementation), and `sphinxcontrib-jsonschema` and `sphinxcontrib-opendataservices` are high (as dependencies of `standard`).'
       ]
+    end
 
-      repos.select(&condition).each do |repo|
-        begin
-          hooks = repo.rels[:hooks].get.data
-        rescue Octokit::NotFound
-          hooks = []
-        end
+    REPOSITORY_CATEGORIES.each do |heading, condition|
+      matches = repos.select(&condition)
 
-        line = "[#{repo.name}](#{repo.html_url})|"
+      if matches.any?
+        output += [
+          '',
+          "## #{heading}",
+          '',
+        ]
 
-        hook = hooks.find{ |datum| datum.name == 'travis' }
-        if hook && hook.active
-          line << "[![Build Status](https://travis-ci.org/#{repo.full_name}.svg)](https://travis-ci.org/#{repo.full_name})"
+        if ENV['ORG'] == 'open-contracting-partnership'
+          output += [
+            '|Build|Name|',
+            '|-|-|',
+          ]
         else
-          line << '-'
+          output += [
+            '|Priority|Build|Dependencies|Name|',
+            '|-|-|-|-|',
+          ]
         end
 
-        line << '|'
+        matches.each do |repo|
+          line = '|'
 
-        hook = hooks.find{ |datum| datum.config.url == 'https://requires.io/github/web-hook/' }
-        if hook && hook.active
-          line << "[![Requirements Status](https://requires.io/github/#{repo.full_name}/requirements.svg)](https://requires.io/github/#{repo.full_name}/requirements/)"
-        else
-          line << '-'
+          begin
+            hooks = repo.rels[:hooks].get.data
+          rescue Octokit::NotFound
+            hooks = []
+          end
+
+          if ENV['ORG'] != 'open-contracting-partnership'
+            priority = tech_support_priority(repo)
+
+            line << "#{priority}|"
+          end
+
+          hook = hooks.find{ |datum| datum.name == 'travis' }
+          if hook && hook.active
+            line << "[![Build Status](https://travis-ci.org/#{repo.full_name}.svg)](https://travis-ci.org/#{repo.full_name})|"
+          else
+            line << '-|'
+          end
+
+          if ENV['ORG'] != 'open-contracting-partnership'
+            hook = hooks.find{ |datum| datum.config.url == 'https://requires.io/github/web-hook/' }
+            if hook && hook.active
+              line << "[![Requirements Status](https://requires.io/github/#{repo.full_name}/requirements.svg)](https://requires.io/github/#{repo.full_name}/requirements/)|"
+            else
+              line << '-|'
+            end
+          end
+
+          output << line + "[#{repo.name}](#{repo.html_url})|"
+
+          print '.'
         end
-
-        output << line
-
-        print '.'
       end
     end
 
@@ -165,7 +210,6 @@ Report issues for this extension in the [ocds-extensions repository](https://git
         end
 
         schemas = Set.new(Dir[File.join(path, '*-schema.json')].map{ |path| File.basename(path) })
-
         if String === content['schemas'] || schemas != Set.new(content['schemas'])
           content['schemas'] = schemas.to_a.sort
         end

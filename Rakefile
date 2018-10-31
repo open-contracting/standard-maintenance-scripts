@@ -35,12 +35,7 @@ TEMPLATES = [
   'standard_profile_template',
 ]
 
-documentation_dependencies = [
-  'documentation-support',
-  'sphinxcontrib-opencontracting',
-  'standard_theme',
-]
-other_repositories = [
+miscellaneous_repositories = [
   'api-specification',
   'extension_registry',
   'glossary',
@@ -48,20 +43,66 @@ other_repositories = [
   'ocds-extensions',
   'standard',
 ]
-legacy = [
+extension_tools = [
+  'extension-explorer',
+  'extensions-data-collector',
+  'extension_creator',
+  'extension_registry.py',
+]
+DOCUMENTATION_DEPENDENCIES = [
+  'ocds-babel',
+  'sphinxcontrib-opencontracting',
+  'standard_theme',
+]
+LEGACY = [
   'open-contracting.github.io',
   'standard-legacy-staticsites',
 ]
-non_tools = documentation_dependencies + other_repositories + legacy
+non_tools = miscellaneous_repositories + DOCUMENTATION_DEPENDENCIES + LEGACY
 
 REPOSITORY_CATEGORIES = {
-  'Tools' => -> (repo) { !extension?(repo.name) && !non_tools.include?(repo.name) },
-  'Documentation dependencies' => -> (repo) { documentation_dependencies.include?(repo.name) },
-  'Other repositories' => -> (repo) { other_repositories.include?(repo.name) },
+  'Miscellaneous repositories' => -> (repo) { miscellaneous_repositories.include?(repo.name) },
+  'Tools' => -> (repo) { !extension?(repo.name) && !extension_tools.include?(repo.name) && !non_tools.include?(repo.name) },
+  'Extension tools' => -> (repo) { extension_tools.include?(repo.name) },
+  'Documentation dependencies' => -> (repo) { DOCUMENTATION_DEPENDENCIES.include?(repo.name) },
   'Templates' => -> (repo) { template?(repo.name) },
   'Profiles' => -> (repo) { profile?(repo.name) },
   'Extensions' => -> (repo) { extension?(repo.name, profiles: false, templates: false) },
-  'Legacy' => -> (repo) { legacy.include?(repo.name) },
+  'Legacy' => -> (repo) { LEGACY.include?(repo.name) },
+}
+
+TECH_SUPPORT_PRIORITIES = {
+  # Miscellaneous repositories
+  'api-specification' => ' ', # draft
+  'european-union-support' => ' ', # scratch pad
+  'extension_registry' => '✴️✴️', # authoritative resource
+  'glossary' => '✴️', # documentation support
+  'infrastructure' => '✴️✴️', # sector documentation
+  'ocds-extensions' => ' ', # issues only
+  'standard' => '✴️✴️✴️', # core documentation
+
+  # Tools
+  'json-schema-random' => ' ', # infrequently used
+  'lib-cove-ocds' => '✴️✴️✴️', # implementation step
+  'kingfisher' => '✴️', # key tool
+  'ocds-faker' => ' ', # infrequently used
+  'ocds-merge' => '✴️✴️', # reference implementation
+  'ocds-show' => ' ', # infrequently used
+  'ocds-show-ppp' => ' ', # infrequently used
+  'ocdskit' => '✴️', # key tool
+  'sample-data' => '✴️', # frequently used
+  'standard-development-handbook' => '✴️', # key internal documentation
+  'standard-maintenance-scripts' => '✴️', # internal quality assurance
+
+  # Extension tools
+  'extension-explorer' => '✴️✴️', # extensions documentation
+  'extensions-data-collector' => '✴️', # documentation support
+  'extension_creator' => ' ', # infrequently used
+  'extension_registry.py' => '✴️✴️', # frequent dependency
+
+  # Templates
+  'standard_extension_template' => '✴️', # public template
+  'standard_profile_template' => ' ', # internal template
 }
 
 def s(condition)
@@ -116,6 +157,8 @@ def organizations
   @organizations ||= begin
     if ENV['ORGS']
       ENV['ORGS'].split(',')
+    elsif ENV['ORG']
+      [ENV['ORG']]
     else
       ['open-contracting', 'open-contracting-extensions']
     end
