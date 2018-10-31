@@ -24,8 +24,26 @@ namespace :local do
     end
 
     output = [
-      '# Project Build and Dependency Status',
+      '# Project Statuses',
+      '',
+      'Tech support priority is assessed based on the impact of the project becoming unavailable and the degree of usage, which can be assessed based on [Python package downloads](http://www.pypi-stats.com/author/?q=30327), [GitHub traffic](https://github.com/open-contracting/standard-development-handbook/issues/76#issuecomment-334540063) and user feedback.',
+      '',
+      'In addition to the below, within the [OpenDataServices](https://github.com/OpenDataServices) organization, `cove` is critical (as a critical step in the implementation journey), and `sphinxcontrib-jsonschema` and `sphinxcontrib-opendataservices` are high (as dependencies of `standard`).'
     ]
+
+    def tech_support_priority(repo)
+      if extension?(repo.name, profiles: false, templates: false)
+        if core_extensions.key?(repo.full_name)
+          ['high']
+        else
+          ['medium']
+        end
+      elsif profile?(repo.name)
+        ['high']
+      elsif ENV['ORG'].nil?
+        TECH_SUPPORT_PRIORITIES.fetch(repo.name)
+      end
+    end
 
     REPOSITORY_CATEGORIES.each do |heading, condition|
       output << ''
@@ -34,11 +52,13 @@ namespace :local do
 
       output += [
         '',
-        'Name|Build|Dependencies',
-        '-|-|-',
+        'Name|Build|Dependencies|Priority|Reason',
+        '-|-|-|-|-',
       ]
 
       repos.select(&condition).each do |repo|
+        priority, reason = tech_support_priority(repo)
+
         begin
           hooks = repo.rels[:hooks].get.data
         rescue Octokit::NotFound
@@ -63,7 +83,8 @@ namespace :local do
           line << '-'
         end
 
-        output << line
+
+        output << line + "|#{priority}|#{reason}"
 
         print '.'
       end

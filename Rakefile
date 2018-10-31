@@ -35,12 +35,18 @@ TEMPLATES = [
   'standard_profile_template',
 ]
 
+extension_tools = [
+  'extension-explorer',
+  'extensions-data-collector',
+  'extension_creator',
+  'extension_registry.py',
+]
 documentation_dependencies = [
-  'documentation-support',
+  'ocds-babel',
   'sphinxcontrib-opencontracting',
   'standard_theme',
 ]
-other_repositories = [
+miscellaneous_repositories = [
   'api-specification',
   'extension_registry',
   'glossary',
@@ -52,16 +58,55 @@ legacy = [
   'open-contracting.github.io',
   'standard-legacy-staticsites',
 ]
-non_tools = documentation_dependencies + other_repositories + legacy
+non_tools = documentation_dependencies + miscellaneous_repositories + legacy
 
 REPOSITORY_CATEGORIES = {
   'Tools' => -> (repo) { !extension?(repo.name) && !non_tools.include?(repo.name) },
+  'Extension tools' => -> (repo) { extension_tools.include?(repo.name) },
   'Documentation dependencies' => -> (repo) { documentation_dependencies.include?(repo.name) },
-  'Other repositories' => -> (repo) { other_repositories.include?(repo.name) },
+  'Miscellaneous repositories' => -> (repo) { miscellaneous_repositories.include?(repo.name) },
   'Templates' => -> (repo) { template?(repo.name) },
   'Profiles' => -> (repo) { profile?(repo.name) },
   'Extensions' => -> (repo) { extension?(repo.name, profiles: false, templates: false) },
   'Legacy' => -> (repo) { legacy.include?(repo.name) },
+}
+
+TECH_SUPPORT_PRIORITIES = {
+  # Tools
+  'json-schema-random' => ['low'],
+  'lib-cove-ocds' => ['-'],
+  'kingfisher' => ['medium', 'key tool'],
+  'ocds-faker' => ['low'],
+  'ocds-merge' => ['high', 'reference implementation for merging releases'],
+  'ocds-show' => ['low'],
+  'ocds-show-ppp' => ['low'],
+  'ocdskit' => ['medium', 'key tool'],
+  'sample-data' => ['medium', 'key resource, frequently visited'],
+  'standard-development-handbook' => ['medium', 'internal, key documentation'],
+  'standard-maintenance-scripts' => ['medium', 'internal, quality assurance'],
+  # Extension tools
+  'extension-explorer' => ['high', 'extensions documentation'],
+  'extensions-data-collector' => ['-'],
+  'extension_creator' => ['low'],
+  'extension_registry.py' => ['high', 'common dependency'],
+  # Documentation dependencies
+  'ocds-babel' => ['high', 'dependency of `standard` and profiles'],
+  'standard_theme' => ['high', 'dependency of `standard` and profiles'],
+  'sphinxcontrib-opencontracting' => ['high', 'dependency of `standard`'],
+  # Miscellaneous repositories
+  'api-specification' => ['low', 'draft'],
+  'european-union-support' => ['low', 'scratch pad'],
+  'extension_registry' => ['high', 'authoritative resource'],
+  'glossary' => ['medium', 'potential future key resource'],
+  'infrastructure' => ['high'],
+  'ocds-extensions' => ['-'],
+  'standard' => ['high', 'core documentation'],
+  # Templates
+  'standard_extension_template' => ['medium', 'public resource'],
+  'standard_profile_template' => ['low', 'internal template'],
+  # Legacy
+  'open-contracting.github.io' => ['low'],
+  'standard-legacy-staticsites' => ['low'],
 }
 
 def s(condition)
