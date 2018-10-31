@@ -10,9 +10,9 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 |-|-|-|-|
 | |-|-|[api-specification](https://github.com/open-contracting/api-specification)|
 |✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/extension_registry.svg)](https://travis-ci.org/open-contracting/extension_registry)|-|[extension_registry](https://github.com/open-contracting/extension_registry)|
-|TBD|-|-|[glossary](https://github.com/open-contracting/glossary)|
+|✴️|-|-|[glossary](https://github.com/open-contracting/glossary)|
 |✴️✴️|-|-|[infrastructure](https://github.com/open-contracting/infrastructure)|
-|N/A|-|-|[ocds-extensions](https://github.com/open-contracting/ocds-extensions)|
+| |-|-|[ocds-extensions](https://github.com/open-contracting/ocds-extensions)|
 |✴️✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/standard.svg)](https://travis-ci.org/open-contracting/standard)|[![Requirements Status](https://requires.io/github/open-contracting/standard/requirements.svg)](https://requires.io/github/open-contracting/standard/requirements/)|[standard](https://github.com/open-contracting/standard)|
 
 ## Tools
@@ -22,7 +22,7 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 | |-|-|[european-union-support](https://github.com/open-contracting/european-union-support)|
 | |-|-|[json-schema-random](https://github.com/open-contracting/json-schema-random)|
 |✴️|[![Build Status](https://travis-ci.org/open-contracting/kingfisher.svg)](https://travis-ci.org/open-contracting/kingfisher)|[![Requirements Status](https://requires.io/github/open-contracting/kingfisher/requirements.svg)](https://requires.io/github/open-contracting/kingfisher/requirements/)|[kingfisher](https://github.com/open-contracting/kingfisher)|
-|TBD|-|-|[lib-cove-ocds](https://github.com/open-contracting/lib-cove-ocds)|
+|✴️✴️✴️|-|-|[lib-cove-ocds](https://github.com/open-contracting/lib-cove-ocds)|
 | |[![Build Status](https://travis-ci.org/open-contracting/ocds-faker.svg)](https://travis-ci.org/open-contracting/ocds-faker)|-|[ocds-faker](https://github.com/open-contracting/ocds-faker)|
 |✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/ocds-merge.svg)](https://travis-ci.org/open-contracting/ocds-merge)|[![Requirements Status](https://requires.io/github/open-contracting/ocds-merge/requirements.svg)](https://requires.io/github/open-contracting/ocds-merge/requirements/)|[ocds-merge](https://github.com/open-contracting/ocds-merge)|
 | |[![Build Status](https://travis-ci.org/open-contracting/ocds-show.svg)](https://travis-ci.org/open-contracting/ocds-show)|-|[ocds-show](https://github.com/open-contracting/ocds-show)|
@@ -37,7 +37,7 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 |Priority|Build|Dependencies|Name|
 |-|-|-|-|
 |✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/extension-explorer.svg)](https://travis-ci.org/open-contracting/extension-explorer)|-|[extension-explorer](https://github.com/open-contracting/extension-explorer)|
-|TBD|[![Build Status](https://travis-ci.org/open-contracting/extensions-data-collector.svg)](https://travis-ci.org/open-contracting/extensions-data-collector)|-|[extensions-data-collector](https://github.com/open-contracting/extensions-data-collector)|
+|✴️|[![Build Status](https://travis-ci.org/open-contracting/extensions-data-collector.svg)](https://travis-ci.org/open-contracting/extensions-data-collector)|-|[extensions-data-collector](https://github.com/open-contracting/extensions-data-collector)|
 | |-|-|[extension_creator](https://github.com/open-contracting/extension_creator)|
 |✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/extension_registry.py.svg)](https://travis-ci.org/open-contracting/extension_registry.py)|[![Requirements Status](https://requires.io/github/open-contracting/extension_registry.py/requirements.svg)](https://requires.io/github/open-contracting/extension_registry.py/requirements/)|[extension_registry.py](https://github.com/open-contracting/extension_registry.py)|
 

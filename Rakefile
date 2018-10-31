@@ -76,14 +76,14 @@ TECH_SUPPORT_PRIORITIES = {
   'api-specification' => ' ', # draft
   'european-union-support' => ' ', # scratch pad
   'extension_registry' => '✴️✴️', # authoritative resource
-  'glossary' => 'TBD',
+  'glossary' => '✴️', # documentation support
   'infrastructure' => '✴️✴️', # sector documentation
-  'ocds-extensions' => 'N/A',
+  'ocds-extensions' => ' ', # issues only
   'standard' => '✴️✴️✴️', # core documentation
 
   # Tools
   'json-schema-random' => ' ', # infrequently used
-  'lib-cove-ocds' => 'TBD',
+  'lib-cove-ocds' => '✴️✴️✴️', # implementation step
   'kingfisher' => '✴️', # key tool
   'ocds-faker' => ' ', # infrequently used
   'ocds-merge' => '✴️✴️', # reference implementation
@@ -96,7 +96,7 @@ TECH_SUPPORT_PRIORITIES = {
 
   # Extension tools
   'extension-explorer' => '✴️✴️', # extensions documentation
-  'extensions-data-collector' => 'TBD',
+  'extensions-data-collector' => '✴️', # documentation support
   'extension_creator' => ' ', # infrequently used
   'extension_registry.py' => '✴️✴️', # frequent dependency
 
