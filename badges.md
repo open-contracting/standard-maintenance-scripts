@@ -4,6 +4,17 @@ Tech support priority is assessed based on the impact of the project becoming un
 
 In addition to the below, within the [OpenDataServices](https://github.com/OpenDataServices) organization, `cove` is critical (as a step in implementation), and `sphinxcontrib-jsonschema` and `sphinxcontrib-opendataservices` are high (as dependencies of `standard`).
 
+## Miscellaneous repositories
+
+|Priority|Build|Dependencies|Name|
+|-|-|-|-|
+| |-|-|[api-specification](https://github.com/open-contracting/api-specification)|
+|✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/extension_registry.svg)](https://travis-ci.org/open-contracting/extension_registry)|-|[extension_registry](https://github.com/open-contracting/extension_registry)|
+|TBD|-|-|[glossary](https://github.com/open-contracting/glossary)|
+|✴️✴️|-|-|[infrastructure](https://github.com/open-contracting/infrastructure)|
+|N/A|-|-|[ocds-extensions](https://github.com/open-contracting/ocds-extensions)|
+|✴️✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/standard.svg)](https://travis-ci.org/open-contracting/standard)|[![Requirements Status](https://requires.io/github/open-contracting/standard/requirements.svg)](https://requires.io/github/open-contracting/standard/requirements/)|[standard](https://github.com/open-contracting/standard)|
+
 ## Tools
 
 |Priority|Build|Dependencies|Name|
@@ -37,17 +48,6 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 |✴️✴️|-|[![Requirements Status](https://requires.io/github/open-contracting/ocds-babel/requirements.svg)](https://requires.io/github/open-contracting/ocds-babel/requirements/)|[ocds-babel](https://github.com/open-contracting/ocds-babel)|
 |✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/sphinxcontrib-opencontracting.svg)](https://travis-ci.org/open-contracting/sphinxcontrib-opencontracting)|[![Requirements Status](https://requires.io/github/open-contracting/sphinxcontrib-opencontracting/requirements.svg)](https://requires.io/github/open-contracting/sphinxcontrib-opencontracting/requirements/)|[sphinxcontrib-opencontracting](https://github.com/open-contracting/sphinxcontrib-opencontracting)|
 |✴️✴️|-|[![Requirements Status](https://requires.io/github/open-contracting/standard_theme/requirements.svg)](https://requires.io/github/open-contracting/standard_theme/requirements/)|[standard_theme](https://github.com/open-contracting/standard_theme)|
-
-## Miscellaneous repositories
-
-|Priority|Build|Dependencies|Name|
-|-|-|-|-|
-| |-|-|[api-specification](https://github.com/open-contracting/api-specification)|
-|✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/extension_registry.svg)](https://travis-ci.org/open-contracting/extension_registry)|-|[extension_registry](https://github.com/open-contracting/extension_registry)|
-|TBD|-|-|[glossary](https://github.com/open-contracting/glossary)|
-|✴️✴️|-|-|[infrastructure](https://github.com/open-contracting/infrastructure)|
-|N/A|-|-|[ocds-extensions](https://github.com/open-contracting/ocds-extensions)|
-|✴️✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/standard.svg)](https://travis-ci.org/open-contracting/standard)|[![Requirements Status](https://requires.io/github/open-contracting/standard/requirements.svg)](https://requires.io/github/open-contracting/standard/requirements/)|[standard](https://github.com/open-contracting/standard)|
 
 ## Templates
 

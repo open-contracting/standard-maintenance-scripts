@@ -35,6 +35,14 @@ TEMPLATES = [
   'standard_profile_template',
 ]
 
+miscellaneous_repositories = [
+  'api-specification',
+  'extension_registry',
+  'glossary',
+  'infrastructure',
+  'ocds-extensions',
+  'standard',
+]
 extension_tools = [
   'extension-explorer',
   'extensions-data-collector',
@@ -46,25 +54,17 @@ DOCUMENTATION_DEPENDENCIES = [
   'sphinxcontrib-opencontracting',
   'standard_theme',
 ]
-miscellaneous_repositories = [
-  'api-specification',
-  'extension_registry',
-  'glossary',
-  'infrastructure',
-  'ocds-extensions',
-  'standard',
-]
 LEGACY = [
   'open-contracting.github.io',
   'standard-legacy-staticsites',
 ]
-non_tools = DOCUMENTATION_DEPENDENCIES + miscellaneous_repositories + LEGACY
+non_tools = miscellaneous_repositories + DOCUMENTATION_DEPENDENCIES + LEGACY
 
 REPOSITORY_CATEGORIES = {
+  'Miscellaneous repositories' => -> (repo) { miscellaneous_repositories.include?(repo.name) },
   'Tools' => -> (repo) { !extension?(repo.name) && !extension_tools.include?(repo.name) && !non_tools.include?(repo.name) },
   'Extension tools' => -> (repo) { extension_tools.include?(repo.name) },
   'Documentation dependencies' => -> (repo) { DOCUMENTATION_DEPENDENCIES.include?(repo.name) },
-  'Miscellaneous repositories' => -> (repo) { miscellaneous_repositories.include?(repo.name) },
   'Templates' => -> (repo) { template?(repo.name) },
   'Profiles' => -> (repo) { profile?(repo.name) },
   'Extensions' => -> (repo) { extension?(repo.name, profiles: false, templates: false) },
@@ -72,6 +72,15 @@ REPOSITORY_CATEGORIES = {
 }
 
 TECH_SUPPORT_PRIORITIES = {
+  # Miscellaneous repositories
+  'api-specification' => ' ', # draft
+  'european-union-support' => ' ', # scratch pad
+  'extension_registry' => '✴️✴️', # authoritative resource
+  'glossary' => 'TBD',
+  'infrastructure' => '✴️✴️', # sector documentation
+  'ocds-extensions' => 'N/A',
+  'standard' => '✴️✴️✴️', # core documentation
+
   # Tools
   'json-schema-random' => ' ', # infrequently used
   'lib-cove-ocds' => 'TBD',
@@ -90,15 +99,6 @@ TECH_SUPPORT_PRIORITIES = {
   'extensions-data-collector' => 'TBD',
   'extension_creator' => ' ', # infrequently used
   'extension_registry.py' => '✴️✴️', # frequent dependency
-
-  # Miscellaneous repositories
-  'api-specification' => ' ', # draft
-  'european-union-support' => ' ', # scratch pad
-  'extension_registry' => '✴️✴️', # authoritative resource
-  'glossary' => 'TBD',
-  'infrastructure' => '✴️✴️', # sector documentation
-  'ocds-extensions' => 'N/A',
-  'standard' => '✴️✴️✴️', # core documentation
 
   # Templates
   'standard_extension_template' => '✴️', # public template
