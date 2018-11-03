@@ -37,7 +37,6 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 |Priority|Build|Dependencies|Name|
 |-|-|-|-|
 |✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/extension-explorer.svg)](https://travis-ci.org/open-contracting/extension-explorer)|-|[extension-explorer](https://github.com/open-contracting/extension-explorer)|
-|✴️|[![Build Status](https://travis-ci.org/open-contracting/extensions-data-collector.svg)](https://travis-ci.org/open-contracting/extensions-data-collector)|-|[extensions-data-collector](https://github.com/open-contracting/extensions-data-collector)|
 | |-|-|[extension_creator](https://github.com/open-contracting/extension_creator)|
 |✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/extension_registry.py.svg)](https://travis-ci.org/open-contracting/extension_registry.py)|[![Requirements Status](https://requires.io/github/open-contracting/extension_registry.py/requirements.svg)](https://requires.io/github/open-contracting/extension_registry.py/requirements/)|[extension_registry.py](https://github.com/open-contracting/extension_registry.py)|
 

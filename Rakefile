@@ -45,7 +45,6 @@ miscellaneous_repositories = [
 ]
 extension_tools = [
   'extension-explorer',
-  'extensions-data-collector',
   'extension_creator',
   'extension_registry.py',
 ]
@@ -96,7 +95,6 @@ TECH_SUPPORT_PRIORITIES = {
 
   # Extension tools
   'extension-explorer' => '✴️✴️', # extensions documentation
-  'extensions-data-collector' => '✴️', # documentation support
   'extension_creator' => ' ', # infrequently used
   'extension_registry.py' => '✴️✴️', # frequent dependency
 
