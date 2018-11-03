@@ -23,7 +23,6 @@ If changes are made to `extension-schema.json`, changes may be needed to:
   * CoVE: [schema.py](https://github.com/OpenDataServices/cove/blob/master/cove_ocds/lib/schema.py#L116) `apply_extensions` method
 * Extension tools
   * [extension-explorer](https://github.com/open-contracting/extension-explorer)
-  * [extensions-data-collector](https://github.com/open-contracting/extensions-data-collector)
   * [extension_creator](https://github.com/open-contracting/extension_creator): [`entry.js`](https://github.com/open-contracting/extension_creator/blob/gh-pages/entry.js#L125) `extension.json` line (and recompile `app.js`)
   * [extension_registry.py](https://github.com/open-contracting/extension_registry.py): `profile_builder.py` (`name`, `codelists`)
 * Documentation dependencies
