@@ -40,17 +40,19 @@ namespace :crm do
     'Ben Webb',
     'Bibiana Cristofol',
     'David Raznick',
-    'David Spencer',
-    'Jack Lord',
     'James Baster',
     'Rob Redpath',
+  ]
+  REDMINE_ODS_USERS_OTHER = [
+    'David Spencer',
+    'Jack Lord',
     'Rory Scott',
     'Steven Flower',
   ]
   REDMINE_ODS_COORDINATOR = [
     'Rob Redpath',
   ]
-  REDMINE_ODS_USERS = REDMINE_ODS_USERS_OCDS + REDMINE_ODS_USERS_TECH
+  REDMINE_ODS_USERS = REDMINE_ODS_USERS_OCDS + REDMINE_ODS_USERS_TECH + REDMINE_ODS_USERS_OTHER
 
   # Iniciativa Latinoamericana por los Datos Abiertos
   # https://idatosabiertos.org/acerca-de-nosotros/
@@ -139,8 +141,8 @@ namespace :crm do
       # Iniciativa Latinoamericana por los Datos Abiertos
       33 => [:exactly, REDMINE_ILDA_USERS],
 
-      # Everyone excluding ODS Tech Team
-      44 => [:exactly, REDMINE_OCP_USERS + REDMINE_ODS_USERS_OCDS + REDMINE_ILDA_USERS + REDMINE_ODS_COORDINATOR],
+      # Everyone excluding non-OCDS ODS
+      44 => [:exactly, REDMINE_OCP_USERS + REDMINE_ODS_USERS_OCDS + REDMINE_ILDA_USERS + REDMINE_ODS_USERS_TECH],
       # OCP Program Managers & Helpdesk Teams
       65 => [:exactly, REDMINE_OCP_USERS_OCDS + REDMINE_ODS_USERS_OCDS + REDMINE_ILDA_USERS_OCDS + REDMINE_ODS_COORDINATOR],
 
