@@ -110,7 +110,7 @@ Removes specific releases of *repositories*:
 
 ### Change GitHub repository configuration
 
-Disables empty wikis and lists repositories with invalid names, unexpected configurations, etc. ⏰:
+Disables empty wikis, updates extensions' descriptions and homepages, and lists repositories with invalid names, unexpected configurations, etc. ⏰:
 
     bundle exec rake fix:lint_repos
 

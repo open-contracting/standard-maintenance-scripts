@@ -26,6 +26,29 @@ namespace :fix do
   desc 'Disables empty wikis and lists repositories with invalid names, unexpected configurations, etc.'
   task :lint_repos do
     repos.each do |repo|
+      if extension?(repo.name, profiles: false, templates: false)
+        metadata = JSON.load(read_github_file(repo.full_name, 'extension.json'))
+        options = {}
+
+        description = metadata['description'].fetch('en')
+        if description != repo.description
+          options[:description] = description
+        end
+
+        homepage = metadata['documentationUrl'].fetch('en')
+        if homepage == repo.html_url || homepage['https://github.com/open-contracting']
+          homepage = nil # don't link to itself
+        end
+        if homepage != repo.homepage
+          options[:homepage] = homepage
+        end
+
+        if options.any?
+          client.edit_repository(repo.full_name, options.dup)
+          puts "#{repo.html_url} #{"updated #{options.keys.join(' and ')}".bold}"
+        end
+      end
+
       if repo.has_wiki
         response = Faraday.get("#{repo.html_url}/wiki")
         if response.status == 302 && response.headers['location'] == repo.html_url

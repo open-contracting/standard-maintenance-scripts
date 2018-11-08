@@ -24,17 +24,13 @@ namespace :repos do
 
   desc 'Lists repositories with missing or unexpected Travis configuration'
   task :travis do
-    def read(repo, path)
-      Base64.decode64(client.contents(repo, path: path).content)
-    end
-
-    expected = read('open-contracting/standard-maintenance-scripts', 'fixtures/.travis.yml')
+    expected = read_github_file('open-contracting/standard-maintenance-scripts', 'fixtures/.travis.yml')
 
     repos.each do |repo|
       hook = repo.rels[:hooks].get.data.find{ |datum| datum.name == 'travis' }
       if hook && hook.active
         begin
-          actual = read(repo.full_name, '.travis.yml')
+          actual = read_github_file(repo.full_name, '.travis.yml')
           if actual != expected
             diff = HashDiff.diff(YAML.load(actual), YAML.load(expected))
             if diff.any?
