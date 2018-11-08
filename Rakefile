@@ -176,6 +176,10 @@ def repos
   end
 end
 
+def read_github_file(repo, path)
+  Base64.decode64(client.contents(repo, path: path).content)
+end
+
 def profile?(name)
   PROFILES.include?(name)
 end
