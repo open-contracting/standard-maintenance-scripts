@@ -36,7 +36,10 @@ namespace :fix do
         end
 
         homepage = metadata['documentationUrl'].fetch('en')
-        if homepage != repo.homepage && homepage != repo.html_url && !homepage['https://github.com/open-contracting']
+        if homepage == repo.html_url || homepage['https://github.com/open-contracting']
+          homepage = nil # don't link to itself
+        end
+        if homepage != repo.homepage
           options[:homepage] = homepage
         end
 
