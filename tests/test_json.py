@@ -379,10 +379,13 @@ def validate_null_type(path, data, pointer='', should_be_nullable=True):
         '/definitions/Amendment/properties/changes/items/properties/property',  # deprecated
 
         # API extension adds metadata fields to which this rule doesn't apply.
+        '/properties/packageMetadata',
         '/properties/packageMetadata/properties/uri',
         '/properties/packageMetadata/properties/publishedDate',
+        '/properties/packageMetadata/properties/publisher',
 
         # 2.0 fixes.
+        '/definitions/Item/properties/unit',
         # See https://github.com/open-contracting/standard/issues/650
         '/definitions/Organization/properties/id',
         '/definitions/OrganizationReference/properties/id',
@@ -400,7 +403,7 @@ def validate_null_type(path, data, pointer='', should_be_nullable=True):
         '/definitions/Tariff/properties/id',
     }
     non_null_exceptions = {
-        '/definitions/Amendment/properties/changes/items/properties/former_value',  # deprecated
+        '/definitions/LotDetails',  # actually can be null
     }
 
     if isinstance(data, list):
@@ -418,16 +421,15 @@ def validate_null_type(path, data, pointer='', should_be_nullable=True):
                     warnings.warn('ERROR: {}: optional but non-nullable {} at {}'.format(path, data['type'], pointer))
             elif nullable and pointer not in non_null_exceptions:
                 errors += 1
-                warnings.warn('ERROR: {}: required or object, but nullable {} at {}'.format(path, data['type'], pointer))
+                warnings.warn('ERROR: {}: required but nullable {} at {}'.format(path, data['type'], pointer))
 
         required = data.get('required', [])
 
         for key, value in data.items():
             if key == 'properties':
                 for k, v in data[key].items():
-                    should_be_nullable = k not in required and 'object' not in v.get('type', '')
                     errors += validate_null_type(path, v, pointer='{}/{}/{}'.format(pointer, key, k),
-                                                 should_be_nullable=should_be_nullable)
+                                                 should_be_nullable=k not in required)
             elif key == 'definitions':
                 for k, v in data[key].items():
                     errors += validate_null_type(path, v, pointer='{}/{}/{}'.format(pointer, key, k),
