@@ -658,6 +658,17 @@ def validate_object_id(*args):
     return traverse(block)(*args)
 
 
+def validate_merge_properties(*args):
+    def block(path, data, pointer):
+        if data.get('omitWhenMerged') and data.get('wholeListMerge'):
+            warnings.warn('ERROR: {} has both omitWhenMerged and wholeListMerge'.format(path))
+            return 1
+
+        return 0
+
+    return traverse(block)(*args)
+
+
 def validate_ref(path, data):
     ref = JsonRef.replace_refs(data)
 
@@ -706,16 +717,13 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension, top=c
         warnings.warn('ERROR: {} is not valid JSON Schema ({} errors)'.format(path, errors))
 
     if all(basename not in path for basename in exceptions):
-        errors += validate_codelist_enum(path, data)
-
-    if all(basename not in path for basename in exceptions):
         kwargs = {}
         if 'versioned-release-validation-schema.json' in path:
             kwargs['additional_valid_types'] = ['object']
         errors += validate_items_type(path, data, **kwargs)
-
-    if all(basename not in path for basename in exceptions):
+        errors += validate_codelist_enum(path, data)
         errors += validate_letter_case(path, data)
+        errors += validate_merge_properties(path, data)
 
     # `full_schema` is set to not expect extensions to repeat information from core.
     if full_schema:
@@ -731,18 +739,18 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension, top=c
         # Extensions aren't expected to repeat referenced `definitions`.
         errors += validate_ref(path, data)
 
-        # Extensions aren't expected to repeat `required`. Packages don't have merge rules.
-        if all(basename not in path for basename in exceptions_plus_versioned_and_packages):
-            errors += validate_null_type(path, data)
-        # Extensions aren't expected to repeat `title`, `description`, `type`.
         if all(basename not in path for basename in exceptions_plus_versioned):
+            # Extensions aren't expected to repeat `title`, `description`, `type`.
             errors += validate_title_description_type(path, data)
-        # Extensions aren't expected to repeat referenced `definitions`.
-        if all(basename not in path for basename in exceptions_plus_versioned):
+            # Extensions aren't expected to repeat referenced `definitions`.
             errors += validate_object_id(path, JsonRef.replace_refs(data))
-        # Extensions aren't expected to repeat referenced codelist CSV files.
-        # TODO: This code assumes each schema uses all codelists. So, for now, skip package schema.
+
         if all(basename not in path for basename in exceptions_plus_versioned_and_packages):
+            # Extensions aren't expected to repeat `required`. Packages don't have merge rules.
+            errors += validate_null_type(path, data)
+
+            # Extensions aren't expected to repeat referenced codelist CSV files.
+            # TODO: This code assumes each schema uses all codelists. So, for now, skip package schema.
             codelist_files = set()
             for csvpath, reader in walk_csv_data(top):
                 parts = csvpath.replace(top, '').split(os.sep)  # maybe inelegant way to isolate consolidated extension
