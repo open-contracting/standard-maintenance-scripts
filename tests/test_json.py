@@ -176,6 +176,17 @@ def is_codelist(reader):
     return 'Code' in reader.fieldnames
 
 
+def get_types(data):
+    """
+    Returns a field's `type` as a list.
+    """
+    if 'type' not in data:
+        return []
+    if isinstance(data['type'], str):
+        return [data['type']]
+    return data['type']
+
+
 def merge(*objs):
     """
     Copied from json_merge_patch.
@@ -466,10 +477,8 @@ def validate_codelist_enum(*args):
         if 'codelist' in data:
             if 'type' not in data:  # e.g. if changing an existing property
                 types = cached_types.get(pointer, ['array'])
-            elif isinstance(data['type'], str):
-                types = [data['type']]
             else:
-                types = data['type']
+                types = get_types(data)
 
             if data['openCodelist']:
                 if ('string' in types and 'enum' in data or 'array' in types and 'enum' in data['items']):
@@ -550,16 +559,13 @@ def validate_items_type(path, data, additional_valid_types=None):
         parent = pointer.rsplit('/', 1)[-1]
 
         if parent == 'items' and 'type' in data:
-            if isinstance(data['type'], str):
-                types = [data['type']]
-            else:
-                types = data['type']
+            types = get_types(data)
 
             invalid_type = next((_type for _type in types if _type not in valid_types), None)
 
             if invalid_type and pointer not in exceptions:
                 errors += 1
-                warnings.warn('ERROR: {} {} is an invalid `type` for `items` {}'.format(path, invalid_type, pointer))
+                warnings.warn('ERROR: {} {} is an invalid `items` `type` at {}'.format(path, invalid_type, pointer))
 
         return errors
 
@@ -661,11 +667,17 @@ def validate_object_id(*args):
 
 def validate_merge_properties(*args):
     def block(path, data, pointer):
-        if data.get('omitWhenMerged') and data.get('wholeListMerge'):
-            warnings.warn('ERROR: {} has both omitWhenMerged and wholeListMerge'.format(path))
-            return 1
+        errors = 0
 
-        return 0
+        if 'array' not in get_types(data) and 'wholeListMerge' in data:
+            errors += 1
+            warnings.warn('ERROR: {} `wholeListMerge` is set on non-array at {}'.format(path, pointer))
+
+        if data.get('omitWhenMerged') and data.get('wholeListMerge'):
+            errors += 1
+            warnings.warn('ERROR: {} both `omitWhenMerged` and `wholeListMerge` are set at {}'.format(path, pointer))
+
+        return errors
 
     return traverse(block)(*args)
 
