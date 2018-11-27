@@ -342,6 +342,7 @@ def validate_title_description_type(*args):
     schema_fields = ('definitions', 'deprecated', 'items', 'patternProperties', 'properties')
     schema_sections = ('patternProperties',)
     required_fields = ('title', 'description')
+    type_exceptions = ('/definitions/Amendment/properties/changes/items/properties/former_value',)
 
     def block(path, data, pointer):
         errors = 0
@@ -353,16 +354,26 @@ def validate_title_description_type(*args):
             grandparent = None
         parent = parts[-1]
 
-        # Look for metadata fields on user-defined objects only.
-        if parent not in schema_fields and grandparent not in schema_sections:
+        # Look for metadata fields on user-defined objects only. (Add exceptional condition for "items" field.)
+        if parent not in schema_fields and grandparent not in schema_sections or grandparent == 'properties':
             for field in required_fields:
                 # Exception: api_extension has a concise links section.
                 if (field not in data or not data[field] or not data[field].strip()) and 'links' not in parts:
                     errors += 1
                     warnings.warn('ERROR: {} is missing {}/{}'.format(path, pointer, field))
+
             if 'type' not in data and '$ref' not in data and 'oneOf' not in data:
                 errors += 1
                 warnings.warn('ERROR: {0} is missing {1}/type or {1}/$ref or {1}/oneOf'.format(path, pointer))
+
+            if 'type' in data and 'object' in data['type']:
+                if isinstance(data['type'], str):
+                    types = [data['type']]
+                else:
+                    types = data['type']
+                if any(t for t in types if t not in ('object', 'null')) and pointer not in type_exceptions:
+                    errors += 1
+                    warnings.warn('ERROR: {} has invalid `type` {} at {}'.format(path, data['type'], pointer))
 
         return errors
 
