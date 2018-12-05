@@ -21,10 +21,6 @@ require 'safe_yaml'
 
 SafeYAML::OPTIONS[:default_mode] = :safe
 
-OTHER_EXTENSIONS = [
-  'api_extension',
-  'ocds_performance_failures',
-]
 PROFILES = [
   'european-union',
   'government-procurement-agreement',
@@ -47,6 +43,7 @@ extension_tools = [
   'extension-explorer',
   'extension_creator',
   'extension_registry.py',
+  'ocds-extensions-translations',
 ]
 DOCUMENTATION_DEPENDENCIES = [
   'ocds-babel',
@@ -79,6 +76,7 @@ TECH_SUPPORT_PRIORITIES = {
   'infrastructure' => '✴️✴️', # sector documentation
   'ocds-extensions' => ' ', # issues only
   'standard' => '✴️✴️✴️', # core documentation
+  'ocds-r-manual' => ' ',
 
   # Tools
   'json-schema-random' => ' ', # infrequently used
@@ -97,6 +95,7 @@ TECH_SUPPORT_PRIORITIES = {
   'extension-explorer' => '✴️✴️', # extensions documentation
   'extension_creator' => ' ', # infrequently used
   'extension_registry.py' => '✴️✴️', # frequent dependency
+  'ocds-extensions-translations' => '✴️✴️', # extensions documentation
 
   # Templates
   'standard_extension_template' => '✴️', # public template
@@ -189,7 +188,7 @@ def template?(name)
 end
 
 def extension?(name, profiles: true, templates: true)
-  name.start_with?('ocds') && name.end_with?('extension') || OTHER_EXTENSIONS.include?(name) || profiles && profile?(name) || templates && template?(name)
+  name.start_with?('ocds_') && name.end_with?('_extension') || profiles && profile?(name) || templates && template?(name)
 end
 
 def variables(*keys)

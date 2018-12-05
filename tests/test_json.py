@@ -78,12 +78,12 @@ metaschema['properties']['mergeOptions'] = {
 }
 
 # Draft 6 removes `minItems` from `definitions/stringArray`.
-# See https://github.com/open-contracting/api_extension/blob/master/release-package-schema.json#L2
+# See https://github.com/open-contracting-extensions/ocds_api_extension/blob/master/release-package-schema.json#L2
 del metaschema['definitions']['stringArray']['minItems']
 
 # See https://tools.ietf.org/html/rfc7396
 if is_extension:
-    # See https://github.com/open-contracting/ocds_milestone_documents_extension/blob/master/release-schema.json#L9
+    # See https://github.com/open-contracting-extensions/ocds_milestone_documents_extension/blob/master/release-schema.json#L9
     metaschema['properties']['deprecated']['type'] = ['object', 'null']
 
 if repo_name in exceptional_extensions:
@@ -238,7 +238,7 @@ def merge_obj(result, obj, pointer=''):  # changed code
                     repo_name in ('ocds_milestone_documents_extension', 'public-private-partnerships')):
                 warnings.warn('re-adds {}'.format(pointer))
             elif (value == [] and pointer_and_key == '/required' and
-                    repo_name == 'api_extension'):
+                    repo_name == 'ocds_api_extension'):
                 warnings.warn('empties {}'.format(pointer_and_key))
             elif repo_name in exceptional_extensions:
                 if pointer_and_key in overwrite_exceptions:
@@ -367,7 +367,7 @@ def validate_title_description_type(*args):
         # Look for metadata fields on user-defined objects only. (Add exceptional condition for "items" field.)
         if parent not in schema_fields and grandparent not in schema_sections or grandparent == 'properties':
             for field in required_fields:
-                # Exception: api_extension has a concise links section.
+                # Exception: ocds_api_extension has a concise links section.
                 if (field not in data or not data[field] or not data[field].strip()) and 'links' not in parts:
                     errors += 1
                     warnings.warn('ERROR: {} is missing {}/{}'.format(path, pointer, field))

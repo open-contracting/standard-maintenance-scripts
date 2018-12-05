@@ -34,7 +34,7 @@ namespace :registry do
     repos.each do |repo|
       if extension?(repo.name, templates: false)
         data = repo.rels[:releases].get.data
-        id = repo.name.gsub(/\Aocds[_-]|[_-]extension/, '')
+        id = repo.name.gsub(/\Aocds_|_extension\z/, '')
         id = identifiers.fetch(id, id)
 
         if id != false
