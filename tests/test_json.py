@@ -870,11 +870,18 @@ def test_extension_json():
 
         validate_json_schema(path, data, schema)
 
-        urls = data.get('dependencies', []) + data.get('testDependencies', []) + \
-            list(data['documentationUrl'].values())
+        urls = data.get('dependencies', []) + data.get('testDependencies', [])
         for url in urls:
             try:
                 status_code = requests.head(url).status_code
+                assert status_code == 200, 'HTTP {} on {}'.format(status_code, url)
+            except requests.exceptions.ConnectionError as e:
+                assert False, '{} on {}'.format(e, url)
+
+        urls = list(data['documentationUrl'].values())
+        for url in urls:
+            try:
+                status_code = requests.get(url).status_code  # allow redirects
                 assert status_code == 200, 'HTTP {} on {}'.format(status_code, url)
             except requests.exceptions.ConnectionError as e:
                 assert False, '{} on {}'.format(e, url)
