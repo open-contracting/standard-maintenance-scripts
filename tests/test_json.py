@@ -83,7 +83,7 @@ del metaschema['definitions']['stringArray']['minItems']
 
 # See https://tools.ietf.org/html/rfc7396
 if is_extension:
-    # See https://github.com/open-contracting-extensions/ocds_milestone_documents_extension/blob/master/release-schema.json#L9
+    # noqa: See https://github.com/open-contracting-extensions/ocds_milestone_documents_extension/blob/master/release-schema.json#L9
     metaschema['properties']['deprecated']['type'] = ['object', 'null']
 
 if repo_name in exceptional_extensions:
