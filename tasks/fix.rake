@@ -137,7 +137,7 @@ namespace :fix do
       end
 
       options = headers.merge({
-        enforce_admins: true,
+        enforce_admins: false,
         required_status_checks: {
           strict: false,
           contexts: contexts,
@@ -154,14 +154,14 @@ namespace :fix do
         else
           protection = client.branch_protection(repo.full_name, branch.name, headers)
 
-          if (!protection.enforce_admins.enabled ||
+          if (protection.enforce_admins.enabled ||
               protection.required_status_checks.strict ||
               protection.required_status_checks.contexts != contexts && known_contexts.include?(protection.required_status_checks.contexts) ||
               protection.required_pull_request_reviews)
             messages = []
 
-            if !protection.enforce_admins.enabled
-              messages << "check 'Include administrators'"
+            if protection.enforce_admins.enabled
+              messages << "uncheck 'Include administrators'"
             end
             if protection.required_status_checks.strict
               messages << "uncheck 'Require branches to be up to date before merging'"
@@ -181,9 +181,9 @@ namespace :fix do
             end
 
             client.protect_branch(repo.full_name, branch.name, options)
-            puts "#{repo.html_url}/settings/branches/#{branch.name} #{messages.join(' | ').bold}"
+            puts "#{repo.html_url}/settings/branches #{messages.join(' | ').bold}"
           elsif protection.required_status_checks.contexts != contexts
-            puts "#{repo.html_url}/settings/branches/#{branch.name} expected #{contexts.join(', ')}, got #{protection.required_status_checks.contexts.join(', ').bold}"
+            puts "#{repo.html_url}/settings/branches expected #{contexts.join(', ')}, got #{protection.required_status_checks.contexts.join(', ').bold}"
           end
         end
       end
