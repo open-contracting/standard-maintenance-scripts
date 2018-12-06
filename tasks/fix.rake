@@ -23,7 +23,7 @@ def disable_projects(repo, message)
 end
 
 namespace :fix do
-  desc 'Disables empty wikis and lists repositories with invalid names, unexpected configurations, etc.'
+  desc "Disables empty wikis, updates extensions' descriptions and homepages, and lists repositories with invalid names, unexpected configurations, etc."
   task :lint_repos do
     repos.each do |repo|
       if extension?(repo.name, profiles: false, templates: false)
