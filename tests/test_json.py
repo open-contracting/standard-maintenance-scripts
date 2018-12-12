@@ -44,7 +44,7 @@ exceptional_extensions = (
 
 cwd = os.getcwd()
 repo_name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', cwd))
-is_profile = os.path.isfile(os.path.join(cwd, 'Makefile')) and repo_name != 'standard' and repo_name != 'infrastructure'
+is_profile = os.path.isfile(os.path.join(cwd, 'Makefile')) and repo_name not in ('standard', 'infrastructure')
 is_extension = os.path.isfile(os.path.join(cwd, 'extension.json')) or is_profile
 extensiondir = os.path.join(cwd, 'schema', 'profile') if is_profile else cwd
 

@@ -162,11 +162,11 @@ def test_codelist():
         codes_seen = set()
         if is_codelist(fieldnames):
             data = []
-            for row in rows:
+            for row_index, row in enumerate(rows, 2):
                 code = row['Code']
                 if code in codes_seen:
                     any_errors = True
-                    warnings.warn('{}: Duplicate code "{}" on line {}'.format(path, code, reader.line_num))
+                    warnings.warn('{}: Duplicate code "{}" on row {}'.format(path, code, row_index))
                 codes_seen.add(code)
 
                 item = {}
