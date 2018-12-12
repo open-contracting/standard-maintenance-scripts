@@ -30,6 +30,15 @@
         "type": "string",
         "minLength": 1
       },
+      "Business Logic": {
+        "title": "Business Logic",
+        "description": "A description of how this field's value relates to the values of other fields.",
+        "type": [
+          "string",
+          "null"
+        ],
+        "minLength": 1
+      },
       "Category": {
         "title": "Category",
         "description": "A single category by which to filter codes. The extension's documentation should explain the categorization system.",
