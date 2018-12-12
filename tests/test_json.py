@@ -44,7 +44,7 @@ exceptional_extensions = (
 
 cwd = os.getcwd()
 repo_name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', cwd))
-is_profile = os.path.isfile(os.path.join(cwd, 'Makefile')) and repo_name != 'standard'
+is_profile = os.path.isfile(os.path.join(cwd, 'Makefile')) and repo_name != 'standard' and repo_name != 'infrastructure'
 is_extension = os.path.isfile(os.path.join(cwd, 'extension.json')) or is_profile
 extensiondir = os.path.join(cwd, 'schema', 'profile') if is_profile else cwd
 
@@ -381,7 +381,7 @@ def validate_title_description_type(*args):
     return traverse(block)(*args)
 
 
-def validate_null_type(path, data, pointer='', should_be_nullable=True):
+def validate_null_type(path, data, pointer='', allow_null=True, should_be_nullable=True):
     """
     Prints and returns the number of errors relating to non-nullable optional fields and nullable required fields.
     """
@@ -418,9 +418,12 @@ def validate_null_type(path, data, pointer='', should_be_nullable=True):
         '/definitions/LotDetails',  # actually can be null
     }
 
+    if not allow_null:
+        should_be_nullable = False
+
     if isinstance(data, list):
         for index, item in enumerate(data):
-            errors += validate_null_type(path, item, pointer='{}/{}'.format(pointer, index))
+            errors += validate_null_type(path, item, pointer='{}/{}'.format(pointer, index), allow_null=allow_null)
     elif isinstance(data, dict):
         if 'type' in data and pointer:
             nullable = 'null' in data['type']
@@ -441,16 +444,16 @@ def validate_null_type(path, data, pointer='', should_be_nullable=True):
             if key == 'properties':
                 for k, v in data[key].items():
                     errors += validate_null_type(path, v, pointer='{}/{}/{}'.format(pointer, key, k),
-                                                 should_be_nullable=k not in required)
+                                                 allow_null=allow_null, should_be_nullable=k not in required)
             elif key == 'definitions':
                 for k, v in data[key].items():
                     errors += validate_null_type(path, v, pointer='{}/{}/{}'.format(pointer, key, k),
-                                                 should_be_nullable=False)
+                                                 allow_null=allow_null, should_be_nullable=False)
             elif key == 'items':
                 errors += validate_null_type(path, data[key], pointer='{}/{}'.format(pointer, key),
-                                             should_be_nullable=False)
+                                             allow_null=allow_null, should_be_nullable=False)
             else:
-                errors += validate_null_type(path, value, pointer='{}/{}'.format(pointer, key))
+                errors += validate_null_type(path, value, pointer='{}/{}'.format(pointer, key), allow_null=allow_null)
 
     return errors
 
@@ -720,6 +723,7 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension, top=c
         'extension_versions-schema.json',
     }
     exceptions = json_schema_exceptions | ocds_schema_exceptions
+    allow_null = repo_name != 'infrastructure'
 
     for error in validator(schema, format_checker=FormatChecker()).iter_errors(data):
         errors += 1
@@ -760,7 +764,7 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension, top=c
 
         if all(basename not in path for basename in exceptions_plus_versioned_and_packages):
             # Extensions aren't expected to repeat `required`. Packages don't have merge rules.
-            errors += validate_null_type(path, data)
+            errors += validate_null_type(path, data, allow_null=allow_null)
 
             # Extensions aren't expected to repeat referenced codelist CSV files.
             # TODO: This code assumes each schema uses all codelists. So, for now, skip package schema.
@@ -934,6 +938,7 @@ def test_empty_files():
         '.mo',
         # Images
         '.ico',
+        '.jpg',
         '.png',
         # Python
         '.pyc',
@@ -960,7 +965,10 @@ def test_empty_files():
             if name in basenames:
                 # Exception: Templates are allowed to have empty schema files.
                 if repo_name not in ('standard_extension_template', 'standard_profile_template'):
-                    assert json.loads(text), '{} is empty and should be removed'.format(path)
+                    try:
+                        assert json.loads(text), '{} is empty and should be removed'.format(path)
+                    except json.decoder.JSONDecodeError as e:
+                        assert False, '{} is not valid JSON ({})'.format(path, e)
             else:
                 assert text.strip(), '{} is empty and should be removed'.format(path)
 
