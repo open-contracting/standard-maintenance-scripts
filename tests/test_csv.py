@@ -45,18 +45,19 @@ def walk_csv_data(top=os.getcwd()):
                 text = f.read()
                 reader = csv.DictReader(StringIO(text))
                 try:
-                    reader.fieldnames
+                    fieldnames = reader.fieldnames
+                    rows = [row for row in reader]
+                    yield (path, text, fieldnames, rows)
                 except _csv.Error as e:
                     assert False, '{} is not valid CSV ({})'.format(path, e)
-                yield (path, text, reader)
 
 
 # Copied from test_json.py.
-def is_codelist(reader):
+def is_codelist(fieldnames):
     """
     Returns whether the CSV is a codelist.
     """
-    return 'Code' in reader.fieldnames
+    return 'Code' in fieldnames
 
 
 def test_valid():
@@ -66,10 +67,9 @@ def test_valid():
     """
     errors = 0
 
-    for path, text, reader in walk_csv_data():
-        codelist = is_codelist(reader)
-        width = len(reader.fieldnames)
-        rows = [row for row in reader]
+    for path, text, fieldnames, rows in walk_csv_data():
+        codelist = is_codelist(fieldnames)
+        width = len(fieldnames)
         columns = []
 
         for row_index, row in enumerate(rows, 2):
@@ -104,7 +104,7 @@ def test_valid():
                 warnings.warn('ERROR: {} has empty column {}'.format(path, col_index))
 
         output = StringIO()
-        writer = csv.DictWriter(output, fieldnames=reader.fieldnames, lineterminator='\n')
+        writer = csv.DictWriter(output, fieldnames=fieldnames, lineterminator='\n')
         writer.writeheader()
         writer.writerows(rows)
         expected = output.getvalue()
@@ -158,11 +158,11 @@ def test_codelist():
 
     any_errors = False
 
-    for path, text, reader in walk_csv_data():
+    for path, text, fieldnames, rows in walk_csv_data():
         codes_seen = set()
-        if is_codelist(reader):
+        if is_codelist(fieldnames):
             data = []
-            for row in reader:
+            for row in rows:
                 code = row['Code']
                 if code in codes_seen:
                     any_errors = True
