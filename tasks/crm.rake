@@ -18,7 +18,6 @@ namespace :crm do
     'Nicolás Penagos',
   ]
   REDMINE_OCP_USERS = REDMINE_OCP_USERS_OCDS + [
-    'Coby Jones',
     'David Selassie Opoku',
     'Gavin Hayman',
     'Georg Neumann',
@@ -33,7 +32,6 @@ namespace :crm do
     'Charlie Pinder',
     'Duncan Dewhurst',
     'Matt Marshall',
-    'Tim Williams',
   ]
   REDMINE_ODS_USERS_TECH = [
     'Amy Guy',
@@ -67,7 +65,6 @@ namespace :crm do
   ]
 
   REDMINE_EXTERNAL_USERS = [
-    'Rob Davidson',  # James McKinney
     'Ramon Olivas',  # Nicolás Penagos
   ]
 
