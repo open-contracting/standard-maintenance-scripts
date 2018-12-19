@@ -1,4 +1,0 @@
-source 'https://rubygems.org'
-
-# Once > 0.4.0 is released, we can stop using a Gemfile.
-gem 'mdl', git: 'https://github.com/markdownlint/markdownlint.git'
