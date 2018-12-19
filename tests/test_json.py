@@ -397,7 +397,6 @@ def validate_null_type(path, data, pointer='', allow_null=True, should_be_nullab
         '/properties/packageMetadata/properties/publisher',
 
         # 2.0 fixes.
-        '/definitions/Item/properties/unit',
         # See https://github.com/open-contracting/standard/issues/650
         '/definitions/Organization/properties/id',
         '/definitions/OrganizationReference/properties/id',
@@ -432,11 +431,15 @@ def validate_null_type(path, data, pointer='', allow_null=True, should_be_nullab
                 # A special case: If it's not required (should be nullable), but isn't nullable, it's okay if and only
                 # if it's an array of references or objects.
                 if not nullable and not array_of_refs_or_objects and pointer not in null_exceptions:
-                    errors += 1
-                    warnings.warn('ERROR: {}: optional but non-nullable {} at {}'.format(path, data['type'], pointer))
+                    if data['type'] == 'object':
+                        # Some objects are for hierarchy only.
+                        warnings.warn('{}: non-nullable optional {} at {}'.format(path, data['type'], pointer))
+                    else:
+                        errors += 1
+                        warnings.warn('ERROR: {}: non-nullable optional {} at {}'.format(path, data['type'], pointer))
             elif nullable and pointer not in non_null_exceptions:
                 errors += 1
-                warnings.warn('ERROR: {}: required but nullable {} at {}'.format(path, data['type'], pointer))
+                warnings.warn('ERROR: {}: nullable required {} at {}'.format(path, data['type'], pointer))
 
         required = data.get('required', [])
 
