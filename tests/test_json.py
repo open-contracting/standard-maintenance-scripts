@@ -176,6 +176,13 @@ def is_codelist(reader):
     return 'Code' in reader.fieldnames
 
 
+def is_array_of_objects(data):
+    """
+    Returns whether the field is an array of objects.
+    """
+    return 'array' in data.get('type', []) and any(key in data.get('items', {}) for key in ('$ref', 'properties'))
+
+
 def get_types(data):
     """
     Returns a field's `type` as a list.
@@ -426,11 +433,10 @@ def validate_null_type(path, data, pointer='', allow_null=True, should_be_nullab
     elif isinstance(data, dict):
         if 'type' in data and pointer:
             nullable = 'null' in data['type']
-            array_of_refs_or_objects = data['type'] == 'array' and any(key in data['items'] for key in ('$ref', 'properties'))  # noqa
             if should_be_nullable:
                 # A special case: If it's not required (should be nullable), but isn't nullable, it's okay if and only
                 # if it's an array of references or objects.
-                if not nullable and not array_of_refs_or_objects and pointer not in null_exceptions:
+                if not nullable and not is_array_of_objects(data) and pointer not in null_exceptions:
                     if data['type'] == 'object':
                         # Some objects are for hierarchy only.
                         warnings.warn('{}: non-nullable optional {} at {}'.format(path, data['type'], pointer))
@@ -613,15 +619,6 @@ def validate_object_id(*args):
         '0',  # linked releases
     }
 
-    # An array of objects without `id` fields are rare, but allowed.
-    # See http://standard.open-contracting.org/latest/en/schema/merging/#whole-list-merge
-    id_presence_extensions = {
-        '/definitions/Location',  # /definitions/Project/properties/locations
-        # https://github.com/INAImexico/ocds_budgetLines_extension
-        '/definitions/BudgetLine',
-        '/definitions/Component',
-    }
-
     # 2.0 fixes.
     # See https://github.com/open-contracting/standard/issues/650
     required_id_exceptions = {
@@ -642,15 +639,17 @@ def validate_object_id(*args):
         parent = parts[-1]
 
         # If it's an array of objects.
-        if ('type' in data and data['type'] == 'array' and 'properties' in data['items'] and
+        if ('type' in data and 'array' in data['type'] and 'properties' in data.get('items', {}) and
                 parent not in exceptions and 'versionedRelease' not in parts):
             required = data['items'].get('required', [])
+
             if hasattr(data['items'], '__reference__'):
                 original = data['items'].__reference__['$ref'][1:]
             else:
                 original = pointer
 
-            if 'id' not in data['items']['properties'] and original not in id_presence_extensions:
+            # See http://standard.open-contracting.org/latest/en/schema/merging/#whole-list-merge
+            if 'id' not in data['items']['properties'] and not data.get('wholeListMerge'):
                 errors += 1
                 if original == pointer:
                     warnings.warn('ERROR: {} object array has no `id` property at {}'.format(path, pointer))
@@ -672,12 +671,28 @@ def validate_object_id(*args):
 
 
 def validate_merge_properties(*args):
+    nullable_exceptions = {
+        '/definitions/Amendment/properties/changes/items/properties/former_value',  # deprecated
+        # https://github.com/open-contracting/ocds-extensions/issues/77
+        '/definitions/Bid/properties/tenderers',
+        '/definitions/Bids/properties/statistics',
+    }
+
     def block(path, data, pointer):
         errors = 0
 
-        if 'array' not in get_types(data) and 'wholeListMerge' in data:
+        types = get_types(data)
+
+        if 'wholeListMerge' in data:
+            if 'array' not in types:
+                errors += 1
+                warnings.warn('ERROR: {} `wholeListMerge` is set on non-array at {}'.format(path, pointer))
+            if 'null' in types:
+                errors += 1
+                warnings.warn('ERROR: {} `wholeListMerge` is set on nullable at {}'.format(path, pointer))
+        elif is_array_of_objects(data) and 'null' in types and pointer not in nullable_exceptions:
             errors += 1
-            warnings.warn('ERROR: {} `wholeListMerge` is set on non-array at {}'.format(path, pointer))
+            warnings.warn('ERROR: {} array should be `wholeListMerge` instead of nullable at {}'.format(path, pointer))
 
         if data.get('omitWhenMerged') and data.get('wholeListMerge'):
             errors += 1
