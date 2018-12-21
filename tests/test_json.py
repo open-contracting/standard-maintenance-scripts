@@ -673,7 +673,7 @@ def validate_object_id(*args):
 def validate_merge_properties(*args):
     nullable_exceptions = {
         '/definitions/Amendment/properties/changes/items/properties/former_value',  # deprecated
-        # https://github.com/open-contracting/ocds-extensions/issues/77
+        # See https://github.com/open-contracting/ocds-extensions/issues/77
         '/definitions/Bid/properties/tenderers',
         '/definitions/Bids/properties/statistics',
     }
