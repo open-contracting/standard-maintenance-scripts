@@ -71,8 +71,8 @@ namespace :local do
           ]
         else
           output += [
-            '|Priority|Build|Dependencies|Name|',
-            '|-|-|-|-|',
+            '|Priority|Build|Name|',
+            '|-|-|-|',
           ]
         end
 
@@ -96,15 +96,6 @@ namespace :local do
             line << "[![Build Status](https://travis-ci.org/#{repo.full_name}.svg)](https://travis-ci.org/#{repo.full_name})|"
           else
             line << '-|'
-          end
-
-          if ENV['ORG'] != 'open-contracting-partnership'
-            hook = hooks.find{ |datum| datum.config.url == 'https://requires.io/github/web-hook/' }
-            if hook && hook.active
-              line << "[![Requirements Status](https://requires.io/github/#{repo.full_name}/requirements.svg)](https://requires.io/github/#{repo.full_name}/requirements/)|"
-            else
-              line << '-|'
-            end
           end
 
           output << line + "[#{repo.name}](#{repo.html_url})|"

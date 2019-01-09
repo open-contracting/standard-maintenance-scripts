@@ -76,12 +76,15 @@ TECH_SUPPORT_PRIORITIES = {
   'infrastructure' => '✴️✴️', # sector documentation
   'ocds-extensions' => ' ', # issues only
   'standard' => '✴️✴️✴️', # core documentation
+  'ocds-kibana-manual' => ' ',
   'ocds-r-manual' => ' ',
 
   # Tools
   'json-schema-random' => ' ', # infrequently used
   'lib-cove-ocds' => '✴️✴️✴️', # implementation step
   'kingfisher' => '✴️', # key tool
+  'kingfisher-process' => '✴️', # key tool
+  'kingfisher-scrape' => '✴️', # key tool
   'ocds-faker' => ' ', # infrequently used
   'ocds-merge' => '✴️✴️', # reference implementation
   'ocds-show' => ' ', # infrequently used

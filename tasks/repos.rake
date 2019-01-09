@@ -189,7 +189,7 @@ Report issues for this extension in the [ocds-extensions repository](https://git
   task :webhooks do
     repos.each do |repo|
       data = repo.rels[:hooks].get.data.reject do |datum|
-        %w(travis).include?(datum.name) || datum.config.url == 'https://requires.io/github/web-hook/'
+        %w(travis).include?(datum.name)
       end
       if data.any?
         puts "#{repo.html_url}/settings/hooks"
