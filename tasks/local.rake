@@ -92,7 +92,7 @@ namespace :local do
           end
 
           hook = hooks.find{ |datum| datum.name == 'travis' }
-          if hook && hook.active
+          if hook
             line << "[![Build Status](https://travis-ci.org/#{repo.full_name}.svg)](https://travis-ci.org/#{repo.full_name})|"
           else
             line << '-|'
