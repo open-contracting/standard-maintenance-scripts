@@ -91,7 +91,8 @@ namespace :local do
             line << "#{priority}|"
           end
 
-          hook = hooks.find{ |datum| datum.name == 'travis' }
+          # Support both GitHub Services and GitHub Apps until GitHub Services fully retired.
+          hook = hooks.find{ |datum| datum.name == 'travis' || datum.config.url == 'https://notify.travis-ci.org' }
           if hook
             line << "[![Build Status](https://travis-ci.org/#{repo.full_name}.svg)](https://travis-ci.org/#{repo.full_name})|"
           else
