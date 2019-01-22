@@ -180,7 +180,7 @@ Lists unreleased tags:
 
     bundle exec rake repos:tags
 
-Lists non-Travis, non-Requires.io webhooks:
+Lists non-Travis webhooks:
 
     bundle exec rake repos:webhooks
 

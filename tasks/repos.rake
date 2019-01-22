@@ -185,11 +185,12 @@ Report issues for this extension in the [ocds-extensions repository](https://git
     end
   end
 
-  desc 'Lists non-Travis, non-Requires.io webhooks'
+  desc 'Lists non-Travis webhooks'
   task :webhooks do
     repos.each do |repo|
+      # Support both GitHub Services and GitHub Apps until GitHub Services fully retired.
       data = repo.rels[:hooks].get.data.reject do |datum|
-        %w(travis).include?(datum.name)
+        datum.name == 'travis' || datum.config.url == 'https://notify.travis-ci.org'
       end
       if data.any?
         puts "#{repo.html_url}/settings/hooks"
