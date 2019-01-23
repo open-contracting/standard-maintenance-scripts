@@ -149,6 +149,16 @@ Report issues for this extension in the [ocds-extensions repository](https://git
   task :extension_json do
     schema = JSON.load(File.read(File.join(File.expand_path(File.dirname(__FILE__)), '..', 'schema', 'extension-schema.json')))
 
+    extension_ids = {}
+    url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/master/build/extensions.json'
+    JSON.load(open(url).read)['extensions'].each do |extension|
+      full_name = extension['url'][%r{\Ahttps://raw\.githubusercontent\.com/([^/]+/[^/]+)}, 1]
+      if full_name['open-contracting-extensions']
+        extension_ids[full_name.sub('open-contracting-extensions', 'open-contracting')] = extension['id']
+      end
+      extension_ids[full_name] = extension['id']
+    end
+
     each_path do |path, updated|
       repo_name = File.basename(path)
 
@@ -192,8 +202,11 @@ Report issues for this extension in the [ocds-extensions repository](https://git
           content.delete('dependencies')
         end
 
-        if !content.key?('documentationUrl')
+        if extension_ids.include?(full_name)
+          content['documentationUrl'] = { 'en' => "https://extensions.open-contracting.org/en/extensions/#{extension_ids[full_name]}/" }
+        else
           content['documentationUrl'] = { 'en' => "https://github.com/#{full_name}" }
+          puts "extension not in registry: #{full_name}"
         end
 
         codelists = Set.new(Dir[File.join(path, 'codelists', '*')].map{ |path| File.basename(path) })
