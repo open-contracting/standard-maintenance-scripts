@@ -374,8 +374,9 @@ def validate_title_description_type(*args):
         # Look for metadata fields on user-defined objects only. (Add exceptional condition for "items" field.)
         if parent not in schema_fields and grandparent not in schema_sections or grandparent == 'properties':
             for field in required_fields:
-                # Exception: ocds_api_extension has a concise links section.
-                if (field not in data or not data[field] or not data[field].strip()) and 'links' not in parts:
+                # If a field has `$ref`, then its `title` and `description` might defer to the reference.
+                # Exceptionally, the ocds_api_extension has a concise links section.
+                if (field not in data or not data[field] or not data[field].strip()) and '$ref' not in data and 'links' not in parts:  # noqa
                     errors += 1
                     warnings.warn('ERROR: {} is missing {}/{}'.format(path, pointer, field))
 
