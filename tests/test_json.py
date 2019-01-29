@@ -620,17 +620,18 @@ def validate_object_id(*args):
         '0',  # linked releases
     }
 
-    # 2.0 fixes.
-    # See https://github.com/open-contracting/standard/issues/650
     required_id_exceptions = {
+        # 2.0 fixes.
+        # See https://github.com/open-contracting/standard/issues/650
         '/definitions/Amendment',
         '/definitions/Organization',
         '/definitions/OrganizationReference',
         '/definitions/RelatedProcess',
-        # Extensions.
         '/definitions/Lot',
         '/definitions/LotGroup',
         '/definitions/ParticipationFee',
+        # See https://github.com/open-contracting/ocds-extensions/issues/83
+        '/definitions/Enquiry',
     }
 
     def block(path, data, pointer):
@@ -674,9 +675,8 @@ def validate_object_id(*args):
 def validate_merge_properties(*args):
     nullable_exceptions = {
         '/definitions/Amendment/properties/changes/items/properties/former_value',  # deprecated
-        # See https://github.com/open-contracting/ocds-extensions/issues/77
-        '/definitions/Bid/properties/tenderers',
-        '/definitions/Bids/properties/statistics',
+        # See https://github.com/open-contracting/ocds-extensions/issues/83
+        '/definitions/Tender/properties/enquiries',
     }
 
     def block(path, data, pointer):
@@ -838,8 +838,6 @@ def test_indent():
     Ensures all JSON files are valid and formatted for humans.
     """
     path_exceptions = {
-        # Directories
-        'real-examples',  # sample-data
         # Files
         'json-schema-draft-4.json',  # http://json-schema.org/draft-04/schema
     }
@@ -937,8 +935,6 @@ def test_empty_files():
 
     # Some files raise UnicodeDecodeError exceptions.
     path_exceptions = {
-        # Directories
-        'real-examples',  # sample-data
         # Files
         '.DS_Store',
         'cache.sqlite',
