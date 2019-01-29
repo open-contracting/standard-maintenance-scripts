@@ -9,19 +9,21 @@ import requests
 from jsonschema import FormatChecker
 from jsonschema.validators import Draft4Validator as validator
 
+# Copied from test_json.py.
+cwd = os.getcwd()
+repo_name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', cwd))
+
 
 # Copied from test_json.py.
 def custom_warning_formatter(message, category, filename, lineno, line=None):
-    return str(message).replace(os.getcwd() + os.sep, '')
+    return str(message).replace(cwd + os.sep, '')
 
 
-# Copied from test_json.py.
 warnings.formatwarning = custom_warning_formatter
-repo_name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', os.getcwd()))
 
 
 # Copied from test_json.py.
-def walk(top=os.getcwd()):
+def walk(top=cwd):
     """
     Yields all files, except third-party files under `_static` directories.
     """
@@ -34,7 +36,7 @@ def walk(top=os.getcwd()):
 
 
 # Edited from test_json.py.
-def walk_csv_data(top=os.getcwd()):
+def walk_csv_data(top=cwd):
     """
     Yields all CSV data.
     """

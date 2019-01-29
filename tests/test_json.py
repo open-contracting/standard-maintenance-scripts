@@ -151,7 +151,7 @@ def walk_csv_data(top=cwd):
     for root, name in walk(top):
         if name.endswith('.csv'):
             path = os.path.join(root, name)
-            with open(path) as f:
+            with open(path, newline='') as f:
                 yield (path, csv.DictReader(f))
 
 
@@ -919,6 +919,7 @@ def test_extension_json():
             assert False, '{} has mismatch with schema{}{}'.format(
                 path, added, removed)
     else:
+        # This code is never reached, as the test is only run if there is an extension.json file.
         assert False, 'expected an extension.json file'
 
 
