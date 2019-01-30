@@ -4,11 +4,11 @@ import warnings
 
 import pytest
 
-
 # Copied from test_json.py.
 cwd = os.getcwd()
 repo_name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', cwd))
 is_extension = os.path.isfile(os.path.join(cwd, 'extension.json'))
+
 
 # Copied from test_json.py.
 def custom_warning_formatter(message, category, filename, lineno, line=None):
