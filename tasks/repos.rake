@@ -9,14 +9,6 @@ namespace :repos do
       exclusions << 'master'
     end
 
-    # Exceptions for `extension_registry`.
-    if repo.name == 'extension_registry'
-      exclusions << 'ppp'
-      pattern = /\Av\d(?:\.\d){1,}\z/
-    else
-      pattern = /\A\z/
-    end
-
     repo.rels[:branches].get.data.reject do |branch|
       branch.name == repo.default_branch || pulls.include?(branch.name) || branch.name[pattern] || exclusions.include?(branch.name)
     end
@@ -28,7 +20,7 @@ namespace :repos do
 
     repos.each do |repo|
       hook = repo.rels[:hooks].get.data.find{ |datum| datum.name == 'travis' || datum.config.url == 'https://notify.travis-ci.org' }
-      if hook && hook.active
+      if hook
         begin
           actual = read_github_file(repo.full_name, '.travis.yml')
           if actual != expected
@@ -127,30 +119,6 @@ Report issues for this extension in the [ocds-extensions repository](https://git
     end
   end
 
-  desc 'Lists non-default issue labels'
-  task :labels do
-    default_label_sets = [
-      # After late 2017.
-      ['bug', 'duplicate', 'enhancement', 'good first issue', 'help wanted', 'invalid', 'question', 'wontfix'],
-      # Before late 2017.
-      ['bug', 'duplicate', 'enhancement', 'help wanted', 'invalid', 'question', 'wontfix'],
-    ]
-
-    repos.each do |repo|
-      labels = repo.rels[:labels].get.data.map(&:name)
-      default_labels = default_label_sets.find{ |default_labels| labels & default_labels == default_labels }
-      if default_labels
-        labels -= default_labels
-      end
-      if labels.any?
-        puts "#{repo.html_url}/labels"
-        labels.each do |label|
-          puts "- #{label}"
-        end
-      end
-    end
-  end
-
   desc 'Lists non-extension releases'
   task :releases do
     expected_extension_tags = Set.new(['ppp', 'v1.1', 'v1.1.1', 'v1.1.3'])
@@ -164,22 +132,6 @@ Report issues for this extension in the [ocds-extensions repository](https://git
         puts "#{repo.html_url}/releases"
         data.each do |datum|
           puts "- #{datum.tag_name}: #{datum.name}"
-        end
-      end
-    end
-  end
-
-  desc 'Lists unreleased tags'
-  task :tags do
-    repos.each do |repo|
-      tags = repo.rels[:tags].get.data.map(&:name) - repo.rels[:releases].get.data.map(&:tag_name)
-      if repo.fork
-        tags -= client.repo(repo.full_name).parent.rels[:tags].get.data.map(&:name)
-      end
-      if tags.any?
-        puts "#{repo.html_url}/tags"
-        tags.each do |tag|
-          puts "- #{tag}"
         end
       end
     end

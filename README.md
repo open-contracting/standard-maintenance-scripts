@@ -168,17 +168,9 @@ Lists repository descriptions:
 
     bundle exec rake repos:descriptions
 
-Lists non-default issue labels:
-
-    bundle exec rake repos:labels
-
 Lists non-extension releases:
 
     bundle exec rake repos:releases
-
-Lists unreleased tags:
-
-    bundle exec rake repos:tags
 
 Lists non-Travis webhooks:
 
