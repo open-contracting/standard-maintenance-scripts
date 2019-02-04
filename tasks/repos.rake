@@ -27,7 +27,7 @@ namespace :repos do
     expected = read_github_file('open-contracting/standard-maintenance-scripts', 'fixtures/.travis.yml')
 
     repos.each do |repo|
-      hook = repo.rels[:hooks].get.data.find{ |datum| datum.name == 'travis' }
+      hook = repo.rels[:hooks].get.data.find{ |datum| datum.name == 'travis' || datum.config.url == 'https://notify.travis-ci.org' }
       if hook && hook.active
         begin
           actual = read_github_file(repo.full_name, '.travis.yml')
