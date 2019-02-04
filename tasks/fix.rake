@@ -97,7 +97,7 @@ namespace :fix do
 
   desc 'Protects default branches'
   task :protect_branches do
-    headers = {accept: 'application/vnd.github.loki-preview+json'} # branch_protection
+    headers = {accept: 'application/vnd.github.luke-cage-preview+json'} # branch_protection
 
     known_contexts = Set.new([
       # Unconfigured.
@@ -114,7 +114,7 @@ namespace :fix do
       #   contexts << 'github/pages'
       # end
 
-      if repo.rels[:hooks].get.data.any?{ |datum| datum.name == 'travis' }
+      if repo.rels[:hooks].get.data.any?{ |datum| datum.name == 'travis' || datum.config.url == 'https://notify.travis-ci.org' }
         begin
           # Only enable Travis if Travis is configured.
           client.contents(repo.full_name, path: '.travis.yml')
@@ -127,7 +127,7 @@ namespace :fix do
       branches = repo.rels[:branches].get(headers: headers).data
 
       branches_to_protect = [branches.find{ |branch| branch.name == repo.default_branch }]
-      if repo.name == 'standard'
+      if ['standard', 'public-private-partnerships'].include?(repo.name)
         branches_to_protect << branches.find{ |branch| branch.name == 'latest' }
         branches.each do |branch|
           if branch.name[/\A\d\.\d(?:-dev)?\z/]
@@ -145,6 +145,17 @@ namespace :fix do
         required_pull_request_reviews: nil,
       })
 
+      if ENFORCE_ADMINS.include?(repo.name)
+        options[:enforce_admins] = true
+      end
+
+      if REQUIRE_PULL_REQUEST_REVIEWS.include?(repo.name)
+        options[:required_pull_request_reviews] = {
+          required_approving_review_count: 1,
+          dismiss_stale_reviews: true,
+        }
+      end
+
       branches_to_protect.each do |branch|
         branch = client.branch(repo.full_name, branch.name)
 
@@ -154,20 +165,37 @@ namespace :fix do
         else
           protection = client.branch_protection(repo.full_name, branch.name, headers)
 
-          if (protection.enforce_admins.enabled ||
-              protection.required_status_checks.strict ||
-              protection.required_status_checks.contexts != contexts && known_contexts.include?(protection.required_status_checks.contexts) ||
-              protection.required_pull_request_reviews)
+          if (options[:enforce_admins] && !protection.enforce_admins.enabled ||
+              !options[:enforce_admins] && protection.enforce_admins.enabled ||
+              protection.required_status_checks && protection.required_status_checks.strict ||
+              protection.required_status_checks && protection.required_status_checks.contexts != contexts && known_contexts.include?(protection.required_status_checks.contexts) ||
+              options[:required_pull_request_reviews] && !protection.required_pull_request_reviews ||
+              !options[:required_pull_request_reviews] && protection.required_pull_request_reviews)
             messages = []
 
-            if protection.enforce_admins.enabled
-              messages << "uncheck 'Include administrators'"
+            if options[:enforce_admins]
+              if !protection.enforce_admins.enabled
+                messages << "check 'Include administrators'"
+              end
+            else
+              if protection.enforce_admins.enabled
+                messages << "uncheck 'Include administrators'"
+              end
             end
-            if protection.required_status_checks.strict
+            if protection.required_status_checks && protection.required_status_checks.strict
               messages << "uncheck 'Require branches to be up to date before merging'"
             end
-            if protection.required_pull_request_reviews
-              messages << "uncheck 'Require pull request reviews before merging'"
+            if options[:required_pull_request_reviews]
+              if !protection.required_pull_request_reviews || !protection.required_pull_request_reviews.dismiss_stale_reviews
+                messages << "check 'Dismiss stale pull request approvals when new commits are pushed'"
+              end
+              if !protection.required_pull_request_reviews || protection.required_pull_request_reviews.required_approving_review_count != 1
+                messages << "Set 'Required approving reviews' to 1"
+              end
+            else
+              if protection.required_pull_request_reviews
+                messages << "uncheck 'Require pull request reviews before merging'"
+              end
             end
 
             added = contexts - branch.protection.required_status_checks.contexts
@@ -232,7 +260,7 @@ namespace :fix do
         disable_issues(repo, 'should be reviewed')
         disable_projects(repo, 'should be reviewed')
 
-        hook = repo.rels[:hooks].get.data.find{ |datum| datum.name == 'travis' }
+        hook = repo.rels[:hooks].get.data.find{ |datum| datum.name == 'travis' || datum.config.url == 'https://notify.travis-ci.org' }
         if hook
           client.remove_hook(repo.full_name, hook.id)
         end

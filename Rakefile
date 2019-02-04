@@ -21,6 +21,17 @@ require 'safe_yaml'
 
 SafeYAML::OPTIONS[:default_mode] = :safe
 
+REQUIRE_PULL_REQUEST_REVIEWS = [
+  'kingfisher',
+  'kingfisher-process',
+  'kingfisher-scrape',
+  'lib-cove-ocds',
+]
+ENFORCE_ADMINS = [
+  'public-private-partnerships',
+  'standard',
+] + REQUIRE_PULL_REQUEST_REVIEWS
+
 PROFILES = [
   'european-union',
   'government-procurement-agreement',
