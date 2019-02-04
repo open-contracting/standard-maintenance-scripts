@@ -56,11 +56,11 @@ Check whether `~/.aspell.en.pws` contains unwanted words:
 
 Check for files have unexpected permissions ⏰:
 
-    find . \! -perm 644 -type f -not -path '*/.git/*' -o \! -perm 755 -type d
+    find . \! -perm 644 -type f -not -path '*/.git/*' -not -path '*/__pycache__/*' -not -path '*/node_modules/*' -o \! -perm 755 -type d
 
 Check for TODOs that should be made into GitHub issues (skipping Git, vendored, translation, and generated files) ⏰:
 
-    grep -R -i --exclude-dir .git --exclude-dir _static --exclude-dir LC_MESSAGES --exclude app.js --exclude conf.py '\btodo\b' .
+    grep -R -i --exclude-dir .git --exclude-dir _build --exclude-dir _static --exclude-dir build --exclude-dir node_modules --exclude-dir LC_MESSAGES --exclude app.js --exclude conf.py '\btodo\b' .
 
 Periodically [spell-check](http://ocds-standard-development-handbook.readthedocs.io/en/latest/standard/technical/spellcheck/) and [Markdownlint](http://ocds-standard-development-handbook.readthedocs.io/en/latest/coding/#linting) the `standard`, extension and profile repositories.
 
