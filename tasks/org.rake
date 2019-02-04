@@ -26,6 +26,7 @@ namespace :org do
       # Iniciativa Latinoamericana por los Datos Abiertos
       # https://idatosabiertos.org/acerca-de-nosotros/
       'juanpane', # Juan Pane
+      'romifz', # Romina Fernández Valdez
       'yolile', # Yohanna Lisnichuk
     ]
 
