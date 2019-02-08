@@ -51,17 +51,20 @@ miscellaneous_repositories = [
   'standard',
 ]
 extension_tools = [
-  'extension-explorer',
   'extension_creator',
   'extension_registry.py',
-  'ocds-extensions-translations',
+]
+internal_tools = [
+  'european-union-support',
+  'standard-development-handbook',
+  'standard-maintenance-scripts',
 ]
 DOCUMENTATION_DEPENDENCIES = [
-  'ocds-babel',
   'sphinxcontrib-opencontracting',
   'standard_theme',
 ]
 LEGACY = [
+  'api-specification',
   'open-contracting.github.io',
   'standard-legacy-staticsites',
 ]
@@ -69,8 +72,9 @@ non_tools = miscellaneous_repositories + DOCUMENTATION_DEPENDENCIES + LEGACY
 
 REPOSITORY_CATEGORIES = {
   'Miscellaneous repositories' => -> (repo) { miscellaneous_repositories.include?(repo.name) },
-  'Tools' => -> (repo) { !extension?(repo.name) && !extension_tools.include?(repo.name) && !non_tools.include?(repo.name) },
+  'Tools' => -> (repo) { !extension?(repo.name) && !extension_tools.include?(repo.name) && !internal_tools.include?(repo.name) && !non_tools.include?(repo.name) },
   'Extension tools' => -> (repo) { extension_tools.include?(repo.name) },
+  'Internal tools' => -> (repo) { internal_tools.include?(repo.name) },
   'Documentation dependencies' => -> (repo) { DOCUMENTATION_DEPENDENCIES.include?(repo.name) },
   'Templates' => -> (repo) { template?(repo.name) },
   'Profiles' => -> (repo) { profile?(repo.name) },
@@ -80,15 +84,15 @@ REPOSITORY_CATEGORIES = {
 
 TECH_SUPPORT_PRIORITIES = {
   # Miscellaneous repositories
-  'api-specification' => ' ', # draft
-  'european-union-support' => ' ', # scratch pad
+  'extension-explorer' => '✴️✴️', # extensions documentation
   'extension_registry' => '✴️✴️', # authoritative resource
   'glossary' => '✴️', # documentation support
   'infrastructure' => '✴️✴️', # sector documentation
   'ocds-extensions' => ' ', # issues only
-  'standard' => '✴️✴️✴️', # core documentation
+  'ocds-extensions-translations' => '✴️✴️', # extensions documentation
   'ocds-kibana-manual' => ' ',
   'ocds-r-manual' => ' ',
+  'standard' => '✴️✴️✴️', # core documentation
 
   # Tools
   'json-schema-random' => ' ', # infrequently used
@@ -97,19 +101,21 @@ TECH_SUPPORT_PRIORITIES = {
   'kingfisher-process' => '✴️', # key tool
   'kingfisher-scrape' => '✴️', # key tool
   'ocds-faker' => ' ', # infrequently used
+  'ocds-babel' => '✴️✴️', # documentation dependency
   'ocds-merge' => '✴️✴️', # reference implementation
   'ocds-show' => ' ', # infrequently used
   'ocds-show-ppp' => ' ', # infrequently used
   'ocdskit' => '✴️', # key tool
   'sample-data' => '✴️', # frequently used
-  'standard-development-handbook' => '✴️', # key internal documentation
-  'standard-maintenance-scripts' => '✴️', # internal quality assurance
 
   # Extension tools
-  'extension-explorer' => '✴️✴️', # extensions documentation
   'extension_creator' => ' ', # infrequently used
   'extension_registry.py' => '✴️✴️', # frequent dependency
-  'ocds-extensions-translations' => '✴️✴️', # extensions documentation
+
+  # Internal tools
+  'european-union-support' => ' ', # scratch pad
+  'standard-development-handbook' => '✴️', # key internal documentation
+  'standard-maintenance-scripts' => '✴️', # internal quality assurance
 
   # Templates
   'standard_extension_template' => '✴️', # public template
