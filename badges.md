@@ -8,7 +8,7 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 
 |Priority|Build|Name|
 |-|-|-|
-| |-|[api-specification](https://github.com/open-contracting/api-specification)|
+|N/A|-|[api-specification](https://github.com/open-contracting/api-specification)|
 |✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/extension_registry.svg)](https://travis-ci.org/open-contracting/extension_registry)|[extension_registry](https://github.com/open-contracting/extension_registry)|
 |✴️|-|[glossary](https://github.com/open-contracting/glossary)|
 |✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/infrastructure.svg)](https://travis-ci.org/open-contracting/infrastructure)|[infrastructure](https://github.com/open-contracting/infrastructure)|
@@ -118,5 +118,6 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 
 |Priority|Build|Name|
 |-|-|-|
+|N/A|-|[api-specification](https://github.com/open-contracting/api-specification)|
 |N/A|-|[open-contracting.github.io](https://github.com/open-contracting/open-contracting.github.io)|
 |N/A|-|[standard-legacy-staticsites](https://github.com/open-contracting/standard-legacy-staticsites)|
