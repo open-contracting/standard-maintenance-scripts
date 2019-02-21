@@ -43,7 +43,6 @@ TEMPLATES = [
 ]
 
 miscellaneous_repositories = [
-  'api-specification',
   'extension_registry',
   'glossary',
   'infrastructure',
@@ -98,14 +97,18 @@ TECH_SUPPORT_PRIORITIES = {
   'json-schema-random' => ' ', # infrequently used
   'lib-cove-ocds' => '✴️✴️✴️', # implementation step
   'kingfisher' => '✴️', # key tool
+  'kingfisher-archive' => ' ',
+  'kingfisher-colab' => ' ',
   'kingfisher-process' => '✴️', # key tool
   'kingfisher-scrape' => '✴️', # key tool
+  'kingfisher-views' => ' ',
   'ocds-faker' => ' ', # infrequently used
   'ocds-babel' => '✴️✴️', # documentation dependency
   'ocds-merge' => '✴️✴️', # reference implementation
   'ocds-show' => ' ', # infrequently used
   'ocds-show-ppp' => ' ', # infrequently used
   'ocdskit' => '✴️', # key tool
+  'ocdskit-web' => ' ',
   'sample-data' => '✴️', # frequently used
 
   # Extension tools
