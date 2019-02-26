@@ -108,6 +108,16 @@ Removes specific releases of *repositories*:
 
     bundle exec rake release:undo_release_extensions REF=v7.8.9
 
+### Maintain the extension registry
+
+Discover new extensions on GitHub:
+
+    bundle exec rake registry:discover
+
+Prepare the content of `extension_versions.csv`:
+
+    bundle exec rake registry:extension_versions
+
 ### Change GitHub repository configuration
 
 Disables empty wikis, updates extensions' descriptions and homepages, and lists repositories with invalid names, unexpected configurations, etc. ⏰:

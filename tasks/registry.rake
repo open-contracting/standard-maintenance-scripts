@@ -1,4 +1,24 @@
 namespace :registry do
+  desc 'Discover new extensions on GitHub'
+  task :discover do
+    content = open('https://docs.google.com/spreadsheets/d/e/2PACX-1vS6NmEt61T-0Vvg0I0XQiIuQVZXOfE3tmDdPb5_HKTiVR5FyKMc3JJNIQAxq5rHbr5ok0dqdQrREGEs/pub?output=csv').read
+    seen = CSV.parse(content, headers: true).map{ |row| row['URL'] }
+
+    exclude = '-org:open-contracting-extensions -org:open-contracting -org:open-contracting-archive'
+    items = client.search_code("filename:release-schema.json path:/ #{exclude}", per_page: 100).items
+    items += client.search_code("code title description language:csv path:codelists #{exclude}", per_page: 100).items
+
+    names = ['timgdavies'] + client.org_members('open-contracting').map{ |member| member.login.downcase }
+
+    items.reject! do |item|
+      names.include?(item.repository.owner.login.downcase) || seen.include?(item.repository.html_url)
+    end
+
+    puts items.map{ |item|
+      "#{item.repository.name.gsub(/\Aocds[_-]|[_-]extension\b/, '')}\t#{item.repository.html_url}\t#{item.repository.owner.login.downcase}"
+    }.uniq.sort
+  end
+
   desc 'Prepare the content of extension_versions.csv'
   task :extension_versions do
     identifiers = {
@@ -17,22 +37,18 @@ namespace :registry do
 
       # Extensions not in registry (yet).
       'api' => false,
-      'exchangeRate' => false,
-      'contractRegister' => false,
+      'budget_and_spend' => false,
       'coveredBy' => false,
+      'exchangeRate' => false,
       'memberOf' => false,
       'options' => false,
       'procurementMethodModalities' => false,
       'recurrence' => false,
-
-      # Profiles not in registry (yet).
-      'for-eu' => false,
-      'for-gpa' => false,
     }
 
     new_lines = []
     repos.each do |repo|
-      if extension?(repo.name, templates: false)
+      if extension?(repo.name, templates: false, profiles: false)
         data = repo.rels[:releases].get.data
         id = repo.name.gsub(/\Aocds_|_extension\z/, '')
         id = identifiers.fetch(id, id)
