@@ -7,6 +7,7 @@ require 'open-uri'
 require 'pp'
 require 'set'
 
+require 'cld'
 require 'colored'
 require 'faraday'
 require 'google/apis/drive_v2'
@@ -43,15 +44,17 @@ TEMPLATES = [
 ]
 
 miscellaneous_repositories = [
-  'extension_registry',
   'glossary',
   'infrastructure',
   'ocds-extensions',
   'standard',
 ]
 extension_tools = [
+  'extension-explorer',
   'extension_creator',
+  'extension_registry',
   'extension_registry.py',
+  'ocds-extensions-translations',
 ]
 internal_tools = [
   'european-union-support',
@@ -83,14 +86,9 @@ REPOSITORY_CATEGORIES = {
 
 TECH_SUPPORT_PRIORITIES = {
   # Miscellaneous repositories
-  'extension-explorer' => '✴️✴️', # extensions documentation
-  'extension_registry' => '✴️✴️', # authoritative resource
   'glossary' => '✴️', # documentation support
   'infrastructure' => '✴️✴️', # sector documentation
   'ocds-extensions' => ' ', # issues only
-  'ocds-extensions-translations' => '✴️✴️', # extensions documentation
-  'ocds-kibana-manual' => ' ',
-  'ocds-r-manual' => ' ',
   'standard' => '✴️✴️✴️', # core documentation
 
   # Tools
@@ -102,9 +100,10 @@ TECH_SUPPORT_PRIORITIES = {
   'kingfisher-process' => '✴️', # key tool
   'kingfisher-scrape' => '✴️', # key tool
   'kingfisher-views' => ' ',
-  'ocds-faker' => ' ', # infrequently used
   'ocds-babel' => '✴️✴️', # documentation dependency
+  'ocds-kibana-manual' => ' ',
   'ocds-merge' => '✴️✴️', # reference implementation
+  'ocds-r-manual' => ' ',
   'ocds-show' => ' ', # infrequently used
   'ocds-show-ppp' => ' ', # infrequently used
   'ocdskit' => '✴️', # key tool
@@ -112,8 +111,11 @@ TECH_SUPPORT_PRIORITIES = {
   'sample-data' => '✴️', # frequently used
 
   # Extension tools
+  'extension-explorer' => '✴️✴️', # extensions documentation
   'extension_creator' => ' ', # infrequently used
+  'extension_registry' => '✴️✴️', # authoritative resource
   'extension_registry.py' => '✴️✴️', # frequent dependency
+  'ocds-extensions-translations' => '✴️✴️', # extensions documentation
 
   # Internal tools
   'european-union-support' => ' ', # scratch pad

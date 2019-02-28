@@ -46,7 +46,7 @@ List tasks:
     invoke -l
     bundle exec rake -AT
 
-Download all extensions to a directory:
+Download all registered extensions to a directory:
 
     invoke download_extensions <directory>
 
@@ -113,6 +113,22 @@ Removes specific releases of *repositories*:
 Discover new extensions on GitHub:
 
     bundle exec rake registry:discover
+
+Download unregistered extensions from GitHub:
+
+    bundle exec rake registry:download_unregistered BASEDIR=external-extensions
+
+Create forks of unregistered extensions on GitHub:
+
+    bundle exec rake registry:create_fork_unregistered OWNER=inaimexico
+
+Delete forks of unregistered extensions on GitHub:
+
+    bundle exec rake registry:delete_fork_unregistered OWNER=inaimexico USERNAME=jpmckinney
+
+Report the language and length of the documentation of unregistered extensions:
+
+    bundle exec rake registry:documentation_language_length
 
 Prepare the content of `extension_versions.csv`:
 

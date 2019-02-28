@@ -1,5 +1,6 @@
 source 'https://rubygems.org'
 
+gem 'cld2'
 gem 'colored'
 gem 'faraday'
 gem 'google-api-client'
