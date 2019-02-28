@@ -8,7 +8,6 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 
 |Priority|Build|Name|
 |-|-|-|
-|✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/extension_registry.svg)](https://travis-ci.org/open-contracting/extension_registry)|[extension_registry](https://github.com/open-contracting/extension_registry)|
 |✴️|-|[glossary](https://github.com/open-contracting/glossary)|
 |✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/infrastructure.svg)](https://travis-ci.org/open-contracting/infrastructure)|[infrastructure](https://github.com/open-contracting/infrastructure)|
 | |-|[ocds-extensions](https://github.com/open-contracting/ocds-extensions)|
@@ -18,7 +17,6 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 
 |Priority|Build|Name|
 |-|-|-|
-|✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/extension-explorer.svg)](https://travis-ci.org/open-contracting/extension-explorer)|[extension-explorer](https://github.com/open-contracting/extension-explorer)|
 | |-|[json-schema-random](https://github.com/open-contracting/json-schema-random)|
 |✴️|[![Build Status](https://travis-ci.org/open-contracting/kingfisher.svg)](https://travis-ci.org/open-contracting/kingfisher)|[kingfisher](https://github.com/open-contracting/kingfisher)|
 | |-|[kingfisher-archive](https://github.com/open-contracting/kingfisher-archive)|
@@ -28,8 +26,6 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 | |-|[kingfisher-views](https://github.com/open-contracting/kingfisher-views)|
 |✴️✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/lib-cove-ocds.svg)](https://travis-ci.org/open-contracting/lib-cove-ocds)|[lib-cove-ocds](https://github.com/open-contracting/lib-cove-ocds)|
 |✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/ocds-babel.svg)](https://travis-ci.org/open-contracting/ocds-babel)|[ocds-babel](https://github.com/open-contracting/ocds-babel)|
-|✴️✴️|-|[ocds-extensions-translations](https://github.com/open-contracting/ocds-extensions-translations)|
-| |[![Build Status](https://travis-ci.org/open-contracting/ocds-faker.svg)](https://travis-ci.org/open-contracting/ocds-faker)|[ocds-faker](https://github.com/open-contracting/ocds-faker)|
 | |-|[ocds-kibana-manual](https://github.com/open-contracting/ocds-kibana-manual)|
 |✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/ocds-merge.svg)](https://travis-ci.org/open-contracting/ocds-merge)|[ocds-merge](https://github.com/open-contracting/ocds-merge)|
 | |-|[ocds-r-manual](https://github.com/open-contracting/ocds-r-manual)|
@@ -43,8 +39,11 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 
 |Priority|Build|Name|
 |-|-|-|
+|✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/extension-explorer.svg)](https://travis-ci.org/open-contracting/extension-explorer)|[extension-explorer](https://github.com/open-contracting/extension-explorer)|
 | |-|[extension_creator](https://github.com/open-contracting/extension_creator)|
+|✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/extension_registry.svg)](https://travis-ci.org/open-contracting/extension_registry)|[extension_registry](https://github.com/open-contracting/extension_registry)|
 |✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/extension_registry.py.svg)](https://travis-ci.org/open-contracting/extension_registry.py)|[extension_registry.py](https://github.com/open-contracting/extension_registry.py)|
+|✴️✴️|-|[ocds-extensions-translations](https://github.com/open-contracting/ocds-extensions-translations)|
 
 ## Internal tools
 
