@@ -16,7 +16,7 @@
         "title": "Code",
         "description": "The value to use in OCDS data.",
         "type": "string",
-        "pattern": "^[A-Za-z0-9-]+$"
+        "pattern": "^[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*$"
       },
       "Title": {
         "title": "Title",
@@ -107,11 +107,23 @@
       "Source": {
         "title": "Source",
         "description": "The third-party source for the code.",
-        "type": [
-          "string",
-          "null"
-        ],
-        "format": "uri"
+        "oneOf": [
+          {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uri"
+          },
+          {
+            "type": "string",
+            "enum": [
+              "OC4IDS",
+              "OCDS",
+              "OCDS for PPPs"
+            ]
+          }
+        ]
       },
       "Summary required": {
         "title": "Summary required",
