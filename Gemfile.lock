@@ -18,7 +18,7 @@ GEM
     declarative-option (0.1.0)
     faraday (0.15.4)
       multipart-post (>= 1.2, < 3)
-    ffi (1.9.10)
+    ffi (1.9.25)
     google-api-client (0.28.4)
       addressable (~> 2.5, >= 2.5.1)
       googleauth (>= 0.5, < 0.10.0)
