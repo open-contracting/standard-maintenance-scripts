@@ -118,6 +118,7 @@ namespace :registry do
   desc 'Prepare the content of extension_versions.csv'
   task :extension_versions do
     identifiers = {
+      # Repository name differs from extension ID.
       'additionalContactPoints' => 'additionalContactPoint',
       'bid' => 'bids',
       'budget_breakdown' => 'budget',
@@ -125,26 +126,32 @@ namespace :registry do
       'contract_signatories' => 'signatories',
       'documentation' => 'documentation_details',
       'enquiry' => 'enquiries',
-      'multiple_buyers' => 'contract',
       'participationFee' => 'participation_fee',
       'partyDetails_scale' => 'partyScale',
       'riskAllocation' => 'risk_allocation',
       'transactions_relatedMilestone' => 'transaction_milestones',
 
       # Extensions not in registry (yet).
-      'api' => false,
-      'budget_and_spend' => false,
-      'coveredBy' => false,
       'exchangeRate' => false,
       'memberOf' => false,
+
+      # Profile extensions not in registry (yet).
+      'coveredBy' => false,
       'options' => false,
       'procurementMethodModalities' => false,
       'recurrence' => false,
+
+      # Extensions not in registry.
+      'api' => false,
     }
+
+    EXTERNAL_EXTENSIONS.each do |full_name|
+      repos << client.repo(full_name)
+    end
 
     new_lines = []
     repos.each do |repo|
-      if extension?(repo.name, templates: false, profiles: false)
+      if extension?(repo.name, profiles: false, templates: false)
         data = repo.rels[:releases].get.data
         id = repo.name.gsub(/\Aocds_|_extension\z/, '')
         id = identifiers.fetch(id, id)

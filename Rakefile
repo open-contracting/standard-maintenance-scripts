@@ -22,6 +22,11 @@ require 'safe_yaml'
 
 SafeYAML::OPTIONS[:default_mode] = :safe
 
+EXTERNAL_EXTENSIONS = [
+  'CompraNet/ocds_releasePublisher_extension',
+  'INAImexico/ocds_implementationStatus_extension',
+]
+
 REQUIRE_PULL_REQUEST_REVIEWS = [
   'kingfisher',
   'kingfisher-process',
