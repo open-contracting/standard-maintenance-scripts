@@ -10,7 +10,7 @@ namespace :repos do
     end
 
     repo.rels[:branches].get.data.reject do |branch|
-      branch.name == repo.default_branch || pulls.include?(branch.name) || branch.name[pattern] || exclusions.include?(branch.name)
+      branch.name == repo.default_branch || pulls.include?(branch.name) || exclusions.include?(branch.name)
     end
   end
 
