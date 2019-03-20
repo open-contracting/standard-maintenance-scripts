@@ -27,7 +27,7 @@ If changes are made to `extension-schema.json`, changes may be needed to:
   * [extension_registry.py](https://github.com/open-contracting/extension_registry.py): `profile_builder.py` (`name`, `codelists`)
 * Documentation dependencies
   * [ocds-babel](https://github.com/open-contracting/ocds-babel): `extract.py`, `translate.py`
-  * [sphinxcontrib-opencontracting](https://github.com/open-contracting/sphinxcontrib-opencontracting): `ExtensionList` class (`name`, `description`), `ExtensionSelectorTable` class (`name`, `description`, `documentationUrl`)
+  * [sphinxcontrib-opencontracting](https://github.com/open-contracting/sphinxcontrib-opencontracting): `ExtensionList` class (`name`, `description`)
 * Miscellaneous repositories
   * [extension_registry](https://github.com/open-contracting/extension_registry): `compile.py` (`name`, `description`, `documentationUrl`)
   * [standard](https://github.com/open-contracting/standard): `fetch_core_extensions.py` (`codelists`)
