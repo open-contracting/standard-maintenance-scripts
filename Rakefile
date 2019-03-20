@@ -239,10 +239,10 @@ def core_extensions
     CSV.parse(open("#{base_url}/extension_versions.csv").read, headers: true).each do |version|
       parts = URI.parse(version.fetch('Base URL'))
       # Assumes different versions of the same extension use the same repository.
-      if parts.hostname == 'raw.githubusercontent.com'
+      if ['bitbucket.org', 'raw.githubusercontent.com'].include?(parts.hostname)
         ids_to_repos[version.fetch('Id')] = parts.path.split('/')[1..2].join('/')
       else
-        raise "#{parts.hostname} not supported"
+        raise "#{parts.hostname} not supported (#{version['Id']})"
       end
     end
 
