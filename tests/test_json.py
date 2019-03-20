@@ -424,6 +424,10 @@ def validate_null_type(path, data, pointer='', allow_null=True, should_be_nullab
     non_null_exceptions = {
         '/definitions/LotDetails',  # actually can be null
     }
+    object_null_exceptions = {
+        '/definitions/Organization/properties/details',
+        '/definitions/Amendment/properties/changes/items/properties/former_value',
+    }
 
     if not allow_null:
         should_be_nullable = False
@@ -434,16 +438,16 @@ def validate_null_type(path, data, pointer='', allow_null=True, should_be_nullab
     elif isinstance(data, dict):
         if 'type' in data and pointer:
             nullable = 'null' in data['type']
+            # Objects should not be nullable.
+            if 'object' in data['type'] and 'null' in data['type'] and pointer not in object_null_exceptions:
+                errors += 1
+                warnings.warn('ERROR: {}: nullable object {} at {}'.format(path, data['type'], pointer))
             if should_be_nullable:
                 # A special case: If it's not required (should be nullable), but isn't nullable, it's okay if and only
-                # if it's an array of references or objects.
-                if not nullable and not is_array_of_objects(data) and pointer not in null_exceptions:
-                    if data['type'] == 'object':
-                        # Some objects are for hierarchy only.
-                        warnings.warn('{}: non-nullable optional {} at {}'.format(path, data['type'], pointer))
-                    else:
-                        errors += 1
-                        warnings.warn('ERROR: {}: non-nullable optional {} at {}'.format(path, data['type'], pointer))
+                # if it's an object or an array of objects/references.
+                if not nullable and data['type'] != 'object' and not is_array_of_objects(data) and pointer not in null_exceptions:  # noqa
+                    errors += 1
+                    warnings.warn('ERROR: {}: non-nullable optional {} at {}'.format(path, data['type'], pointer))
             elif nullable and pointer not in non_null_exceptions:
                 errors += 1
                 warnings.warn('ERROR: {}: nullable required {} at {}'.format(path, data['type'], pointer))
@@ -633,6 +637,9 @@ def validate_object_id(*args):
         # See https://github.com/open-contracting/ocds-extensions/issues/83
         '/definitions/Enquiry',
     }
+
+    if repo_name == 'infrastructure':
+        required_id_exceptions.add('/definitions/Classification')
 
     def block(path, data, pointer):
         errors = 0
@@ -1004,7 +1011,9 @@ def test_json_merge_patch():
         'versioned-release-validation-schema.json',
     )
 
-    url_pattern = 'http://standard.open-contracting.org/latest/en/{}'
+    # TODO: Change pattern once OCDS 1.1.4 released.
+    # url_pattern = 'http://standard.open-contracting.org/latest/en/{}'
+    url_pattern = 'https://raw.githubusercontent.com/open-contracting/standard/1.1-dev/standard/schema/{}'
 
     def get_dependencies(extension, basename):
         dependencies = extension.get('dependencies', []) + extension.get('testDependencies', [])
