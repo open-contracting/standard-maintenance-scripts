@@ -42,6 +42,26 @@ exceptional_extensions = (
     'public-private-partnerships',
 )
 
+# See https://tools.ietf.org/html/draft-fge-json-schema-validation-00
+unused_json_schema_properties = {
+    # Validation keywords for numeric instances
+    'multipleOf',
+    'exclusiveMaximum',
+    'exclusiveMinimum',
+
+    # Validation keywords for arrays
+    'additionalItems',
+
+    # Validation keywords for objects
+    'additionalProperties',
+    'dependencies',
+
+    # Validation keywords for any instance type
+    'allOf',
+    'anyOf',
+    'not',
+}
+
 cwd = os.getcwd()
 repo_name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', cwd))
 is_profile = os.path.isfile(os.path.join(cwd, 'Makefile')) and repo_name not in ('standard', 'infrastructure')
@@ -90,6 +110,13 @@ if repo_name in exceptional_extensions:
     # Allow null'ing a property in these repositories.
     metaschema['type'] = ['object', 'null']
 
+# Novel uses of JSON Schema features may require updates to other repositories.
+# See https://github.com/open-contracting/standard/issues/757
+record_package_metaschema = deepcopy(metaschema)
+for prop in unused_json_schema_properties:
+    del record_package_metaschema['properties'][prop]
+release_package_metaschema = deepcopy(record_package_metaschema)
+del release_package_metaschema['properties']['oneOf']
 
 def custom_warning_formatter(message, category, filename, lineno, line=None):
     return str(message).replace(cwd + os.sep, '')
@@ -869,7 +896,14 @@ def test_json_schema():
     """
     for path, text, data in walk_json_data():
         if is_json_schema(data):
-            validate_json_schema(path, data, metaschema)
+            basename = os.path.basename(path)
+            if basename in ('release-schema.json', 'release-package-schema.json'):
+                schema = release_package_metaschema
+            elif basename == 'record-package-schema.json':
+                schema = record_package_metaschema
+            else:
+                schema = metaschema
+            validate_json_schema(path, data, schema)
 
 
 @pytest.mark.skipif(not is_extension, reason='not an extension (test_extension_json)')
