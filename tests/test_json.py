@@ -436,17 +436,10 @@ def validate_null_type(path, data, pointer='', allow_null=True, should_be_nullab
         '/definitions/Organization/properties/id',
         '/definitions/OrganizationReference/properties/id',
         '/definitions/RelatedProcess/properties/id',
-        # Extensions.
+        # Core extensions.
         '/definitions/ParticipationFee/properties/id',
         '/definitions/Lot/properties/id',
         '/definitions/LotGroup/properties/id',
-        '/definitions/Risk/properties/id',
-        '/definitions/Shareholder/properties/id',
-        '/definitions/Charge/properties/id',
-        '/definitions/Metric/properties/id',
-        '/definitions/Observation/properties/id',
-        '/definitions/PerformanceFailure/properties/id',
-        '/definitions/Tariff/properties/id',
     }
     non_null_exceptions = {
         '/definitions/LotDetails',  # actually can be null
