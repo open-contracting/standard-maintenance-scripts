@@ -767,6 +767,7 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension, top=c
         'extension-schema.json',
         'extensions-schema.json',
         'extension_versions-schema.json',
+        'dereferenced-release-schema.json',
     }
     exceptions = json_schema_exceptions | ocds_schema_exceptions
     allow_null = repo_name != 'infrastructure'
