@@ -64,6 +64,7 @@ unused_json_schema_properties = {
 
 cwd = os.getcwd()
 repo_name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', cwd))
+ocds_version = os.path.basename(os.environ.get('OCDS_TEST_VERSION', cwd))
 is_profile = os.path.isfile(os.path.join(cwd, 'Makefile')) and repo_name not in ('standard', 'infrastructure')
 is_extension = os.path.isfile(os.path.join(cwd, 'extension.json')) or is_profile
 extensiondir = os.path.join(cwd, 'schema', 'profile') if is_profile else cwd
@@ -460,8 +461,12 @@ def validate_null_type(path, data, pointer='', allow_null=True, should_be_nullab
             nullable = 'null' in data['type']
             # Objects should not be nullable.
             if 'object' in data['type'] and 'null' in data['type'] and pointer not in object_null_exceptions:
-                errors += 1
-                warnings.warn('ERROR: {}: nullable object {} at {}'.format(path, data['type'], pointer))
+                # TODO: Remove if branch once OCDS for PPPs updated to OCDS 1.1.4.
+                if ocds_version == '1.1.3':
+                    warnings.warn('{}: nullable object {} at {}'.format(path, data['type'], pointer))
+                else:
+                    errors += 1
+                    warnings.warn('ERROR: {}: nullable object {} at {}'.format(path, data['type'], pointer))
             if should_be_nullable:
                 # A special case: If it's not required (should be nullable), but isn't nullable, it's okay if and only
                 # if it's an object or an array of objects/references.
@@ -1039,9 +1044,13 @@ def test_json_merge_patch():
         'versioned-release-validation-schema.json',
     )
 
-    # TODO: Change pattern once OCDS 1.1.4 released.
-    # url_pattern = 'http://standard.open-contracting.org/latest/en/{}'
-    url_pattern = 'https://raw.githubusercontent.com/open-contracting/standard/1.1-dev/standard/schema/{}'
+    # TODO: Remove if branch once OCDS for PPPs updated to OCDS 1.1.4.
+    if ocds_version == '1.1.3':
+        url_pattern = 'http://standard.open-contracting.org/schema/1__1__3/{}'
+    else:
+        # TODO: Change pattern once OCDS 1.1.4 released.
+        # url_pattern = 'http://standard.open-contracting.org/latest/en/{}'
+        url_pattern = 'https://raw.githubusercontent.com/open-contracting/standard/1.1-dev/standard/schema/{}'
 
     def get_dependencies(extension, basename):
         dependencies = extension.get('dependencies', []) + extension.get('testDependencies', [])
