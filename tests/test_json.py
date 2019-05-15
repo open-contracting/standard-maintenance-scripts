@@ -119,6 +119,7 @@ for prop in unused_json_schema_properties:
 release_package_metaschema = deepcopy(record_package_metaschema)
 del release_package_metaschema['properties']['oneOf']
 
+
 def custom_warning_formatter(message, category, filename, lineno, line=None):
     return str(message).replace(cwd + os.sep, '')
 
