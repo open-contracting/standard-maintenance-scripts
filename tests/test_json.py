@@ -642,7 +642,7 @@ def validate_deep_properties(*args):
 
 def validate_object_id(*args):
     """
-    Prints and returns the number of errors relating objects within arrays lacking `id` fields.
+    Prints and returns the number of errors relating to objects within arrays lacking `id` fields.
     """
     exceptions = {
         'changes',  # deprecated
