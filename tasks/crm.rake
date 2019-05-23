@@ -45,10 +45,10 @@ namespace :crm do
     'Rob Redpath',
   ]
   REDMINE_ODS_USERS_OTHER = [
-    'David Spencer',
     'Jack Lord',
     'Rory Scott',
-    'Steven Flower',
+    # 'David Spencer',
+    # 'Steven Flower',
   ]
   REDMINE_ODS_COORDINATOR = [
     'Rob Redpath',
