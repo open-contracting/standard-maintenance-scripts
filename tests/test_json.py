@@ -14,6 +14,9 @@ from jsonschema import FormatChecker
 from jsonschema.validators import Draft4Validator as validator
 
 
+# Whether to use the 1.1-dev version of OCDS.
+use_development_version = True  # TODO: Change to False after OCDS 1.1.4 release.
+
 # The codelists defined in `standard/schema/codelists`. XXX Hardcoding.
 external_codelists = {
     'awardCriteria.csv',
@@ -64,10 +67,17 @@ unused_json_schema_properties = {
 
 cwd = os.getcwd()
 repo_name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', cwd))
-ocds_version = os.path.basename(os.environ.get('OCDS_TEST_VERSION', cwd))
+ocds_version = os.environ.get('OCDS_TEST_VERSION')
 is_profile = os.path.isfile(os.path.join(cwd, 'Makefile')) and repo_name not in ('standard', 'infrastructure')
 is_extension = os.path.isfile(os.path.join(cwd, 'extension.json')) or is_profile
 extensiondir = os.path.join(cwd, 'schema', 'profile') if is_profile else cwd
+
+ocds_schema_base_url = 'http://standard.open-contracting.org/schema/'
+ocds_tags = re.findall(r'\d+__\d+__\d+', requests.get(ocds_schema_base_url).text)
+if ocds_version:
+    ocds_tag = ocds_version.replace('.', '__')
+else:
+    ocds_tag = ocds_tags[-1]
 
 url = 'https://raw.githubusercontent.com/open-contracting/standard/1.1/standard/schema/meta-schema.json'
 metaschema = requests.get(url).json()
@@ -167,6 +177,12 @@ def walk_json_data(top=cwd):
             with open(path) as f:
                 text = f.read()
                 if text:
+                    # Handle unreleased tag in $ref.
+                    match = re.search(r'\d+__\d+__\d+', text)
+                    if match:
+                        tag = match.group(0)
+                        if tag not in ocds_tags:
+                            text = text.replace(tag, ocds_tag)
                     try:
                         yield (path, text, json.loads(text, object_pairs_hook=object_pairs_hook))
                     except json.decoder.JSONDecodeError as e:
@@ -1045,12 +1061,9 @@ def test_json_merge_patch():
         'versioned-release-validation-schema.json',
     )
 
-    # TODO: Remove if branch once OCDS for PPPs updated to OCDS 1.1.4.
-    if ocds_version == '1.1.3':
-        url_pattern = 'http://standard.open-contracting.org/schema/1__1__3/{}'
+    if ocds_version or not use_development_version:
+        url_pattern = ocds_schema_base_url + ocds_tag + '/{}'
     else:
-        # TODO: Change pattern once OCDS 1.1.4 released.
-        # url_pattern = 'http://standard.open-contracting.org/latest/en/{}'
         url_pattern = 'https://raw.githubusercontent.com/open-contracting/standard/1.1-dev/standard/schema/{}'
 
     def get_dependencies(extension, basename):
