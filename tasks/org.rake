@@ -19,9 +19,9 @@ namespace :org do
       'pindec', # Charlie Pinder
       'rhiaro', # Amy Guy
       'robredpath', # Rob Redpath
+      'tim0th1', # Tim Williams
       # 'rory09', # Rory Scott
       # 'scatteredink', # Jack Lord
-      # 'tim0th1', # Tim Williams
 
       # Iniciativa Latinoamericana por los Datos Abiertos
       # https://idatosabiertos.org/acerca-de-nosotros/
