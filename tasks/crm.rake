@@ -9,7 +9,6 @@ namespace :crm do
   # Open Contracting Partnership
   # https://www.open-contracting.org/about/team/
   REDMINE_OCP_USERS_OCDS = [
-    'Andye Sanon',
     'Bernadine Fernz',
     'Carey Kluttz',
     'Hera Hussain',
