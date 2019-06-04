@@ -47,6 +47,7 @@ namespace :crm do
   REDMINE_ODS_USERS_OTHER = [
     'Jack Lord',
     'Rory Scott',
+    'Tim Williams',
     # 'David Spencer',
     # 'Steven Flower',
   ]
