@@ -73,6 +73,7 @@ is_extension = os.path.isfile(os.path.join(cwd, 'extension.json')) or is_profile
 extensiondir = os.path.join(cwd, 'schema', 'profile') if is_profile else cwd
 
 ocds_schema_base_url = 'http://standard.open-contracting.org/schema/'
+development_base_url = 'https://raw.githubusercontent.com/open-contracting/standard/1.1-dev/standard/schema'
 ocds_tags = re.findall(r'\d+__\d+__\d+', requests.get(ocds_schema_base_url).text)
 if ocds_version:
     ocds_tag = ocds_version.replace('.', '__')
@@ -182,7 +183,10 @@ def walk_json_data(top=cwd):
                     if match:
                         tag = match.group(0)
                         if tag not in ocds_tags:
-                            text = text.replace(tag, ocds_tag)
+                            if ocds_version or not use_development_version:
+                                text = text.replace(tag, ocds_tag)
+                            else:
+                                text = text.replace(ocds_schema_base_url + tag, development_base_url)
                     try:
                         yield (path, text, json.loads(text, object_pairs_hook=object_pairs_hook))
                     except json.decoder.JSONDecodeError as e:
@@ -1064,7 +1068,7 @@ def test_json_merge_patch():
     if ocds_version or not use_development_version:
         url_pattern = ocds_schema_base_url + ocds_tag + '/{}'
     else:
-        url_pattern = 'https://raw.githubusercontent.com/open-contracting/standard/1.1-dev/standard/schema/{}'
+        url_pattern = development_base_url + '/{}'
 
     def get_dependencies(extension, basename):
         dependencies = extension.get('dependencies', []) + extension.get('testDependencies', [])
