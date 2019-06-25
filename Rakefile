@@ -258,7 +258,7 @@ end
 desc 'Report which non-extension repositories are not cloned'
 task :uncloned do
   extension_repositories = Set.new
-  url = 'http://standard.open-contracting.org/extension_registry/master/extensions.json'
+  url = 'https://standard.open-contracting.org/extension_registry/master/extensions.json'
   JSON.load(open(url).read).fetch('extensions').each do |extension|
     if extension.fetch('active')
       extension_repositories << URI.parse(extension['url']).path.split('/')[2]

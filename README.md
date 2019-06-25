@@ -27,7 +27,7 @@ To run the tests locally, run the setup commands above, change into a repository
     flake8 --max-line-length 119
     py.test -rs path/to/standard-maintenance-scripts/tests
 
-To run the tests locally against an unreleased version of the standard, replace `http://standard.open-contracting.org/schema/VERSION` with `http://standard.open-contracting.org/BRANCH/en`.
+To run the tests locally against an unreleased version of the standard, replace `https://standard.open-contracting.org/schema/VERSION` with `https://standard.open-contracting.org/BRANCH/en`.
 
 To skip the JSON indentation test, set the `OCDS_NOINDENT` environment variable, with `export OCDS_NOINDENT=1` (Bash) or `setenv OCDS_NOINDENT 1` (fish).
 

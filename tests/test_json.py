@@ -72,7 +72,7 @@ is_profile = os.path.isfile(os.path.join(cwd, 'Makefile')) and repo_name not in 
 is_extension = os.path.isfile(os.path.join(cwd, 'extension.json')) or is_profile
 extensiondir = os.path.join(cwd, 'schema', 'profile') if is_profile else cwd
 
-ocds_schema_base_url = 'http://standard.open-contracting.org/schema/'
+ocds_schema_base_url = 'https://standard.open-contracting.org/schema/'
 development_base_url = 'https://raw.githubusercontent.com/open-contracting/standard/1.1-dev/standard/schema'
 ocds_tags = re.findall(r'\d+__\d+__\d+', requests.get(ocds_schema_base_url).text)
 if ocds_version:
@@ -703,7 +703,7 @@ def validate_object_id(*args):
             else:
                 original = pointer
 
-            # See http://standard.open-contracting.org/latest/en/schema/merging/#whole-list-merge
+            # See https://standard.open-contracting.org/latest/en/schema/merging/#whole-list-merge
             if 'id' not in data['items']['properties'] and not data.get('wholeListMerge'):
                 errors += 1
                 if original == pointer:
