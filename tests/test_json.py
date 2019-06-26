@@ -15,7 +15,7 @@ from jsonschema.validators import Draft4Validator as validator
 
 
 # Whether to use the 1.1-dev version of OCDS.
-use_development_version = True  # TODO: Change to False after OCDS 1.1.4 release.
+use_development_version = False
 
 # The codelists defined in `standard/schema/codelists`. XXX Hardcoding.
 external_codelists = {
