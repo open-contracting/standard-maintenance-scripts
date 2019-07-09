@@ -4,22 +4,27 @@ namespace :crm do
     'Redmine Admin',
     'API Access',
     'Time Tracking',
+    'CoST Test User',
   ]
 
   # Open Contracting Partnership
   # https://www.open-contracting.org/about/team/
   REDMINE_OCP_USERS_OCDS = [
+    # Helpdesk Management
+    'James McKinney',
+    'Lindsey Marchessault',
+    # Program Managers
     'Bernadine Fernz',
     'Carey Kluttz',
     'Hera Hussain',
-    'James McKinney',
     'Karolis Granickas',
-    'Lindsey Marchessault',
     'Nicolás Penagos',
     'Oscar Hernandez',
-    'Santiago De la Cadena',
+    'Sofía Garzón',
+    'Viktor Nestulia',
   ]
   REDMINE_OCP_USERS = REDMINE_OCP_USERS_OCDS + [
+    'Camila Salazar',
     'David Selassie Opoku',
     'Gavin Hayman',
     'Georg Neumann',
@@ -41,6 +46,7 @@ namespace :crm do
     'Bibiana Cristofol',
     'David Raznick',
     'James Baster',
+    'Michael Wood',
     'Rob Redpath',
   ]
   REDMINE_ODS_USERS_OTHER = [
@@ -67,11 +73,17 @@ namespace :crm do
     'Juan Pane',
   ]
 
+  # Infrastructure Transparency Initiative
+  REDMINE_COST_USERS = [
+    'Evelyn Hernandez',
+    'John Hawkins',
+  ]
+
   REDMINE_EXTERNAL_USERS = [
     'Ramon Olivas',  # Nicolás Penagos
   ]
 
-  REDMINE_ALL_USERS = REDMINE_GENERIC_USERS + REDMINE_OCP_USERS + REDMINE_ODS_USERS + REDMINE_ILDA_USERS + REDMINE_EXTERNAL_USERS
+  REDMINE_ALL_USERS = REDMINE_GENERIC_USERS + REDMINE_OCP_USERS + REDMINE_ODS_USERS + REDMINE_ILDA_USERS + REDMINE_COST_USERS + REDMINE_EXTERNAL_USERS
 
   def crm_api_client
     @crm_api_client ||= begin
