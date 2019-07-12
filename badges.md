@@ -17,7 +17,6 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 
 |Priority|Build|Name|
 |-|-|-|
-| |-|[json-schema-random](https://github.com/open-contracting/json-schema-random)|
 |✴️|[![Build Status](https://travis-ci.org/open-contracting/kingfisher.svg)](https://travis-ci.org/open-contracting/kingfisher)|[kingfisher](https://github.com/open-contracting/kingfisher)|
 | |-|[kingfisher-archive](https://github.com/open-contracting/kingfisher-archive)|
 | |-|[kingfisher-colab](https://github.com/open-contracting/kingfisher-colab)|
@@ -25,10 +24,8 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 |✴️|[![Build Status](https://travis-ci.org/open-contracting/kingfisher-scrape.svg)](https://travis-ci.org/open-contracting/kingfisher-scrape)|[kingfisher-scrape](https://github.com/open-contracting/kingfisher-scrape)|
 | |[![Build Status](https://travis-ci.org/open-contracting/kingfisher-views.svg)](https://travis-ci.org/open-contracting/kingfisher-views)|[kingfisher-views](https://github.com/open-contracting/kingfisher-views)|
 |✴️✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/lib-cove-ocds.svg)](https://travis-ci.org/open-contracting/lib-cove-ocds)|[lib-cove-ocds](https://github.com/open-contracting/lib-cove-ocds)|
-|✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/ocds-babel.svg)](https://travis-ci.org/open-contracting/ocds-babel)|[ocds-babel](https://github.com/open-contracting/ocds-babel)|
 | |-|[ocds-kibana-manual](https://github.com/open-contracting/ocds-kibana-manual)|
 |✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/ocds-merge.svg)](https://travis-ci.org/open-contracting/ocds-merge)|[ocds-merge](https://github.com/open-contracting/ocds-merge)|
-| |-|[ocds-pdf](https://github.com/open-contracting/ocds-pdf)|
 | |-|[ocds-r-manual](https://github.com/open-contracting/ocds-r-manual)|
 | |[![Build Status](https://travis-ci.org/open-contracting/ocds-show.svg)](https://travis-ci.org/open-contracting/ocds-show)|[ocds-show](https://github.com/open-contracting/ocds-show)|
 | |-|[ocds-show-ppp](https://github.com/open-contracting/ocds-show-ppp)|
@@ -51,6 +48,8 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 |Priority|Build|Name|
 |-|-|-|
 | |-|[european-union-support](https://github.com/open-contracting/european-union-support)|
+| |-|[json-schema-random](https://github.com/open-contracting/json-schema-random)|
+| |-|[ocds-pdf](https://github.com/open-contracting/ocds-pdf)|
 |✴️|[![Build Status](https://travis-ci.org/open-contracting/standard-development-handbook.svg)](https://travis-ci.org/open-contracting/standard-development-handbook)|[standard-development-handbook](https://github.com/open-contracting/standard-development-handbook)|
 |✴️|[![Build Status](https://travis-ci.org/open-contracting/standard-maintenance-scripts.svg)](https://travis-ci.org/open-contracting/standard-maintenance-scripts)|[standard-maintenance-scripts](https://github.com/open-contracting/standard-maintenance-scripts)|
 
@@ -58,6 +57,7 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 
 |Priority|Build|Name|
 |-|-|-|
+|✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/ocds-babel.svg)](https://travis-ci.org/open-contracting/ocds-babel)|[ocds-babel](https://github.com/open-contracting/ocds-babel)|
 |✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/sphinxcontrib-opencontracting.svg)](https://travis-ci.org/open-contracting/sphinxcontrib-opencontracting)|[sphinxcontrib-opencontracting](https://github.com/open-contracting/sphinxcontrib-opencontracting)|
 |✴️✴️|-|[standard_theme](https://github.com/open-contracting/standard_theme)|
 

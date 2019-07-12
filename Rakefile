@@ -48,7 +48,7 @@ TEMPLATES = [
   'standard_profile_template',
 ]
 
-miscellaneous_repositories = [
+specifications = [
   'glossary',
   'infrastructure',
   'ocds-extensions',
@@ -63,10 +63,13 @@ extension_tools = [
 ]
 internal_tools = [
   'european-union-support',
+  'json-schema-random',
+  'ocds-pdf',
   'standard-development-handbook',
   'standard-maintenance-scripts',
 ]
 DOCUMENTATION_DEPENDENCIES = [
+  'ocds-babel',
   'sphinxcontrib-opencontracting',
   'standard_theme',
 ]
@@ -74,10 +77,10 @@ LEGACY = [
   'open-contracting.github.io',
   'standard-legacy-staticsites',
 ]
-non_tools = miscellaneous_repositories + DOCUMENTATION_DEPENDENCIES + LEGACY
+non_tools = specifications + DOCUMENTATION_DEPENDENCIES + LEGACY
 
 REPOSITORY_CATEGORIES = {
-  'Miscellaneous repositories' => -> (repo) { miscellaneous_repositories.include?(repo.name) },
+  'Miscellaneous repositories' => -> (repo) { specifications.include?(repo.name) },
   'Tools' => -> (repo) { !extension?(repo.name) && !extension_tools.include?(repo.name) && !internal_tools.include?(repo.name) && !non_tools.include?(repo.name) },
   'Extension tools' => -> (repo) { extension_tools.include?(repo.name) },
   'Internal tools' => -> (repo) { internal_tools.include?(repo.name) },
@@ -96,7 +99,6 @@ TECH_SUPPORT_PRIORITIES = {
   'standard' => '✴️✴️✴️', # core documentation
 
   # Tools
-  'json-schema-random' => ' ', # infrequently used
   'lib-cove-ocds' => '✴️✴️✴️', # implementation step
   'kingfisher' => '✴️', # key tool
   'kingfisher-archive' => ' ',
@@ -104,10 +106,8 @@ TECH_SUPPORT_PRIORITIES = {
   'kingfisher-process' => '✴️', # key tool
   'kingfisher-scrape' => '✴️', # key tool
   'kingfisher-views' => ' ',
-  'ocds-babel' => '✴️✴️', # documentation dependency
   'ocds-kibana-manual' => ' ',
   'ocds-merge' => '✴️✴️', # reference implementation
-  'ocds-pdf' => ' ',
   'ocds-r-manual' => ' ',
   'ocds-show' => ' ', # infrequently used
   'ocds-show-ppp' => ' ', # infrequently used
@@ -124,6 +124,8 @@ TECH_SUPPORT_PRIORITIES = {
 
   # Internal tools
   'european-union-support' => ' ', # scratch pad
+  'json-schema-random' => ' ', # infrequently used
+  'ocds-pdf' => ' ', # alpha
   'standard-development-handbook' => '✴️', # key internal documentation
   'standard-maintenance-scripts' => '✴️', # internal quality assurance
 
