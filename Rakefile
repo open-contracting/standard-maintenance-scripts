@@ -71,7 +71,6 @@ DOCUMENTATION_DEPENDENCIES = [
   'standard_theme',
 ]
 LEGACY = [
-  'api-specification',
   'open-contracting.github.io',
   'standard-legacy-staticsites',
 ]
@@ -108,6 +107,7 @@ TECH_SUPPORT_PRIORITIES = {
   'ocds-babel' => '✴️✴️', # documentation dependency
   'ocds-kibana-manual' => ' ',
   'ocds-merge' => '✴️✴️', # reference implementation
+  'ocds-pdf' => ' ',
   'ocds-r-manual' => ' ',
   'ocds-show' => ' ', # infrequently used
   'ocds-show-ppp' => ' ', # infrequently used
