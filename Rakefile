@@ -54,6 +54,10 @@ specifications = [
   'ocds-extensions',
   'standard',
 ]
+guides = [
+  'ocds-kibana-manual',
+  'ocds-r-manual',
+]
 extension_tools = [
   'extension-explorer',
   'extension_creator',
@@ -77,10 +81,11 @@ LEGACY = [
   'open-contracting.github.io',
   'standard-legacy-staticsites',
 ]
-non_tools = specifications + DOCUMENTATION_DEPENDENCIES + LEGACY
+non_tools = specifications + guides + DOCUMENTATION_DEPENDENCIES + LEGACY
 
 REPOSITORY_CATEGORIES = {
   'Specifications' => -> (repo) { specifications.include?(repo.name) },
+  'Guides' => -> (repo) { guides.include?(repo.name) },
   'Tools' => -> (repo) { !extension?(repo.name) && !extension_tools.include?(repo.name) && !internal_tools.include?(repo.name) && !non_tools.include?(repo.name) },
   'Extension tools' => -> (repo) { extension_tools.include?(repo.name) },
   'Internal tools' => -> (repo) { internal_tools.include?(repo.name) },
@@ -98,6 +103,10 @@ TECH_SUPPORT_PRIORITIES = {
   'ocds-extensions' => ' ', # issues only
   'standard' => '✴️✴️✴️', # core documentation
 
+  # Guides
+  'ocds-kibana-manual' => ' ',
+  'ocds-r-manual' => ' ',
+
   # Tools
   'lib-cove-ocds' => '✴️✴️✴️', # implementation step
   'kingfisher' => '✴️', # key tool
@@ -106,9 +115,7 @@ TECH_SUPPORT_PRIORITIES = {
   'kingfisher-process' => '✴️', # key tool
   'kingfisher-scrape' => '✴️', # key tool
   'kingfisher-views' => ' ',
-  'ocds-kibana-manual' => ' ',
   'ocds-merge' => '✴️✴️', # reference implementation
-  'ocds-r-manual' => ' ',
   'ocds-show' => ' ', # infrequently used
   'ocds-show-ppp' => ' ', # infrequently used
   'ocdskit' => '✴️', # key tool

@@ -13,6 +13,13 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 | |-|[ocds-extensions](https://github.com/open-contracting/ocds-extensions)|
 |✴️✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/standard.svg)](https://travis-ci.org/open-contracting/standard)|[standard](https://github.com/open-contracting/standard)|
 
+## Guides
+
+|Priority|Build|Name|
+|-|-|-|
+| |-|[ocds-kibana-manual](https://github.com/open-contracting/ocds-kibana-manual)|
+| |-|[ocds-r-manual](https://github.com/open-contracting/ocds-r-manual)|
+
 ## Tools
 
 |Priority|Build|Name|
@@ -24,9 +31,7 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 |✴️|[![Build Status](https://travis-ci.org/open-contracting/kingfisher-scrape.svg)](https://travis-ci.org/open-contracting/kingfisher-scrape)|[kingfisher-scrape](https://github.com/open-contracting/kingfisher-scrape)|
 | |[![Build Status](https://travis-ci.org/open-contracting/kingfisher-views.svg)](https://travis-ci.org/open-contracting/kingfisher-views)|[kingfisher-views](https://github.com/open-contracting/kingfisher-views)|
 |✴️✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/lib-cove-ocds.svg)](https://travis-ci.org/open-contracting/lib-cove-ocds)|[lib-cove-ocds](https://github.com/open-contracting/lib-cove-ocds)|
-| |-|[ocds-kibana-manual](https://github.com/open-contracting/ocds-kibana-manual)|
 |✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/ocds-merge.svg)](https://travis-ci.org/open-contracting/ocds-merge)|[ocds-merge](https://github.com/open-contracting/ocds-merge)|
-| |-|[ocds-r-manual](https://github.com/open-contracting/ocds-r-manual)|
 | |[![Build Status](https://travis-ci.org/open-contracting/ocds-show.svg)](https://travis-ci.org/open-contracting/ocds-show)|[ocds-show](https://github.com/open-contracting/ocds-show)|
 | |-|[ocds-show-ppp](https://github.com/open-contracting/ocds-show-ppp)|
 |✴️|[![Build Status](https://travis-ci.org/open-contracting/ocdskit.svg)](https://travis-ci.org/open-contracting/ocdskit)|[ocdskit](https://github.com/open-contracting/ocdskit)|
