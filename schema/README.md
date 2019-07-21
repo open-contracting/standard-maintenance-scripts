@@ -17,22 +17,23 @@ This repository holds `extension-schema.json`, against which `extension.json` fi
 
 If changes are made to `extension-schema.json`, changes may be needed to:
 
-* Standard, templates, profiles and extensions: `extension.json`
+* Specifications
+  * [standard](https://github.com/open-contracting/standard): `fetch_core_extensions.py` (`codelists`)
 * Tools
-  * [standard-maintenance-scripts](https://github.com/open-contracting/standard-maintenance-scripts): `test_json.py`
   * CoVE: [schema.py](https://github.com/OpenDataServices/cove/blob/master/cove_ocds/lib/schema.py#L116) `apply_extensions` method
 * Extension tools
   * [extension-explorer](https://github.com/open-contracting/extension-explorer)
   * [extension_creator](https://github.com/open-contracting/extension_creator): [`entry.js`](https://github.com/open-contracting/extension_creator/blob/gh-pages/entry.js#L125) `extension.json` line (and recompile `app.js`)
+  * [extension_registry](https://github.com/open-contracting/extension_registry): `compile.py` (`name`, `description`, `documentationUrl`)
   * [extension_registry.py](https://github.com/open-contracting/extension_registry.py): `profile_builder.py` (`name`, `codelists`)
+* Internal tools
+  * [standard-maintenance-scripts](https://github.com/open-contracting/standard-maintenance-scripts): `test_json.py`
 * Documentation dependencies
   * [ocds-babel](https://github.com/open-contracting/ocds-babel): `extract.py`, `translate.py`
   * [sphinxcontrib-opencontracting](https://github.com/open-contracting/sphinxcontrib-opencontracting): `ExtensionList` class (`name`, `description`)
-* Miscellaneous repositories
-  * [extension_registry](https://github.com/open-contracting/extension_registry): `compile.py` (`name`, `description`, `documentationUrl`)
-  * [standard](https://github.com/open-contracting/standard): `fetch_core_extensions.py` (`codelists`)
 * Templates
-  * [standard_extension_template](https://github.com/open-contracting/standard_extension_template): [`README.md`](https://github.com/open-contracting/standard_extension_template#extensionjson)
+  * [standard_extension_template](https://github.com/open-contracting/standard_extension_template): `extension.json`, [`README.md`](https://github.com/open-contracting/standard_extension_template#extensionjson)
+* Profiles and extensions: `extension.json`
 
 ## CSV files
 

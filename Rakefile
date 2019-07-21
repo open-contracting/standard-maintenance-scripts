@@ -80,7 +80,7 @@ LEGACY = [
 non_tools = specifications + DOCUMENTATION_DEPENDENCIES + LEGACY
 
 REPOSITORY_CATEGORIES = {
-  'Miscellaneous repositories' => -> (repo) { specifications.include?(repo.name) },
+  'Specifications' => -> (repo) { specifications.include?(repo.name) },
   'Tools' => -> (repo) { !extension?(repo.name) && !extension_tools.include?(repo.name) && !internal_tools.include?(repo.name) && !non_tools.include?(repo.name) },
   'Extension tools' => -> (repo) { extension_tools.include?(repo.name) },
   'Internal tools' => -> (repo) { internal_tools.include?(repo.name) },
@@ -92,7 +92,7 @@ REPOSITORY_CATEGORIES = {
 }
 
 TECH_SUPPORT_PRIORITIES = {
-  # Miscellaneous repositories
+  # Specifications
   'glossary' => '✴️', # documentation support
   'infrastructure' => '✴️✴️', # sector documentation
   'ocds-extensions' => ' ', # issues only

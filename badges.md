@@ -4,7 +4,7 @@ Tech support priority is assessed based on the impact of the project becoming un
 
 In addition to the below, within the [OpenDataServices](https://github.com/OpenDataServices) organization, `cove` is critical (as a step in implementation), and `sphinxcontrib-jsonschema` and `sphinxcontrib-opendataservices` are high (as dependencies of `standard`).
 
-## Miscellaneous repositories
+## Specifications
 
 |Priority|Build|Name|
 |-|-|-|
