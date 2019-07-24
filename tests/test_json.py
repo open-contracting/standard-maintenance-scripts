@@ -482,12 +482,8 @@ def validate_null_type(path, data, pointer='', allow_null=True, should_be_nullab
             nullable = 'null' in data['type']
             # Objects should not be nullable.
             if 'object' in data['type'] and 'null' in data['type'] and pointer not in object_null_exceptions:
-                # TODO: Remove if branch once OCDS for PPPs updated to OCDS 1.1.4.
-                if ocds_version == '1.1.3':
-                    warnings.warn('{}: nullable object {} at {}'.format(path, data['type'], pointer))
-                else:
-                    errors += 1
-                    warnings.warn('ERROR: {}: nullable object {} at {}'.format(path, data['type'], pointer))
+                errors += 1
+                warnings.warn('ERROR: {}: nullable object {} at {}'.format(path, data['type'], pointer))
             if should_be_nullable:
                 # A special case: If it's not required (should be nullable), but isn't nullable, it's okay if and only
                 # if it's an object or an array of objects/references.
