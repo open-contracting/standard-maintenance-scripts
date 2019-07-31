@@ -36,7 +36,7 @@ def test_example():
             readme = f.read()
 
         # ocds_enquiry_extension doesn't have an "Example" heading.
-        if not re.search(r'\bexample\b', readme, re.IGNORECASE) or '```json' not in readme:
+        if not re.search(r'\bexamples?\b', readme, re.IGNORECASE) or '```json' not in readme:
             warnings.warn('{} expected an example'.format(path))
     else:
         assert False, 'expected a README.md file'
