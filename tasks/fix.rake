@@ -27,25 +27,29 @@ namespace :fix do
   task :lint_repos do
     repos.each do |repo|
       if extension?(repo.name, profiles: false, templates: false)
-        metadata = JSON.load(read_github_file(repo.full_name, 'extension.json'))
-        options = {}
+        begin
+          metadata = JSON.load(read_github_file(repo.full_name, 'extension.json'))
+          options = {}
 
-        description = metadata['description'].fetch('en')
-        if description != repo.description
-          options[:description] = description
-        end
+          description = metadata['description'].fetch('en')
+          if description != repo.description
+            options[:description] = description
+          end
 
-        homepage = metadata['documentationUrl'].fetch('en')
-        if homepage == repo.html_url || homepage['https://github.com/open-contracting']
-          homepage = nil # don't link to itself
-        end
-        if homepage != repo.homepage
-          options[:homepage] = homepage
-        end
+          homepage = metadata['documentationUrl'].fetch('en')
+          if homepage == repo.html_url || homepage['https://github.com/open-contracting']
+            homepage = nil # don't link to itself
+          end
+          if homepage != repo.homepage
+            options[:homepage] = homepage
+          end
 
-        if options.any?
-          client.edit_repository(repo.full_name, options.dup)
-          puts "#{repo.html_url} #{"updated #{options.keys.join(' and ')}".bold}"
+          if options.any?
+            client.edit_repository(repo.full_name, options.dup)
+            puts "#{repo.html_url} #{"updated #{options.keys.join(' and ')}".bold}"
+          end
+        rescue Octokit::NotFound
+          puts "#{repo.html_url} #{"no extension.json file!".bold}"
         end
       end
 
