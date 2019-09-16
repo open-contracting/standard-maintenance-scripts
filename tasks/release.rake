@@ -1,4 +1,4 @@
-# See http://ocds-standard-development-handbook.readthedocs.io/en/latest/standard/technical/deployment/
+# See https://ocds-standard-development-handbook.readthedocs.io/en/latest/standard/technical/deployment.html
 namespace :release do
   desc 'Reviews open pull requests and recent changes to core extensions'
   task :review_extensions do

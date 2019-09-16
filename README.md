@@ -62,7 +62,7 @@ Check for TODOs that should be made into GitHub issues (skipping Git, vendored, 
 
     grep -R -i --exclude-dir .git --exclude-dir _build --exclude-dir _static --exclude-dir build --exclude-dir node_modules --exclude-dir LC_MESSAGES --exclude app.js --exclude conf.py '\btodo\b' .
 
-Periodically [spell-check](http://ocds-standard-development-handbook.readthedocs.io/en/latest/standard/technical/spellcheck/) and [Markdownlint](http://ocds-standard-development-handbook.readthedocs.io/en/latest/coding/#linting) the `standard`, extension and profile repositories.
+Periodically [spell-check](https://ocds-standard-development-handbook.readthedocs.io/en/latest/standard/technical/spellcheck.html) and [Markdownlint](https://ocds-standard-development-handbook.readthedocs.io/en/latest/coding/#linting) the `standard`, extension and profile repositories.
 
 ## Code tasks
 
