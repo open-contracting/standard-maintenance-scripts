@@ -2,7 +2,7 @@ flake8
 invoke
 json-merge-patch
 jsonref
-jsonschema
+jsonschema<2.7  # to match cove packages
 ocdsextensionregistry
 pytest
 requests
