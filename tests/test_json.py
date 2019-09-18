@@ -1008,7 +1008,10 @@ def test_empty_files():
         # Excel
         '.xlsx',
         # Fonts
+        '.eot',
+        '.ttf',
         '.woff',
+        '.woff2',
         # Gettext
         '.mo',
         # Images
