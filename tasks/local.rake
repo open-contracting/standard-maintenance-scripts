@@ -94,7 +94,14 @@ namespace :local do
           # Support both GitHub Services and GitHub Apps until GitHub Services fully retired.
           hook = hooks.find{ |datum| datum.name == 'travis' || datum.config.url == 'https://notify.travis-ci.org' }
           if hook
-            line << "[![Build Status](https://travis-ci.org/#{repo.full_name}.svg)](https://travis-ci.org/#{repo.full_name})|"
+            line << "[![Build Status](https://travis-ci.org/#{repo.full_name}.svg)](https://travis-ci.org/#{repo.full_name})"
+            if ['Tools', 'Extension tools', 'Documentation dependencies'].include?(heading)
+              contents = read_github_file(repo.full_name, '.travis.yml')
+              if contents.include?('coveralls')
+                line << "<br>[!Coverage Status](https://coveralls.io/repos/github/#{repo.full_name}/badge.svg?branch=master)](https://coveralls.io/github/#{repo.full_name}?branch=master)"
+              end
+            end
+            line << '|'
           else
             line << '-|'
           end
