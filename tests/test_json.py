@@ -1007,6 +1007,8 @@ def test_empty_files():
     extension_exceptions = {
         # Excel
         '.xlsx',
+        # Fonts
+        '.woff',
         # Gettext
         '.mo',
         # Images
