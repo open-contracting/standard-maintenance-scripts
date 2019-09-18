@@ -28,10 +28,12 @@ EXTERNAL_EXTENSIONS = [
 ]
 
 REQUIRE_PULL_REQUEST_REVIEWS = [
+  'cove-oc4ids',
   'kingfisher',
   'kingfisher-process',
   'kingfisher-scrape',
   'lib-cove-ocds',
+  'lib-cove-oc4ids',
 ]
 ENFORCE_ADMINS = [
   'public-private-partnerships',
@@ -66,6 +68,7 @@ extension_tools = [
   'ocds-extensions-translations',
 ]
 internal_tools = [
+  'deploy',
   'european-union-support',
   'json-schema-random',
   'ocds-pdf',
@@ -108,18 +111,20 @@ TECH_SUPPORT_PRIORITIES = {
   'ocds-r-manual' => ' ',
 
   # Tools
-  'lib-cove-ocds' => '✴️✴️✴️', # implementation step
+  'cove-oc4ids' => '✴️✴️', # sectoral tool
   'kingfisher' => '✴️', # key tool
   'kingfisher-archive' => ' ',
   'kingfisher-colab' => ' ',
   'kingfisher-process' => '✴️', # key tool
   'kingfisher-scrape' => '✴️', # key tool
   'kingfisher-views' => ' ',
+  'lib-cove-oc4ids' => '✴️✴️', # sectoral tool
+  'lib-cove-ocds' => '✴️✴️✴️', # implementation step
   'ocds-merge' => '✴️✴️', # reference implementation
   'ocds-show' => ' ', # infrequently used
   'ocds-show-ppp' => ' ', # infrequently used
   'ocdskit' => '✴️', # key tool
-  'ocdskit-web' => ' ',
+  'toucan' => ' ',
   'sample-data' => '✴️', # frequently used
 
   # Extension tools
@@ -130,6 +135,7 @@ TECH_SUPPORT_PRIORITIES = {
   'ocds-extensions-translations' => '✴️✴️', # extensions documentation
 
   # Internal tools
+  'deploy' => '✴️✴️', # deployment dependency
   'european-union-support' => ' ', # scratch pad
   'json-schema-random' => ' ', # infrequently used
   'ocds-pdf' => ' ', # alpha
