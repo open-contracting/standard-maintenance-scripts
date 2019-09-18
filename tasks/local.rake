@@ -98,7 +98,7 @@ namespace :local do
             if ['Tools', 'Extension tools', 'Documentation dependencies'].include?(heading)
               contents = read_github_file(repo.full_name, '.travis.yml')
               if contents.include?('coveralls')
-                line << "<br>[![Coverage Status](https://coveralls.io/repos/github/#{repo.full_name}/badge.svg?branch=master)](https://coveralls.io/github/#{repo.full_name}?branch=master)"
+                line << "[![Coverage Status](https://coveralls.io/repos/github/#{repo.full_name}/badge.svg?branch=master)](https://coveralls.io/github/#{repo.full_name}?branch=master)"
               end
             end
             line << '|'
