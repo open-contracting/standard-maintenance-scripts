@@ -1018,6 +1018,8 @@ def test_empty_files():
         '.ico',
         '.jpg',
         '.png',
+        # Packages
+        '.deb',
         # Python
         '.pyc',
         # Python packages
