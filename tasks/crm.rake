@@ -61,15 +61,13 @@ namespace :crm do
   ]
   REDMINE_ODS_USERS = REDMINE_ODS_USERS_OCDS + REDMINE_ODS_USERS_TECH + REDMINE_ODS_USERS_OTHER
 
-  # Iniciativa Latinoamericana por los Datos Abiertos
-  # https://idatosabiertos.org/acerca-de-nosotros/
-  REDMINE_ILDA_USERS_OCDS = [
+  # Centro de Desarrollo Sostenible
+  REDMINE_CDS_USERS_OCDS = [
     'María Esther Cervantes',
     'Romina Fernández Valdez',
     'Yohanna Lisnichuk',
   ]
-  REDMINE_ILDA_USERS = REDMINE_ILDA_USERS_OCDS + [
-    'Fabrizio Scrollini',
+  REDMINE_CDS_USERS = REDMINE_CDS_USERS_OCDS + [
     'Juan Pane',
   ]
 
@@ -83,7 +81,7 @@ namespace :crm do
     'Ramon Olivas',  # Nicolás Penagos
   ]
 
-  REDMINE_ALL_USERS = REDMINE_GENERIC_USERS + REDMINE_OCP_USERS + REDMINE_ODS_USERS + REDMINE_ILDA_USERS + REDMINE_COST_USERS + REDMINE_EXTERNAL_USERS
+  REDMINE_ALL_USERS = REDMINE_GENERIC_USERS + REDMINE_OCP_USERS + REDMINE_ODS_USERS + REDMINE_CDS_USERS + REDMINE_COST_USERS + REDMINE_EXTERNAL_USERS
 
   def crm_api_client
     @crm_api_client ||= begin
@@ -150,16 +148,16 @@ namespace :crm do
       5 => [:exactly, REDMINE_OCP_USERS],
       # Open Data Services
       4 => [:exactly, REDMINE_ODS_USERS + ['API Access']],
-      # Iniciativa Latinoamericana por los Datos Abiertos
-      33 => [:exactly, REDMINE_ILDA_USERS],
+      # Centro de Desarrollo Sostenible
+      33 => [:exactly, REDMINE_CDS_USERS],
 
       # Everyone excluding non-OCDS ODS
-      44 => [:exactly, REDMINE_OCP_USERS + REDMINE_ODS_USERS_OCDS + REDMINE_ILDA_USERS + REDMINE_ODS_USERS_TECH],
+      44 => [:exactly, REDMINE_OCP_USERS + REDMINE_ODS_USERS_OCDS + REDMINE_CDS_USERS + REDMINE_ODS_USERS_TECH],
       # OCP Program Managers & Helpdesk Teams
-      65 => [:exactly, REDMINE_OCP_USERS_OCDS + REDMINE_ODS_USERS_OCDS + REDMINE_ILDA_USERS_OCDS + REDMINE_ODS_COORDINATOR],
+      65 => [:exactly, REDMINE_OCP_USERS_OCDS + REDMINE_ODS_USERS_OCDS + REDMINE_CDS_USERS_OCDS + REDMINE_ODS_COORDINATOR],
 
       # Helpdesk Teams
-      43 => [:exactly, REDMINE_ODS_USERS_OCDS + REDMINE_ILDA_USERS_OCDS],
+      43 => [:exactly, REDMINE_ODS_USERS_OCDS + REDMINE_CDS_USERS_OCDS],
       # English Helpdesk Team
       66 => [:exactly, REDMINE_ODS_USERS_OCDS],
       # Partners and Consultants

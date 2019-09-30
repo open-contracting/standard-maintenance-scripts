@@ -23,8 +23,7 @@ namespace :org do
       # 'rory09', # Rory Scott
       # 'scatteredink', # Jack Lord
 
-      # Iniciativa Latinoamericana por los Datos Abiertos
-      # https://idatosabiertos.org/acerca-de-nosotros/
+      # Centro de Desarrollo Sostenible
       'juanpane', # Juan Pane
       'romifz', # Romina Fernández Valdez
       'yolile', # Yohanna Lisnichuk
