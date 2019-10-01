@@ -272,7 +272,6 @@ def merge_obj(result, obj, pointer=''):  # changed code
     }
     overwrite_exceptions = {
         '/properties/tag/items/enum',
-        '/properties/initiationType/description',
         '/properties/initiationType/enum',
     }
 
