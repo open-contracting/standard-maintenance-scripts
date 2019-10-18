@@ -2,6 +2,14 @@
 # This follows broadly the approach from
 # http://www.kennethreitz.org/essays/a-better-pip-workflow but with the
 # addition of requirements_dev
+#
+# This assumes you want to use the virtualenv tool,
+# and want to create a virtual environment called ".ve".
+#
+# If using a different process, please make sure to preserve the same "-r" option
+# to freeze as here.
+# This means it is easy to compare changes in lock files between commits and see
+# what libraries have had their versions upgraded and which haven't.
 
 # Delete and recreate a virtualenv to ensure that we don't have any extra
 # packages installed in it
@@ -30,5 +38,6 @@ cat requirements.in requirements_dev.in > requirements_combined_tmp.in
 pip freeze -r requirements_combined_tmp.in > requirements_dev.txt
 rm requirements_combined_tmp.in
 
+# Some cleanups needed to remove some things in the locked files that cause problems
 sed -i 's/^-r.*//' requirements.txt requirements_dev.txt
 sed -i 's/pkg-resources==0.0.0//' requirements.txt requirements_dev.txt
