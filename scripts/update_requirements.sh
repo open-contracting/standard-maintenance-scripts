@@ -38,6 +38,8 @@ fi
 pip install $dashupgrade -r requirements_dev.in
 pip freeze -r requirements.in -r requirements_dev.in > requirements_dev.txt
 
+# The following commands work on Linux only. macOS fails without `-i""`, but Linux fails with `-i""`.
+
 # Remove lines that might occur in the *.txt files that cause problems.
-sed -i='' 's/^-r.*//' requirements.txt requirements_dev.txt
-sed -i='' 's/pkg-resources==0.0.0//' requirements.txt requirements_dev.txt
+sed -i 's/^-r.*//' requirements.txt requirements_dev.txt
+sed -i 's/pkg-resources==0.0.0//' requirements.txt requirements_dev.txt
