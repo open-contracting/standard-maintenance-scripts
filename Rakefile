@@ -55,6 +55,7 @@ specifications = [
   'infrastructure',
   'ocds-extensions',
   'standard',
+  'translations',
 ]
 guides = [
   'ocds-kibana-manual',
@@ -101,10 +102,11 @@ REPOSITORY_CATEGORIES = {
 
 TECH_SUPPORT_PRIORITIES = {
   # Specifications
-  'glossary' => '✴️', # documentation support
+  'glossary' => ' ', # documentation support
   'infrastructure' => '✴️✴️', # sector documentation
   'ocds-extensions' => ' ', # issues only
   'standard' => '✴️✴️✴️', # core documentation
+  'translations' => ' ',
 
   # Guides
   'ocds-kibana-manual' => ' ',
@@ -112,12 +114,12 @@ TECH_SUPPORT_PRIORITIES = {
 
   # Tools
   'cove-oc4ids' => '✴️✴️', # sectoral tool
-  'kingfisher' => '✴️', # key tool
+  'kingfisher' => ' ',
   'kingfisher-archive' => ' ',
   'kingfisher-colab' => ' ',
   'kingfisher-process' => '✴️', # key tool
   'kingfisher-scrape' => '✴️', # key tool
-  'kingfisher-views' => ' ',
+  'kingfisher-views' => '✴️', # key tool
   'lib-cove-oc4ids' => '✴️✴️', # sectoral tool
   'lib-cove-ocds' => '✴️✴️✴️', # implementation step
   'ocds-merge' => '✴️✴️', # reference implementation
@@ -135,7 +137,7 @@ TECH_SUPPORT_PRIORITIES = {
   'ocds-extensions-translations' => '✴️✴️', # extensions documentation
 
   # Internal tools
-  'deploy' => '✴️✴️', # deployment dependency
+  'deploy' => '✴️✴️✴️', # deployment dependency
   'european-union-support' => ' ', # scratch pad
   'json-schema-random' => ' ', # infrequently used
   'ocds-pdf' => ' ', # alpha

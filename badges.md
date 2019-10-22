@@ -8,10 +8,11 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 
 |Priority|Build|Name|
 |-|-|-|
-|✴️|-|[glossary](https://github.com/open-contracting/glossary)|
+| |-|[glossary](https://github.com/open-contracting/glossary)|
 |✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/infrastructure.svg)](https://travis-ci.org/open-contracting/infrastructure)|[infrastructure](https://github.com/open-contracting/infrastructure)|
 | |-|[ocds-extensions](https://github.com/open-contracting/ocds-extensions)|
 |✴️✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/standard.svg)](https://travis-ci.org/open-contracting/standard)|[standard](https://github.com/open-contracting/standard)|
+| |-|[translations](https://github.com/open-contracting/translations)|
 
 ## Guides
 
@@ -25,12 +26,12 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 |Priority|Build|Name|
 |-|-|-|
 |✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/cove-oc4ids.svg)](https://travis-ci.org/open-contracting/cove-oc4ids)|[cove-oc4ids](https://github.com/open-contracting/cove-oc4ids)|
-|✴️|[![Build Status](https://travis-ci.org/open-contracting/kingfisher.svg)](https://travis-ci.org/open-contracting/kingfisher)|[kingfisher](https://github.com/open-contracting/kingfisher)|
+| |[![Build Status](https://travis-ci.org/open-contracting/kingfisher.svg)](https://travis-ci.org/open-contracting/kingfisher)|[kingfisher](https://github.com/open-contracting/kingfisher)|
 | |-|[kingfisher-archive](https://github.com/open-contracting/kingfisher-archive)|
 | |-|[kingfisher-colab](https://github.com/open-contracting/kingfisher-colab)|
 |✴️|[![Build Status](https://travis-ci.org/open-contracting/kingfisher-process.svg)](https://travis-ci.org/open-contracting/kingfisher-process) [![Coverage Status](https://coveralls.io/repos/github/open-contracting/kingfisher-process/badge.svg?branch=master)](https://coveralls.io/github/open-contracting/kingfisher-process?branch=master)|[kingfisher-process](https://github.com/open-contracting/kingfisher-process)|
 |✴️|[![Build Status](https://travis-ci.org/open-contracting/kingfisher-scrape.svg)](https://travis-ci.org/open-contracting/kingfisher-scrape)|[kingfisher-scrape](https://github.com/open-contracting/kingfisher-scrape)|
-| |[![Build Status](https://travis-ci.org/open-contracting/kingfisher-views.svg)](https://travis-ci.org/open-contracting/kingfisher-views) [![Coverage Status](https://coveralls.io/repos/github/open-contracting/kingfisher-views/badge.svg?branch=master)](https://coveralls.io/github/open-contracting/kingfisher-views?branch=master)|[kingfisher-views](https://github.com/open-contracting/kingfisher-views)|
+|✴️|[![Build Status](https://travis-ci.org/open-contracting/kingfisher-views.svg)](https://travis-ci.org/open-contracting/kingfisher-views) [![Coverage Status](https://coveralls.io/repos/github/open-contracting/kingfisher-views/badge.svg?branch=master)](https://coveralls.io/github/open-contracting/kingfisher-views?branch=master)|[kingfisher-views](https://github.com/open-contracting/kingfisher-views)|
 |✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/lib-cove-oc4ids.svg)](https://travis-ci.org/open-contracting/lib-cove-oc4ids) [![Coverage Status](https://coveralls.io/repos/github/open-contracting/lib-cove-oc4ids/badge.svg?branch=master)](https://coveralls.io/github/open-contracting/lib-cove-oc4ids?branch=master)|[lib-cove-oc4ids](https://github.com/open-contracting/lib-cove-oc4ids)|
 |✴️✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/lib-cove-ocds.svg)](https://travis-ci.org/open-contracting/lib-cove-ocds) [![Coverage Status](https://coveralls.io/repos/github/open-contracting/lib-cove-ocds/badge.svg?branch=master)](https://coveralls.io/github/open-contracting/lib-cove-ocds?branch=master)|[lib-cove-ocds](https://github.com/open-contracting/lib-cove-ocds)|
 |✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/ocds-merge.svg)](https://travis-ci.org/open-contracting/ocds-merge) [![Coverage Status](https://coveralls.io/repos/github/open-contracting/ocds-merge/badge.svg?branch=master)](https://coveralls.io/github/open-contracting/ocds-merge?branch=master)|[ocds-merge](https://github.com/open-contracting/ocds-merge)|
@@ -54,7 +55,7 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 
 |Priority|Build|Name|
 |-|-|-|
-|✴️✴️|-|[deploy](https://github.com/open-contracting/deploy)|
+|✴️✴️✴️|-|[deploy](https://github.com/open-contracting/deploy)|
 | |-|[european-union-support](https://github.com/open-contracting/european-union-support)|
 | |-|[json-schema-random](https://github.com/open-contracting/json-schema-random)|
 | |-|[ocds-pdf](https://github.com/open-contracting/ocds-pdf)|
@@ -97,6 +98,7 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 |✴️|[![Build Status](https://travis-ci.org/open-contracting-extensions/ocds_budget_breakdown_extension.svg)](https://travis-ci.org/open-contracting-extensions/ocds_budget_breakdown_extension)|[ocds_budget_breakdown_extension](https://github.com/open-contracting-extensions/ocds_budget_breakdown_extension)|
 |✴️|[![Build Status](https://travis-ci.org/open-contracting-extensions/ocds_budget_projects_extension.svg)](https://travis-ci.org/open-contracting-extensions/ocds_budget_projects_extension)|[ocds_budget_projects_extension](https://github.com/open-contracting-extensions/ocds_budget_projects_extension)|
 |✴️|[![Build Status](https://travis-ci.org/open-contracting-extensions/ocds_charges_extension.svg)](https://travis-ci.org/open-contracting-extensions/ocds_charges_extension)|[ocds_charges_extension](https://github.com/open-contracting-extensions/ocds_charges_extension)|
+|✴️|-|[ocds_communication_extension](https://github.com/open-contracting-extensions/ocds_communication_extension)|
 |✴️|[![Build Status](https://travis-ci.org/open-contracting-extensions/ocds_contractTerms_extension.svg)](https://travis-ci.org/open-contracting-extensions/ocds_contractTerms_extension)|[ocds_contractTerms_extension](https://github.com/open-contracting-extensions/ocds_contractTerms_extension)|
 |✴️|[![Build Status](https://travis-ci.org/open-contracting-extensions/ocds_contract_buyer_extension.svg)](https://travis-ci.org/open-contracting-extensions/ocds_contract_buyer_extension)|[ocds_contract_buyer_extension](https://github.com/open-contracting-extensions/ocds_contract_buyer_extension)|
 |✴️|[![Build Status](https://travis-ci.org/open-contracting-extensions/ocds_contract_completion_extension.svg)](https://travis-ci.org/open-contracting-extensions/ocds_contract_completion_extension)|[ocds_contract_completion_extension](https://github.com/open-contracting-extensions/ocds_contract_completion_extension)|
