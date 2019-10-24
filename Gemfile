@@ -9,7 +9,6 @@ gem 'htmlentities'
 gem 'mail'
 gem 'netrc'
 gem 'nokogiri'
-# See https://github.com/octokit/octokit.rb/pull/978
-gem 'octokit', git: 'https://github.com/jpmckinney/octokit.rb.git', branch: 'pr/977'
+gem 'octokit'
 gem 'rake'
 gem 'safe_yaml'
