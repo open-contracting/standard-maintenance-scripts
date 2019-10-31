@@ -25,7 +25,7 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 
 |Priority|Build|Name|
 |-|-|-|
-|✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/cove-oc4ids.svg)](https://travis-ci.org/open-contracting/cove-oc4ids)|[cove-oc4ids](https://github.com/open-contracting/cove-oc4ids)|
+|✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/cove-oc4ids.svg)](https://travis-ci.org/open-contracting/cove-oc4ids) [![Coverage Status](https://coveralls.io/repos/github/open-contracting/cove-oc4ids/badge.svg?branch=master)](https://coveralls.io/github/open-contracting/cove-oc4ids?branch=master)|[cove-oc4ids](https://github.com/open-contracting/cove-oc4ids)|
 | |[![Build Status](https://travis-ci.org/open-contracting/kingfisher.svg)](https://travis-ci.org/open-contracting/kingfisher)|[kingfisher](https://github.com/open-contracting/kingfisher)|
 | |-|[kingfisher-archive](https://github.com/open-contracting/kingfisher-archive)|
 | |-|[kingfisher-colab](https://github.com/open-contracting/kingfisher-colab)|
