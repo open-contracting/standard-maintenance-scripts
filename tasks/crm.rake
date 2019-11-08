@@ -63,6 +63,7 @@ namespace :crm do
 
   # Centro de Desarrollo Sostenible
   REDMINE_CDS_USERS_OCDS = [
+    'Andrés Aguilera',
     'María Esther Cervantes',
     'Romina Fernández Valdez',
     'Yohanna Lisnichuk',

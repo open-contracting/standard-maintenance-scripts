@@ -24,6 +24,7 @@ namespace :org do
       # 'scatteredink', # Jack Lord
 
       # Centro de Desarrollo Sostenible
+      'aguilerapy', # Andrés Aguilera
       'juanpane', # Juan Pane
       'romifz', # Romina Fernández Valdez
       'yolile', # Yohanna Lisnichuk
