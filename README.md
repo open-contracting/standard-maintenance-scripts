@@ -198,7 +198,7 @@ Lists non-extension releases:
 
     bundle exec rake repos:releases
 
-Lists non-Travis webhooks:
+Lists non-Travis, non-ReadTheDocs webhooks:
 
     bundle exec rake repos:webhooks
 

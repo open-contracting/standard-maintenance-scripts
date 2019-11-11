@@ -121,7 +121,7 @@ Report issues for this extension in the [ocds-extensions repository](https://git
 
   desc 'Lists non-extension releases'
   task :releases do
-    expected_extension_tags = Set.new(['ppp', 'v1.1', 'v1.1.1', 'v1.1.3'])
+    expected_extension_tags = Set.new(['ppp', 'v1.1', 'v1.1.1', 'v1.1.3', 'v1.1.4'])
 
     repos.each do |repo|
       data = repo.rels[:releases].get.data
@@ -137,12 +137,12 @@ Report issues for this extension in the [ocds-extensions repository](https://git
     end
   end
 
-  desc 'Lists non-Travis webhooks'
+  desc 'Lists non-Travis, non-ReadTheDocs webhooks'
   task :webhooks do
     repos.each do |repo|
       # Support both GitHub Services and GitHub Apps until GitHub Services fully retired.
       data = repo.rels[:hooks].get.data.reject do |datum|
-        datum.name == 'travis' || datum.config.url == 'https://notify.travis-ci.org'
+        datum.name == 'travis' || datum.config.url == 'https://notify.travis-ci.org' || datum.config.url[%r{\Ahttps://readthedocs.org/api/v2/webhook/}]
       end
       if data.any?
         puts "#{repo.html_url}/settings/hooks"

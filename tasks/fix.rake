@@ -11,7 +11,9 @@ REQUIRE_PULL_REQUEST_REVIEWS = [
 ENFORCE_ADMINS = [
   'public-private-partnerships',
   'standard',
-] + REQUIRE_PULL_REQUEST_REVIEWS
+] + REQUIRE_PULL_REQUEST_REVIEWS - [
+  'kingfisher-archive',
+]
 
 def disable_issues(repo, message)
   if repo.has_issues
