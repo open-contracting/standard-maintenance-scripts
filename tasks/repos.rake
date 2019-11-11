@@ -24,7 +24,7 @@ namespace :repos do
         begin
           actual = read_github_file(repo.full_name, '.travis.yml')
           if actual != expected
-            diff = HashDiff.diff(YAML.load(actual), YAML.load(expected))
+            diff = Hashdiff.diff(YAML.load(actual), YAML.load(expected))
             if diff.any?
               puts "#{repo.html_url}/blob/#{repo.default_branch}/.travis.yml #{'changes configuration'.bold}"
             end
