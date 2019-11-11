@@ -13,7 +13,9 @@ namespace :org do
       'bibianac', # Bibiana Cristofol
       'bjwebb', # Ben Webb
       'duncandewhurst', # Duncan Dewhurst
+      'idlemoor', # David Spencer
       'kindly', # David Raznick
+      'michaelwood', # Michael Wood
       'mrshll1001', # Matt Marshall
       'odscjames', # James Baster
       'pindec', # Charlie Pinder
@@ -28,6 +30,9 @@ namespace :org do
       'juanpane', # Juan Pane
       'romifz', # Romina Fernández Valdez
       'yolile', # Yohanna Lisnichuk
+
+      # Consultants
+      'colinmaudry', # Colin Maudry
     ]
 
     organizations.each do |organization|

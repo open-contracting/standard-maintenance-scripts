@@ -1,3 +1,18 @@
+REQUIRE_PULL_REQUEST_REVIEWS = [
+  'cove-oc4ids',
+  'kingfisher',
+  'kingfisher-archive',
+  'kingfisher-process',
+  'kingfisher-scrape',
+  'kingfisher-views',
+  'lib-cove-ocds',
+  'lib-cove-oc4ids',
+]
+ENFORCE_ADMINS = [
+  'public-private-partnerships',
+  'standard',
+] + REQUIRE_PULL_REQUEST_REVIEWS
+
 def disable_issues(repo, message)
   if repo.has_issues
     open_issues = repo.open_issues - repo.rels[:pulls].get.data.size
@@ -113,11 +128,6 @@ namespace :fix do
     repos.each do |repo|
       contexts = []
 
-      # The GitHub Pages status check is very slow.
-      # if repo.has_pages
-      #   contexts << 'github/pages'
-      # end
-
       if repo.rels[:hooks].get.data.any?{ |datum| datum.name == 'travis' || datum.config.url == 'https://notify.travis-ci.org' }
         begin
           # Only enable Travis if Travis is configured.
@@ -131,7 +141,7 @@ namespace :fix do
       branches = repo.rels[:branches].get(headers: headers).data
 
       branches_to_protect = [branches.find{ |branch| branch.name == repo.default_branch }]
-      if ['standard', 'public-private-partnerships'].include?(repo.name)
+      if ['standard', 'public-private-partnerships', 'infrastructure'].include?(repo.name)
         branches_to_protect << branches.find{ |branch| branch.name == 'latest' }
         branches.each do |branch|
           if branch.name[/\A\d\.\d(?:-dev)?\z/]

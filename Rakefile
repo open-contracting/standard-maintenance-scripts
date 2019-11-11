@@ -27,19 +27,6 @@ EXTERNAL_EXTENSIONS = [
   'INAImexico/ocds_implementationStatus_extension',
 ]
 
-REQUIRE_PULL_REQUEST_REVIEWS = [
-  'cove-oc4ids',
-  'kingfisher',
-  'kingfisher-process',
-  'kingfisher-scrape',
-  'lib-cove-ocds',
-  'lib-cove-oc4ids',
-]
-ENFORCE_ADMINS = [
-  'public-private-partnerships',
-  'standard',
-] + REQUIRE_PULL_REQUEST_REVIEWS
-
 PROFILES = [
   'european-union',
   'government-procurement-agreement',
@@ -274,15 +261,15 @@ end
 
 desc 'Report which non-extension repositories are not cloned'
 task :uncloned do
+  basedir = variables('BASEDIR')[0]
+
   extension_repositories = Set.new
   url = 'https://standard.open-contracting.org/extension_registry/master/extensions.json'
   JSON.load(open(url).read).fetch('extensions').each do |extension|
-    if extension.fetch('active')
-      extension_repositories << URI.parse(extension['url']).path.split('/')[2]
-    end
+    extension_repositories << URI.parse(extension['url']).path.split('/')[2]
   end
 
-  cloned_repositories = Set.new(Dir['../*'].map{ |path| File.basename(path) })
+  cloned_repositories = Set.new(Dir[File.join(basedir, '*')].map{ |path| File.basename(path) })
 
   repos.each do |repo|
     if !extension_repositories.include?(repo.name) && !cloned_repositories.include?(repo.name)

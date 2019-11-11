@@ -30,7 +30,9 @@ namespace :crm do
     'Georg Neumann',
     'Katherine Wikrent',
     'Kathrin Frauscher',
+    'Kaye Sklar',
     'Marie Goumballa',
+    'Sophie Brown',
   ]
 
   # Open Data Services Co-operative Limited
