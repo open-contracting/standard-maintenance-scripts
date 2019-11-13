@@ -896,8 +896,8 @@ def test_indent():
     for path, text, data in walk_json_data():
         parts = path.split(os.sep)
         if not any(exception in parts for exception in path_exceptions):
-            indent2 = json.dumps(data, ensure_ascii=False, indent=2, separators=(',', ': ')) + '\n'
-            if text != indent2:
+            expected = json.dumps(data, ensure_ascii=False, indent=2, separators=(',', ': ')) + '\n'
+            if text != expected:
                 errors += 1
                 warnings.warn('ERROR: {} is not indented as expected, run: ocdskit indent {}'.format(path, path))
 
