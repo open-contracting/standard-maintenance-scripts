@@ -4,6 +4,7 @@ json-merge-patch
 jsonref
 jsonschema
 ocdsextensionregistry
+ocdskit
 pytest
 requests
 rfc3987
