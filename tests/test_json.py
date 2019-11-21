@@ -83,6 +83,21 @@ else:
 url = 'https://raw.githubusercontent.com/open-contracting/standard/1.1/standard/schema/meta-schema.json'
 metaschema = requests.get(url).json()
 
+# Draft 6 removes `minItems` from `definitions/stringArray`.
+# See https://github.com/open-contracting-extensions/ocds_api_extension/blob/master/release-package-schema.json#L2
+del metaschema['definitions']['stringArray']['minItems']
+
+# See https://tools.ietf.org/html/rfc7396
+if is_extension:
+    # noqa: See https://github.com/open-contracting-extensions/ocds_milestone_documents_extension/blob/master/release-schema.json#L9
+    metaschema['properties']['deprecated']['type'] = ['object', 'null']
+
+if repo_name in exceptional_extensions:
+    # Allow null'ing a property in these repositories.
+    metaschema['type'] = ['object', 'null']
+
+project_package_metaschema = deepcopy(metaschema)
+
 # jsonmerge fields for OCDS 1.0.
 # See https://github.com/open-contracting-archive/jsonmerge
 metaschema['properties']['mergeStrategy'] = {
@@ -109,26 +124,15 @@ metaschema['properties']['mergeOptions'] = {
     },
 }
 
-# Draft 6 removes `minItems` from `definitions/stringArray`.
-# See https://github.com/open-contracting-extensions/ocds_api_extension/blob/master/release-package-schema.json#L2
-del metaschema['definitions']['stringArray']['minItems']
-
-# See https://tools.ietf.org/html/rfc7396
-if is_extension:
-    # noqa: See https://github.com/open-contracting-extensions/ocds_milestone_documents_extension/blob/master/release-schema.json#L9
-    metaschema['properties']['deprecated']['type'] = ['object', 'null']
-
-if repo_name in exceptional_extensions:
-    # Allow null'ing a property in these repositories.
-    metaschema['type'] = ['object', 'null']
-
 # Novel uses of JSON Schema features may require updates to other repositories.
 # See https://github.com/open-contracting/standard/issues/757
 record_package_metaschema = deepcopy(metaschema)
 for prop in unused_json_schema_properties:
     del record_package_metaschema['properties'][prop]
+    del project_package_metaschema['properties'][prop]
 release_package_metaschema = deepcopy(record_package_metaschema)
 del release_package_metaschema['properties']['oneOf']
+del project_package_metaschema['properties']['oneOf']
 
 
 def custom_warning_formatter(message, category, filename, lineno, line=None):
@@ -818,7 +822,8 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension, top=c
 
         exceptions_plus_versioned_and_packages = exceptions_plus_versioned | {
             'record-package-schema.json',
-            'release-package-schema.json',
+            'release-package-schema.json'
+            'project-package-schema.json',
         }
 
         # Extensions aren't expected to repeat referenced `definitions`.
@@ -916,6 +921,8 @@ def test_json_schema():
                 schema = release_package_metaschema
             elif basename == 'record-package-schema.json':
                 schema = record_package_metaschema
+            elif basename == 'project-package-schema.json':
+                schema = project_package_metaschema
             else:
                 schema = metaschema
             validate_json_schema(path, data, schema)
