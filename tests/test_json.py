@@ -921,12 +921,12 @@ def test_json_schema():
     for path, text, data in walk_json_data():
         if is_json_schema(data):
             basename = os.path.basename(path)
-            if basename in ('project-schema.json', 'project-package-schema.json', 'release-schema.json',
+            if basename in ('project-package-schema.json', 'release-schema.json',
                             'release-package-schema.json'):
                 schema = release_package_metaschema
             elif basename == 'record-package-schema.json':
                 schema = record_package_metaschema
-            elif basename == 'project-package-schema.json':
+            elif basename in {'project-schema.json', 'project-package-schema.json'}:
                 schema = project_package_metaschema
             else:
                 schema = metaschema
