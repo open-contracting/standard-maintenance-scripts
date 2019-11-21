@@ -1004,6 +1004,7 @@ def test_empty_files():
         'chromedriver_linux64.zip',
         'chromedriver_mac64.zip',
         # Python
+        '.ve',
         '__init__.py',
         # Python packages
         'dependency_links.txt',
