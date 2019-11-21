@@ -165,10 +165,10 @@ def object_pairs_hook(pairs):
 
 def walk(top=cwd):
     """
-    Yields all files, except third-party files under `_static` directories.
+    Yields all files, except third-party files under `_static` directories, build files, and test fixtures.
     """
     for root, dirs, files in os.walk(top):
-        for directory in ('.git', '_static', 'fixtures'):
+        for directory in ('.git', '_static', 'build', 'fixtures'):
             if directory in dirs:
                 dirs.remove(directory)
         for name in files:
