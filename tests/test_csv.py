@@ -25,11 +25,11 @@ warnings.formatwarning = custom_warning_formatter
 # Copied from test_json.py.
 def walk(top=cwd):
     """
-    Yields all files, except third-party files under `_static` directories, build files, test fixtures, and a specific
-    kingfisher-views file.
+    Yields all files, except third-party files under virtual environment, static, build, and test fixture directories,
+    and except a specific kingfisher-views file.
     """
     for root, dirs, files in os.walk(top):
-        for directory in ('.git', '_static', 'build', 'fixtures'):
+        for directory in ('.git', '.ve', '_static', 'build', 'fixtures'):
             if directory in dirs:
                 dirs.remove(directory)
         for name in files:
