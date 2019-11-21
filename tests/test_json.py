@@ -72,7 +72,10 @@ is_profile = os.path.isfile(os.path.join(cwd, 'Makefile')) and repo_name not in 
 is_extension = os.path.isfile(os.path.join(cwd, 'extension.json')) or is_profile
 extensiondir = os.path.join(cwd, 'schema', 'profile') if is_profile else cwd
 
-ocds_schema_base_url = 'https://standard.open-contracting.org/schema/'
+if repo_name == 'infrastructure':
+    ocds_schema_base_url = 'https://standard.open-contracting.org/infrastructure/schema/'
+else:
+    ocds_schema_base_url = 'https://standard.open-contracting.org/schema/'
 development_base_url = 'https://raw.githubusercontent.com/open-contracting/standard/1.1-dev/standard/schema'
 ocds_tags = re.findall(r'\d+__\d+__\d+', requests.get(ocds_schema_base_url).text)
 if ocds_version:
@@ -821,6 +824,7 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension, top=c
         }
 
         exceptions_plus_versioned_and_packages = exceptions_plus_versioned | {
+            'project-package-schema.json',
             'record-package-schema.json',
             'release-package-schema.json'
             'project-package-schema.json',
@@ -917,7 +921,8 @@ def test_json_schema():
     for path, text, data in walk_json_data():
         if is_json_schema(data):
             basename = os.path.basename(path)
-            if basename in ('release-schema.json', 'release-package-schema.json'):
+            if basename in ('project-schema.json', 'project-package-schema.json', 'release-schema.json',
+                            'release-package-schema.json'):
                 schema = release_package_metaschema
             elif basename == 'record-package-schema.json':
                 schema = record_package_metaschema
