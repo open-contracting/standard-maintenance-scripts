@@ -116,7 +116,7 @@ def test_valid():
         if text != expected and repo_name != 'sample-data':
             errors += 1
             warnings.warn('ERROR: {} is improperly formatted (e.g. missing trailing newline, extra quoting '
-                          'characters, non-"\\n" line terminator):\n{}\n{}'.format(path, repr(text), repr(expected)))
+                          'characters, non-"\\n" line terminator):\n{!r}\n{!r}'.format(path, text, expected))
 
     assert errors == 0, 'One or more codelist CSV files are invalid. See warnings below.'
 
