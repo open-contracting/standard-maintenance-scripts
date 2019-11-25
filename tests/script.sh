@@ -2,7 +2,7 @@ set -e
 
 # Lint Python
 flake8 --max-line-length 119
-isort --line-width 119
+isort --check-only --ignore-whitespace --line-width 119
 
 # Lint Markdown
 # See https://github.com/open-contracting/standard-maintenance-scripts/issues/26
