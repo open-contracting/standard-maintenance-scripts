@@ -825,7 +825,7 @@ def validate_json_schema(path, data, schema, full_schema=not is_extension, top=c
         exceptions_plus_versioned_and_packages = exceptions_plus_versioned | {
             'project-package-schema.json',
             'record-package-schema.json',
-            'release-package-schema.json'
+            'release-package-schema.json',
             'project-package-schema.json',
         }
 
