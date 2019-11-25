@@ -14,7 +14,6 @@ from jsonschema import FormatChecker
 from jsonschema.validators import Draft4Validator as validator
 from ocdskit.schema import get_schema_fields
 
-
 # Copied from test_json.py.
 
 # Whether to use the 1.1-dev version of OCDS.

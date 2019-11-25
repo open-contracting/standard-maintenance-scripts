@@ -13,7 +13,6 @@ from jsonref import JsonRef, JsonRefError
 from jsonschema import FormatChecker
 from jsonschema.validators import Draft4Validator as validator
 
-
 # Whether to use the 1.1-dev version of OCDS.
 use_development_version = False
 
