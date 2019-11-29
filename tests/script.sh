@@ -2,7 +2,10 @@ set -e
 
 # Lint Python
 flake8 --max-line-length 119
-isort --check-only --ignore-whitespace --line-width 119
+# Repositories using tox run isort independently.
+if ! [ -x "$(command -v tox)" ]; then
+  isort --check-only --ignore-whitespace --line-width 119
+fi
 
 # Lint Markdown
 # See https://github.com/open-contracting/standard-maintenance-scripts/issues/26
