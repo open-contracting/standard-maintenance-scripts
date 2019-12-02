@@ -24,6 +24,7 @@ namespace :crm do
     'Viktor Nestulia',
   ]
   REDMINE_OCP_USERS = REDMINE_OCP_USERS_OCDS + [
+    'Andidiong Okon',
     'Camila Salazar',
     'David Selassie Opoku',
     'Gavin Hayman',
