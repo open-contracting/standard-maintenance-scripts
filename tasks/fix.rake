@@ -13,6 +13,8 @@ ENFORCE_ADMINS = [
   'standard',
 ] + REQUIRE_PULL_REQUEST_REVIEWS - [
   'kingfisher-archive',
+  'kingfisher-process',
+  'kingfisher-scrape',
 ]
 
 def disable_issues(repo, message)
