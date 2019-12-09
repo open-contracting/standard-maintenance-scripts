@@ -12,7 +12,7 @@
 set -e
 
 # Delete and re-create a fresh virtual environment, to eliminate any packages not specified in requirements files.
-if [[ "$1" != "--skip-virtualenv" ]]; then
+if [ "$1" != "--skip-virtualenv" -a "$2" != "--skip-virtualenv" ]; then
   rm -rf .ve
   virtualenv --python=python3 .ve
   source .ve/bin/activate
