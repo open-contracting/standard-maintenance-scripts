@@ -11,10 +11,11 @@ REQUIRE_PULL_REQUEST_REVIEWS = [
 ENFORCE_ADMINS = [
   'public-private-partnerships',
   'standard',
-] + REQUIRE_PULL_REQUEST_REVIEWS - [
-  'kingfisher-archive',
-  'kingfisher-process',
-  'kingfisher-scrape',
+  # A selection of the above.
+  'cove-oc4ids',
+  'kingfisher-views',
+  'lib-cove-ocds',
+  'lib-cove-oc4ids',
 ]
 
 def disable_issues(repo, message)
