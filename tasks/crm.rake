@@ -26,10 +26,8 @@ namespace :crm do
   REDMINE_OCP_USERS = REDMINE_OCP_USERS_OCDS + [
     'Andidiong Okon',
     'Camila Salazar',
-    'David Selassie Opoku',
     'Gavin Hayman',
     'Georg Neumann',
-    'Katherine Wikrent',
     'Kathrin Frauscher',
     'Kaye Sklar',
     'Marie Goumballa',
@@ -55,7 +53,6 @@ namespace :crm do
   REDMINE_ODS_USERS_OTHER = [
     'David Spencer',
     'Jack Lord',
-    'Rory Scott',
     'Tim Williams',
     # 'Steven Flower',
   ]
