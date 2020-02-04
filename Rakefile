@@ -38,6 +38,7 @@ TEMPLATES = [
 ]
 
 specifications = [
+  'data-quality-tool',
   'glossary',
   'infrastructure',
   'ocds-extensions',
@@ -59,7 +60,6 @@ internal_tools = [
   'deploy',
   'european-union-support',
   'json-schema-random',
-  'ocds-pdf',
   'standard-development-handbook',
   'standard-maintenance-scripts',
 ]
@@ -89,6 +89,7 @@ REPOSITORY_CATEGORIES = {
 
 TECH_SUPPORT_PRIORITIES = {
   # Specifications
+  'data-quality-tool' => ' ', # issues only
   'glossary' => ' ', # documentation support
   'infrastructure' => '✴️✴️', # sector documentation
   'ocds-extensions' => ' ', # issues only
@@ -100,6 +101,7 @@ TECH_SUPPORT_PRIORITIES = {
   'ocds-r-manual' => ' ',
 
   # Tools
+  'cove-ocds' => '✴️✴️✴️', # implementation step
   'cove-oc4ids' => '✴️✴️', # sectoral tool
   'kingfisher' => ' ',
   'kingfisher-archive' => ' ',
@@ -127,7 +129,6 @@ TECH_SUPPORT_PRIORITIES = {
   'deploy' => '✴️✴️✴️', # deployment dependency
   'european-union-support' => ' ', # scratch pad
   'json-schema-random' => ' ', # infrequently used
-  'ocds-pdf' => ' ', # alpha
   'standard-development-handbook' => '✴️', # key internal documentation
   'standard-maintenance-scripts' => '✴️', # internal quality assurance
 
@@ -210,7 +211,11 @@ def repos
 end
 
 def read_github_file(repo, path)
-  Base64.decode64(client.contents(repo, path: path).content)
+  begin
+    Base64.decode64(client.contents(repo, path: path).content)
+  rescue Octokit::NotFound
+    ''
+  end
 end
 
 def profile?(name)
