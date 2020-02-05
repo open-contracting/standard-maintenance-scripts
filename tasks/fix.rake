@@ -13,7 +13,6 @@ ENFORCE_ADMINS = [
   'standard',
   # A selection of the above.
   'cove-oc4ids',
-  'kingfisher-views',
   'lib-cove-oc4ids',
 ]
 
