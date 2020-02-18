@@ -87,6 +87,14 @@ REPOSITORY_CATEGORIES = {
   'Legacy' => -> (repo) { LEGACY.include?(repo.name) },
 }
 
+REPOSITORY_CATEGORIES_WITHOUT_DOCS = [
+  'Specifications',
+  'Guides',
+  'Templates',
+  'Extensions',
+  'Legacy',
+]
+
 TECH_SUPPORT_PRIORITIES = {
   # Specifications
   'data-quality-tool' => ' ', # issues only

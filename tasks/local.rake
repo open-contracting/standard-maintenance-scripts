@@ -69,10 +69,15 @@ namespace :local do
             '|Build|Name|',
             '|-|-|',
           ]
-        else
+        elsif REPOSITORY_CATEGORIES_WITHOUT_DOCS.include?(heading)
           output += [
             '|Priority|Build|Name|',
             '|-|-|-|',
+          ]
+        else
+          output += [
+            '|Priority|Build|Docs|Name|',
+            '|-|-|-|-|',
           ]
         end
 
@@ -108,6 +113,16 @@ namespace :local do
             line << '|'
           else
             line << '-|'
+          end
+
+          if ENV['ORG'] != 'open-contracting-partnership' && !REPOSITORY_CATEGORIES_WITHOUT_DOCS.include?(heading)
+            hook = hooks.find{ |datum| datum.config.url && datum.config.url[%r{\Ahttps://readthedocs.org/api/v2/webhook/([^/]+)}] }
+            if hook
+              line << "[Docs](https://#{$1}.readthedocs.io/)"
+              line << '|'
+            else
+              line << '-|'
+            end
           end
 
           output << line + "[#{repo.name}](#{repo.html_url})|"
