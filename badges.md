@@ -27,7 +27,7 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 |Priority|Build|Docs|Name|
 |-|-|-|-|
 |✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/cove-oc4ids.svg)](https://travis-ci.org/open-contracting/cove-oc4ids) [![Coverage Status](https://coveralls.io/repos/github/open-contracting/cove-oc4ids/badge.svg?branch=master)](https://coveralls.io/github/open-contracting/cove-oc4ids?branch=master)|-|[cove-oc4ids](https://github.com/open-contracting/cove-oc4ids)|
-|✴️✴️✴️|-|[Docs](https://ocds-data-review-tool.readthedocs.io/)|[cove-ocds](https://github.com/open-contracting/cove-ocds)|
+|✴️✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/cove-ocds.svg)](https://travis-ci.org/open-contracting/cove-ocds) [![Coverage Status](https://coveralls.io/repos/github/open-contracting/cove-ocds/badge.svg?branch=master)](https://coveralls.io/github/open-contracting/cove-ocds?branch=master)|[Docs](https://ocds-data-review-tool.readthedocs.io/)|[cove-ocds](https://github.com/open-contracting/cove-ocds)|
 | |[![Build Status](https://travis-ci.org/open-contracting/kingfisher.svg)](https://travis-ci.org/open-contracting/kingfisher)|[Docs](https://ocdskingfisher.readthedocs.io/)|[kingfisher](https://github.com/open-contracting/kingfisher)|
 | |-|-|[kingfisher-archive](https://github.com/open-contracting/kingfisher-archive)|
 | |[![Build Status](https://travis-ci.org/open-contracting/kingfisher-colab.svg)](https://travis-ci.org/open-contracting/kingfisher-colab)|[Docs](https://kingfisher-colab.readthedocs.io/)|[kingfisher-colab](https://github.com/open-contracting/kingfisher-colab)|
