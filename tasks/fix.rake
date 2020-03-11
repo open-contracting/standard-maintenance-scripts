@@ -44,7 +44,19 @@ namespace :fix do
   desc "Disables empty wikis, updates extensions' descriptions and homepages, and lists repositories with invalid names, unexpected configurations, etc."
   task :lint_repos do
     repos.each do |repo|
+      if not repo.delete_branch_on_merge
+        client.edit_repository(repo.full_name, delete_branch_on_merge: true)
+        puts "#{repo.html_url}/settings #{'enabled delete_branch_on_merge'.bold}"
+      end
+
       if extension?(repo.name, profiles: false, templates: false)
+        if !repo.name[/\Aocds_\w+_extension\z/]
+          puts "#{repo.name} is not a valid extension name"
+        end
+
+        disable_issues(repo, 'should be moved and disabled')
+        disable_projects(repo, 'should be moved and disabled')
+
         begin
           metadata = JSON.load(read_github_file(repo.full_name, 'extension.json'))
           options = {}
@@ -68,6 +80,8 @@ namespace :fix do
           end
         rescue Octokit::NotFound
           puts "#{repo.html_url} #{"no extension.json file!".bold}"
+        rescue NoMethodError => e
+          puts "#{repo.html_url} #{e.to_s.bold}"
         end
       end
 
@@ -77,15 +91,6 @@ namespace :fix do
           client.edit_repository(repo.full_name, has_wiki: false)
           puts "#{repo.html_url}/settings #{'disabled wiki'.bold}"
         end
-      end
-
-      if extension?(repo.name, profiles: false, templates: false)
-        if !repo.name[/\Aocds_\w+_extension\z/]
-          puts "#{repo.name} is not a valid extension name"
-        end
-
-        disable_issues(repo, 'should be moved and disabled')
-        disable_projects(repo, 'should be moved and disabled')
       end
 
       if repo.private
