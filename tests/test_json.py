@@ -8,10 +8,14 @@ import json_merge_patch
 import pytest
 import requests
 # Import some tests that will be run by pytest, noqa needed because we don't use them directly
-from jscc.testing.json import (development_base_url, difference, extensiondir, get_empty_files,  # noqa: F401
-                               get_unindented_files, is_extension, is_json_schema, metaschema, object_pairs_hook,
-                               ocds_schema_base_url, ocds_tag, ocds_version, repo_name, test_valid,
-                               validate_json_schema, walk_csv_data, walk_json_data, warn_and_assert)
+from jscc.testing.json import (difference, get_empty_files, get_unindented_files,  # noqa: F401
+                               is_extension, is_profile, metaschema, repo_name, test_valid, validate_json_schema)
+from jscc.testing.traversal import (development_base_url, object_pairs_hook, ocds_schema_base_url, ocds_tag,
+                                    ocds_version, walk, walk_csv_data, walk_json_data)
+from jscc.testing.util import (is_json_schema, warn_and_assert)
+
+cwd = os.getcwd()
+extensiondir = os.path.join(cwd, 'schema', 'profile') if is_profile else cwd
 
 use_development_version = False
 jscc.testing.json.use_development_version = use_development_version
@@ -45,6 +49,8 @@ exceptional_extensions = (
     'public-private-partnerships',
 )
 jscc.testing.json.exceptional_extensions = exceptional_extensions
+
+cwd = os.getcwd()
 
 # See https://tools.ietf.org/html/draft-fge-json-schema-validation-00
 unused_json_schema_properties = {
@@ -114,6 +120,13 @@ for prop in unused_json_schema_properties:
 release_package_metaschema = deepcopy(record_package_metaschema)
 del release_package_metaschema['properties']['oneOf']
 del project_package_metaschema['properties']['oneOf']
+
+
+def custom_warning_formatter(message, category, filename, lineno, line=None):
+    return str(message).replace(cwd + os.sep, '')
+
+
+warnings.formatwarning = custom_warning_formatter
 
 
 def is_json_merge_patch(data):
@@ -281,10 +294,10 @@ def test_unindented_files():
 
 
 def test_empty_files():
-    template_repositories = (
+    template_repositories = {
         'standard_extension_template',
         'standard_profile_template',
-    )
+    }
     schema_files = (
         'record-package-schema.json',
         'release-package-schema.json',
@@ -302,10 +315,15 @@ def test_empty_files():
                     'Files are empty. See warnings below.')
 
 
-def test_no_versioned_release_schema_in_extension():
+@pytest.mark.skipif(not is_extension, reason='not an extension (test_no_versioned_release_schema)')
+def test_no_versioned_release_schema():
+    paths = []
     for root, name in walk():
-        if is_extension and name == 'versioned-release-validation-schema.json':
-            assert False, 'versioned-release-validation-schema.json should be removed'
+        if name == 'versioned-release-validation-schema.json':
+            paths.append(os.path.join(root, name))
+
+    warn_and_assert(paths, '{path} is present, run: rm {path}',
+                    'Versioned release schema files are present. See warnings below.')
 
 
 @pytest.mark.skipif(not is_extension, reason='not an extension (test_json_merge_patch)')
