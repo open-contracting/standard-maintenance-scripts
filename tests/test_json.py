@@ -8,11 +8,12 @@ import json_merge_patch
 import pytest
 import requests
 # Import some tests that will be run by pytest, noqa needed because we don't use them directly
-from jscc.testing.json import (difference, get_empty_files, get_unindented_files,  # noqa: F401
-                               is_extension, is_profile, metaschema, repo_name, test_valid, validate_json_schema)
-from jscc.testing.traversal import (development_base_url, object_pairs_hook, ocds_schema_base_url, ocds_tag,
-                                    ocds_version, walk, walk_csv_data, walk_json_data)
-from jscc.testing.util import (is_json_schema, warn_and_assert)
+from jscc.testing.json import (difference, get_empty_files, get_invalid_files, get_unindented_files,  # noqa: F401
+                               is_extension, is_profile, metaschema, repo_name, validate_json_schema)
+from jscc.testing.schema import is_json_schema
+from jscc.testing.traversal import (development_base_url, ocds_schema_base_url, ocds_tag, ocds_version,
+                                    walk, walk_csv_data, walk_json_data)
+from jscc.testing.util import rejecting_dict, warn_and_assert
 
 cwd = os.getcwd()
 extensiondir = os.path.join(cwd, 'schema', 'profile') if is_profile else cwd
@@ -248,7 +249,7 @@ def test_extension_json():
     path = os.path.join(extensiondir, 'extension.json')
     if os.path.isfile(path):
         with open(path) as f:
-            data = json.load(f, object_pairs_hook=object_pairs_hook)
+            data = json.load(f, object_pairs_hook=rejecting_dict)
 
         validate_json_schema(path, data, schema)
 
@@ -284,12 +285,16 @@ def test_extension_json():
         assert False, 'expected an extension.json file'
 
 
+def test_invalid_files():
+    warn_and_assert(get_invalid_files(), '{0} is not valid JSON: {1}', 'JSON files are invalid. See warnings below.')
+
+
 @pytest.mark.skipif(os.environ.get('OCDS_NOINDENT', False), reason='skipped indentation')
 def test_unindented_files():
     def include(path, name):
         return name != 'json-schema-draft-4.json'  # http://json-schema.org/draft-04/schema
 
-    warn_and_assert(get_unindented_files(include), '{path} is not indented as expected, run: ocdskit indent {path}',
+    warn_and_assert(get_unindented_files(include), '{0} is not indented as expected, run: ocdskit indent {0}',
                     'Files are not indented as expected. See warnings below, or run: ocdskit indent -r .')
 
 
@@ -311,7 +316,7 @@ def test_empty_files():
     def parse_as_json(path, name):
         return name in schema_files
 
-    warn_and_assert(get_empty_files(include, parse_as_json), '{path} is empty, run: rm {path}',
+    warn_and_assert(get_empty_files(include, parse_as_json), '{0} is empty, run: rm {0}',
                     'Files are empty. See warnings below.')
 
 
@@ -322,7 +327,7 @@ def test_no_versioned_release_schema():
         if name == 'versioned-release-validation-schema.json':
             paths.append(os.path.join(root, name))
 
-    warn_and_assert(paths, '{path} is present, run: rm {path}',
+    warn_and_assert(paths, '{0} is present, run: rm {0}',
                     'Versioned release schema files are present. See warnings below.')
 
 
@@ -361,7 +366,7 @@ def test_json_merge_patch():
         if basename == 'release-schema.json':
             path = os.path.join(extensiondir, 'extension.json')
             with open(path) as f:
-                get_dependencies(json.load(f, object_pairs_hook=object_pairs_hook), basename)
+                get_dependencies(json.load(f, object_pairs_hook=rejecting_dict), basename)
 
     # This loop is somewhat unnecessary, as repositories contain at most one of each schema file.
     for path, text, data in walk_json_data():
