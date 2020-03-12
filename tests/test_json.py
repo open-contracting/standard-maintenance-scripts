@@ -8,10 +8,10 @@ import json_merge_patch
 import pytest
 import requests
 # Import some tests that will be run by pytest, noqa needed because we don't use them directly
-from jscc.testing.json import (development_base_url, difference, extensiondir, is_extension,  # noqa: F401
-                               is_json_schema, metaschema, object_pairs_hook, ocds_schema_base_url, ocds_tag,
-                               ocds_version, repo_name, check_empty_files, test_indent, test_valid,
-                               validate_json_schema, walk_csv_data, walk_json_data)
+from jscc.testing.json import (development_base_url, difference, extensiondir, get_empty_files,  # noqa: F401
+                               get_unindented_files, is_extension, is_json_schema, metaschema, object_pairs_hook,
+                               ocds_schema_base_url, ocds_tag, ocds_version, repo_name, test_valid,
+                               validate_json_schema, walk_csv_data, walk_json_data, warn_and_assert)
 
 use_development_version = False
 jscc.testing.json.use_development_version = use_development_version
@@ -271,16 +271,16 @@ def test_extension_json():
         assert False, 'expected an extension.json file'
 
 
+@pytest.mark.skipif(os.environ.get('OCDS_NOINDENT', False), reason='skipped indentation')
+def test_unindented_files():
+    def include(path, name):
+        return name != 'json-schema-draft-4.json'  # http://json-schema.org/draft-04/schema
+
+    warn_and_assert(get_unindented_files(include), '{path} is not indented as expected, run: ocdskit indent {path}',
+                    'Files are not indented as expected. See warnings below, or run: ocdskit indent -r .')
+
+
 def test_empty_files():
-    ignored = {
-        '__init__.py',
-    }
-    untracked = {
-        '.egg-info/',
-        '/.tox/',
-        '/.ve/',
-        '/node_modules/',
-    }
     template_repositories = (
         'standard_extension_template',
         'standard_profile_template',
@@ -293,16 +293,13 @@ def test_empty_files():
 
     # Template repositories are allowed to have empty schema files and .keep files.
     def include(path, name):
-        if name in ignored or any(substring in path for substring in untracked):
-            return False
-        if repo_name in template_repositories and name in schema_files + ('.keep',):
-            return False
-        return True
+        return not(name == '__init__.py' or repo_name in template_repositories and name in schema_files + ('.keep',))
 
     def parse_as_json(path, name):
         return name in schema_files
 
-    check_empty_files(include, test, parse_as_json)
+    warn_and_assert(get_empty_files(include, parse_as_json), '{path} is empty, run: rm {path}',
+                    'Files are empty. See warnings below.')
 
 
 def test_no_versioned_release_schema_in_extension():
