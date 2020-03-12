@@ -10,7 +10,7 @@ import requests
 # Import some tests that will be run by pytest, noqa needed because we don't use them directly
 from jscc.testing.json import (development_base_url, difference, extensiondir, is_extension,  # noqa: F401
                                is_json_schema, metaschema, object_pairs_hook, ocds_schema_base_url, ocds_tag,
-                               ocds_version, repo_name, test_empty_files, test_indent, test_valid,
+                               ocds_version, repo_name, check_empty_files, test_indent, test_valid,
                                validate_json_schema, walk_csv_data, walk_json_data)
 
 use_development_version = False
@@ -269,6 +269,46 @@ def test_extension_json():
     else:
         # This code is never reached, as the test is only run if there is an extension.json file.
         assert False, 'expected an extension.json file'
+
+
+def test_empty_files():
+    ignored = {
+        '__init__.py',
+    }
+    untracked = {
+        '.egg-info/',
+        '/.tox/',
+        '/.ve/',
+        '/node_modules/',
+    }
+    template_repositories = (
+        'standard_extension_template',
+        'standard_profile_template',
+    )
+    schema_files = (
+        'record-package-schema.json',
+        'release-package-schema.json',
+        'release-schema.json',
+    )
+
+    # Template repositories are allowed to have empty schema files and .keep files.
+    def include(path, name):
+        if name in ignored or any(substring in path for substring in untracked):
+            return False
+        if repo_name in template_repositories and name in schema_files + ('.keep',):
+            return False
+        return True
+
+    def parse_as_json(path, name):
+        return name in schema_files
+
+    check_empty_files(include, test, parse_as_json)
+
+
+def test_no_versioned_release_schema_in_extension():
+    for root, name in walk():
+        if is_extension and name == 'versioned-release-validation-schema.json':
+            assert False, 'versioned-release-validation-schema.json should be removed'
 
 
 @pytest.mark.skipif(not is_extension, reason='not an extension (test_json_merge_patch)')
