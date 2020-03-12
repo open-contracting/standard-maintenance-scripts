@@ -14,17 +14,7 @@ from jscc.testing.json import (difference, get_empty_files, get_invalid_files, g
                                is_extension, is_profile, validate_json_schema)
 from jscc.testing.schema import is_json_schema, is_json_merge_patch
 from jscc.testing.traversal import walk, walk_csv_data, walk_json_data
-from jscc.testing.util import rejecting_dict, warn_and_assert
-
-
-@lru_cache
-def http_get(url):
-    return requests.get(url)
-
-
-@lru_cache
-def http_head(url):
-    return requests.head(url)
+from jscc.testing.util import http_get, http_head, rejecting_dict, warn_and_assert
 
 
 # Whether to use the 1.1-dev version of OCDS.
@@ -330,12 +320,12 @@ def test_extension_json():
         assert False, 'expected an extension.json file'
 
 
-def test_invalid_files():
+def test_valid():
     warn_and_assert(get_invalid_files(), '{0} is not valid JSON: {1}', 'JSON files are invalid. See warnings below.')
 
 
 @pytest.mark.skipif(os.environ.get('OCDS_NOINDENT', False), reason='skipped indentation')
-def test_unindented_files():
+def test_indent():
     def include(path, name):
         return name != 'json-schema-draft-4.json'  # http://json-schema.org/draft-04/schema
 
@@ -343,7 +333,7 @@ def test_unindented_files():
                     'Files are not indented as expected. See warnings below, or run: ocdskit indent -r .')
 
 
-def test_empty_files():
+def test_empty():
     template_repositories = {
         'standard_extension_template',
         'standard_profile_template',
@@ -366,7 +356,7 @@ def test_empty_files():
 
 
 @pytest.mark.skipif(not is_extension, reason='not an extension (test_no_versioned_release_schema)')
-def test_no_versioned_release_schema():
+def test_versioned_release_schema():
     paths = []
     for root, name in walk():
         if name == 'versioned-release-validation-schema.json':
