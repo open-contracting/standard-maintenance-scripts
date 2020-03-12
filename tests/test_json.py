@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import warnings
 from copy import deepcopy
 
@@ -9,17 +10,13 @@ import pytest
 import requests
 # Import some tests that will be run by pytest, noqa needed because we don't use them directly
 from jscc.testing.json import (difference, get_empty_files, get_invalid_files, get_unindented_files,  # noqa: F401
-                               is_extension, is_profile, metaschema, repo_name, validate_json_schema)
-from jscc.testing.schema import is_json_schema
-from jscc.testing.traversal import (development_base_url, ocds_schema_base_url, ocds_tag, ocds_version,
-                                    walk, walk_csv_data, walk_json_data)
+                               is_extension, is_profile, metaschema, validate_json_schema)
+from jscc.testing.schema import is_json_schema, is_json_merge_patch
+from jscc.testing.traversal import walk, walk_csv_data, walk_json_data
 from jscc.testing.util import rejecting_dict, warn_and_assert
 
-cwd = os.getcwd()
-extensiondir = os.path.join(cwd, 'schema', 'profile') if is_profile else cwd
-
+# Whether to use the 1.1-dev version of OCDS.
 use_development_version = False
-jscc.testing.json.use_development_version = use_development_version
 
 # The codelists defined in `standard/schema/codelists`. XXX Hardcoding.
 external_codelists = {
@@ -52,6 +49,20 @@ exceptional_extensions = (
 jscc.testing.json.exceptional_extensions = exceptional_extensions
 
 cwd = os.getcwd()
+repo_name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', cwd))
+ocds_version = os.environ.get('OCDS_TEST_VERSION')
+extensiondir = os.path.join(cwd, 'schema', 'profile') if is_profile else cwd
+
+if repo_name == 'infrastructure':
+    ocds_schema_base_url = 'https://standard.open-contracting.org/infrastructure/schema/'
+else:
+    ocds_schema_base_url = 'https://standard.open-contracting.org/schema/'
+development_base_url = 'https://raw.githubusercontent.com/open-contracting/standard/1.1-dev/standard/schema'
+ocds_tags = re.findall(r'\d+__\d+__\d+', requests.get(ocds_schema_base_url).text)
+if ocds_version:
+    ocds_tag = ocds_version.replace('.', '__')
+else:
+    ocds_tag = ocds_tags[-1]
 
 # See https://tools.ietf.org/html/draft-fge-json-schema-validation-00
 unused_json_schema_properties = {
@@ -130,11 +141,18 @@ def custom_warning_formatter(message, category, filename, lineno, line=None):
 warnings.formatwarning = custom_warning_formatter
 
 
-def is_json_merge_patch(data):
+def patch(text):
     """
-    Returns whether the data is a JSON Merge Patch.
+    Handle unreleased tag in $ref.
     """
-    return '$schema' not in data and ('definitions' in data or 'properties' in data)
+    match = re.search(r'\d+__\d+__\d+', text)
+    if match:
+        tag = match.group(0)
+        if tag not in ocds_tags:
+            if ocds_version or not use_development_version:
+                text = text.replace(tag, ocds_tag)
+            else:
+                text = text.replace(ocds_schema_base_url + tag, development_base_url)
 
 
 def merge(*objs):
@@ -213,7 +231,7 @@ def test_json_schema():
     Ensures all JSON Schema files are valid JSON Schema Draft 4 and use codelists correctly. Unless this is an
     extension, ensures JSON Schema files have required metadata and valid references.
     """
-    for path, text, data in walk_json_data():
+    for path, text, data in walk_json_data(patch):
         if is_json_schema(data):
             basename = os.path.basename(path)
             if basename in ('release-schema.json', 'release-package-schema.json'):
@@ -244,7 +262,7 @@ def test_extension_json():
     expected_codelists = {os.path.basename(path) for path, _ in
                           walk_csv_data(os.path.join(extensiondir, 'codelists'))}
     expected_schemas = {os.path.basename(path) for path, _, _ in
-                        walk_json_data(extensiondir) if path.endswith('-schema.json')}
+                        walk_json_data(patch, top=extensiondir) if path.endswith('-schema.json')}
 
     path = os.path.join(extensiondir, 'extension.json')
     if os.path.isfile(path):
@@ -311,7 +329,7 @@ def test_empty_files():
 
     # Template repositories are allowed to have empty schema files and .keep files.
     def include(path, name):
-        return not(name == '__init__.py' or repo_name in template_repositories and name in schema_files + ('.keep',))
+        return repo_name not in template_repositories or name not in schema_files + ('.keep',)
 
     def parse_as_json(path, name):
         return name in schema_files
@@ -369,7 +387,7 @@ def test_json_merge_patch():
                 get_dependencies(json.load(f, object_pairs_hook=rejecting_dict), basename)
 
     # This loop is somewhat unnecessary, as repositories contain at most one of each schema file.
-    for path, text, data in walk_json_data():
+    for path, text, data in walk_json_data(patch):
         if is_json_merge_patch(data):
             basename = os.path.basename(path)
             if basename in basenames:
