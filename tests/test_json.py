@@ -3,6 +3,7 @@ import os
 import re
 import warnings
 from copy import deepcopy
+from functools import lru_cache
 
 import jscc.testing.json
 import json_merge_patch
@@ -10,10 +11,21 @@ import pytest
 import requests
 # Import some tests that will be run by pytest, noqa needed because we don't use them directly
 from jscc.testing.json import (difference, get_empty_files, get_invalid_files, get_unindented_files,  # noqa: F401
-                               is_extension, is_profile, metaschema, validate_json_schema)
+                               is_extension, is_profile, validate_json_schema)
 from jscc.testing.schema import is_json_schema, is_json_merge_patch
 from jscc.testing.traversal import walk, walk_csv_data, walk_json_data
 from jscc.testing.util import rejecting_dict, warn_and_assert
+
+
+@lru_cache
+def http_get(url):
+    return requests.get(url)
+
+
+@lru_cache
+def http_head(url):
+    return requests.head(url)
+
 
 # Whether to use the 1.1-dev version of OCDS.
 use_development_version = False
@@ -58,7 +70,7 @@ if repo_name == 'infrastructure':
 else:
     ocds_schema_base_url = 'https://standard.open-contracting.org/schema/'
 development_base_url = 'https://raw.githubusercontent.com/open-contracting/standard/1.1-dev/standard/schema'
-ocds_tags = re.findall(r'\d+__\d+__\d+', requests.get(ocds_schema_base_url).text)
+ocds_tags = re.findall(r'\d+__\d+__\d+', http_get(ocds_schema_base_url).text)
 if ocds_version:
     ocds_tag = ocds_version.replace('.', '__')
 else:
@@ -85,60 +97,75 @@ unused_json_schema_properties = {
 }
 
 
-# See https://tools.ietf.org/html/rfc7396
-if is_extension:
-    # noqa: See https://github.com/open-contracting-extensions/ocds_milestone_documents_extension/blob/master/release-schema.json#L9
-    metaschema['properties']['deprecated']['type'] = ['object', 'null']
-
-if repo_name in exceptional_extensions:
-    # Allow null'ing a property in these repositories.
-    metaschema['type'] = ['object', 'null']
-
-project_package_metaschema = deepcopy(metaschema)
-
-# jsonmerge fields for OCDS 1.0.
-# See https://github.com/open-contracting-archive/jsonmerge
-metaschema['properties']['mergeStrategy'] = {
-    'type': 'string',
-    'enum': [
-        'append',
-        'arrayMergeById',
-        'objectMerge',
-        'ocdsOmit',
-        'ocdsVersion',
-        'overwrite',
-        'version',
-    ],
-}
-metaschema['properties']['mergeOptions'] = {
-    'type': 'object',
-    'properties': {
-        'additionalProperties': False,
-        'idRef': {'type': 'string'},
-        'ignoreDups': {'type': 'boolean'},
-        'ignoreId': {'type': 'string'},
-        'limit': {'type': 'number'},
-        'unique': {'type': 'boolean'},
-    },
-}
-
-
-# Novel uses of JSON Schema features may require updates to other repositories.
-# See https://github.com/open-contracting/standard/issues/757
-record_package_metaschema = deepcopy(metaschema)
-for prop in unused_json_schema_properties:
-    del record_package_metaschema['properties'][prop]
-    del project_package_metaschema['properties'][prop]
-release_package_metaschema = deepcopy(record_package_metaschema)
-del release_package_metaschema['properties']['oneOf']
-del project_package_metaschema['properties']['oneOf']
-
-
 def custom_warning_formatter(message, category, filename, lineno, line=None):
     return str(message).replace(cwd + os.sep, '')
 
 
 warnings.formatwarning = custom_warning_formatter
+
+
+@lru_cache
+def metaschemas():
+    url = 'https://raw.githubusercontent.com/open-contracting/standard/1.1/standard/schema/meta-schema.json'
+    metaschema = http_get(url).json()
+
+    # Draft 6 removes `minItems` from `definitions/stringArray`.
+    # See https://github.com/open-contracting-extensions/ocds_api_extension/blob/master/release-package-schema.json#L2
+    del metaschema['definitions']['stringArray']['minItems']
+
+    # See https://tools.ietf.org/html/rfc7396
+    if is_extension:
+        # noqa: See https://github.com/open-contracting-extensions/ocds_milestone_documents_extension/blob/master/release-schema.json#L9
+        metaschema['properties']['deprecated']['type'] = ['object', 'null']
+
+    if repo_name in exceptional_extensions:
+        # Allow null'ing a property in these repositories.
+        metaschema['type'] = ['object', 'null']
+
+    project_package_metaschema = deepcopy(metaschema)
+
+    # jsonmerge fields for OCDS 1.0.
+    # See https://github.com/open-contracting-archive/jsonmerge
+    metaschema['properties']['mergeStrategy'] = {
+        'type': 'string',
+        'enum': [
+            'append',
+            'arrayMergeById',
+            'objectMerge',
+            'ocdsOmit',
+            'ocdsVersion',
+            'overwrite',
+            'version',
+        ],
+    }
+    metaschema['properties']['mergeOptions'] = {
+        'type': 'object',
+        'properties': {
+            'additionalProperties': False,
+            'idRef': {'type': 'string'},
+            'ignoreDups': {'type': 'boolean'},
+            'ignoreId': {'type': 'string'},
+            'limit': {'type': 'number'},
+            'unique': {'type': 'boolean'},
+        },
+    }
+
+    # Novel uses of JSON Schema features may require updates to other repositories.
+    # See https://github.com/open-contracting/standard/issues/757
+    record_package_metaschema = deepcopy(metaschema)
+    for prop in unused_json_schema_properties:
+        del record_package_metaschema['properties'][prop]
+        del project_package_metaschema['properties'][prop]
+    release_package_metaschema = deepcopy(record_package_metaschema)
+    del release_package_metaschema['properties']['oneOf']
+    del project_package_metaschema['properties']['oneOf']
+
+    return {
+        'metaschema': metaschema,
+        'project_package_metaschema': project_package_metaschema,
+        'record_package_metaschema': record_package_metaschema,
+        'release_package_metaschema': release_package_metaschema,
+    }
 
 
 def patch(text):
@@ -235,14 +262,14 @@ def test_json_schema():
         if is_json_schema(data):
             basename = os.path.basename(path)
             if basename in ('release-schema.json', 'release-package-schema.json'):
-                schema = release_package_metaschema
+                metaschema = metaschemas()['release_package_metaschema']
             elif basename == 'record-package-schema.json':
-                schema = record_package_metaschema
+                metaschema = metaschemas()['record_package_metaschema']
             elif basename in ('project-schema.json', 'project-package-schema.json'):
-                schema = project_package_metaschema
+                metaschema = metaschemas()['project_package_metaschema']
             else:
-                schema = metaschema
-            validate_json_schema(path, data, schema)
+                metaschema = metaschemas()['metaschema']
+            validate_json_schema(path, data, metaschema)
 
 
 @pytest.mark.skipif(not is_extension, reason='not an extension (test_extension_json)')
@@ -257,7 +284,7 @@ def test_extension_json():
             schema = json.load(f)
     else:
         url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/master/schema/extension-schema.json'  # noqa
-        schema = requests.get(url).json()
+        schema = http_get(url).json()
 
     expected_codelists = {os.path.basename(path) for path, _ in
                           walk_csv_data(os.path.join(extensiondir, 'codelists'))}
@@ -274,7 +301,7 @@ def test_extension_json():
         urls = data.get('dependencies', []) + data.get('testDependencies', [])
         for url in urls:
             try:
-                status_code = requests.head(url).status_code
+                status_code = http_head(url).status_code
                 assert status_code == 200, 'HTTP {} on {}'.format(status_code, url)
             except requests.exceptions.ConnectionError as e:
                 assert False, '{} on {}'.format(e, url)
@@ -282,7 +309,7 @@ def test_extension_json():
         urls = list(data['documentationUrl'].values())
         for url in urls:
             try:
-                status_code = requests.get(url).status_code  # allow redirects
+                status_code = http_get(url).status_code  # allow redirects
                 assert status_code == 200, 'HTTP {} on {}'.format(status_code, url)
             except requests.exceptions.ConnectionError as e:
                 assert False, '{} on {}'.format(e, url)
@@ -372,14 +399,14 @@ def test_json_merge_patch():
     def get_dependencies(extension, basename):
         dependencies = extension.get('dependencies', []) + extension.get('testDependencies', [])
         for url in dependencies:
-            dependency = requests.get(url).json()
+            dependency = http_get(url).json()
             external_codelists.update(dependency.get('codelists', []))
             schema_url = '{}/{}'.format(url.rsplit('/', 1)[0], basename)
-            json_merge_patch.merge(schemas[basename], requests.get(schema_url).json())
+            json_merge_patch.merge(schemas[basename], http_get(schema_url).json())
             get_dependencies(dependency, basename)
 
     for basename in basenames:
-        schemas[basename] = requests.get(url_pattern.format(basename)).json()
+        schemas[basename] = http_get(url_pattern.format(basename)).json()
 
         if basename == 'release-schema.json':
             path = os.path.join(extensiondir, 'extension.json')
@@ -398,7 +425,7 @@ def test_json_merge_patch():
                     assert False, 'Exception: {} {}'.format(e, path)
 
                 # All metadata should be present.
-                validate_json_schema(path, patched, metaschema, full_schema=True)
+                validate_json_schema(path, patched, metaschemas()['metaschema'], full_schema=True)
 
                 # Empty patches aren't allowed. json_merge_patch mutates `unpatched`, so `schemas[basename]` is tested.
                 assert patched != schemas[basename]
