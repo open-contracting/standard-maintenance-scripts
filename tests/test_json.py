@@ -5,13 +5,14 @@ import warnings
 from copy import deepcopy
 from functools import lru_cache
 
-import jscc.testing.json
+import jscc.testing.checks
 import json_merge_patch
 import pytest
 import requests
 # Import some tests that will be run by pytest, noqa needed because we don't use them directly
-from jscc.testing.json import (difference, get_empty_files, get_invalid_files, get_unindented_files,  # noqa: F401
-                               is_extension, is_profile, get_json_schema_errors)
+from jscc.testing.checks import (difference, get_empty_files, get_invalid_json_files,  # noqa: F401
+                                 get_unindented_files, is_extension, is_profile, get_json_schema_errors,
+                                 validate_json_schema)
 from jscc.testing.schema import is_json_schema, is_json_merge_patch
 from jscc.testing.traversal import walk_csv_data, walk_json_data
 from jscc.testing.util import http_get, http_head, rejecting_dict, warn_and_assert
@@ -42,13 +43,23 @@ external_codelists = {
     'tenderStatus.csv',
     'unitClassificationScheme.csv',
 }
-jscc.testing.json.external_codelists = external_codelists
+jscc.testing.checks.external_codelists = external_codelists
 
-exceptional_extensions = (
+exceptional_extensions = {
     'ocds_ppp_extension',
     'public-private-partnerships',
+}
+jscc.testing.checks.exceptional_extensions = exceptional_extensions
+
+template_repositories = {
+    'standard_extension_template',
+    'standard_profile_template',
+}
+schema_files = (
+    'record-package-schema.json',
+    'release-package-schema.json',
+    'release-schema.json',
 )
-jscc.testing.json.exceptional_extensions = exceptional_extensions
 
 cwd = os.getcwd()
 repo_name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', cwd))
@@ -159,6 +170,17 @@ def metaschemas():
     }
 
 
+def get_metaschema_for_filename(name):
+    schemas = metaschemas()
+    if name in ('release-schema.json', 'release-package-schema.json'):
+        return schemas['release_package_metaschema']
+    elif name == 'record-package-schema.json':
+        return schemas['record_package_metaschema']
+    elif name in ('project-schema.json', 'project-package-schema.json'):
+        return schemas['project_package_metaschema']
+    return schemas['metaschema']
+
+
 def patch(text):
     """
     Handle unreleased tag in $ref.
@@ -248,33 +270,6 @@ def merge_obj(result, obj, pointer=''):  # changed code
     return result
 
 
-@pytest.mark.parametrize('path,name,data', json_schemas)
-def test_json_schema(path, name, data):
-    """
-    Ensures all JSON Schema files are valid JSON Schema Draft 4 and use codelists correctly. Unless this is an
-    extension, ensures JSON Schema files have required metadata and valid references.
-    """
-    schemas = metaschemas()
-
-    if name in ('release-schema.json', 'release-package-schema.json'):
-        metaschema = schemas['release_package_metaschema']
-    elif name == 'record-package-schema.json':
-        metaschema = schemas['record_package_metaschema']
-    elif name in ('project-schema.json', 'project-package-schema.json'):
-        metaschema = schemas['project_package_metaschema']
-    else:
-        metaschema = schemas['metaschema']
-
-    errors = list(get_json_schema_errors(data, metaschema))
-
-    for error in errors:
-        warnings.warn(json.dumps(error.instance, indent=2, separators=(',', ': ')))
-        warnings.warn('ERROR: {0} ({1})\n'.format(error.message, '/'.join(error.absolute_schema_path)))
-
-    assert not errors, '{0} is not valid JSON Schema ({1} errors)'.format(path, len(errors))
-
-
-
 @pytest.mark.skipif(not is_extension, reason='not an extension (test_extension_json)')
 def test_extension_json():
     """
@@ -299,7 +294,7 @@ def test_extension_json():
         with open(path) as f:
             data = json.load(f, object_pairs_hook=rejecting_dict)
 
-        validate_json_schema(path, name, data, schema)
+        validate_json_schema(path, 'extension.json', data, schema)
 
         urls = data.get('dependencies', []) + data.get('testDependencies', [])
         for url in urls:
@@ -333,8 +328,24 @@ def test_extension_json():
         assert False, 'expected an extension.json file'
 
 
-def test_valid():
-    warn_and_assert(get_invalid_files(), '{0} is not valid JSON: {1}', 'JSON files are invalid. See warnings below.')
+@pytest.mark.parametrize('path,name,data', json_schemas)
+def test_schema_valid(path, name, data):
+    """
+    Ensures all JSON Schema files are valid JSON Schema Draft 4 and use codelists correctly. Unless this is an
+    extension, ensures JSON Schema files have required metadata and valid references.
+    """
+    errors = list(get_json_schema_errors(data, get_metaschema_for_filename(name)))
+
+    for error in errors:
+        warnings.warn(json.dumps(error.instance, indent=2, separators=(',', ': ')))
+        warnings.warn('ERROR: {0} ({1})\n'.format(error.message, '/'.join(error.absolute_schema_path)))
+
+    assert not errors, '{0} is not valid JSON Schema ({1} errors)'.format(path, len(errors))
+
+
+def test_json_valid():
+    warn_and_assert(get_invalid_json_files(), '{0} is not valid JSON: {1}',
+                    'JSON files are invalid. See warnings below.')
 
 
 @pytest.mark.skipif(os.environ.get('OCDS_NOINDENT', False), reason='skipped indentation')
@@ -346,25 +357,12 @@ def test_indent():
                     'Files are not indented as expected. See warnings below, or run: ocdskit indent -r .')
 
 
+# Template repositories are allowed to have empty schema files and .keep files.
 def test_empty():
-    template_repositories = {
-        'standard_extension_template',
-        'standard_profile_template',
-    }
-    schema_files = (
-        'record-package-schema.json',
-        'release-package-schema.json',
-        'release-schema.json',
-    )
-
-    # Template repositories are allowed to have empty schema files and .keep files.
     def include(path, name):
         return repo_name not in template_repositories or name not in schema_files + ('.keep',)
 
-    def parse_as_json(path, name):
-        return name in schema_files
-
-    warn_and_assert(get_empty_files(include, parse_as_json), '{0} is empty, run: rm {0}',
+    warn_and_assert(get_empty_files(include), '{0} is empty, run: rm {0}',
                     'Files are empty. See warnings below.')
 
 
