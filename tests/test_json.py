@@ -5,18 +5,18 @@ import warnings
 from copy import deepcopy
 from functools import lru_cache
 
-import jscc.testing.checks
 import json_merge_patch
 import pytest
 import requests
+
+import jscc.testing.checks
 # Import some tests that will be run by pytest, noqa needed because we don't use them directly
 from jscc.testing.checks import (difference, get_empty_files, get_invalid_json_files,  # noqa: F401
-                                 get_unindented_files, is_extension, is_profile, get_json_schema_errors,
+                                 get_json_schema_errors, get_unindented_files, is_extension, is_profile,
                                  validate_json_schema)
-from jscc.testing.schema import is_json_schema, is_json_merge_patch
+from jscc.testing.schema import is_json_merge_patch, is_json_schema
 from jscc.testing.traversal import walk_csv_data, walk_json_data
 from jscc.testing.util import http_get, http_head, rejecting_dict, warn_and_assert
-
 
 # Whether to use the 1.1-dev version of OCDS.
 use_development_version = False
