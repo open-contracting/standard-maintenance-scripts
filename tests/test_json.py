@@ -11,9 +11,9 @@ import pytest
 import requests
 # Import some tests that will be run by pytest, noqa needed because we don't use them directly
 from jscc.testing.json import (difference, get_empty_files, get_invalid_files, get_unindented_files,  # noqa: F401
-                               is_extension, is_profile, validate_json_schema)
+                               is_extension, is_profile, get_json_schema_errors)
 from jscc.testing.schema import is_json_schema, is_json_merge_patch
-from jscc.testing.traversal import walk, walk_csv_data, walk_json_data
+from jscc.testing.traversal import walk_csv_data, walk_json_data
 from jscc.testing.util import http_get, http_head, rejecting_dict, warn_and_assert
 
 
@@ -92,9 +92,10 @@ def custom_warning_formatter(message, category, filename, lineno, line=None):
 
 
 warnings.formatwarning = custom_warning_formatter
+pytestmark = pytest.mark.filterwarnings('always')
 
 
-@lru_cache
+@lru_cache()
 def metaschemas():
     url = 'https://raw.githubusercontent.com/open-contracting/standard/1.1/standard/schema/meta-schema.json'
     metaschema = http_get(url).json()
@@ -170,6 +171,10 @@ def patch(text):
                 text = text.replace(tag, ocds_tag)
             else:
                 text = text.replace(ocds_schema_base_url + tag, development_base_url)
+    return text
+
+
+json_schemas = [(path, name, data) for path, name, text, data in walk_json_data(patch) if is_json_schema(data)]
 
 
 def merge(*objs):
@@ -243,23 +248,31 @@ def merge_obj(result, obj, pointer=''):  # changed code
     return result
 
 
-def test_json_schema():
+@pytest.mark.parametrize('path,name,data', json_schemas)
+def test_json_schema(path, name, data):
     """
     Ensures all JSON Schema files are valid JSON Schema Draft 4 and use codelists correctly. Unless this is an
     extension, ensures JSON Schema files have required metadata and valid references.
     """
-    for path, text, data in walk_json_data(patch):
-        if is_json_schema(data):
-            basename = os.path.basename(path)
-            if basename in ('release-schema.json', 'release-package-schema.json'):
-                metaschema = metaschemas()['release_package_metaschema']
-            elif basename == 'record-package-schema.json':
-                metaschema = metaschemas()['record_package_metaschema']
-            elif basename in ('project-schema.json', 'project-package-schema.json'):
-                metaschema = metaschemas()['project_package_metaschema']
-            else:
-                metaschema = metaschemas()['metaschema']
-            validate_json_schema(path, data, metaschema)
+    schemas = metaschemas()
+
+    if name in ('release-schema.json', 'release-package-schema.json'):
+        metaschema = schemas['release_package_metaschema']
+    elif name == 'record-package-schema.json':
+        metaschema = schemas['record_package_metaschema']
+    elif name in ('project-schema.json', 'project-package-schema.json'):
+        metaschema = schemas['project_package_metaschema']
+    else:
+        metaschema = schemas['metaschema']
+
+    errors = list(get_json_schema_errors(data, metaschema))
+
+    for error in errors:
+        warnings.warn(json.dumps(error.instance, indent=2, separators=(',', ': ')))
+        warnings.warn('ERROR: {0} ({1})\n'.format(error.message, '/'.join(error.absolute_schema_path)))
+
+    assert not errors, '{0} is not valid JSON Schema ({1} errors)'.format(path, len(errors))
+
 
 
 @pytest.mark.skipif(not is_extension, reason='not an extension (test_extension_json)')
@@ -276,9 +289,9 @@ def test_extension_json():
         url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/master/schema/extension-schema.json'  # noqa
         schema = http_get(url).json()
 
-    expected_codelists = {os.path.basename(path) for path, _ in
-                          walk_csv_data(os.path.join(extensiondir, 'codelists'))}
-    expected_schemas = {os.path.basename(path) for path, _, _ in
+    expected_codelists = {name for _, name, _ in
+                          walk_csv_data(top=os.path.join(extensiondir, 'codelists'))}
+    expected_schemas = {name for _, name, _, _ in
                         walk_json_data(patch, top=extensiondir) if path.endswith('-schema.json')}
 
     path = os.path.join(extensiondir, 'extension.json')
@@ -286,7 +299,7 @@ def test_extension_json():
         with open(path) as f:
             data = json.load(f, object_pairs_hook=rejecting_dict)
 
-        validate_json_schema(path, data, schema)
+        validate_json_schema(path, name, data, schema)
 
         urls = data.get('dependencies', []) + data.get('testDependencies', [])
         for url in urls:
@@ -355,15 +368,12 @@ def test_empty():
                     'Files are empty. See warnings below.')
 
 
-@pytest.mark.skipif(not is_extension, reason='not an extension (test_no_versioned_release_schema)')
+@pytest.mark.skipif(not is_extension, reason='not an extension (test_versioned_release_schema)')
 def test_versioned_release_schema():
-    paths = []
-    for root, name in walk():
-        if name == 'versioned-release-validation-schema.json':
-            paths.append(os.path.join(root, name))
-
-    warn_and_assert(paths, '{0} is present, run: rm {0}',
-                    'Versioned release schema files are present. See warnings below.')
+    path = os.path.join(cwd, 'versioned-release-validation-schema.json')
+    if os.path.exists(path):
+        warn_and_assert([path], '{0} is present, run: rm {0}',
+                        'Versioned release schema files are present. See warnings below.')
 
 
 @pytest.mark.skipif(not is_extension, reason='not an extension (test_json_merge_patch)')
@@ -404,18 +414,17 @@ def test_json_merge_patch():
                 get_dependencies(json.load(f, object_pairs_hook=rejecting_dict), basename)
 
     # This loop is somewhat unnecessary, as repositories contain at most one of each schema file.
-    for path, text, data in walk_json_data(patch):
+    for path, name, text, data in walk_json_data(patch):
         if is_json_merge_patch(data):
-            basename = os.path.basename(path)
-            if basename in basenames:
-                unpatched = deepcopy(schemas[basename])
+            if name in basenames:
+                unpatched = deepcopy(schemas[name])
                 try:
                     patched = merge(unpatched, data)
                 except Exception as e:
                     assert False, 'Exception: {} {}'.format(e, path)
 
                 # All metadata should be present.
-                validate_json_schema(path, patched, metaschemas()['metaschema'], full_schema=True)
+                validate_json_schema(path, name, patched, metaschemas()['metaschema'], full_schema=True)
 
-                # Empty patches aren't allowed. json_merge_patch mutates `unpatched`, so `schemas[basename]` is tested.
-                assert patched != schemas[basename]
+                # Empty patches aren't allowed. json_merge_patch mutates `unpatched`, so `schemas[name]` is tested.
+                assert patched != schemas[name]
