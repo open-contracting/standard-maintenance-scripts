@@ -1,9 +1,7 @@
 set -e
 
 # Python dependencies
-pip install flake8 isort json-merge-patch ocdskit
-pip install -e git+https://github.com/open-contracting/jscc.git#egg=jscc
-
+pip install flake8 isort jscc json-merge-patch jsonref jsonschema pytest ocdskit requests
 
 # Ruby dependencies
 # gem install mdl

@@ -8,20 +8,21 @@ from functools import lru_cache
 import json_merge_patch
 import pytest
 import requests
-
-import jscc.testing.checks
 # Import some tests that will be run by pytest, noqa needed because we don't use them directly
-from jscc.testing.checks import (difference, get_empty_files, get_invalid_json_files,  # noqa: F401
-                                 get_json_schema_errors, get_unindented_files, is_extension, is_profile,
-                                 validate_json_schema)
-from jscc.testing.schema import is_json_merge_patch, is_json_schema
-from jscc.testing.traversal import walk_csv_data, walk_json_data
-from jscc.testing.util import http_get, http_head, rejecting_dict, warn_and_assert
+from jscc.testing.checks import (get_empty_files, get_invalid_json_files, get_misindented_files,
+                                 validate_codelist_enum, validate_deep_properties, validate_items_type,
+                                 validate_letter_case, validate_merge_properties, validate_metadata_presence,
+                                 validate_null_type, validate_object_id, validate_ref, validate_schema,
+                                 validate_schema_codelists_match)
+from jscc.testing.filesystem import walk_csv_data, walk_json_data
+from jscc.testing.schema import is_json_merge_patch, is_json_schema, rejecting_dict
+from jscc.testing.util import difference, http_get, http_head, warn_and_assert
+from jsonref import JsonRef
 
 # Whether to use the 1.1-dev version of OCDS.
 use_development_version = False
 
-# The codelists defined in `standard/schema/codelists`. XXX Hardcoding.
+# The codelists defined in `schema/codelists`. XXX Hardcoding.
 external_codelists = {
     'awardCriteria.csv',
     'awardStatus.csv',
@@ -43,59 +44,29 @@ external_codelists = {
     'tenderStatus.csv',
     'unitClassificationScheme.csv',
 }
-jscc.testing.checks.external_codelists = external_codelists
 
 exceptional_extensions = {
     'ocds_ppp_extension',
     'public-private-partnerships',
 }
-jscc.testing.checks.exceptional_extensions = exceptional_extensions
-
-template_repositories = {
-    'standard_extension_template',
-    'standard_profile_template',
-}
-schema_files = (
-    'record-package-schema.json',
-    'release-package-schema.json',
-    'release-schema.json',
-)
 
 cwd = os.getcwd()
 repo_name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', cwd))
 ocds_version = os.environ.get('OCDS_TEST_VERSION')
+is_profile = os.path.isfile(os.path.join(cwd, 'Makefile')) and repo_name not in ('standard', 'infrastructure')
+is_extension = os.path.isfile(os.path.join(cwd, 'extension.json')) or is_profile
 extensiondir = os.path.join(cwd, 'schema', 'profile') if is_profile else cwd
 
 if repo_name == 'infrastructure':
     ocds_schema_base_url = 'https://standard.open-contracting.org/infrastructure/schema/'
 else:
     ocds_schema_base_url = 'https://standard.open-contracting.org/schema/'
-development_base_url = 'https://raw.githubusercontent.com/open-contracting/standard/1.1-dev/standard/schema'
+development_base_url = 'https://raw.githubusercontent.com/open-contracting/standard/1.1-dev/schema'
 ocds_tags = re.findall(r'\d+__\d+__\d+', http_get(ocds_schema_base_url).text)
 if ocds_version:
     ocds_tag = ocds_version.replace('.', '__')
 else:
     ocds_tag = ocds_tags[-1]
-
-# See https://tools.ietf.org/html/draft-fge-json-schema-validation-00
-unused_json_schema_properties = {
-    # Validation keywords for numeric instances
-    'multipleOf',
-    'exclusiveMaximum',
-    'exclusiveMinimum',
-
-    # Validation keywords for arrays
-    'additionalItems',
-
-    # Validation keywords for objects
-    'additionalProperties',
-    'dependencies',
-
-    # Validation keywords for any instance type
-    'allOf',
-    'anyOf',
-    'not',
-}
 
 
 def custom_warning_formatter(message, category, filename, lineno, line=None):
@@ -108,6 +79,26 @@ pytestmark = pytest.mark.filterwarnings('always')
 
 @lru_cache()
 def metaschemas():
+    # See https://tools.ietf.org/html/draft-fge-json-schema-validation-00
+    unused_json_schema_properties = {
+        # Validation keywords for numeric instances
+        'multipleOf',
+        'exclusiveMaximum',
+        'exclusiveMinimum',
+
+        # Validation keywords for arrays
+        'additionalItems',
+
+        # Validation keywords for objects
+        'additionalProperties',
+        'dependencies',
+
+        # Validation keywords for any instance type
+        'allOf',
+        'anyOf',
+        'not',
+    }
+
     url = 'https://raw.githubusercontent.com/open-contracting/standard/1.1/standard/schema/meta-schema.json'
     metaschema = http_get(url).json()
 
@@ -155,10 +146,13 @@ def metaschemas():
     # Novel uses of JSON Schema features may require updates to other repositories.
     # See https://github.com/open-contracting/standard/issues/757
     record_package_metaschema = deepcopy(metaschema)
+
     for prop in unused_json_schema_properties:
         del record_package_metaschema['properties'][prop]
         del project_package_metaschema['properties'][prop]
+
     release_package_metaschema = deepcopy(record_package_metaschema)
+
     del release_package_metaschema['properties']['oneOf']
     del project_package_metaschema['properties']['oneOf']
 
@@ -196,7 +190,7 @@ def patch(text):
     return text
 
 
-json_schemas = [(path, name, data) for path, name, text, data in walk_json_data(patch) if is_json_schema(data)]
+json_schemas = [(path, name, data) for path, name, _, data in walk_json_data(patch) if is_json_schema(data)]
 
 
 def merge(*objs):
@@ -328,19 +322,184 @@ def test_extension_json():
         assert False, 'expected an extension.json file'
 
 
+def validate_json_schema(path, name, data, schema, full_schema=not is_extension):
+    """
+    Prints and asserts errors in a JSON Schema.
+    """
+    errors = 0
+
+    # Non-OCDS schema don't:
+    # * pair "enum" and "codelist"
+    # * disallow "null" in "type" of "items"
+    # * UpperCamelCase definitions and lowerCamelCase properties
+    # * allow "null" in the "type" of optional fields
+    # * include "id" fields in objects within arrays
+    # * require "title", "description" and "type" properties
+    json_schema_exceptions = {
+        'json-schema-draft-4.json',
+        'meta-schema.json',
+        'meta-schema-patch.json',
+    }
+    ocds_schema_exceptions = {
+        'codelist-schema.json',
+        'extension-schema.json',
+        'extensions-schema.json',
+        'extension_versions-schema.json',
+        'dereferenced-release-schema.json',
+    }
+    schema_exceptions = json_schema_exceptions | ocds_schema_exceptions
+
+    validate_items_type_kwargs = {
+        'allow_invalid': {
+            '/definitions/Amendment/properties/changes/items',  # deprecated
+            '/definitions/AmendmentUnversioned/properties/changes/items',  # deprecated
+            '/definitions/record/properties/releases/oneOf/0/items',  # `type` is `object`
+        },
+    }
+
+    def validate_codelist_enum_allow_enum(pointer):
+        # The PPP profile and extension overwrites the tag and initiationType enums.
+        return repo_name in exceptional_extensions and pointer in {
+            '/properties/tag',
+            '/properties/initiationType',
+        }
+
+    def validate_codelist_enum_allow_missing(codelist):
+        return is_extension and codelist in external_codelists
+
+    validate_codelist_enum_kwargs = {
+        'fallback': {
+            '/definitions/Metric/properties/id': ['string'],
+            '/definitions/Milestone/properties/code': ['string', 'null'],
+        },
+        'allow_enum': validate_codelist_enum_allow_enum,
+        'allow_missing': validate_codelist_enum_allow_missing,
+    }
+
+    validate_letter_case_kwargs = {
+        'property_exceptions': {'former_value'},  # deprecated
+        'definition_exceptions': {'record'},  # future fix
+    }
+
+    validate_merge_properties_kwargs = {
+        'allow_null': {
+            '/definitions/Amendment/properties/changes/items/properties/former_value',  # deprecated
+            # See https://github.com/open-contracting/ocds-extensions/issues/83
+            '/definitions/Tender/properties/enquiries',
+        },
+    }
+
+    validate_object_id_kwargs = {
+        'allow_missing': {
+            'changes',  # deprecated
+            'records',  # uses `ocid` not `id`
+            '0',  # linked releases
+        },
+        'allow_optional': {
+            # 2.0 fixes.
+            # See https://github.com/open-contracting/standard/issues/650
+            '/definitions/Amendment',
+            '/definitions/Organization',
+            '/definitions/OrganizationReference',
+            '/definitions/RelatedProcess',
+            # Core extensions.
+            '/definitions/Lot',
+            '/definitions/LotGroup',
+            '/definitions/ParticipationFee',
+            # See https://github.com/open-contracting/ocds-extensions/issues/83
+            '/definitions/Enquiry',
+        },
+    }
+    if repo_name == 'infrastructure':
+        validate_object_id_kwargs['allow_optional'].add('/definitions/Classification')
+
+    validate_null_type_kwargs = {
+        # OCDS allows null. OC4IDS disallows null.
+        'no_null': repo_name == 'infrastructure',
+        'allow_object_null': {
+            '/definitions/Organization/properties/details',
+            '/definitions/Amendment/properties/changes/items/properties/former_value',  # deprecated
+        },
+        'allow_no_null': {
+            '/definitions/Amendment/properties/changes/items/properties/property',  # deprecated
+
+            # The API extension adds metadata fields to which this rule doesn't apply.
+            '/properties/packageMetadata',
+            '/properties/packageMetadata/properties/uri',
+            '/properties/packageMetadata/properties/publishedDate',
+            '/properties/packageMetadata/properties/publisher',
+
+            # 2.0 fixes.
+            # See https://github.com/open-contracting/standard/issues/650
+            '/definitions/Organization/properties/id',
+            '/definitions/OrganizationReference/properties/id',
+            '/definitions/RelatedProcess/properties/id',
+            # Core extensions.
+            '/definitions/Lot/properties/id',
+            '/definitions/LotGroup/properties/id',
+            '/definitions/ParticipationFee/properties/id',
+        },
+    }
+
+    validate_deep_properties_kwargs = {
+        'allow_deep': {
+            '/definitions/Amendment/properties/changes/items',  # deprecated
+        },
+    }
+    if is_extension:  # avoid repetition in extensions
+        validate_deep_properties_kwargs['allow_deep'].add('/definitions/Item/properties/unit')
+
+    errors += validate_schema(path, data, schema)
+
+    if name not in schema_exceptions:
+        if 'versioned-release-validation-schema.json' in path:
+            validate_items_type_kwargs['additional_valid_types'] = ['object']
+        errors += validate_items_type(path, data, **validate_items_type_kwargs)
+        errors += validate_codelist_enum(path, data, **validate_codelist_enum_kwargs)
+        errors += validate_letter_case(path, data, **validate_letter_case_kwargs)
+        errors += validate_merge_properties(path, data, **validate_merge_properties_kwargs)
+
+    # `full_schema` is set to not expect extensions to repeat information from core.
+    if full_schema:
+        exceptions_plus_versioned = schema_exceptions | {
+            'versioned-release-validation-schema.json',
+        }
+
+        exceptions_plus_versioned_and_packages = exceptions_plus_versioned | {
+            'project-package-schema.json',
+            'record-package-schema.json',
+            'release-package-schema.json',
+        }
+
+        # Extensions aren't expected to repeat referenced `definitions`.
+        errors += validate_ref(path, data)
+
+        if name not in exceptions_plus_versioned:
+            # Extensions aren't expected to repeat `title`, `description`, `type`.
+            errors += validate_metadata_presence(path, data)
+            # Extensions aren't expected to repeat referenced `definitions`.
+            errors += validate_object_id(path, JsonRef.replace_refs(data), **validate_object_id_kwargs)
+
+        if name not in exceptions_plus_versioned_and_packages:
+            # Extensions aren't expected to repeat `required`. Packages don't have merge rules.
+            errors += validate_null_type(path, data, **validate_null_type_kwargs)
+            # Extensions aren't expected to repeat referenced codelist CSV files
+            # TODO: This code assumes each schema uses all codelists. So, for now, skip package schema.
+            errors += validate_schema_codelists_match(path, data, cwd, is_extension, is_profile, external_codelists)
+
+    else:
+        errors += validate_deep_properties(path, data, **validate_deep_properties_kwargs)
+
+    assert not errors, 'One or more JSON Schema files are invalid. See warnings below.'
+
+
 @pytest.mark.parametrize('path,name,data', json_schemas)
 def test_schema_valid(path, name, data):
     """
     Ensures all JSON Schema files are valid JSON Schema Draft 4 and use codelists correctly. Unless this is an
     extension, ensures JSON Schema files have required metadata and valid references.
     """
-    errors = list(get_json_schema_errors(data, get_metaschema_for_filename(name)))
-
-    for error in errors:
-        warnings.warn(json.dumps(error.instance, indent=2, separators=(',', ': ')))
-        warnings.warn('ERROR: {0} ({1})\n'.format(error.message, '/'.join(error.absolute_schema_path)))
-
-    assert not errors, '{0} is not valid JSON Schema ({1} errors)'.format(path, len(errors))
+    validate_json_schema(path, name, data, get_metaschema_for_filename(name))
 
 
 def test_json_valid():
@@ -353,14 +512,15 @@ def test_indent():
     def include(path, name):
         return name != 'json-schema-draft-4.json'  # http://json-schema.org/draft-04/schema
 
-    warn_and_assert(get_unindented_files(include), '{0} is not indented as expected, run: ocdskit indent {0}',
+    warn_and_assert(get_misindented_files(include), '{0} is not indented as expected, run: ocdskit indent {0}',
                     'Files are not indented as expected. See warnings below, or run: ocdskit indent -r .')
 
 
 # Template repositories are allowed to have empty schema files and .keep files.
 def test_empty():
     def include(path, name):
-        return repo_name not in template_repositories or name not in schema_files + ('.keep',)
+        return repo_name not in {'standard_extension_template', 'standard_profile_template'} or name not in \
+            {'.keep', 'record-package-schema.json', 'release-package-schema.json', 'release-schema.json'}
 
     warn_and_assert(get_empty_files(include), '{0} is empty, run: rm {0}',
                     'Files are empty. See warnings below.')
