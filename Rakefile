@@ -111,6 +111,7 @@ TECH_SUPPORT_PRIORITIES = {
   # Tools
   'cove-ocds' => '✴️✴️✴️', # implementation step
   'cove-oc4ids' => '✴️✴️', # sectoral tool
+  'jscc' => ' ',
   'kingfisher' => ' ',
   'kingfisher-archive' => ' ',
   'kingfisher-colab' => ' ',
@@ -123,7 +124,7 @@ TECH_SUPPORT_PRIORITIES = {
   'ocds-show' => ' ', # infrequently used
   'ocds-show-ppp' => ' ', # infrequently used
   'ocdskit' => '✴️', # key tool
-  'toucan' => ' ',
+  'toucan' => '✴️', # key tool
   'sample-data' => '✴️', # frequently used
 
   # Extension tools
