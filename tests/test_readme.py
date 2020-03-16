@@ -9,9 +9,9 @@ from io import StringIO
 import json_merge_patch
 import jsonref
 import pytest
+from jscc.schema import extend_schema
+from jscc.testing.checks import validate_schema
 from jscc.testing.util import http_get
-from jsonschema import FormatChecker
-from jsonschema.validators import Draft4Validator as validator
 from ocdskit.schema import get_schema_fields
 
 # Whether to use the 1.1-dev version of OCDS.
@@ -33,8 +33,6 @@ if ocds_version or not use_development_version:
     url_prefix = ocds_schema_base_url + ocds_tag
 else:
     url_prefix = development_base_url
-
-schema = http_get(url_prefix + '/release-schema.json').json()
 
 # Same as tests/fixtures/release_minimal.json in ocdskit.
 minimal_release = {
@@ -78,18 +76,10 @@ def examples():
 
 
 def patch_schema():
-    # Adapted from test_json.py.
-    def get_dependencies(extension):
-        dependencies = extension.get('dependencies', []) + extension.get('testDependencies', [])
-        for url in dependencies:
-            dependency = http_get(url).json()
-            schema_url = url.rsplit('/', 1)[0] + '/release-schema.json'
-            json_merge_patch.merge(patched, http_get(schema_url).json())
-            get_dependencies(dependency)
-
-    patched = deepcopy(schema)
-    get_dependencies(read_metadata())
-    with open(os.path.join(cwd, 'release-schema.json')) as f:
+    basename = 'release-schema.json'
+    schema = http_get(url_prefix + '/release-schema.json').json()
+    patched = extend_schema(basename, schema, read_metadata())
+    with open(os.path.join(cwd, basename)) as f:
         json_merge_patch.merge(patched, json.load(f))
 
     return patched
@@ -146,19 +136,14 @@ def test_example_valid():
         if 'releases' in data:
             continue
 
-        errors = 0
-
         release = deepcopy(minimal_release)
         json_merge_patch.merge(release, data)
         if 'tender' in release and 'id' not in release['tender']:
             release['tender']['id'] = '1'
 
-        for error in validator(patched, format_checker=FormatChecker()).iter_errors(release):
-            errors += 1
-            warnings.warn(json.dumps(error.instance, indent=2, separators=(',', ': ')))
-            warnings.warn('{} ({})\n'.format(error.message, '/'.join(error.absolute_schema_path)))
+        errors = validate_schema('README.md', release, patched)
 
-        assert errors == 0, 'README.md: JSON block {} is invalid. See warnings below.'.format(i)
+        assert not errors, 'README.md: JSON block {} is invalid. See warnings below.'.format(i)
 
 
 @pytest.mark.skipif(not is_extension, reason='not an extension (test_example_indent)')
