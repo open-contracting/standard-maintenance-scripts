@@ -5,7 +5,6 @@ import warnings
 from copy import deepcopy
 from functools import lru_cache
 
-import json_merge_patch
 import pytest
 import requests
 from jscc.exceptions import DeepPropertiesWarning
@@ -15,7 +14,7 @@ from jscc.testing.checks import (get_empty_files, get_invalid_json_files, get_mi
                                  validate_null_type, validate_object_id, validate_ref, validate_schema,
                                  validate_schema_codelists_match)
 from jscc.testing.filesystem import walk_csv_data, walk_json_data
-from jscc.testing.schema import is_json_merge_patch, is_json_schema, rejecting_dict
+from jscc.testing.schema import extend_schema, is_json_merge_patch, is_json_schema, rejecting_dict
 from jscc.testing.util import difference, http_get, http_head, warn_and_assert
 from jsonref import JsonRef
 
@@ -53,9 +52,9 @@ exceptional_extensions = {
 cwd = os.getcwd()
 repo_name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', cwd))
 ocds_version = os.environ.get('OCDS_TEST_VERSION')
-is_profile = os.path.isfile(os.path.join(cwd, 'Makefile')) and repo_name not in ('standard', 'infrastructure')
-is_extension = os.path.isfile(os.path.join(cwd, 'extension.json')) or is_profile
-extensiondir = os.path.join(cwd, 'schema', 'profile') if is_profile else cwd
+is_profile = os.path.isfile('Makefile') and repo_name not in ('standard', 'infrastructure')
+is_extension = os.path.isfile('extension.json') or is_profile
+extensiondir = os.path.join('schema', 'profile') if is_profile else '.'
 
 if repo_name == 'infrastructure':
     ocds_schema_base_url = 'https://standard.open-contracting.org/infrastructure/schema/'
@@ -418,6 +417,8 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
         validate_deep_properties_kwargs['allow_deep'].add('/definitions/Item/properties/unit')
 
     errors += validate_schema(path, data, schema)
+    if errors:
+        warnings.warn('{0} is not valid JSON Schema ({1} errors)'.format(path, errors))
 
     if name not in schema_exceptions:
         if 'versioned-release-validation-schema.json' in path:
@@ -483,7 +484,7 @@ def test_schema_valid(path, name, data):
 
 @pytest.mark.skipif(not is_extension, reason='not an extension (test_versioned_release_schema)')
 def test_versioned_release_schema():
-    path = os.path.join(cwd, 'versioned-release-validation-schema.json')
+    path = 'versioned-release-validation-schema.json'
     if os.path.exists(path):
         warn_and_assert([path], '{0} is present, run: rm {0}',
                         'Versioned release schema files are present. See warnings below.')
@@ -567,22 +568,14 @@ def test_json_merge_patch():
     else:
         url_pattern = development_base_url + '/{}'
 
-    def get_dependencies(extension, basename):
-        dependencies = extension.get('dependencies', []) + extension.get('testDependencies', [])
-        for url in dependencies:
-            dependency = http_get(url).json()
-            external_codelists.update(dependency.get('codelists', []))
-            schema_url = '{}/{}'.format(url.rsplit('/', 1)[0], basename)
-            json_merge_patch.merge(schemas[basename], http_get(schema_url).json())
-            get_dependencies(dependency, basename)
-
     for basename in basenames:
         schemas[basename] = http_get(url_pattern.format(basename)).json()
 
         if basename == 'release-schema.json':
             path = os.path.join(extensiondir, 'extension.json')
             with open(path) as f:
-                get_dependencies(json.load(f, object_pairs_hook=rejecting_dict), basename)
+                metadata = json.load(f, object_pairs_hook=rejecting_dict)
+                schemas[basename] = extend_schema(basename, schemas[basename], metadata, codelists=external_codelists)
 
     # This loop is somewhat unnecessary, as repositories contain at most one of each schema file.
     for path, name, text, data in walk_json_data(patch):
