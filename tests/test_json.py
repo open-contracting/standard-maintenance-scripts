@@ -279,64 +279,6 @@ def test_json_valid():
                     'JSON files are invalid. See warnings below.')
 
 
-@pytest.mark.skipif(not is_extension, reason='not an extension (test_extension_json)')
-def test_extension_json():
-    """
-    Ensures the extension's extension.json file is valid against extension-schema.json, all codelists are included, and
-    all URLs resolve.
-    """
-    path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'schema', 'extension-schema.json')
-    if os.path.isfile(path):
-        with open(path) as f:
-            schema = json.load(f)
-    else:
-        url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/master/schema/extension-schema.json'  # noqa
-        schema = http_get(url).json()
-
-    expected_codelists = {name for _, name, _ in
-                          walk_csv_data(top=os.path.join(extensiondir, 'codelists'))}
-    expected_schemas = {name for _, name, _, _ in
-                        walk_json_data(patch, top=extensiondir) if path.endswith('-schema.json')}
-
-    path = os.path.join(extensiondir, 'extension.json')
-    if os.path.isfile(path):
-        with open(path) as f:
-            data = json.load(f, object_pairs_hook=rejecting_dict)
-
-        validate_json_schema(path, 'extension.json', data, schema)
-
-        urls = data.get('dependencies', []) + data.get('testDependencies', [])
-        for url in urls:
-            try:
-                status_code = http_head(url).status_code
-                assert status_code == 200, 'HTTP {} on {}'.format(status_code, url)
-            except requests.exceptions.ConnectionError as e:
-                assert False, '{} on {}'.format(e, url)
-
-        urls = list(data['documentationUrl'].values())
-        for url in urls:
-            try:
-                status_code = http_get(url).status_code  # allow redirects
-                assert status_code == 200, 'HTTP {} on {}'.format(status_code, url)
-            except requests.exceptions.ConnectionError as e:
-                assert False, '{} on {}'.format(e, url)
-
-        actual_codelists = set(data.get('codelists', []))
-        if actual_codelists != expected_codelists:
-            added, removed = difference(actual_codelists, expected_codelists)
-            assert False, '{} has mismatch with schema{}{}'.format(
-                path, added, removed)
-
-        actual_schemas = set(data.get('schemas', []))
-        if actual_schemas != expected_schemas:
-            added, removed = difference(actual_schemas, expected_schemas)
-            assert False, '{} has mismatch with schema{}{}'.format(
-                path, added, removed)
-    else:
-        # This code is never reached, as the test is only run if there is an extension.json file.
-        assert False, 'expected an extension.json file'
-
-
 def validate_json_schema(path, name, data, schema, full_schema=not is_extension):
     """
     Prints and asserts errors in a JSON Schema.
@@ -545,6 +487,64 @@ def test_versioned_release_schema():
     if os.path.exists(path):
         warn_and_assert([path], '{0} is present, run: rm {0}',
                         'Versioned release schema files are present. See warnings below.')
+
+
+@pytest.mark.skipif(not is_extension, reason='not an extension (test_extension_json)')
+def test_extension_json():
+    """
+    Ensures the extension's extension.json file is valid against extension-schema.json, all codelists are included, and
+    all URLs resolve.
+    """
+    path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'schema', 'extension-schema.json')
+    if os.path.isfile(path):
+        with open(path) as f:
+            schema = json.load(f)
+    else:
+        url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/master/schema/extension-schema.json'  # noqa
+        schema = http_get(url).json()
+
+    expected_codelists = {name for _, name, _ in
+                          walk_csv_data(top=os.path.join(extensiondir, 'codelists'))}
+    expected_schemas = {name for _, name, _, _ in
+                        walk_json_data(patch, top=extensiondir) if path.endswith('-schema.json')}
+
+    path = os.path.join(extensiondir, 'extension.json')
+    if os.path.isfile(path):
+        with open(path) as f:
+            data = json.load(f, object_pairs_hook=rejecting_dict)
+
+        validate_json_schema(path, 'extension.json', data, schema)
+
+        urls = data.get('dependencies', []) + data.get('testDependencies', [])
+        for url in urls:
+            try:
+                status_code = http_head(url).status_code
+                assert status_code == 200, 'HTTP {} on {}'.format(status_code, url)
+            except requests.exceptions.ConnectionError as e:
+                assert False, '{} on {}'.format(e, url)
+
+        urls = list(data['documentationUrl'].values())
+        for url in urls:
+            try:
+                status_code = http_get(url).status_code  # allow redirects
+                assert status_code == 200, 'HTTP {} on {}'.format(status_code, url)
+            except requests.exceptions.ConnectionError as e:
+                assert False, '{} on {}'.format(e, url)
+
+        actual_codelists = set(data.get('codelists', []))
+        if actual_codelists != expected_codelists:
+            added, removed = difference(actual_codelists, expected_codelists)
+            assert False, '{} has mismatch with schema{}{}'.format(
+                path, added, removed)
+
+        actual_schemas = set(data.get('schemas', []))
+        if actual_schemas != expected_schemas:
+            added, removed = difference(actual_schemas, expected_schemas)
+            assert False, '{} has mismatch with schema{}{}'.format(
+                path, added, removed)
+    else:
+        # This code is never reached, as the test is only run if there is an extension.json file.
+        assert False, 'expected an extension.json file'
 
 
 @pytest.mark.skipif(not is_extension, reason='not an extension (test_json_merge_patch)')
