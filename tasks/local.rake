@@ -100,7 +100,7 @@ namespace :local do
           hook = hooks.find{ |datum| datum.name == 'travis' || datum.config.url == 'https://notify.travis-ci.org' }
           if hook
             line << "[![Build Status](https://travis-ci.org/#{repo.full_name}.svg)](https://travis-ci.org/#{repo.full_name})"
-            if ['Tools', 'Extension tools', 'Documentation dependencies'].include?(heading)
+            if ['Tools', 'Extension tools', 'Internal tools', 'Documentation dependencies'].include?(heading)
               contents = read_github_file(repo.full_name, '.travis.yml')
               if contents.include?('coveralls')
                 line << " [![Coverage Status](https://coveralls.io/repos/github/#{repo.full_name}/badge.svg?branch=master)](https://coveralls.io/github/#{repo.full_name}?branch=master)"
