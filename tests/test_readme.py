@@ -9,12 +9,10 @@ from io import StringIO
 import json_merge_patch
 import jsonref
 import pytest
-import requests
+from jscc.testing.util import http_get
 from jsonschema import FormatChecker
 from jsonschema.validators import Draft4Validator as validator
 from ocdskit.schema import get_schema_fields
-
-# Copied from test_json.py.
 
 # Whether to use the 1.1-dev version of OCDS.
 use_development_version = False
@@ -25,21 +23,18 @@ ocds_version = os.environ.get('OCDS_TEST_VERSION')
 is_extension = os.path.isfile(os.path.join(cwd, 'extension.json'))
 
 ocds_schema_base_url = 'https://standard.open-contracting.org/schema/'
-development_base_url = 'https://raw.githubusercontent.com/open-contracting/standard/1.1-dev/standard/schema'
-ocds_tags = re.findall(r'\d+__\d+__\d+', requests.get(ocds_schema_base_url).text)
+development_base_url = 'https://raw.githubusercontent.com/open-contracting/standard/1.1-dev/schema'
+ocds_tags = re.findall(r'\d+__\d+__\d+', http_get(ocds_schema_base_url).text)
 if ocds_version:
     ocds_tag = ocds_version.replace('.', '__')
 else:
     ocds_tag = ocds_tags[-1]
-
-# End copy.
-
 if ocds_version or not use_development_version:
     url_prefix = ocds_schema_base_url + ocds_tag
 else:
     url_prefix = development_base_url
 
-schema = requests.get(url_prefix + '/release-schema.json').json()
+schema = http_get(url_prefix + '/release-schema.json').json()
 
 # Same as tests/fixtures/release_minimal.json in ocdskit.
 minimal_release = {
@@ -51,12 +46,12 @@ minimal_release = {
 }
 
 
-# Copied from test_json.py.
-def custom_warning_formatter(message, category, filename, lineno, line=None):
+def formatwarning(message, category, filename, lineno, line=None):
     return str(message).replace(cwd + os.sep, '')
 
 
-warnings.formatwarning = custom_warning_formatter
+warnings.formatwarning = formatwarning
+pytestmark = pytest.mark.filterwarnings('always')
 
 
 def read_metadata():
@@ -87,9 +82,9 @@ def patch_schema():
     def get_dependencies(extension):
         dependencies = extension.get('dependencies', []) + extension.get('testDependencies', [])
         for url in dependencies:
-            dependency = requests.get(url).json()
+            dependency = http_get(url).json()
             schema_url = url.rsplit('/', 1)[0] + '/release-schema.json'
-            json_merge_patch.merge(patched, requests.get(schema_url).json())
+            json_merge_patch.merge(patched, http_get(schema_url).json())
             get_dependencies(dependency)
 
     patched = deepcopy(schema)
@@ -124,7 +119,7 @@ def test_example_indent():
     Ensures all JSON snippets in the extension's documentation are valid and formatted for humans.
     """
     for i, text, data in examples():
-        expected = '\n{}\n'.format(json.dumps(data, ensure_ascii=False, indent=2, separators=(',', ': ')))
+        expected = '\n{}\n'.format(json.dumps(data, ensure_ascii=False, indent=2))
         assert text == expected
 
 
@@ -204,11 +199,11 @@ def test_example_backticks():
 
     # Add JSON Schema properties.
     url = 'https://raw.githubusercontent.com/open-contracting/standard/1.1/standard/schema/meta-schema.json'
-    literals.update(requests.get(url).json()['properties'])
+    literals.update(http_get(url).json()['properties'])
 
     # Add codelist columns.
     url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/master/schema/codelist-schema.json'  # noqa
-    literals.update(requests.get(url).json()['items']['properties'])
+    literals.update(http_get(url).json()['items']['properties'])
 
     # Add codelist names.
     metadata = read_metadata()
@@ -259,7 +254,7 @@ def test_example_codes():
     literals = set()
 
     for codelist in ('milestoneStatus', 'releaseTag'):  # can save time, for now, by not downloading all codelists
-        reader = csv.DictReader(StringIO(requests.get('{}/codelists/{}.csv'.format(url_prefix, codelist)).text))
+        reader = csv.DictReader(StringIO(http_get('{}/codelists/{}.csv'.format(url_prefix, codelist)).text))
         for row in reader:
             literals.add(row['Code'])
 
