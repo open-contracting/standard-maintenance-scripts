@@ -59,6 +59,7 @@ extension_tools = [
 internal_tools = [
   'deploy',
   'european-union-support',
+  'jscc',
   'json-schema-random',
   'standard-development-handbook',
   'standard-maintenance-scripts',

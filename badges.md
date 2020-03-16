@@ -28,7 +28,6 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 |-|-|-|-|
 |✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/cove-oc4ids.svg)](https://travis-ci.org/open-contracting/cove-oc4ids) [![Coverage Status](https://coveralls.io/repos/github/open-contracting/cove-oc4ids/badge.svg?branch=master)](https://coveralls.io/github/open-contracting/cove-oc4ids?branch=master)|-|[cove-oc4ids](https://github.com/open-contracting/cove-oc4ids)|
 |✴️✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/cove-ocds.svg)](https://travis-ci.org/open-contracting/cove-ocds) [![Coverage Status](https://coveralls.io/repos/github/open-contracting/cove-ocds/badge.svg?branch=master)](https://coveralls.io/github/open-contracting/cove-ocds?branch=master)|[Docs](https://ocds-data-review-tool.readthedocs.io/)|[cove-ocds](https://github.com/open-contracting/cove-ocds)|
-| |[![Build Status](https://travis-ci.org/open-contracting/jscc.svg)](https://travis-ci.org/open-contracting/jscc) [![Coverage Status](https://coveralls.io/repos/github/open-contracting/jscc/badge.svg?branch=master)](https://coveralls.io/github/open-contracting/jscc?branch=master)|[Docs](https://jscc.readthedocs.io/)|[jscc](https://github.com/open-contracting/jscc)|
 | |[![Build Status](https://travis-ci.org/open-contracting/kingfisher.svg)](https://travis-ci.org/open-contracting/kingfisher)|[Docs](https://ocdskingfisher.readthedocs.io/)|[kingfisher](https://github.com/open-contracting/kingfisher)|
 | |-|-|[kingfisher-archive](https://github.com/open-contracting/kingfisher-archive)|
 | |[![Build Status](https://travis-ci.org/open-contracting/kingfisher-colab.svg)](https://travis-ci.org/open-contracting/kingfisher-colab)|[Docs](https://kingfisher-colab.readthedocs.io/)|[kingfisher-colab](https://github.com/open-contracting/kingfisher-colab)|
@@ -60,6 +59,7 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 |-|-|-|-|
 |✴️✴️✴️|-|[Docs](https://ocdsdeploy.readthedocs.io/)|[deploy](https://github.com/open-contracting/deploy)|
 | |-|-|[european-union-support](https://github.com/open-contracting/european-union-support)|
+| |[![Build Status](https://travis-ci.org/open-contracting/jscc.svg)](https://travis-ci.org/open-contracting/jscc)|[Docs](https://jscc.readthedocs.io/)|[jscc](https://github.com/open-contracting/jscc)|
 | |-|-|[json-schema-random](https://github.com/open-contracting/json-schema-random)|
 |✴️|[![Build Status](https://travis-ci.org/open-contracting/standard-development-handbook.svg)](https://travis-ci.org/open-contracting/standard-development-handbook)|[Docs](https://ocds-standard-development-handbook.readthedocs.io/)|[standard-development-handbook](https://github.com/open-contracting/standard-development-handbook)|
 |✴️|[![Build Status](https://travis-ci.org/open-contracting/standard-maintenance-scripts.svg)](https://travis-ci.org/open-contracting/standard-maintenance-scripts)|-|[standard-maintenance-scripts](https://github.com/open-contracting/standard-maintenance-scripts)|
