@@ -8,7 +8,7 @@ from functools import lru_cache
 import json_merge_patch
 import pytest
 import requests
-# Import some tests that will be run by pytest, noqa needed because we don't use them directly
+from jscc.exceptions import DeepPropertiesWarning
 from jscc.testing.checks import (get_empty_files, get_invalid_json_files, get_misindented_files,
                                  validate_codelist_enum, validate_deep_properties, validate_items_type,
                                  validate_letter_case, validate_merge_properties, validate_metadata_presence,
@@ -70,6 +70,8 @@ else:
 
 
 def custom_warning_formatter(message, category, filename, lineno, line=None):
+    if category != DeepPropertiesWarning:
+        message = 'ERROR: ' + message
     return str(message).replace(cwd + os.sep, '')
 
 
@@ -389,12 +391,23 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
         },
     }
 
-    validate_object_id_kwargs = {
-        'allow_missing': {
+    def validate_metadata_presence_allow_missing(pointer):
+        return 'links' in pointer.rsplit('/')
+
+    validate_metadata_presence_kwargs = {
+        'allow_missing': validate_metadata_presence_allow_missing,
+    }
+
+    def validate_object_id_allow_missing(pointer):
+        parts = pointer.split('/')
+        return 'versionedRelease' in parts or parts[-1] in {
             'changes',  # deprecated
             'records',  # uses `ocid` not `id`
             '0',  # linked releases
-        },
+        }
+
+    validate_object_id_kwargs = {
+        'allow_missing': validate_object_id_allow_missing,
         'allow_optional': {
             # 2.0 fixes.
             # See https://github.com/open-contracting/standard/issues/650
@@ -476,7 +489,7 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
 
         if name not in exceptions_plus_versioned:
             # Extensions aren't expected to repeat `title`, `description`, `type`.
-            errors += validate_metadata_presence(path, data)
+            errors += validate_metadata_presence(path, data, **validate_metadata_presence_kwargs)
             # Extensions aren't expected to repeat referenced `definitions`.
             errors += validate_object_id(path, JsonRef.replace_refs(data), **validate_object_id_kwargs)
 
@@ -488,7 +501,8 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
             errors += validate_schema_codelists_match(path, data, cwd, is_extension, is_profile, external_codelists)
 
     else:
-        errors += validate_deep_properties(path, data, **validate_deep_properties_kwargs)
+        # Don't count these as errors.
+        validate_deep_properties(path, data, **validate_deep_properties_kwargs)
 
     assert not errors, 'One or more JSON Schema files are invalid. See warnings below.'
 
