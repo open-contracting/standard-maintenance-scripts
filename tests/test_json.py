@@ -79,6 +79,95 @@ warnings.formatwarning = formatwarning
 pytestmark = pytest.mark.filterwarnings('always')
 
 
+def patch(text):
+    """
+    Handle unreleased tag in $ref.
+    """
+    match = re.search(r'\d+__\d+__\d+', text)
+    if match:
+        tag = match.group(0)
+        if tag not in ocds_tags:
+            if ocds_version or not use_development_version:
+                text = text.replace(tag, ocds_tag)
+            else:
+                text = text.replace(ocds_schema_base_url + tag, development_base_url)
+    return text
+
+
+json_schemas = [(path, name, data) for path, name, _, data in walk_json_data(patch) if is_json_schema(data)]
+
+
+def merge(*objs):
+    """
+    Copied from json_merge_patch.
+    """
+    result = objs[0]
+    for obj in objs[1:]:
+        result = _merge_obj(result, obj)
+    return result
+
+
+def _merge_obj(result, obj, pointer=''):  # changed code
+    """
+    Copied from json_merge_patch, with edits to raise an error if overwriting.
+    """
+    if not isinstance(result, dict):
+        result = {}
+
+    if not isinstance(obj, dict):
+        return obj
+
+    # new code
+    removal_exceptions = {
+        '/properties/buyer',  # becomes publicAuthority
+        '/definitions/Award/properties/suppliers',  # becomes preferredBidders
+        '/definitions/Budget/properties/project',
+        '/definitions/Budget/properties/projectID',
+    }
+    overwrite_exceptions = {
+        '/properties/tag/items/enum',
+        '/properties/initiationType/enum',
+    }
+
+    for key, value in obj.items():
+        if isinstance(value, dict):
+            target = result.get(key)
+            if isinstance(target, dict):
+                _merge_obj(target, value, pointer='{}/{}'.format(pointer, key))  # changed code
+                continue
+            result[key] = {}
+            _merge_obj(result[key], value, pointer='{}/{}'.format(pointer, key))  # changed code
+            continue
+
+        # new code
+        if key in result:
+            pointer_and_key = '{}/{}'.format(pointer, key)
+            # Exceptions.
+            if (value is None and pointer_and_key == '/definitions/Milestone/properties/documents/deprecated' and
+                    repo_name in ('ocds_milestone_documents_extension', 'public-private-partnerships')):
+                warnings.warn('re-adds {}'.format(pointer))
+            elif (value == [] and pointer_and_key == '/required' and
+                    repo_name == 'ocds_api_extension'):
+                warnings.warn('empties {}'.format(pointer_and_key))
+            elif repo_name in exceptional_extensions:
+                if pointer_and_key in overwrite_exceptions:
+                    warnings.warn('overwrites {}'.format(pointer_and_key))
+                elif value is None and 'deprecated' in result[key]:
+                    warnings.warn('removes deprecated {}'.format(pointer_and_key))
+                elif value is None and pointer_and_key in removal_exceptions:
+                    warnings.warn('removes {}'.format(pointer_and_key))
+                else:
+                    raise Exception('unexpectedly overwrites {}'.format(pointer_and_key))
+            else:
+                raise Exception('unexpectedly overwrites {}'.format(pointer_and_key))
+
+        if value is None:
+            result.pop(key, None)
+            continue
+        result[key] = value
+    return result
+
+
 @lru_cache()
 def metaschemas():
     # See https://tools.ietf.org/html/draft-fge-json-schema-validation-00
@@ -166,104 +255,28 @@ def metaschemas():
     }
 
 
-def get_metaschema_for_filename(name):
-    schemas = metaschemas()
-    if name in ('release-schema.json', 'release-package-schema.json'):
-        return schemas['release_package_metaschema']
-    elif name == 'record-package-schema.json':
-        return schemas['record_package_metaschema']
-    elif name in ('project-schema.json', 'project-package-schema.json'):
-        return schemas['project_package_metaschema']
-    return schemas['metaschema']
+# Template repositories are allowed to have empty schema files and .keep files.
+def test_empty():
+    def include(path, name):
+        return repo_name not in {'standard_extension_template', 'standard_profile_template'} or name not in \
+            {'.keep', 'record-package-schema.json', 'release-package-schema.json', 'release-schema.json'}
+
+    warn_and_assert(get_empty_files(include), '{0} is empty, run: rm {0}',
+                    'Files are empty. See warnings below.')
 
 
-def patch(text):
-    """
-    Handle unreleased tag in $ref.
-    """
-    match = re.search(r'\d+__\d+__\d+', text)
-    if match:
-        tag = match.group(0)
-        if tag not in ocds_tags:
-            if ocds_version or not use_development_version:
-                text = text.replace(tag, ocds_tag)
-            else:
-                text = text.replace(ocds_schema_base_url + tag, development_base_url)
-    return text
+@pytest.mark.skipif(os.environ.get('OCDS_NOINDENT', False), reason='skipped indentation')
+def test_indent():
+    def include(path, name):
+        return name != 'json-schema-draft-4.json'  # http://json-schema.org/draft-04/schema
+
+    warn_and_assert(get_misindented_files(include), '{0} is not indented as expected, run: ocdskit indent {0}',
+                    'Files are not indented as expected. See warnings below, or run: ocdskit indent -r .')
 
 
-json_schemas = [(path, name, data) for path, name, _, data in walk_json_data(patch) if is_json_schema(data)]
-
-
-def merge(*objs):
-    """
-    Copied from json_merge_patch.
-    """
-    result = objs[0]
-    for obj in objs[1:]:
-        result = merge_obj(result, obj)
-    return result
-
-
-def merge_obj(result, obj, pointer=''):  # changed code
-    """
-    Copied from json_merge_patch, with edits to raise an error if overwriting.
-    """
-    if not isinstance(result, dict):
-        result = {}
-
-    if not isinstance(obj, dict):
-        return obj
-
-    # new code
-    removal_exceptions = {
-        '/properties/buyer',  # becomes publicAuthority
-        '/definitions/Award/properties/suppliers',  # becomes preferredBidders
-        '/definitions/Budget/properties/project',
-        '/definitions/Budget/properties/projectID',
-    }
-    overwrite_exceptions = {
-        '/properties/tag/items/enum',
-        '/properties/initiationType/enum',
-    }
-
-    for key, value in obj.items():
-        if isinstance(value, dict):
-            target = result.get(key)
-            if isinstance(target, dict):
-                merge_obj(target, value, pointer='{}/{}'.format(pointer, key))  # changed code
-                continue
-            result[key] = {}
-            merge_obj(result[key], value, pointer='{}/{}'.format(pointer, key))  # changed code
-            continue
-
-        # new code
-        if key in result:
-            pointer_and_key = '{}/{}'.format(pointer, key)
-            # Exceptions.
-            if (value is None and pointer_and_key == '/definitions/Milestone/properties/documents/deprecated' and
-                    repo_name in ('ocds_milestone_documents_extension', 'public-private-partnerships')):
-                warnings.warn('re-adds {}'.format(pointer))
-            elif (value == [] and pointer_and_key == '/required' and
-                    repo_name == 'ocds_api_extension'):
-                warnings.warn('empties {}'.format(pointer_and_key))
-            elif repo_name in exceptional_extensions:
-                if pointer_and_key in overwrite_exceptions:
-                    warnings.warn('overwrites {}'.format(pointer_and_key))
-                elif value is None and 'deprecated' in result[key]:
-                    warnings.warn('removes deprecated {}'.format(pointer_and_key))
-                elif value is None and pointer_and_key in removal_exceptions:
-                    warnings.warn('removes {}'.format(pointer_and_key))
-                else:
-                    raise Exception('unexpectedly overwrites {}'.format(pointer_and_key))
-            else:
-                raise Exception('unexpectedly overwrites {}'.format(pointer_and_key))
-
-        if value is None:
-            result.pop(key, None)
-            continue
-        result[key] = value
-    return result
+def test_json_valid():
+    warn_and_assert(get_invalid_json_files(), '{0} is not valid JSON: {1}',
+                    'JSON files are invalid. See warnings below.')
 
 
 @pytest.mark.skipif(not is_extension, reason='not an extension (test_extension_json)')
@@ -513,31 +526,17 @@ def test_schema_valid(path, name, data):
     Ensures all JSON Schema files are valid JSON Schema Draft 4 and use codelists correctly. Unless this is an
     extension, ensures JSON Schema files have required metadata and valid references.
     """
-    validate_json_schema(path, name, data, get_metaschema_for_filename(name))
+    schemas = metaschemas()
+    if name in ('release-schema.json', 'release-package-schema.json'):
+        metaschema = schemas['release_package_metaschema']
+    elif name == 'record-package-schema.json':
+        metaschema = schemas['record_package_metaschema']
+    elif name in ('project-schema.json', 'project-package-schema.json'):
+        metaschema = schemas['project_package_metaschema']
+    else:
+        metaschema = schemas['metaschema']
 
-
-def test_json_valid():
-    warn_and_assert(get_invalid_json_files(), '{0} is not valid JSON: {1}',
-                    'JSON files are invalid. See warnings below.')
-
-
-@pytest.mark.skipif(os.environ.get('OCDS_NOINDENT', False), reason='skipped indentation')
-def test_indent():
-    def include(path, name):
-        return name != 'json-schema-draft-4.json'  # http://json-schema.org/draft-04/schema
-
-    warn_and_assert(get_misindented_files(include), '{0} is not indented as expected, run: ocdskit indent {0}',
-                    'Files are not indented as expected. See warnings below, or run: ocdskit indent -r .')
-
-
-# Template repositories are allowed to have empty schema files and .keep files.
-def test_empty():
-    def include(path, name):
-        return repo_name not in {'standard_extension_template', 'standard_profile_template'} or name not in \
-            {'.keep', 'record-package-schema.json', 'release-package-schema.json', 'release-schema.json'}
-
-    warn_and_assert(get_empty_files(include), '{0} is empty, run: rm {0}',
-                    'Files are empty. See warnings below.')
+    validate_json_schema(path, name, data, metaschema)
 
 
 @pytest.mark.skipif(not is_extension, reason='not an extension (test_versioned_release_schema)')
