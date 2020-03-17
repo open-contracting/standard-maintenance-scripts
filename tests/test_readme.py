@@ -113,7 +113,7 @@ def test_example_indent():
         assert text == expected
 
 
-@pytest.mark.skipif(not is_extension, reason='not an extension (test_example_indent)')
+@pytest.mark.skipif(not is_extension, reason='not an extension (test_example_valid)')
 def test_example_valid():
     """
     Ensures all JSON snippets in the extension's documentation are snippets of OCDS data with no additional fields.
@@ -146,7 +146,7 @@ def test_example_valid():
         assert not errors, 'README.md: JSON block {} is invalid. See warnings below.'.format(i)
 
 
-@pytest.mark.skipif(not is_extension, reason='not an extension (test_example_indent)')
+@pytest.mark.skipif(not is_extension, reason='not an extension (test_example_backticks)')
 def test_example_backticks():
     exceptions = {
         # Substring of pattern property.
@@ -220,7 +220,7 @@ def test_example_backticks():
     assert errors == 0, 'README.md: Backtick terms are invalid. See warnings below.'
 
 
-@pytest.mark.skipif(not is_extension, reason='not an extension (test_example_indent)')
+@pytest.mark.skipif(not is_extension, reason='not an extension (test_example_codes)')
 def test_example_codes():
     metadata = read_metadata()
 
