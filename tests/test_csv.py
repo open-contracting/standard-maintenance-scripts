@@ -6,9 +6,9 @@ from io import StringIO
 
 import pytest
 import requests
+from jscc.schema import is_codelist
 from jscc.testing.checks import get_invalid_csv_files
 from jscc.testing.filesystem import walk_csv_data
-from jscc.testing.schema import is_codelist
 from jscc.testing.util import warn_and_assert
 from jsonschema import FormatChecker
 from jsonschema.validators import Draft4Validator as validator

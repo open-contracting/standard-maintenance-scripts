@@ -8,13 +8,13 @@ from functools import lru_cache
 import pytest
 import requests
 from jscc.exceptions import DeepPropertiesWarning
+from jscc.schema import extend_schema, is_json_merge_patch, is_json_schema, rejecting_dict
 from jscc.testing.checks import (get_empty_files, get_invalid_json_files, get_misindented_files,
                                  validate_codelist_enum, validate_deep_properties, validate_items_type,
                                  validate_letter_case, validate_merge_properties, validate_metadata_presence,
                                  validate_null_type, validate_object_id, validate_ref, validate_schema,
                                  validate_schema_codelists_match)
 from jscc.testing.filesystem import walk_csv_data, walk_json_data
-from jscc.testing.schema import extend_schema, is_json_merge_patch, is_json_schema, rejecting_dict
 from jscc.testing.util import difference, http_get, http_head, warn_and_assert
 from jsonref import JsonRef
 
