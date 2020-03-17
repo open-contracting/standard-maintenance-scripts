@@ -507,7 +507,7 @@ def test_extension_json():
     expected_codelists = {name for _, name, _, _, _ in
                           walk_csv_data(top=os.path.join(extensiondir, 'codelists'))}
     expected_schemas = {name for _, name, _, _ in
-                        walk_json_data(patch, top=extensiondir) if path.endswith('-schema.json')}
+                        walk_json_data(patch, top=extensiondir) if name.endswith('-schema.json')}
 
     path = os.path.join(extensiondir, 'extension.json')
     if os.path.isfile(path):
@@ -535,7 +535,7 @@ def test_extension_json():
         actual_codelists = set(data.get('codelists', []))
         if actual_codelists != expected_codelists:
             added, removed = difference(actual_codelists, expected_codelists)
-            assert False, '{} has mismatch with schema{}{}'.format(
+            assert False, '{} has mismatch with codelists{}{}'.format(
                 path, added, removed)
 
         actual_schemas = set(data.get('schemas', []))

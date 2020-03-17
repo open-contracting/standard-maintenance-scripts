@@ -37,7 +37,7 @@ def test_valid():
     """
     errors = 0
 
-    for path, text, fieldnames, rows in walk_csv_data():
+    for path, name, text, fieldnames, rows in walk_csv_data():
         codelist = is_codelist(fieldnames)
         width = len(fieldnames)
         columns = []
@@ -128,7 +128,7 @@ def test_codelist():
 
     any_errors = False
 
-    for path, text, fieldnames, rows in walk_csv_data():
+    for path, name, text, fieldnames, rows in walk_csv_data():
         codes_seen = set()
         if is_codelist(fieldnames):
             data = []
