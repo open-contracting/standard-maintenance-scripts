@@ -504,7 +504,7 @@ def test_extension_json():
         url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/master/schema/extension-schema.json'  # noqa
         schema = http_get(url).json()
 
-    expected_codelists = {name for _, name, _ in
+    expected_codelists = {name for _, name, _, _, _ in
                           walk_csv_data(top=os.path.join(extensiondir, 'codelists'))}
     expected_schemas = {name for _, name, _, _ in
                         walk_json_data(patch, top=extensiondir) if path.endswith('-schema.json')}
