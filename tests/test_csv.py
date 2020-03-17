@@ -1,67 +1,33 @@
-import _csv
 import csv
 import json
 import os
 import warnings
 from io import StringIO
 
+import pytest
 import requests
+from jscc.testing.checks import get_invalid_csv_files
+from jscc.testing.filesystem import walk_csv_data
+from jscc.testing.schema import is_codelist
+from jscc.testing.util import warn_and_assert
 from jsonschema import FormatChecker
 from jsonschema.validators import Draft4Validator as validator
 
-# Copied from test_json.py.
 cwd = os.getcwd()
 repo_name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', cwd))
 
 
-# Copied from test_json.py.
-def custom_warning_formatter(message, category, filename, lineno, line=None):
+def formatwarning(message, category, filename, lineno, line=None):
     return str(message).replace(cwd + os.sep, '')
 
 
-warnings.formatwarning = custom_warning_formatter
+warnings.formatwarning = formatwarning
+pytestmark = pytest.mark.filterwarnings('always')
 
 
-# Copied from test_json.py.
-def walk(top=cwd):
-    """
-    Yields all files, except third-party files under virtual environment, static, build, and test fixture directories,
-    and except a specific kingfisher-views file.
-    """
-    for root, dirs, files in os.walk(top):
-        for directory in ('.git', '.ve', '_static', 'build', 'fixtures'):
-            if directory in dirs:
-                dirs.remove(directory)
-        for name in files:
-            if name != '1-1-3.csv':
-                yield (root, name)
-
-
-# Edited from test_json.py.
-def walk_csv_data(top=cwd):
-    """
-    Yields all CSV data.
-    """
-    for root, name in walk(top):
-        if name.endswith('.csv'):
-            path = os.path.join(root, name)
-            with open(path, newline='') as f:
-                text = f.read()
-                reader = csv.DictReader(StringIO(text))
-                try:
-                    fieldnames = reader.fieldnames
-                    rows = [row for row in reader]
-                    yield (path, text, fieldnames, rows)
-                except _csv.Error as e:
-                    assert False, '{} is not valid CSV ({})'.format(path, e)
-
-
-# Copied from test_json.py.
-def is_codelist(fieldnames):
-    """
-    Returns whether the CSV is a codelist.
-    """
-    return 'Code' in fieldnames
+def test_csv_valid():
+    warn_and_assert(get_invalid_csv_files(), '{0} is not valid CSV: {1}',
+                    'CSV files are invalid. See warnings below.')
 
 
 def test_valid():
