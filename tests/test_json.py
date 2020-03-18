@@ -337,14 +337,6 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
         'definition_exceptions': {'record'},  # future fix
     }
 
-    validate_merge_properties_kwargs = {
-        'allow_null': {
-            '/definitions/Amendment/properties/changes/items/properties/former_value',  # deprecated
-            # See https://github.com/open-contracting/ocds-extensions/issues/83
-            '/definitions/Tender/properties/enquiries',
-        },
-    }
-
     def validate_metadata_presence_allow_missing(pointer):
         return 'links' in pointer.rsplit('/')
 
@@ -384,8 +376,11 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
         # OCDS allows null. OC4IDS disallows null.
         'no_null': repo_name == 'infrastructure',
         'allow_object_null': {
-            '/definitions/Organization/properties/details',
             '/definitions/Amendment/properties/changes/items/properties/former_value',  # deprecated
+            # See https://github.com/open-contracting/standard/pull/738#issuecomment-440727233
+            '/definitions/Organization/properties/details',
+            # See https://github.com/open-contracting/ocds-extensions/issues/83
+            '/definitions/Tender/properties/enquiries',
         },
         'allow_no_null': {
             '/definitions/Amendment/properties/changes/items/properties/property',  # deprecated
@@ -426,7 +421,7 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
         errors += validate_items_type(path, data, **validate_items_type_kwargs)
         errors += validate_codelist_enum(path, data, **validate_codelist_enum_kwargs)
         errors += validate_letter_case(path, data, **validate_letter_case_kwargs)
-        errors += validate_merge_properties(path, data, **validate_merge_properties_kwargs)
+        errors += validate_merge_properties(path, data)
 
     # `full_schema` is set to not expect extensions to repeat information from core.
     if full_schema:
