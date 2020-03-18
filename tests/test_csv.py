@@ -38,6 +38,9 @@ def test_valid():
     errors = 0
 
     for path, name, text, fieldnames, rows in walk_csv_data():
+        if '/ocdskingfisherviews/migrations/versions/1-1-3.csv' in path:
+            continue
+
         codelist = is_codelist(fieldnames)
         width = len(fieldnames)
         columns = []
