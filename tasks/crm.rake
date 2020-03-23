@@ -1,12 +1,4 @@
 namespace :crm do
-  # Last updated 2018-01-15
-  REDMINE_GENERIC_USERS = [
-    'Redmine Admin',
-    'API Access',
-    'Time Tracking',
-    'CoST Test User',
-  ]
-
   # Open Contracting Partnership
   # https://www.open-contracting.org/about/team/
   REDMINE_OCP_USERS_OCDS = [
@@ -81,7 +73,7 @@ namespace :crm do
   REDMINE_EXTERNAL_USERS = [
   ]
 
-  REDMINE_ALL_USERS = REDMINE_GENERIC_USERS + REDMINE_OCP_USERS + REDMINE_ODS_USERS + REDMINE_CDS_USERS + REDMINE_COST_USERS + REDMINE_EXTERNAL_USERS
+  REDMINE_ALL_USERS = REDMINE_OCP_USERS + REDMINE_ODS_USERS + REDMINE_CDS_USERS + REDMINE_COST_USERS + REDMINE_EXTERNAL_USERS
 
   def crm_api_client
     @crm_api_client ||= begin
