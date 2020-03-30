@@ -50,7 +50,7 @@ exceptional_extensions = {
 }
 
 cwd = os.getcwd()
-repo_name = os.path.basename(os.environ.get('TRAVIS_REPO_SLUG', cwd))
+repo_name = os.path.basename(os.getenv('GITHUB_REPOSITORY', os.getenv('TRAVIS_REPO_SLUG', cwd)))
 ocds_version = os.environ.get('OCDS_TEST_VERSION')
 is_profile = os.path.isfile('Makefile') and repo_name not in ('standard', 'infrastructure')
 is_extension = os.path.isfile('extension.json') or is_profile
