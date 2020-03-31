@@ -110,7 +110,7 @@ def test_example_indent():
     """
     for i, text, data in examples():
         expected = '\n{}\n'.format(json.dumps(data, ensure_ascii=False, indent=2))
-        assert text == expected
+        assert text == expected, 'README.md: JSON example {} is not indented as expected'.format(i)
 
 
 @pytest.mark.skipif(not is_extension, reason='not an extension (test_example_valid)')
