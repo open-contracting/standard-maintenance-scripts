@@ -91,7 +91,7 @@ def test_example_present():
     Ensures the extension's documentation contains an example.
     """
     exceptions = {
-        'ocds_budget_and_spend_extension',
+        'ocds_budget_and_spend_extension',  # examples are linked
     }
 
     if repo_name in exceptions:
@@ -153,14 +153,13 @@ def test_example_backticks():
         'ocds_exchangeRate_extension': [
             'CODE',
         ],
+
         # Cross-references to other extensions.
         'ocds_contract_signatories_extension': [
             'preferredBidders',
             'publicAuthority',
         ],
-        'ocds_metrics_extension': [
-            'RequirementResponse',
-        ],
+
         # Changelog entries for non-existent or removed fields.
         'ocds_bid_extension': [
             'BidsStatistic.requirementResponses',
@@ -229,6 +228,7 @@ def test_example_codes():
         'ocds_enquiry_extension': [
             'clarifications',
         ],
+
         # Changelog entries for removed codes.
         'ocds_ppp_extension': [
             'disqualifiedBidder',
