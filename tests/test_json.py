@@ -174,7 +174,6 @@ def metaschemas():
         # Validation keywords for numeric instances
         'multipleOf',
         'exclusiveMaximum',
-        'exclusiveMinimum',
 
         # Validation keywords for arrays
         'additionalItems',
