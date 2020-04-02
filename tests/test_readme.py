@@ -113,7 +113,8 @@ def test_example_indent():
         assert text == expected, 'README.md: JSON example {} is not indented as expected'.format(i)
 
 
-@pytest.mark.skipif(not is_extension, reason='not an extension (test_example_valid)')
+@pytest.mark.skipif(not is_extension or repo_name == 'standard_extension_template',
+                    reason='not an extension (test_example_valid)')
 def test_example_valid():
     """
     Ensures all JSON snippets in the extension's documentation are snippets of OCDS data with no additional fields.
@@ -146,35 +147,36 @@ def test_example_valid():
         assert not errors, 'README.md: JSON block {} is invalid. See warnings below.'.format(i)
 
 
-@pytest.mark.skipif(not is_extension, reason='not an extension (test_example_backticks)')
+@pytest.mark.skipif(not is_extension or repo_name == 'standard_extension_template',
+                    reason='not an extension (test_example_backticks)')
 def test_example_backticks():
     exceptions = {
         # Substring of pattern property.
-        'ocds_exchangeRate_extension': [
+        'ocds_exchangeRate_extension': {
             'CODE',
-        ],
+        },
 
         # Cross-references to other extensions.
-        'ocds_contract_signatories_extension': [
+        'ocds_contract_signatories_extension': {
             'preferredBidders',
             'publicAuthority',
-        ],
+        },
 
         # Changelog entries for non-existent or removed fields.
-        'ocds_bid_extension': [
+        'ocds_bid_extension': {
             'BidsStatistic.requirementResponses',
-        ],
-        'ocds_budget_projects_extension': [
+        },
+        'ocds_budget_projects_extension': {
             'Project.source',
             'Project.project',
-        ],
-        'ocds_lots_extension': [
+        },
+        'ocds_lots_extension': {
             'LotDetails',
-        ],
-        'ocds_qualification_extension': [
+        },
+        'ocds_qualification_extension': {
             'PreQualification.procurementMethodRationale',
             'PreQualification.awardCriteriaDetails',
-        ],
+        },
     }
 
     # Add JSON null, JSON booleans, and a jsonmerge field from OCDS 1.0.
@@ -225,15 +227,15 @@ def test_example_codes():
 
     exceptions = {
         # Open codelists.
-        'ocds_enquiry_extension': [
+        'ocds_enquiry_extension': {
             'clarifications',
-        ],
+        },
 
         # Changelog entries for removed codes.
-        'ocds_ppp_extension': [
+        'ocds_ppp_extension': {
             'disqualifiedBidder',
             'qualifiedBidder',
-        ],
+        },
     }
 
     literals = set()
