@@ -70,7 +70,7 @@ else:
 
 def formatwarning(message, category, filename, lineno, line=None):
     if category != DeepPropertiesWarning:
-        message = 'ERROR: ' + message
+        message = 'ERROR: {}'.format(message)
     return str(message).replace(cwd + os.sep, '')
 
 
