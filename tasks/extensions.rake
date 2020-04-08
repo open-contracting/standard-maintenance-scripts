@@ -1,4 +1,4 @@
-namespace :registry do
+namespace :extensions do
   desc 'Discover new extensions on GitHub'
   task :discover do
     content = open('https://docs.google.com/spreadsheets/d/e/2PACX-1vS6NmEt61T-0Vvg0I0XQiIuQVZXOfE3tmDdPb5_HKTiVR5FyKMc3JJNIQAxq5rHbr5ok0dqdQrREGEs/pub?output=csv').read
