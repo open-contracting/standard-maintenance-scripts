@@ -98,8 +98,18 @@ namespace :local do
 
           # Support both GitHub Services and GitHub Apps until GitHub Services fully retired.
           hook = hooks.find{ |datum| datum.name == 'travis' || datum.config.url == 'https://notify.travis-ci.org' }
-          if hook
+
+          # https://github.com/octokit/octokit.rb/issues/1216
+          if repo.owner.login == 'open-contracting-extensions'
+            line << "![Build Status](https://github.com/#{repo.full_name}/workflows/CI/badge.svg)"
+            if hook
+              puts client.remove_hook(repo.full_name, hook.id)
+            end
+          elsif hook
             line << "[![Build Status](https://travis-ci.org/#{repo.full_name}.svg)](https://travis-ci.org/#{repo.full_name})"
+          end
+
+          if repo.owner.login == 'open-contracting-extensions' || hook
             if ['Tools', 'Extension tools', 'Internal tools', 'Documentation dependencies'].include?(heading)
               contents = read_github_file(repo.full_name, '.travis.yml')
               if contents.include?('coveralls')
@@ -136,38 +146,6 @@ namespace :local do
 
     File.open(filename, 'w') do |f|
       f.write(output.join("\n"))
-    end
-  end
-
-  desc 'Adds template content to extension readmes'
-  task :readmes do
-    template = <<-END
-
-## Issues
-
-Report issues for this extension in the [ocds-extensions repository](https://github.com/open-contracting/ocds-extensions/issues), putting the extension's name in the issue's title.
-    END
-
-    each_path do |path, updated|
-      repo_name = File.basename(path)
-
-      if Dir.exist?(path) && extension?(repo_name)
-        readme_path = File.join(path, 'README.md')
-        content = File.read(readme_path)
-
-        if !content[template]
-          if !content.end_with?("\n")
-            content << "\n"
-          end
-
-          content << template
-          updated << repo_name
-
-          File.open(readme_path, 'w') do |f|
-            f.write(content)
-          end
-        end
-      end
     end
   end
 
