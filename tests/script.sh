@@ -2,10 +2,7 @@ set -e
 
 flake8 --max-line-length 119
 
-# Repositories using tox run isort independently.
-if ! [ -x "$(command -v tox)" ]; then
-  isort --check-only --ignore-whitespace --line-width 119
-fi
+isort --check-only --ignore-whitespace --line-width 119
 
 curl -s -S --retry 3 -o /tmp/test_csv.py $BASEDIR/tests/test_csv.py
 curl -s -S --retry 3 -o /tmp/test_json.py $BASEDIR/tests/test_json.py
