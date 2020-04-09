@@ -14,13 +14,13 @@ To run the Rake tasks:
 
 ## Tests
 
-The standard [`.travis.yml`](fixtures/.travis.yml) file performs:
+The common [`.github/workflows/ci.yml`](fixtures/ci.yml) file perform:
 
 * Linting of:
   * Python ([flake8](https://pypi.python.org/pypi/flake8))
-  * Markdown ([markdownlint](https://github.com/markdownlint/markdownlint))
   * JSON (readable by Python)
-* Various checks against OCDS schema, extensions, etc.
+  * CSV (readable by Python)
+* Various checks against OCDS schema, codelists, readmes, etc.
 
 To run the tests locally, run the setup commands above, change into a repository's folder, then:
 
@@ -31,13 +31,14 @@ To run the tests locally against an unreleased version of the standard, replace 
 
 To skip the JSON indentation test, set the `OCDS_NOINDENT` environment variable, with `export OCDS_NOINDENT=1` (Bash) or `setenv OCDS_NOINDENT 1` (fish).
 
-To create a pull request to set up a new repository, enable the repository on [travis-ci.org](https://travis-ci.org), then:
+To create a pull request to set up a new repository, run:
 
-    git checkout -b travis
-    curl -O https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/master/fixtures/.travis.yml
-    git add .travis.yml
-    git commit -m 'Add .travis.yml'
-    git push -u origin travis
+    git checkout -b ci
+    mkdir -p .github/workflows
+    curl -o .github/workflows/ci.yml https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/master/fixtures/ci.yml
+    git add .github/workflows/ci.yml
+    git commit .github/workflows/ci.yml -m 'Add .github/workflows/ci.yml'
+    git push -u origin ci
 
 ## Miscellaneous tasks
 
@@ -108,31 +109,27 @@ Removes specific releases of *repositories*:
 
     bundle exec rake release:undo_release_extensions REF=v7.8.9
 
-### Maintain the extension registry
+### Review third-party extensions
 
 Discover new extensions on GitHub:
 
-    bundle exec rake registry:discover
+    bundle exec rake extensions:discover
 
 Download unregistered extensions from GitHub:
 
-    bundle exec rake registry:download_unregistered BASEDIR=external-extensions
+    bundle exec rake extensions:download_unregistered BASEDIR=external-extensions
 
 Create forks of unregistered extensions on GitHub:
 
-    bundle exec rake registry:create_fork_unregistered OWNER=inaimexico
+    bundle exec rake extensions:create_fork_unregistered OWNER=inaimexico
 
 Delete forks of unregistered extensions on GitHub:
 
-    bundle exec rake registry:delete_fork_unregistered OWNER=inaimexico USERNAME=jpmckinney
+    bundle exec rake extensions:delete_fork_unregistered OWNER=inaimexico USERNAME=jpmckinney
 
 Report the language and length of the documentation of unregistered extensions:
 
-    bundle exec rake registry:documentation_language_length
-
-Prepare the content of `extension_versions.csv`:
-
-    bundle exec rake registry:extension_versions
+    bundle exec rake extensions:documentation_language_length
 
 ### Change GitHub repository configuration
 
@@ -158,14 +155,6 @@ Regenerates the [badges page](badges.md) ⏰:
 
     bundle exec rake local:badges
 
-Adds template content to extension readmes:
-
-    bundle exec rake local:readmes BASEDIR=extensions
-
-Updates extension.json to its new format:
-
-    bundle exec rake local:extension_json BASEDIR=extensions
-
 ### Review GitHub repository metadata and configuration ⏰
 
 The next tasks make no changes, but may require the user to perform an action depending on the output.
@@ -174,9 +163,9 @@ Lists repositories with number of issues, PRs, branches, milestones and whether 
 
     bundle exec rake repos:status [ORG=open-contracting]
 
-Lists repositories with missing or unexpected Travis configuration:
+Lists repositories with missing or unexpected continuous integration configuration:
 
-    bundle exec rake repos:travis
+    bundle exec rake repos:ci
 
 Lists repositories with unexpected, old branches (so that merged branches without new commits may be deleted):
 
@@ -198,7 +187,7 @@ Lists non-extension releases:
 
     bundle exec rake repos:releases
 
-Lists non-Travis, non-ReadTheDocs webhooks:
+Lists non-ReadTheDocs webhooks:
 
     bundle exec rake repos:webhooks
 
