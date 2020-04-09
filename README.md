@@ -12,12 +12,17 @@ To run the Rake tasks:
 * [Create a GitHub personal access token](https://github.com/settings/tokens) with the scopes `public_repo` and `admin:org`
 * [Edit your `~/.netrc` file](https://github.com/octokit/octokit.rb#using-a-netrc-file) using the token as your password
 
+To list all available tasks:
+
+    invoke -l
+    bundle exec rake -AT
+
 ## Tests
 
-The common [`.github/workflows/ci.yml`](fixtures/ci.yml) file perform:
+The common [`.github/workflows/lint.yml`](fixtures/lint.yml) file performs:
 
 * Linting of:
-  * Python ([flake8](https://pypi.python.org/pypi/flake8))
+  * Python ([flake8](https://pypi.python.org/pypi/flake8), [isort](https://pypi.org/project/isort/))
   * JSON (readable by Python)
   * CSV (readable by Python)
 * Various checks against OCDS schema, codelists, readmes, etc.
@@ -25,9 +30,8 @@ The common [`.github/workflows/ci.yml`](fixtures/ci.yml) file perform:
 To run the tests locally, run the setup commands above, change into a repository's folder, then:
 
     flake8 --max-line-length 119
-    py.test -rs path/to/standard-maintenance-scripts/tests
-
-To run the tests locally against an unreleased version of the standard, replace `https://standard.open-contracting.org/schema/VERSION` with `https://standard.open-contracting.org/BRANCH/en`.
+    isort --check-only --ignore-whitespace --line-width 119
+    py.test -rs --tb=line path/to/standard-maintenance-scripts/tests
 
 To skip the JSON indentation test, set the `OCDS_NOINDENT` environment variable, with `export OCDS_NOINDENT=1` (Bash) or `setenv OCDS_NOINDENT 1` (fish).
 
@@ -35,17 +39,102 @@ To create a pull request to set up a new repository, run:
 
     git checkout -b ci
     mkdir -p .github/workflows
-    curl -o .github/workflows/ci.yml https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/master/fixtures/ci.yml
-    git add .github/workflows/ci.yml
-    git commit .github/workflows/ci.yml -m 'Add .github/workflows/ci.yml'
+    curl -o .github/workflows/lint.yml https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/master/fixtures/lint.yml
+    git add .github/workflows/lint.yml
+    git commit .github/workflows/lint.yml -m 'Add .github/workflows/lint.yml'
     git push -u origin ci
 
-## Miscellaneous tasks
+## Access tasks ⏰
 
-List tasks:
+### GitHub
 
-    invoke -l
-    bundle exec rake -AT
+Lists members not employed by the Open Contracting Partnership or its helpdesk teams:
+
+    bundle exec rake org:members
+
+Removes admin access to specific repositories from non-admin members:
+
+    bundle exec rake org:collaborators
+
+Review outside collaborators:
+
+* [open-contracting](https://github.com/orgs/open-contracting/outside-collaborators)
+* [open-contracting-extensions](https://github.com/orgs/open-contracting-extensions/outside-collaborators)
+* [open-contracting-archive](https://github.com/orgs/open-contracting-archive/outside-collaborators)
+
+### Redmine CRM
+
+Lists users not employed by the Open Contracting Partnership or its helpdesk teams:
+
+    bundle exec rake crm:users
+
+Lists groups with missing or unexpected users:
+
+    bundle exec rake crm:groups
+
+## Code tasks
+
+Check for TODOs that should be made into GitHub issues (skipping Git, vendored, translation, and generated files) ⏰:
+
+    grep -R -i --exclude-dir .git --exclude-dir .sass-cache --exclude-dir .tox --exclude-dir __pycache__ --exclude-dir _build --exclude-dir _static --exclude-dir build --exclude-dir dist --exclude-dir htmlcov --exclude-dir node_modules --exclude-dir sass --exclude-dir LC_MESSAGES --exclude app.js --exclude conf.py '\btodo\b' .
+
+### Change GitHub repository configuration
+
+Enables delete branch on merge, disables empty wikis, updates extensions' descriptions and homepages, and lists repositories with invalid names, unexpected configurations, etc. ⏰:
+
+    bundle exec rake fix:lint_repos
+
+Protects default branches ⏰:
+
+    bundle exec rake fix:protect_branches
+
+Sets topics of extensions ⏰:
+
+    bundle exec rake fix:set_topics
+
+Prepares repositories for archival (`REPOS` is a comma-separated list of repository names):
+
+    bundle exec rake fix:archive_repos REPOS=…
+
+### Review GitHub repository metadata and configuration ⏰
+
+The next tasks make no changes, but may require the user to perform an action depending on the output.
+
+Lists repositories with number of issues, PRs, branches, milestones and whether wiki, pages, issues, projects are enabled:
+
+    bundle exec rake repos:status [ORG=open-contracting]
+
+Lists repositories with missing or unexpected continuous integration configuration:
+
+    bundle exec rake repos:ci
+
+Lists repositories with unexpected, old branches:
+
+    bundle exec rake repos:branches [EXCLUDE=branch1,branch2]
+
+Lists extension repositories with missing template content:
+
+    bundle exec rake repos:readmes
+
+Lists missing or unexpected licenses:
+
+    bundle exec rake repos:licenses
+
+Lists non-extension releases:
+
+    bundle exec rake repos:releases
+
+Lists non-ReadTheDocs webhooks:
+
+    bundle exec rake repos:webhooks
+
+Lists repository descriptions:
+
+    bundle exec rake repos:descriptions
+
+## Standard development tasks
+
+Periodically [spell-check](https://ocds-standard-development-handbook.readthedocs.io/en/latest/standard/technical/spellcheck.html) and [Markdownlint](https://ocds-standard-development-handbook.readthedocs.io/en/latest/coding/#linting) the `standard`, extension and profile repositories. ⏰
 
 Download all registered extensions to a directory:
 
@@ -54,60 +143,6 @@ Download all registered extensions to a directory:
 Check whether `~/.aspell.en.pws` contains unwanted words:
 
     invoke check_aspell_dictionary
-
-Check for files have unexpected permissions ⏰:
-
-    find . \! -perm 644 -type f -not -path '*/.git/*' -not -path '*/__pycache__/*' -not -path '*/node_modules/*' -o \! -perm 755 -type d
-
-Check for TODOs that should be made into GitHub issues (skipping Git, vendored, translation, and generated files) ⏰:
-
-    grep -R -i --exclude-dir .git --exclude-dir _build --exclude-dir _static --exclude-dir build --exclude-dir node_modules --exclude-dir LC_MESSAGES --exclude app.js --exclude conf.py '\btodo\b' .
-
-Periodically [spell-check](https://ocds-standard-development-handbook.readthedocs.io/en/latest/standard/technical/spellcheck.html) and [Markdownlint](https://ocds-standard-development-handbook.readthedocs.io/en/latest/coding/#linting) the `standard`, extension and profile repositories.
-
-## Code tasks
-
-### Review GitHub organization configuration
-
-Lists organization members not employed by the Open Contracting Partnership or its helpdesk teams ⏰:
-
-    bundle exec rake org:members
-
-### Manage pull requests
-
-Lists the pull requests from a given branch:
-
-    bundle exec rake pulls:list REF=branch
-
-Creates pull requests from a given branch:
-
-    bundle exec rake pulls:create REF=branch BODY=description
-
-Replaces the descriptions of pull requests from a given branch:
-
-    bundle exec rake pulls:update REF=branch BODY=description
-
-Compares the given branch to the default branch:
-
-    bundle exec rake pulls:compare REF=branch
-
-Merges pull requests from a given branch:
-
-    bundle exec rake pulls:merge REF=branch
-
-### Prepare for a release of OCDS
-
-Reviews open pull requests and recent changes to core extensions:
-
-    bundle exec rake release:review_extensions
-
-Releases new versions of core extensions:
-
-    bundle exec rake release:release_extensions REF=v7.8.9
-
-Removes specific releases of *repositories*:
-
-    bundle exec rake release:undo_release_extensions REF=v7.8.9
 
 ### Review third-party extensions
 
@@ -131,83 +166,51 @@ Report the language and length of the documentation of unregistered extensions:
 
     bundle exec rake extensions:documentation_language_length
 
-### Change GitHub repository configuration
+### Prepare for a release of OCDS
 
-Disables empty wikis, updates extensions' descriptions and homepages, and lists repositories with invalid names, unexpected configurations, etc. ⏰:
+Reviews open pull requests and recent changes to core extensions:
 
-    bundle exec rake fix:lint_repos
+    bundle exec rake release:review_extensions
 
-Protects default branches ⏰:
+Releases new versions of core extensions:
 
-    bundle exec rake fix:protect_branches
+    bundle exec rake release:release_extensions REF=v7.8.9
 
-Sets topics of extensions ⏰:
+Removes specific releases of *repositories*:
 
-    bundle exec rake fix:set_topics
+    bundle exec rake release:undo_release_extensions REF=v7.8.9
 
-Prepares repositories for archival (`REPOS` is a comma-separated list of repository names):
+### Manage pull requests
 
-    bundle exec rake fix:archive_repos REPOS=…
+Lists the pull requests from a given branch:
 
-### Modify local repositories
+    bundle exec rake pulls:list REF=branch
+
+Creates pull requests from a given branch:
+
+    bundle exec rake pulls:create REF=branch BODY=description
+
+Replaces the descriptions of pull requests from a given branch:
+
+    bundle exec rake pulls:update REF=branch BODY=description
+
+Compares the given branch to the default branch:
+
+    bundle exec rake pulls:compare REF=branch
+
+Merges pull requests from a given branch:
+
+    bundle exec rake pulls:merge REF=branch
+
+## Miscellaneous tasks
 
 Regenerates the [badges page](badges.md) ⏰:
 
     bundle exec rake local:badges
 
-### Review GitHub repository metadata and configuration ⏰
-
-The next tasks make no changes, but may require the user to perform an action depending on the output.
-
-Lists repositories with number of issues, PRs, branches, milestones and whether wiki, pages, issues, projects are enabled:
-
-    bundle exec rake repos:status [ORG=open-contracting]
-
-Lists repositories with missing or unexpected continuous integration configuration:
-
-    bundle exec rake repos:ci
-
-Lists repositories with unexpected, old branches (so that merged branches without new commits may be deleted):
-
-    bundle exec rake repos:branches [EXCLUDE=branch1,branch2]
-
-Lists extension repositories with missing template content:
-
-    bundle exec rake repos:readmes
-
-Lists missing or unexpected licenses:
-
-    bundle exec rake repos:licenses
-
-Lists repository descriptions:
-
-    bundle exec rake repos:descriptions
-
-Lists non-extension releases:
-
-    bundle exec rake repos:releases
-
-Lists non-ReadTheDocs webhooks:
-
-    bundle exec rake repos:webhooks
-
-### Assess priority
-
 Lists web traffic statistics over past two weeks:
 
     bundle exec rake repos:traffic
-
-## Non-code tasks
-
-### Check Redmine's consistency and coherence ⏰
-
-Lists users not employed by the Open Contracting Partnership or its helpdesk teams:
-
-    bundle exec rake crm:users
-
-Lists groups with missing or unexpected users:
-
-    bundle exec rake crm:groups
 
 ### Check OCP Resources links ⏰
 
