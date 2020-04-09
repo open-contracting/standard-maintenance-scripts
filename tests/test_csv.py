@@ -14,7 +14,7 @@ from jsonschema import FormatChecker
 from jsonschema.validators import Draft4Validator as validator
 
 cwd = os.getcwd()
-repo_name = os.path.basename(os.getenv('GITHUB_REPOSITORY', os.getenv('TRAVIS_REPO_SLUG', cwd)))
+repo_name = os.path.basename(os.getenv('GITHUB_REPOSITORY', cwd))
 
 
 def formatwarning(message, category, filename, lineno, line=None):

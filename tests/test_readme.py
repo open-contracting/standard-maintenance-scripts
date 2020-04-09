@@ -18,7 +18,7 @@ from ocdskit.schema import get_schema_fields
 use_development_version = False
 
 cwd = os.getcwd()
-repo_name = os.path.basename(os.getenv('GITHUB_REPOSITORY', os.getenv('TRAVIS_REPO_SLUG', cwd)))
+repo_name = os.path.basename(os.getenv('GITHUB_REPOSITORY', cwd))
 ocds_version = os.environ.get('OCDS_TEST_VERSION')
 is_extension = os.path.isfile(os.path.join(cwd, 'extension.json'))
 
