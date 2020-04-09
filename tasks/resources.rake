@@ -1,3 +1,5 @@
+require 'htmlentities'
+
 namespace :resources do
   class ResourceURL
     attr_reader :url, :location

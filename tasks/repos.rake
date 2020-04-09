@@ -1,3 +1,13 @@
+require 'hashdiff'
+
+def s(condition)
+  condition && 'Y'.green || 'N'.blue
+end
+
+def i(integer)
+  integer.nonzero? && integer.to_s.green || integer.to_s.blue
+end
+
 namespace :repos do
   def non_default_or_pull_or_upstream_or_excluded_branches(repo)
     exclusions = Set.new((ENV['EXCLUDE'] || '').split(','))
@@ -14,27 +24,25 @@ namespace :repos do
     end
   end
 
-  desc 'Lists repositories with missing or unexpected Travis configuration'
-  task :travis do
-    expected = read_github_file('open-contracting/standard-maintenance-scripts', 'fixtures/.travis.yml')
+  desc 'Lists repositories with missing or unexpected continuous integration configuration'
+  task :ci do
+    expected = read_github_file('open-contracting/standard-maintenance-scripts', 'fixtures/lint.yml')
 
     repos.each do |repo|
-      hook = repo.rels[:hooks].get.data.find{ |datum| datum.name == 'travis' || datum.config.url == 'https://notify.travis-ci.org' }
-      if hook
-        begin
-          actual = read_github_file(repo.full_name, '.travis.yml')
-          if actual != expected
-            diff = Hashdiff.diff(YAML.load(actual), YAML.load(expected))
-            if diff.any?
-              puts "#{repo.html_url}/blob/#{repo.default_branch}/.travis.yml #{'changes configuration'.bold}"
-            end
-            PP.pp(diff, $>, 120)
-          end
-        rescue Octokit::NotFound
-          puts "#{repo.html_url} #{'lacks .travis.yml'.bold}"
+      begin
+        actual = read_github_file(repo.full_name, '.github/workflows/lint.yml')
+        if actual.empty?
+          actual = read_github_file(repo.full_name, '.github/workflows/ci.yml')
         end
-      else
-        puts "#{repo.html_url} #{'lacks Travis'.bold}"
+        if actual != expected
+          diff = Hashdiff.diff(YAML.load(actual), YAML.load(expected))
+          if diff.any?
+            puts "#{repo.html_url}/blob/#{repo.default_branch}/.github/workflows #{'changes configuration'.bold}"
+          end
+          PP.pp(diff, $>, 120)
+        end
+      rescue Octokit::NotFound
+        puts "#{repo.html_url} #{'lacks .github/workflows'.bold}"
       end
     end
   end
@@ -137,12 +145,11 @@ Report issues for this extension in the [ocds-extensions repository](https://git
     end
   end
 
-  desc 'Lists non-Travis, non-ReadTheDocs webhooks'
+  desc 'Lists non-ReadTheDocs webhooks'
   task :webhooks do
     repos.each do |repo|
-      # Support both GitHub Services and GitHub Apps until GitHub Services fully retired.
       data = repo.rels[:hooks].get.data.reject do |datum|
-        datum.name == 'travis' || datum.config.url == 'https://notify.travis-ci.org' || datum.config.url[%r{\Ahttps://readthedocs.org/api/v2/webhook/}]
+        datum.config.url[%r{\Ahttps://readthedocs.org/api/v2/webhook/}]
       end
       if data.any?
         puts "#{repo.html_url}/settings/hooks"
@@ -155,7 +162,7 @@ Report issues for this extension in the [ocds-extensions repository](https://git
 
   desc 'Lists repositories with number of issues, PRs, branches, milestones and whether wiki, pages, issues, projects are enabled'
   task :status do
-    format = '%-50s  %12s  %11s  %11s  %11s  %11s  %s  %s  %s  %s  %s'
+    format = '%-60s  %12s  %11s  %11s  %11s  %11s  %s  %s  %s  %s  %s'
 
     REPOSITORY_CATEGORIES.each do |heading, condition|
       puts

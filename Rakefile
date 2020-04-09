@@ -7,16 +7,8 @@ require 'open-uri'
 require 'pp'
 require 'set'
 
-require 'cld'
 require 'colored'
 require 'faraday'
-require 'google/apis/drive_v2'
-require 'googleauth'
-require 'googleauth/stores/file_token_store'
-require 'hashdiff'
-require 'htmlentities'
-require 'mail'
-require 'nokogiri'
 require 'octokit'
 require 'safe_yaml'
 
@@ -83,110 +75,11 @@ REPOSITORY_CATEGORIES = {
   'Legacy' => -> (repo) { LEGACY.include?(repo.name) },
 }
 
-REPOSITORY_CATEGORIES_WITHOUT_DOCS = [
-  'Specifications',
-  'Guides',
-  'Templates',
-  'Extensions',
-  'Legacy',
-]
-
-TECH_SUPPORT_PRIORITIES = {
-  # Specifications
-  'data-quality-tool' => ' ', # issues only
-  'glossary' => ' ', # documentation support
-  'infrastructure' => '✴️✴️', # sector documentation
-  'ocds-extensions' => ' ', # issues only
-  'standard' => '✴️✴️✴️', # core documentation
-  'translations' => ' ',
-
-  # Guides
-  'ocds-kibana-manual' => ' ',
-  'ocds-r-manual' => ' ',
-
-  # Tools
-  'cove-ocds' => '✴️✴️✴️', # implementation step
-  'cove-oc4ids' => '✴️✴️', # sectoral tool
-  'jscc' => ' ',
-  'kingfisher' => ' ',
-  'kingfisher-archive' => ' ',
-  'kingfisher-colab' => ' ',
-  'kingfisher-process' => '✴️', # key tool
-  'kingfisher-scrape' => '✴️', # key tool
-  'kingfisher-views' => '✴️', # key tool
-  'lib-cove-oc4ids' => '✴️✴️', # sectoral tool
-  'lib-cove-ocds' => '✴️✴️✴️', # implementation step
-  'ocds-merge' => '✴️✴️', # reference implementation
-  'ocds-show' => ' ', # infrequently used
-  'ocds-show-ppp' => ' ', # infrequently used
-  'ocdskit' => '✴️', # key tool
-  'toucan' => '✴️', # key tool
-  'sample-data' => '✴️', # frequently used
-
-  # Extension tools
-  'extension-explorer' => '✴️✴️', # extensions documentation
-  'extension_creator' => ' ', # infrequently used
-  'extension_registry' => '✴️✴️', # authoritative resource
-  'extension_registry.py' => '✴️✴️', # frequent dependency
-  'ocds-extensions-translations' => '✴️✴️', # extensions documentation
-
-  # Internal tools
-  'deploy' => '✴️✴️✴️', # deployment dependency
-  'european-union-support' => ' ', # scratch pad
-  'json-schema-random' => ' ', # infrequently used
-  'standard-development-handbook' => '✴️', # key internal documentation
-  'standard-maintenance-scripts' => '✴️', # internal quality assurance
-
-  # Templates
-  'standard_extension_template' => '✴️', # public template
-  'standard_profile_template' => ' ', # internal template
-}
-
-def s(condition)
-  condition && 'Y'.green || 'N'.blue
-end
-
-def i(integer)
-  integer.nonzero? && integer.to_s.green || integer.to_s.blue
-end
-
 def client
   @client ||= begin
     client = Octokit::Client.new(netrc: true)
     client.login
     client
-  end
-end
-
-# See https://developers.google.com/drive/v2/web/quickstart/ruby
-def authorize
-  credentials_path = File.join(Dir.home, '.credentials', 'drive-ruby-quickstart.yaml')
-
-  FileUtils.mkdir_p(File.dirname(credentials_path))
-
-  client_id = Google::Auth::ClientId.from_file('client_secret.json')
-  token_store = Google::Auth::Stores::FileTokenStore.new(file: credentials_path)
-  authorizer = Google::Auth::UserAuthorizer.new(client_id, Google::Apis::DriveV2::AUTH_DRIVE_METADATA_READONLY, token_store)
-  user_id = 'default'
-  credentials = authorizer.get_credentials(user_id)
-
-  if credentials.nil?
-    puts 'Open the following URL in the browser and enter the resulting code after authorization'
-    oob_uri = 'urn:ietf:wg:oauth:2.0:oob'
-    puts authorizer.get_authorization_url(base_url: oob_uri)
-    code = gets
-    credentials = authorizer.get_and_store_credentials_from_code(user_id: user_id, code: code, base_url: oob_uri)
-  end
-
-  credentials
-end
-
-def service
-  @service ||= begin
-    service = Google::Apis::DriveV2::DriveService.new
-    service.client_options.application_name = 'Drive API Ruby Quickstart'
-    service.authorization = authorize
-    service
   end
 end
 
@@ -269,27 +162,5 @@ def core_extensions
   end
 end
 
-desc 'Report which non-extension repositories are not cloned'
-task :uncloned do
-  basedir = variables('BASEDIR')[0]
-
-  extension_repositories = Set.new
-  url = 'https://standard.open-contracting.org/extension_registry/master/extensions.json'
-  JSON.load(open(url).read).fetch('extensions').each do |extension|
-    extension_repositories << URI.parse(extension['url']).path.split('/')[2]
-  end
-
-  cloned_repositories = Set.new(Dir[File.join(basedir, '*')].map{ |path| File.basename(path) })
-
-  repos.each do |repo|
-    if !extension_repositories.include?(repo.name) && !cloned_repositories.include?(repo.name)
-      suffix = ''
-      if repo.language
-        suffix << " #{repo.language.bold}"
-      end
-      puts "#{repo.html_url}#{suffix}"
-    end
-  end
-end
 
 Dir['tasks/*.rake'].each { |r| import r }

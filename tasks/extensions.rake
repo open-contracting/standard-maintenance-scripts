@@ -1,3 +1,5 @@
+require 'cld'
+
 namespace :extensions do
   desc 'Discover new extensions on GitHub'
   task :discover do
@@ -39,6 +41,7 @@ namespace :extensions do
         url = row['URL']
         parsed = URI.parse(url)
         directory = File.join(basedir, parsed.path)
+
         if !File.exist?(directory)
           `git clone #{url}.git #{directory}`
         end
