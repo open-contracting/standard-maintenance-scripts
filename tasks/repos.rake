@@ -1,14 +1,14 @@
 require 'hashdiff'
 
-def s(condition)
-  condition && 'Y'.green || 'N'.blue
-end
-
-def i(integer)
-  integer.nonzero? && integer.to_s.green || integer.to_s.blue
-end
-
 namespace :repos do
+  def s(condition)
+    condition && 'Y'.green || 'N'.blue
+  end
+
+  def i(integer)
+    integer.nonzero? && integer.to_s.green || integer.to_s.blue
+  end
+
   def non_default_or_pull_or_upstream_or_excluded_branches(repo)
     exclusions = Set.new((ENV['EXCLUDE'] || '').split(','))
 
@@ -231,7 +231,7 @@ Report issues for this extension in the [ocds-extensions repository](https://git
     }.partition{ |name, _| !extension?(name) }.each do |set|
       puts
       set.each do |name, datum|
-        puts '%-45s %2d uniques %3d views' % [name, datum.uniques, datum.count]
+        puts '%-45s %3d uniques %3d views' % [name, datum.uniques, datum.count]
       end
     end
   end
