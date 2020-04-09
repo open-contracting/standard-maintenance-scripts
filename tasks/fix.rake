@@ -1,19 +1,17 @@
 REQUIRE_PULL_REQUEST_REVIEWS = [
   'cove-oc4ids',
+  'cove-ocds',
   'kingfisher',
   'kingfisher-archive',
   'kingfisher-process',
   'kingfisher-scrape',
   'kingfisher-views',
-  'lib-cove-ocds',
   'lib-cove-oc4ids',
+  'lib-cove-ocds',
 ]
 ENFORCE_ADMINS = [
   'public-private-partnerships',
   'standard',
-  # A selection of the above.
-  'cove-oc4ids',
-  'lib-cove-oc4ids',
 ]
 
 def disable_issues(repo, message)
@@ -126,24 +124,16 @@ namespace :fix do
   task :protect_branches do
     headers = {accept: 'application/vnd.github.luke-cage-preview+json'} # branch_protection
 
-    known_contexts = Set.new([
-      # Unconfigured.
-      [],
-      # Configured with Travis.
-      ['continuous-integration/travis-ci'],
-    ])
-
     repos.each do |repo|
       contexts = []
 
-      if repo.rels[:hooks].get.data.any?{ |datum| datum.name == 'travis' || datum.config.url == 'https://notify.travis-ci.org' }
-        begin
-          # Only enable Travis if Travis is configured.
-          client.contents(repo.full_name, path: '.travis.yml')
-          contexts << 'continuous-integration/travis-ci'
-        rescue Octokit::NotFound
-          # Do nothing.
-        end
+      ci = read_github_file(repo.full_name, '.github/workflows/ci.yml')
+      lint = read_github_file(repo.full_name, '.github/workflows/lint.yml')
+
+      if !ci.empty? || !lint.empty?
+        contexts << 'build'
+      elsif repo.rels[:hooks].get.data.any?{ |datum| datum.name == 'travis' || datum.config.url == 'https://notify.travis-ci.org' } && !read_github_file(repo.full_name, '.travis.yml').empty?
+        contexts << 'continuous-integration/travis-ci'
       end
 
       branches = repo.rels[:branches].get(headers: headers).data
@@ -181,21 +171,26 @@ namespace :fix do
       branches_to_protect.each do |branch|
         branch = client.branch(repo.full_name, branch.name)
 
+        enforce_admins = options[:enforce_admins]
+        if repo.name == 'public-private-partnerships' && branch.name.end_with?('-dev')
+          enforce_admins = false
+        end
+
         if !branch.protected
           client.protect_branch(repo.full_name, branch.name, options)
-          puts "#{repo.html_url}/settings/branches/#{branch.name} #{'protected'.bold}"
+          puts "#{repo.html_url}/settings/branches #{'protected'.bold}"
         else
           protection = client.branch_protection(repo.full_name, branch.name, headers)
 
-          if (options[:enforce_admins] && !protection.enforce_admins.enabled ||
-              !options[:enforce_admins] && protection.enforce_admins.enabled ||
+          if (enforce_admins && !protection.enforce_admins.enabled ||
+              !enforce_admins && protection.enforce_admins.enabled ||
               protection.required_status_checks && protection.required_status_checks.strict ||
-              protection.required_status_checks && protection.required_status_checks.contexts != contexts && known_contexts.include?(protection.required_status_checks.contexts) ||
+              protection.required_status_checks && protection.required_status_checks.contexts != contexts ||
               options[:required_pull_request_reviews] && !protection.required_pull_request_reviews ||
               !options[:required_pull_request_reviews] && protection.required_pull_request_reviews)
             messages = []
 
-            if options[:enforce_admins]
+            if enforce_admins
               if !protection.enforce_admins.enabled
                 messages << "check 'Include administrators'"
               end
@@ -212,7 +207,7 @@ namespace :fix do
                 messages << "check 'Dismiss stale pull request approvals when new commits are pushed'"
               end
               if !protection.required_pull_request_reviews || protection.required_pull_request_reviews.required_approving_review_count != 1
-                messages << "Set 'Required approving reviews' to 1"
+                messages << "set 'Required approving reviews' to 1"
               end
             else
               if protection.required_pull_request_reviews
@@ -281,11 +276,6 @@ namespace :fix do
       repos.each do |repo|
         disable_issues(repo, 'should be reviewed')
         disable_projects(repo, 'should be reviewed')
-
-        hook = repo.rels[:hooks].get.data.find{ |datum| datum.name == 'travis' || datum.config.url == 'https://notify.travis-ci.org' }
-        if hook
-          client.remove_hook(repo.full_name, hook.id)
-        end
 
         if !repo.archived
           puts "#{repo.html_url}/settings #{'should be archived'.bold}"
