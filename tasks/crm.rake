@@ -140,7 +140,7 @@ namespace :crm do
       # Open Contracting Partnership
       5 => [:exactly, REDMINE_OCP_USERS],
       # Open Data Services
-      4 => [:exactly, REDMINE_ODS_USERS + ['API Access']],
+      4 => [:exactly, REDMINE_ODS_USERS],
       # Centro de Desarrollo Sostenible
       33 => [:exactly, REDMINE_CDS_USERS],
 
