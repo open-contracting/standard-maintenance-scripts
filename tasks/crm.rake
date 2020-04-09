@@ -32,6 +32,7 @@ namespace :crm do
     'Charlie Pinder',
     'Duncan Dewhurst',
     'Matt Marshall',
+    'Rachel Vint',
   ]
   REDMINE_ODS_USERS_TECH = [
     'Amy Guy',
