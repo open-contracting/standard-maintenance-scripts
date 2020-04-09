@@ -1,63 +1,63 @@
-REPOSITORY_CATEGORIES_WITHOUT_DOCS = [
-  'Specifications',
-  'Guides',
-  'Templates',
-  'Extensions',
-  'Legacy',
-]
-
-TECH_SUPPORT_PRIORITIES = {
-  # Specifications
-  'data-quality-tool' => ' ', # issues only
-  'glossary' => ' ', # documentation support
-  'infrastructure' => '✴️✴️', # sector documentation
-  'ocds-extensions' => ' ', # issues only
-  'standard' => '✴️✴️✴️', # core documentation
-  'translations' => ' ',
-
-  # Guides
-  'ocds-kibana-manual' => ' ',
-  'ocds-r-manual' => ' ',
-
-  # Tools
-  'cove-ocds' => '✴️✴️✴️', # implementation step
-  'cove-oc4ids' => '✴️✴️', # sectoral tool
-  'jscc' => ' ',
-  'kingfisher' => ' ',
-  'kingfisher-archive' => ' ',
-  'kingfisher-colab' => ' ',
-  'kingfisher-process' => '✴️', # key tool
-  'kingfisher-scrape' => '✴️', # key tool
-  'kingfisher-views' => '✴️', # key tool
-  'lib-cove-oc4ids' => '✴️✴️', # sectoral tool
-  'lib-cove-ocds' => '✴️✴️✴️', # implementation step
-  'ocds-merge' => '✴️✴️', # reference implementation
-  'ocds-show' => ' ', # infrequently used
-  'ocds-show-ppp' => ' ', # infrequently used
-  'ocdskit' => '✴️', # key tool
-  'toucan' => '✴️', # key tool
-  'sample-data' => '✴️', # frequently used
-
-  # Extension tools
-  'extension-explorer' => '✴️✴️', # extensions documentation
-  'extension_creator' => ' ', # infrequently used
-  'extension_registry' => '✴️✴️', # authoritative resource
-  'extension_registry.py' => '✴️✴️', # frequent dependency
-  'ocds-extensions-translations' => '✴️✴️', # extensions documentation
-
-  # Internal tools
-  'deploy' => '✴️✴️✴️', # deployment dependency
-  'european-union-support' => ' ', # scratch pad
-  'json-schema-random' => ' ', # infrequently used
-  'standard-development-handbook' => '✴️', # key internal documentation
-  'standard-maintenance-scripts' => '✴️', # internal quality assurance
-
-  # Templates
-  'standard_extension_template' => '✴️', # public template
-  'standard_profile_template' => ' ', # internal template
-}
-
 namespace :local do
+  REPOSITORY_CATEGORIES_WITHOUT_DOCS = [
+    'Specifications',
+    'Guides',
+    'Templates',
+    'Extensions',
+    'Legacy',
+  ]
+
+  TECH_SUPPORT_PRIORITIES = {
+    # Specifications
+    'data-quality-tool' => ' ', # issues only
+    'glossary' => ' ', # documentation support
+    'infrastructure' => '✴️✴️', # sector documentation
+    'ocds-extensions' => ' ', # issues only
+    'standard' => '✴️✴️✴️', # core documentation
+    'translations' => ' ',
+
+    # Guides
+    'ocds-kibana-manual' => ' ',
+    'ocds-r-manual' => ' ',
+
+    # Tools
+    'cove-ocds' => '✴️✴️✴️', # implementation step
+    'cove-oc4ids' => '✴️✴️', # sectoral tool
+    'jscc' => ' ',
+    'kingfisher' => ' ',
+    'kingfisher-archive' => ' ',
+    'kingfisher-colab' => ' ',
+    'kingfisher-process' => '✴️', # key tool
+    'kingfisher-scrape' => '✴️', # key tool
+    'kingfisher-views' => '✴️', # key tool
+    'lib-cove-oc4ids' => '✴️✴️', # sectoral tool
+    'lib-cove-ocds' => '✴️✴️✴️', # implementation step
+    'ocds-merge' => '✴️✴️', # reference implementation
+    'ocds-show' => ' ', # infrequently used
+    'ocds-show-ppp' => ' ', # infrequently used
+    'ocdskit' => '✴️', # key tool
+    'toucan' => '✴️', # key tool
+    'sample-data' => '✴️', # frequently used
+
+    # Extension tools
+    'extension-explorer' => '✴️✴️', # extensions documentation
+    'extension_creator' => ' ', # infrequently used
+    'extension_registry' => '✴️✴️', # authoritative resource
+    'extension_registry.py' => '✴️✴️', # frequent dependency
+    'ocds-extensions-translations' => '✴️✴️', # extensions documentation
+
+    # Internal tools
+    'deploy' => '✴️✴️✴️', # deployment dependency
+    'european-union-support' => ' ', # scratch pad
+    'json-schema-random' => ' ', # infrequently used
+    'standard-development-handbook' => '✴️', # key internal documentation
+    'standard-maintenance-scripts' => '✴️', # internal quality assurance
+
+    # Templates
+    'standard_extension_template' => '✴️', # public template
+    'standard_profile_template' => ' ', # internal template
+  }
+
   desc 'Report which non-extension repositories are not cloned'
   task :uncloned do
     basedir = variables('BASEDIR')[0]
@@ -164,6 +164,7 @@ namespace :local do
 
           # Support both GitHub Services and GitHub Apps until GitHub Services fully retired.
           hook = hooks.find{ |datum| datum.name == 'travis' || datum.config.url == 'https://notify.travis-ci.org' }
+
           ci = read_github_file(repo.full_name, '.github/workflows/ci.yml')
           lint = read_github_file(repo.full_name, '.github/workflows/lint.yml')
 
