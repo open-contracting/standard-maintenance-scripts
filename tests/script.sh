@@ -1,5 +1,10 @@
 set -e
 
+# Ignore version control, untracked files and executable scripts.
+! find . -type f \! -perm 644 \! -path '*/.git/*' \! -path '*/.tox/*' \! -path '*/__pycache__/*' \! -path '*/cache/*' \
+  \! -path '*/node_modules/*' \! -path '*/script/*' \! -name '*.sh' \! -name '*-cli' \! -name 'manage.py' \
+  -o -type d \! -perm 755 \! -path '*/deploy/cache/*' | grep .
+
 flake8 --max-line-length 119
 
 isort --check-only --ignore-whitespace --line-width 119
