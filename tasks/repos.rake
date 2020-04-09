@@ -29,20 +29,22 @@ namespace :repos do
     expected = read_github_file('open-contracting/standard-maintenance-scripts', 'fixtures/lint.yml')
 
     repos.each do |repo|
-      begin
-        actual = read_github_file(repo.full_name, '.github/workflows/lint.yml')
-        if actual.empty?
-          actual = read_github_file(repo.full_name, '.github/workflows/ci.yml')
+      actual = read_github_file(repo.full_name, '.github/workflows/lint.yml')
+      if actual.empty?
+        actual = read_github_file(repo.full_name, '.github/workflows/ci.yml')
+      end
+      if actual.empty?
+        if read_github_file(repo.full_name, '.travis.yml').empty?
+          puts "#{repo.html_url} #{'lacks CI'.bold.yellow}"
+        else
+          puts "#{repo.html_url} #{'uses Travis'.bold.red}"
         end
-        if actual != expected
-          diff = Hashdiff.diff(YAML.load(actual), YAML.load(expected))
-          if diff.any?
-            puts "#{repo.html_url}/blob/#{repo.default_branch}/.github/workflows #{'changes configuration'.bold}"
-          end
-          PP.pp(diff, $>, 120)
+      elsif actual != expected
+        diff = Hashdiff.diff(YAML.load(expected), YAML.load(actual))
+        if diff.any?
+          puts "#{repo.html_url}/blob/#{repo.default_branch}/.github/workflows #{'changes configuration'.bold}"
         end
-      rescue Octokit::NotFound
-        puts "#{repo.html_url} #{'lacks .github/workflows'.bold}"
+        PP.pp(diff, $>, 120)
       end
     end
   end
