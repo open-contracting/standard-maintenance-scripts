@@ -211,17 +211,3 @@ Regenerates the [badges page](badges.md) ⏰:
 Lists web traffic statistics over past two weeks:
 
     bundle exec rake repos:traffic
-
-### Check OCP Resources links ⏰
-
-Lints the Resources section of the OCP website:
-
-    bundle exec rake resources:check
-
-Prints all links from the Resources section of the OCP website:
-
-    bundle exec rake resources:links
-
-Prints the bit.ly links from the Resources section of the OCP website as tab-separated values:
-
-    bundle exec rake resources:bitly
