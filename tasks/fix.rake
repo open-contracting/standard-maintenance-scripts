@@ -1,45 +1,45 @@
-REQUIRE_PULL_REQUEST_REVIEWS = [
-  'cove-oc4ids',
-  'cove-ocds',
-  'kingfisher',
-  'kingfisher-archive',
-  'kingfisher-process',
-  'kingfisher-scrape',
-  'kingfisher-views',
-  'lib-cove-oc4ids',
-  'lib-cove-ocds',
-]
-ENFORCE_ADMINS = [
-  'public-private-partnerships',
-  'standard',
-]
-
-def disable_issues(repo, message)
-  if repo.has_issues
-    open_issues = repo.open_issues - repo.rels[:pulls].get.data.size
-    if open_issues.zero?
-      client.edit_repository(repo.full_name, has_issues: false)
-      puts "#{repo.html_url}/settings #{'disabled issues'.bold}"
-    else
-      puts "#{repo.html_url}/issues #{"issues #{message}".bold}"
-    end
-  end
-end
-
-def disable_projects(repo, message)
-  if repo.has_projects
-    projects = client.projects(repo.full_name, accept: 'application/vnd.github.inertia-preview+json') # projects
-    if projects.none?
-      client.edit_repository(repo.full_name, has_projects: false)
-      puts "#{repo.html_url}/settings #{'disabled projects'.bold}"
-    else
-      puts "#{repo.html_url}/issues #{"projects #{message}".bold}"
-    end
-  end
-end
-
 namespace :fix do
-  desc "Disables empty wikis, updates extensions' descriptions and homepages, and lists repositories with invalid names, unexpected configurations, etc."
+  REQUIRE_PULL_REQUEST_REVIEWS = [
+    'cove-oc4ids',
+    'cove-ocds',
+    'kingfisher',
+    'kingfisher-archive',
+    'kingfisher-process',
+    'kingfisher-scrape',
+    'kingfisher-views',
+    'lib-cove-oc4ids',
+    'lib-cove-ocds',
+  ]
+  ENFORCE_ADMINS = [
+    'public-private-partnerships',
+    'standard',
+  ]
+
+  def disable_issues(repo, message)
+    if repo.has_issues
+      open_issues = repo.open_issues - repo.rels[:pulls].get.data.size
+      if open_issues.zero?
+        client.edit_repository(repo.full_name, has_issues: false)
+        puts "#{repo.html_url}/settings #{'disabled issues'.bold}"
+      else
+        puts "#{repo.html_url}/issues #{"issues #{message}".bold}"
+      end
+    end
+  end
+
+  def disable_projects(repo, message)
+    if repo.has_projects
+      projects = client.projects(repo.full_name, accept: 'application/vnd.github.inertia-preview+json') # projects
+      if projects.none?
+        client.edit_repository(repo.full_name, has_projects: false)
+        puts "#{repo.html_url}/settings #{'disabled projects'.bold}"
+      else
+        puts "#{repo.html_url}/issues #{"projects #{message}".bold}"
+      end
+    end
+  end
+
+  desc "Enables delete branch on merge, disables empty wikis, updates extensions' descriptions and homepages, and lists repositories with invalid names, unexpected configurations, etc."
   task :lint_repos do
     repos.each do |repo|
       if not repo.delete_branch_on_merge
@@ -74,7 +74,7 @@ namespace :fix do
 
           if options.any?
             client.edit_repository(repo.full_name, options.dup)
-            puts "#{repo.html_url} #{"updated #{options.keys.join(' and ')}".bold}"
+            puts "#{repo.html_url} #{"updated #{options.keys.join(' and ')}".bold.yellow}"
           end
         rescue Octokit::NotFound
           puts "#{repo.html_url} #{"no extension.json file!".bold}"
@@ -236,10 +236,7 @@ namespace :fix do
       expected_protected_branches = branches_to_protect.map(&:name)
       unexpected_protected_branches = branches.select{ |branch| branch.protected && !expected_protected_branches.include?(branch.name) }
       if unexpected_protected_branches.any?
-        puts "#{repo.html_url}/settings/branches unexpectedly protects:" 
-        unexpected_protected_branches.each do |branch|
-          puts "- #{branch.name}"
-        end
+        puts "#{repo.html_url}/settings/branches unexpectedly protects #{unexpected_protected_branches.map(&:name).join(' and ').bold}"
       end
 
       print '.'
