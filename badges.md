@@ -10,9 +10,9 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 |-|-|-|
 | |-|[data-quality-tool](https://github.com/open-contracting/data-quality-tool)|
 | |-|[glossary](https://github.com/open-contracting/glossary)|
-|✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/infrastructure.svg)](https://travis-ci.org/open-contracting/infrastructure)|[infrastructure](https://github.com/open-contracting/infrastructure)|
+|✴️✴️|![Build Status](https://github.com/open-contracting/infrastructure/workflows/CI/badge.svg)|[infrastructure](https://github.com/open-contracting/infrastructure)|
 | |-|[ocds-extensions](https://github.com/open-contracting/ocds-extensions)|
-|✴️✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/standard.svg)](https://travis-ci.org/open-contracting/standard)|[standard](https://github.com/open-contracting/standard)|
+|✴️✴️✴️|![Build Status](https://github.com/open-contracting/standard/workflows/CI/badge.svg)|[standard](https://github.com/open-contracting/standard)|
 | |-|[translations](https://github.com/open-contracting/translations)|
 
 ## Guides
@@ -28,17 +28,17 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 |-|-|-|-|
 |✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/cove-oc4ids.svg)](https://travis-ci.org/open-contracting/cove-oc4ids) [![Coverage Status](https://coveralls.io/repos/github/open-contracting/cove-oc4ids/badge.svg?branch=master)](https://coveralls.io/github/open-contracting/cove-oc4ids?branch=master)|-|[cove-oc4ids](https://github.com/open-contracting/cove-oc4ids)|
 |✴️✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/cove-ocds.svg)](https://travis-ci.org/open-contracting/cove-ocds) [![Coverage Status](https://coveralls.io/repos/github/open-contracting/cove-ocds/badge.svg?branch=master)](https://coveralls.io/github/open-contracting/cove-ocds?branch=master)|[Docs](https://ocds-data-review-tool.readthedocs.io/)|[cove-ocds](https://github.com/open-contracting/cove-ocds)|
-| |![Build Status](https://github.com/open-contracting/kingfisher/workflows/CI/badge.svg)|[Docs](https://ocdskingfisher.readthedocs.io/)|[kingfisher](https://github.com/open-contracting/kingfisher)|
+| |![Build Status](https://github.com/open-contracting/kingfisher/workflows/Lint/badge.svg)|[Docs](https://ocdskingfisher.readthedocs.io/)|[kingfisher](https://github.com/open-contracting/kingfisher)|
 | |-|-|[kingfisher-archive](https://github.com/open-contracting/kingfisher-archive)|
-| |[![Build Status](https://travis-ci.org/open-contracting/kingfisher-colab.svg)](https://travis-ci.org/open-contracting/kingfisher-colab)|[Docs](https://kingfisher-colab.readthedocs.io/)|[kingfisher-colab](https://github.com/open-contracting/kingfisher-colab)|
+| |-|[Docs](https://kingfisher-colab.readthedocs.io/)|[kingfisher-colab](https://github.com/open-contracting/kingfisher-colab)|
 |✴️|![Build Status](https://github.com/open-contracting/kingfisher-process/workflows/CI/badge.svg)|[Docs](https://kingfisher-process.readthedocs.io/)|[kingfisher-process](https://github.com/open-contracting/kingfisher-process)|
 |✴️|![Build Status](https://github.com/open-contracting/kingfisher-scrape/workflows/CI/badge.svg)|[Docs](https://kingfisher-scrape.readthedocs.io/)|[kingfisher-scrape](https://github.com/open-contracting/kingfisher-scrape)|
 |✴️|![Build Status](https://github.com/open-contracting/kingfisher-views/workflows/CI/badge.svg)|[Docs](https://kingfisher-views.readthedocs.io/)|[kingfisher-views](https://github.com/open-contracting/kingfisher-views)|
 |✴️✴️|![Build Status](https://github.com/open-contracting/lib-cove-oc4ids/workflows/CI/badge.svg)|-|[lib-cove-oc4ids](https://github.com/open-contracting/lib-cove-oc4ids)|
 |✴️✴️✴️|![Build Status](https://github.com/open-contracting/lib-cove-ocds/workflows/CI/badge.svg)|-|[lib-cove-ocds](https://github.com/open-contracting/lib-cove-ocds)|
 |✴️✴️|![Build Status](https://github.com/open-contracting/ocds-merge/workflows/CI/badge.svg)|[Docs](https://ocds-merge.readthedocs.io/)|[ocds-merge](https://github.com/open-contracting/ocds-merge)|
-| |[![Build Status](https://travis-ci.org/open-contracting/ocds-show.svg)](https://travis-ci.org/open-contracting/ocds-show)|-|[ocds-show](https://github.com/open-contracting/ocds-show)|
-| |[![Build Status](https://travis-ci.org/open-contracting/ocds-show-ppp.svg)](https://travis-ci.org/open-contracting/ocds-show-ppp)|-|[ocds-show-ppp](https://github.com/open-contracting/ocds-show-ppp)|
+| |![Build Status](https://github.com/open-contracting/ocds-show/workflows/CI/badge.svg)|-|[ocds-show](https://github.com/open-contracting/ocds-show)|
+| |![Build Status](https://github.com/open-contracting/ocds-show-ppp/workflows/CI/badge.svg)|-|[ocds-show-ppp](https://github.com/open-contracting/ocds-show-ppp)|
 |✴️|![Build Status](https://github.com/open-contracting/ocdskit/workflows/CI/badge.svg)|[Docs](https://ocdskit.readthedocs.io/)|[ocdskit](https://github.com/open-contracting/ocdskit)|
 |✴️|![Build Status](https://github.com/open-contracting/sample-data/workflows/CI/badge.svg)|-|[sample-data](https://github.com/open-contracting/sample-data)|
 |✴️|![Build Status](https://github.com/open-contracting/toucan/workflows/CI/badge.svg)|-|[toucan](https://github.com/open-contracting/toucan)|
@@ -61,22 +61,22 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 | |-|-|[european-union-support](https://github.com/open-contracting/european-union-support)|
 | |![Build Status](https://github.com/open-contracting/jscc/workflows/CI/badge.svg)|[Docs](https://jscc.readthedocs.io/)|[jscc](https://github.com/open-contracting/jscc)|
 | |-|-|[json-schema-random](https://github.com/open-contracting/json-schema-random)|
-|✴️|![Build Status](https://github.com/open-contracting/standard-development-handbook/workflows/CI/badge.svg)|[Docs](https://ocds-standard-development-handbook.readthedocs.io/)|[standard-development-handbook](https://github.com/open-contracting/standard-development-handbook)|
-|✴️|![Build Status](https://github.com/open-contracting/standard-maintenance-scripts/workflows/CI/badge.svg)|-|[standard-maintenance-scripts](https://github.com/open-contracting/standard-maintenance-scripts)|
+|✴️|![Build Status](https://github.com/open-contracting/standard-development-handbook/workflows/Lint/badge.svg)|[Docs](https://ocds-standard-development-handbook.readthedocs.io/)|[standard-development-handbook](https://github.com/open-contracting/standard-development-handbook)|
+|✴️|![Build Status](https://github.com/open-contracting/standard-maintenance-scripts/workflows/Lint/badge.svg)|-|[standard-maintenance-scripts](https://github.com/open-contracting/standard-maintenance-scripts)|
 
 ## Documentation dependencies
 
 |Priority|Build|Docs|Name|
 |-|-|-|-|
 |✴️✴️|![Build Status](https://github.com/open-contracting/ocds-babel/workflows/CI/badge.svg) [![Coverage Status](https://coveralls.io/repos/github/open-contracting/ocds-babel/badge.svg?branch=master)](https://coveralls.io/github/open-contracting/ocds-babel?branch=master)|[Docs](https://ocds-babel.readthedocs.io/)|[ocds-babel](https://github.com/open-contracting/ocds-babel)|
-|✴️✴️|![Build Status](https://github.com/open-contracting/sphinxcontrib-opencontracting/workflows/CI/badge.svg)|-|[sphinxcontrib-opencontracting](https://github.com/open-contracting/sphinxcontrib-opencontracting)|
+|✴️✴️|![Build Status](https://github.com/open-contracting/sphinxcontrib-opencontracting/workflows/Lint/badge.svg)|-|[sphinxcontrib-opencontracting](https://github.com/open-contracting/sphinxcontrib-opencontracting)|
 |✴️✴️|-|-|[standard_theme](https://github.com/open-contracting/standard_theme)|
 
 ## Templates
 
 |Priority|Build|Name|
 |-|-|-|
-|✴️|![Build Status](https://github.com/open-contracting/standard_extension_template/workflows/CI/badge.svg)|[standard_extension_template](https://github.com/open-contracting/standard_extension_template)|
+|✴️|![Build Status](https://github.com/open-contracting/standard_extension_template/workflows/Lint/badge.svg)|[standard_extension_template](https://github.com/open-contracting/standard_extension_template)|
 | |![Build Status](https://github.com/open-contracting/standard_profile_template/workflows/CI/badge.svg)|[standard_profile_template](https://github.com/open-contracting/standard_profile_template)|
 
 ## Profiles
@@ -91,57 +91,57 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 
 |Priority|Build|Name|
 |-|-|-|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_additionalContactPoints_extension/workflows/CI/badge.svg)|[ocds_additionalContactPoints_extension](https://github.com/open-contracting-extensions/ocds_additionalContactPoints_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_api_extension/workflows/CI/badge.svg)|[ocds_api_extension](https://github.com/open-contracting-extensions/ocds_api_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_awardCriteria_extension/workflows/CI/badge.svg)|[ocds_awardCriteria_extension](https://github.com/open-contracting-extensions/ocds_awardCriteria_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_bidOpening_extension/workflows/CI/badge.svg)|[ocds_bidOpening_extension](https://github.com/open-contracting-extensions/ocds_bidOpening_extension)|
-|✴️✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_bid_extension/workflows/CI/badge.svg)|[ocds_bid_extension](https://github.com/open-contracting-extensions/ocds_bid_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_budget_and_spend_extension/workflows/CI/badge.svg)|[ocds_budget_and_spend_extension](https://github.com/open-contracting-extensions/ocds_budget_and_spend_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_budget_breakdown_extension/workflows/CI/badge.svg)|[ocds_budget_breakdown_extension](https://github.com/open-contracting-extensions/ocds_budget_breakdown_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_budget_projects_extension/workflows/CI/badge.svg)|[ocds_budget_projects_extension](https://github.com/open-contracting-extensions/ocds_budget_projects_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_charges_extension/workflows/CI/badge.svg)|[ocds_charges_extension](https://github.com/open-contracting-extensions/ocds_charges_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_communication_extension/workflows/CI/badge.svg)|[ocds_communication_extension](https://github.com/open-contracting-extensions/ocds_communication_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_contractTerms_extension/workflows/CI/badge.svg)|[ocds_contractTerms_extension](https://github.com/open-contracting-extensions/ocds_contractTerms_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_contract_buyer_extension/workflows/CI/badge.svg)|[ocds_contract_buyer_extension](https://github.com/open-contracting-extensions/ocds_contract_buyer_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_contract_completion_extension/workflows/CI/badge.svg)|[ocds_contract_completion_extension](https://github.com/open-contracting-extensions/ocds_contract_completion_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_contract_signatories_extension/workflows/CI/badge.svg)|[ocds_contract_signatories_extension](https://github.com/open-contracting-extensions/ocds_contract_signatories_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_contract_suppliers_extension/workflows/CI/badge.svg)|[ocds_contract_suppliers_extension](https://github.com/open-contracting-extensions/ocds_contract_suppliers_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_coveredBy_extension/workflows/CI/badge.svg)|[ocds_coveredBy_extension](https://github.com/open-contracting-extensions/ocds_coveredBy_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_designContest_extension/workflows/CI/badge.svg)|[ocds_designContest_extension](https://github.com/open-contracting-extensions/ocds_designContest_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_documentation_extension/workflows/CI/badge.svg)|[ocds_documentation_extension](https://github.com/open-contracting-extensions/ocds_documentation_extension)|
-|✴️✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_enquiry_extension/workflows/CI/badge.svg)|[ocds_enquiry_extension](https://github.com/open-contracting-extensions/ocds_enquiry_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_eu_extension/workflows/CI/badge.svg)|[ocds_eu_extension](https://github.com/open-contracting-extensions/ocds_eu_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_exchangeRate_extension/workflows/CI/badge.svg)|[ocds_exchangeRate_extension](https://github.com/open-contracting-extensions/ocds_exchangeRate_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_extendsContractID_extension/workflows/CI/badge.svg)|[ocds_extendsContractID_extension](https://github.com/open-contracting-extensions/ocds_extendsContractID_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_finance_extension/workflows/CI/badge.svg)|[ocds_finance_extension](https://github.com/open-contracting-extensions/ocds_finance_extension)|
-|✴️✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_location_extension/workflows/CI/badge.svg)|[ocds_location_extension](https://github.com/open-contracting-extensions/ocds_location_extension)|
-|✴️✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_lots_extension/workflows/CI/badge.svg)|[ocds_lots_extension](https://github.com/open-contracting-extensions/ocds_lots_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_memberOf_extension/workflows/CI/badge.svg)|[ocds_memberOf_extension](https://github.com/open-contracting-extensions/ocds_memberOf_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_metrics_extension/workflows/CI/badge.svg)|[ocds_metrics_extension](https://github.com/open-contracting-extensions/ocds_metrics_extension)|
-|✴️✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_milestone_documents_extension/workflows/CI/badge.svg)|[ocds_milestone_documents_extension](https://github.com/open-contracting-extensions/ocds_milestone_documents_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_options_extension/workflows/CI/badge.svg)|[ocds_options_extension](https://github.com/open-contracting-extensions/ocds_options_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_organizationClassification_extension/workflows/CI/badge.svg)|[ocds_organizationClassification_extension](https://github.com/open-contracting-extensions/ocds_organizationClassification_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_otherRequirements_extension/workflows/CI/badge.svg)|[ocds_otherRequirements_extension](https://github.com/open-contracting-extensions/ocds_otherRequirements_extension)|
-|✴️✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_participationFee_extension/workflows/CI/badge.svg)|[ocds_participationFee_extension](https://github.com/open-contracting-extensions/ocds_participationFee_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_partyDetails_scale_extension/workflows/CI/badge.svg)|[ocds_partyDetails_scale_extension](https://github.com/open-contracting-extensions/ocds_partyDetails_scale_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_performance_failures_extension/workflows/CI/badge.svg)|[ocds_performance_failures_extension](https://github.com/open-contracting-extensions/ocds_performance_failures_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_ppp_extension/workflows/CI/badge.svg)|[ocds_ppp_extension](https://github.com/open-contracting-extensions/ocds_ppp_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_procedure_extension/workflows/CI/badge.svg)|[ocds_procedure_extension](https://github.com/open-contracting-extensions/ocds_procedure_extension)|
-|✴️✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_process_title_extension/workflows/CI/badge.svg)|[ocds_process_title_extension](https://github.com/open-contracting-extensions/ocds_process_title_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_procurementMethodRationaleClassifications_extension/workflows/CI/badge.svg)|[ocds_procurementMethodRationaleClassifications_extension](https://github.com/open-contracting-extensions/ocds_procurementMethodRationaleClassifications_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_qualification_extension/workflows/CI/badge.svg)|[ocds_qualification_extension](https://github.com/open-contracting-extensions/ocds_qualification_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_recurrence_extension/workflows/CI/badge.svg)|[ocds_recurrence_extension](https://github.com/open-contracting-extensions/ocds_recurrence_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_requirements_extension/workflows/CI/badge.svg)|[ocds_requirements_extension](https://github.com/open-contracting-extensions/ocds_requirements_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_riskAllocation_extension/workflows/CI/badge.svg)|[ocds_riskAllocation_extension](https://github.com/open-contracting-extensions/ocds_riskAllocation_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_secondStageDescription_extension/workflows/CI/badge.svg)|[ocds_secondStageDescription_extension](https://github.com/open-contracting-extensions/ocds_secondStageDescription_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_selectionCriteria_extension/workflows/CI/badge.svg)|[ocds_selectionCriteria_extension](https://github.com/open-contracting-extensions/ocds_selectionCriteria_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_shareholders_extension/workflows/CI/badge.svg)|[ocds_shareholders_extension](https://github.com/open-contracting-extensions/ocds_shareholders_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_subcontracting_extension/workflows/CI/badge.svg)|[ocds_subcontracting_extension](https://github.com/open-contracting-extensions/ocds_subcontracting_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_submissionTerms_extension/workflows/CI/badge.svg)|[ocds_submissionTerms_extension](https://github.com/open-contracting-extensions/ocds_submissionTerms_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_tariffs_extension/workflows/CI/badge.svg)|[ocds_tariffs_extension](https://github.com/open-contracting-extensions/ocds_tariffs_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_techniques_extension/workflows/CI/badge.svg)|[ocds_techniques_extension](https://github.com/open-contracting-extensions/ocds_techniques_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_transactions_relatedMilestone_extension/workflows/CI/badge.svg)|[ocds_transactions_relatedMilestone_extension](https://github.com/open-contracting-extensions/ocds_transactions_relatedMilestone_extension)|
-|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_unstructuredChanges_extension/workflows/CI/badge.svg)|[ocds_unstructuredChanges_extension](https://github.com/open-contracting-extensions/ocds_unstructuredChanges_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_additionalContactPoints_extension/workflows/Lint/badge.svg)|[ocds_additionalContactPoints_extension](https://github.com/open-contracting-extensions/ocds_additionalContactPoints_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_api_extension/workflows/Lint/badge.svg)|[ocds_api_extension](https://github.com/open-contracting-extensions/ocds_api_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_awardCriteria_extension/workflows/Lint/badge.svg)|[ocds_awardCriteria_extension](https://github.com/open-contracting-extensions/ocds_awardCriteria_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_bidOpening_extension/workflows/Lint/badge.svg)|[ocds_bidOpening_extension](https://github.com/open-contracting-extensions/ocds_bidOpening_extension)|
+|✴️✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_bid_extension/workflows/Lint/badge.svg)|[ocds_bid_extension](https://github.com/open-contracting-extensions/ocds_bid_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_budget_and_spend_extension/workflows/Lint/badge.svg)|[ocds_budget_and_spend_extension](https://github.com/open-contracting-extensions/ocds_budget_and_spend_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_budget_breakdown_extension/workflows/Lint/badge.svg)|[ocds_budget_breakdown_extension](https://github.com/open-contracting-extensions/ocds_budget_breakdown_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_budget_projects_extension/workflows/Lint/badge.svg)|[ocds_budget_projects_extension](https://github.com/open-contracting-extensions/ocds_budget_projects_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_charges_extension/workflows/Lint/badge.svg)|[ocds_charges_extension](https://github.com/open-contracting-extensions/ocds_charges_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_communication_extension/workflows/Lint/badge.svg)|[ocds_communication_extension](https://github.com/open-contracting-extensions/ocds_communication_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_contractTerms_extension/workflows/Lint/badge.svg)|[ocds_contractTerms_extension](https://github.com/open-contracting-extensions/ocds_contractTerms_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_contract_buyer_extension/workflows/Lint/badge.svg)|[ocds_contract_buyer_extension](https://github.com/open-contracting-extensions/ocds_contract_buyer_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_contract_completion_extension/workflows/Lint/badge.svg)|[ocds_contract_completion_extension](https://github.com/open-contracting-extensions/ocds_contract_completion_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_contract_signatories_extension/workflows/Lint/badge.svg)|[ocds_contract_signatories_extension](https://github.com/open-contracting-extensions/ocds_contract_signatories_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_contract_suppliers_extension/workflows/Lint/badge.svg)|[ocds_contract_suppliers_extension](https://github.com/open-contracting-extensions/ocds_contract_suppliers_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_coveredBy_extension/workflows/Lint/badge.svg)|[ocds_coveredBy_extension](https://github.com/open-contracting-extensions/ocds_coveredBy_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_designContest_extension/workflows/Lint/badge.svg)|[ocds_designContest_extension](https://github.com/open-contracting-extensions/ocds_designContest_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_documentation_extension/workflows/Lint/badge.svg)|[ocds_documentation_extension](https://github.com/open-contracting-extensions/ocds_documentation_extension)|
+|✴️✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_enquiry_extension/workflows/Lint/badge.svg)|[ocds_enquiry_extension](https://github.com/open-contracting-extensions/ocds_enquiry_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_eu_extension/workflows/Lint/badge.svg)|[ocds_eu_extension](https://github.com/open-contracting-extensions/ocds_eu_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_exchangeRate_extension/workflows/Lint/badge.svg)|[ocds_exchangeRate_extension](https://github.com/open-contracting-extensions/ocds_exchangeRate_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_extendsContractID_extension/workflows/Lint/badge.svg)|[ocds_extendsContractID_extension](https://github.com/open-contracting-extensions/ocds_extendsContractID_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_finance_extension/workflows/Lint/badge.svg)|[ocds_finance_extension](https://github.com/open-contracting-extensions/ocds_finance_extension)|
+|✴️✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_location_extension/workflows/Lint/badge.svg)|[ocds_location_extension](https://github.com/open-contracting-extensions/ocds_location_extension)|
+|✴️✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_lots_extension/workflows/Lint/badge.svg)|[ocds_lots_extension](https://github.com/open-contracting-extensions/ocds_lots_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_memberOf_extension/workflows/Lint/badge.svg)|[ocds_memberOf_extension](https://github.com/open-contracting-extensions/ocds_memberOf_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_metrics_extension/workflows/Lint/badge.svg)|[ocds_metrics_extension](https://github.com/open-contracting-extensions/ocds_metrics_extension)|
+|✴️✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_milestone_documents_extension/workflows/Lint/badge.svg)|[ocds_milestone_documents_extension](https://github.com/open-contracting-extensions/ocds_milestone_documents_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_options_extension/workflows/Lint/badge.svg)|[ocds_options_extension](https://github.com/open-contracting-extensions/ocds_options_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_organizationClassification_extension/workflows/Lint/badge.svg)|[ocds_organizationClassification_extension](https://github.com/open-contracting-extensions/ocds_organizationClassification_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_otherRequirements_extension/workflows/Lint/badge.svg)|[ocds_otherRequirements_extension](https://github.com/open-contracting-extensions/ocds_otherRequirements_extension)|
+|✴️✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_participationFee_extension/workflows/Lint/badge.svg)|[ocds_participationFee_extension](https://github.com/open-contracting-extensions/ocds_participationFee_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_partyDetails_scale_extension/workflows/Lint/badge.svg)|[ocds_partyDetails_scale_extension](https://github.com/open-contracting-extensions/ocds_partyDetails_scale_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_performance_failures_extension/workflows/Lint/badge.svg)|[ocds_performance_failures_extension](https://github.com/open-contracting-extensions/ocds_performance_failures_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_ppp_extension/workflows/Lint/badge.svg)|[ocds_ppp_extension](https://github.com/open-contracting-extensions/ocds_ppp_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_procedure_extension/workflows/Lint/badge.svg)|[ocds_procedure_extension](https://github.com/open-contracting-extensions/ocds_procedure_extension)|
+|✴️✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_process_title_extension/workflows/Lint/badge.svg)|[ocds_process_title_extension](https://github.com/open-contracting-extensions/ocds_process_title_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_procurementMethodRationaleClassifications_extension/workflows/Lint/badge.svg)|[ocds_procurementMethodRationaleClassifications_extension](https://github.com/open-contracting-extensions/ocds_procurementMethodRationaleClassifications_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_qualification_extension/workflows/Lint/badge.svg)|[ocds_qualification_extension](https://github.com/open-contracting-extensions/ocds_qualification_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_recurrence_extension/workflows/Lint/badge.svg)|[ocds_recurrence_extension](https://github.com/open-contracting-extensions/ocds_recurrence_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_requirements_extension/workflows/Lint/badge.svg)|[ocds_requirements_extension](https://github.com/open-contracting-extensions/ocds_requirements_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_riskAllocation_extension/workflows/Lint/badge.svg)|[ocds_riskAllocation_extension](https://github.com/open-contracting-extensions/ocds_riskAllocation_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_secondStageDescription_extension/workflows/Lint/badge.svg)|[ocds_secondStageDescription_extension](https://github.com/open-contracting-extensions/ocds_secondStageDescription_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_selectionCriteria_extension/workflows/Lint/badge.svg)|[ocds_selectionCriteria_extension](https://github.com/open-contracting-extensions/ocds_selectionCriteria_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_shareholders_extension/workflows/Lint/badge.svg)|[ocds_shareholders_extension](https://github.com/open-contracting-extensions/ocds_shareholders_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_subcontracting_extension/workflows/Lint/badge.svg)|[ocds_subcontracting_extension](https://github.com/open-contracting-extensions/ocds_subcontracting_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_submissionTerms_extension/workflows/Lint/badge.svg)|[ocds_submissionTerms_extension](https://github.com/open-contracting-extensions/ocds_submissionTerms_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_tariffs_extension/workflows/Lint/badge.svg)|[ocds_tariffs_extension](https://github.com/open-contracting-extensions/ocds_tariffs_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_techniques_extension/workflows/Lint/badge.svg)|[ocds_techniques_extension](https://github.com/open-contracting-extensions/ocds_techniques_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_transactions_relatedMilestone_extension/workflows/Lint/badge.svg)|[ocds_transactions_relatedMilestone_extension](https://github.com/open-contracting-extensions/ocds_transactions_relatedMilestone_extension)|
+|✴️|![Build Status](https://github.com/open-contracting-extensions/ocds_unstructuredChanges_extension/workflows/Lint/badge.svg)|[ocds_unstructuredChanges_extension](https://github.com/open-contracting-extensions/ocds_unstructuredChanges_extension)|
 
 ## Legacy
 
