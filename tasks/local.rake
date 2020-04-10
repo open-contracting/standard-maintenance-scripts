@@ -185,12 +185,10 @@ namespace :local do
 
           if !ci.empty? || !lint.empty? || hook
             if ['Tools', 'Extension tools', 'Internal tools', 'Documentation dependencies'].include?(heading)
-              contents = read_github_file(repo.full_name, '.travis.yml')
-              if contents.include?('coveralls')
-                line << " [![Coverage Status](https://coveralls.io/repos/github/#{repo.full_name}/badge.svg?branch=master)](https://coveralls.io/github/#{repo.full_name}?branch=master)"
-              end
-              contents = read_github_file(repo.full_name, 'tox.ini')
-              if contents.include?('coveralls')
+              tox = read_github_file(repo.full_name, 'tox.ini')
+              travis = read_github_file(repo.full_name, '.travis.yml')
+
+              if [ci, lint, tox, travis].any?{ |contents| contents.include?('coveralls') }
                 line << " [![Coverage Status](https://coveralls.io/repos/github/#{repo.full_name}/badge.svg?branch=master)](https://coveralls.io/github/#{repo.full_name}?branch=master)"
               end
             end
