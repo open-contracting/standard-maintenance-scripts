@@ -55,8 +55,8 @@ namespace :fix do
         disable_issues(repo, 'should be moved and disabled')
         disable_projects(repo, 'should be moved and disabled')
 
-        begin
-          metadata = JSON.load(read_github_file(repo.full_name, 'extension.json'))
+        metadata = JSON.load(read_github_file(repo.full_name, 'extension.json'))
+        if !metadata.nil?
           options = {}
 
           description = metadata['description'].fetch('en')
@@ -76,10 +76,8 @@ namespace :fix do
             client.edit_repository(repo.full_name, options.dup)
             puts "#{repo.html_url} #{"updated #{options.keys.join(' and ')}".bold.yellow}"
           end
-        rescue Octokit::NotFound
+        else
           puts "#{repo.html_url} #{"no extension.json file!".bold}"
-        rescue NoMethodError => e
-          puts "#{repo.html_url} #{e.to_s.bold}"
         end
       end
 
@@ -240,30 +238,6 @@ namespace :fix do
       end
 
       print '.'
-    end
-  end
-
-  desc 'Sets topics of extensions'
-  task :set_topics do
-    repos.each do |repo|
-      topics = []
-
-      if extension?(repo.name, profiles: false, templates: false)
-        topics << 'ocds-extension'
-        if core_extensions.key?(repo.full_name)
-          if core_extensions[repo.full_name]
-            topics << 'ocds-core-extension'
-          else
-            topics << 'ocds-community-extension'
-          end
-        else
-          puts "extension not in registry: #{repo.full_name}"
-        end
-      end
-
-      if topics.any?
-        client.replace_all_topics(repo.full_name, topics, accept: 'application/vnd.github.mercy-preview+json')
-      end
     end
   end
 

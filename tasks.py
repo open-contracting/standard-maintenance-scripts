@@ -1,22 +1,75 @@
+import json
 import os
 import re
 from collections import defaultdict
 
+import requests
 from invoke import run, task
 from ocdsextensionregistry import ExtensionRegistry
+
+extensions_url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/master/extensions.csv'
+extension_versions_url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/master/extension_versions.csv'  # noqa: E501
 
 
 @task
 def download_extensions(ctx, path):
     path = path.rstrip('/')
 
-    url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/master/extension_versions.csv'
-
-    registry = ExtensionRegistry(url)
-    for extension in registry:
-        directory = os.path.join(path, extension.repository_name)
+    registry = ExtensionRegistry(extension_versions_url)
+    for version in registry:
+        directory = os.path.join(path, version.repository_name)
         if not os.path.isdir(directory):
-            run('git clone {} {}'.format(extension.repository_url, directory))
+            run('git clone {} {}'.format(version.repository_url, directory))
+
+
+@task
+def set_topics(ctx):
+    """
+    Adds topics to repositories in the open-contracting-extensions organization.
+
+    -  ocds-extension
+    -  ocds-core-extension
+    -  ocds-community-extension
+    -  ocds-profile
+    -  european-union
+    -  public-private-partnerships
+    """
+    format_string = 'https://raw.githubusercontent.com/open-contracting-extensions/{}/{}/docs/extension_versions.json'
+
+    profiles = defaultdict(list)
+    for profile, branch in (('european-union', 'master'), ('public-private-partnerships', '1.0-dev')):
+        extension_versions = requests.get(format_string.format(profile, branch)).json()
+        for extension_id in extension_versions.keys():
+            profiles[extension_id].append(profile)
+
+    registry = ExtensionRegistry(extension_versions_url, extensions_url)
+
+    repos = requests.get('https://api.github.com/orgs/open-contracting-extensions/repos?per_page=100').json()
+    for repo in repos:
+        topics = []
+
+        if repo['name'].endswith('_extension'):
+            topics.append('ocds-extension')
+        else:
+            topics.append('ocds-profile')
+
+        for version in registry:
+            if '/{}/'.format(repo['full_name']) in version.base_url:
+                if version.core:
+                    topics.append('ocds-core-extension')
+                else:
+                    topics.append('ocds-community-extension')
+                topics.extend(profiles[version.id])
+                break
+        else:
+            if 'ocds-profile' not in topics:
+                print('{} is not registered'.format(repo['name']))
+
+        response = requests.put('https://api.github.com/repos/{}/topics'.format(repo['full_name']),
+                                data=json.dumps({'names': topics}),
+                                headers={'accept': 'application/vnd.github.mercy-preview+json'})
+        response.raise_for_status()
+
 
 
 @task

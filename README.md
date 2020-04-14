@@ -90,7 +90,7 @@ Protects default branches ⏰:
 
 Sets topics of extensions ⏰:
 
-    bundle exec rake fix:set_topics
+    invoke set-topics
 
 Prepares repositories for archival (`REPOS` is a comma-separated list of repository names):
 
