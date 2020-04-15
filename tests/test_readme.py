@@ -75,9 +75,8 @@ def examples():
             assert False, 'README.md: JSON block {} is not valid JSON ({})'.format(i, e)
 
 
-def patch_schema():
-    basename = 'release-schema.json'
-    schema = http_get(url_prefix + '/release-schema.json').json()
+def patch_schema(basename='release-schema.json'):
+    schema = http_get(url_prefix + '/' + basename).json()
     patched = extend_schema(basename, schema, read_metadata())
     with open(os.path.join(cwd, basename)) as f:
         json_merge_patch.merge(patched, json.load(f))
@@ -162,6 +161,11 @@ def test_example_backticks():
             'publicAuthority',
         },
 
+        # Example query string parameters.
+        'ocds_api_extension': {
+            'offset', 'offset=NUMBER', 'page', 'page=1', 'page=NUMBER', 'since', 'since=TIMESTAMP',
+        },
+
         # Changelog entries for non-existent or removed fields.
         'ocds_bid_extension': {
             'BidsStatistic.requirementResponses',
@@ -195,19 +199,23 @@ def test_example_backticks():
     metadata = read_metadata()
     literals.update(metadata.get('codelists', []))
 
-    # Add JSON paths, field names and definition names..
-    schema = jsonref.JsonRef.replace_refs(patch_schema())
-    for field in get_schema_fields(schema):
-        if 'patternProperties' in field.pointer_components:
-            literal, pattern = re.search(r'^(.*)\(\^?(.+)\$?\)$', field.path).groups()
-            patterns.add(re.compile(r'^' + re.escape(literal) + pattern + r'$'))
-        else:
-            literals.add(field.path)  # e.g. tender.id
-            if len(field.path_components) > 1:
-                literals.add(field.path_components[-1])  # e.g. scale
-            if field.definition_path_components:
-                literals.add(field.definition_path)  # e.g. Lot
-                literals.add('{}.{}'.format(field.definition_path, field.path))  # e.g. Lot.id
+    # Add JSON paths, field names and definition names.
+    for basename in ('release-schema.json', 'release-package-schema.json', 'record-package-schema.json'):
+        if not os.path.isfile(os.path.join(cwd, basename)):
+            continue
+
+        schema = jsonref.JsonRef.replace_refs(patch_schema(basename))
+        for field in get_schema_fields(schema):
+            if 'patternProperties' in field.pointer_components:
+                literal, pattern = re.search(r'^(.*)\(\^?(.+)\$?\)$', field.path).groups()
+                patterns.add(re.compile(r'^' + re.escape(literal) + pattern + r'$'))
+            else:
+                literals.add(field.path)  # e.g. tender.id
+                if len(field.path_components) > 1:
+                    literals.add(field.path_components[-1])  # e.g. scale
+                if field.definition_path_components:
+                    literals.add(field.definition_path)  # e.g. Lot
+                    literals.add('{}.{}'.format(field.definition_path, field.path))  # e.g. Lot.id
 
     errors = 0
 
