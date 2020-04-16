@@ -248,7 +248,8 @@ def test_example_codes():
 
     literals = set()
 
-    for codelist in ('milestoneStatus', 'releaseTag'):  # can save time, for now, by not downloading all codelists
+    # Ostensibly, we should download all codelists. To save time, we only download those we presently reference.
+    for codelist in ('milestoneStatus', 'tenderStatus', 'releaseTag'):
         reader = csv.DictReader(StringIO(http_get('{}/codelists/{}.csv'.format(url_prefix, codelist)).text))
         for row in reader:
             literals.add(row['Code'])
