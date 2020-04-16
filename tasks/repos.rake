@@ -179,7 +179,7 @@ Report issues for this extension in the [ocds-extensions repository](https://git
       # Whether the repo has issues enabled
       # Whether the repo has projects enabled
       # The top contributor (e.g. to decide who to contact)
-      puts '%-50s   %s  %s  %s  %s  %s  %s  %s  %s  %s  %s' % [heading.upcase, '#I', '#P', '#B', '#M', '#R', 'W', 'P', 'I', 'P', 'C']
+      puts '%-60s   %s  %s  %s  %s  %s  %s  %s  %s  %s  %s' % [heading.upcase, '#I', '#P', '#B', '#M', '#R', 'W', 'P', 'I', 'P', 'C']
 
       repos.select(&condition).sort{ |a, b|
         if a.open_issues == b.open_issues
