@@ -170,12 +170,12 @@ def test_example_backticks():
         'ocds_bid_extension': {
             'BidsStatistic.requirementResponses',
         },
-        'ocds_budget_projects_extension': {
-            'Project.source',
-            'Project.project',
-        },
         'ocds_lots_extension': {
             'LotDetails',
+        },
+        'ocds_project_extension': {
+            'Project.source',
+            'Project.project',
         },
         'ocds_qualification_extension': {
             'PreQualification.procurementMethodRationale',
