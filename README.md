@@ -104,6 +104,8 @@ Lists repositories with number of issues, PRs, branches, milestones and whether 
 
     bundle exec rake repos:status [ORG=open-contracting]
 
+* If a repository has multiple branches, delete any branches without commits ahead of the default branch, ask branch creators whether the other branches can be deleted or made into pull requests.
+
 Lists repositories with missing or unexpected continuous integration configuration:
 
     bundle exec rake repos:ci
