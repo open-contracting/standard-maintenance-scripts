@@ -175,12 +175,17 @@ def metaschemas():
         'multipleOf',
         'exclusiveMaximum',
 
+        # Validation keywords for strings
+        'maxLength',
+
         # Validation keywords for arrays
         'additionalItems',
+        'maxItems',
 
         # Validation keywords for objects
         'additionalProperties',
         'dependencies',
+        'maxProperties',
 
         # Validation keywords for any instance type
         'allOf',
