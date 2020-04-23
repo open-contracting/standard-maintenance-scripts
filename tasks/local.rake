@@ -1,4 +1,19 @@
 namespace :local do
+  def each_path
+    basedir = variables('BASEDIR')[0]
+
+    updated = []
+
+    paths = Dir[basedir] + Dir[File.join(basedir, '*')]
+    paths.each do |path|
+      yield path, updated
+    end
+
+    if updated.any?
+      puts "updated: #{updated.join(' ')}"
+    end
+  end
+
   REPOSITORY_CATEGORIES_WITHOUT_DOCS = [
     'Specifications',
     'Guides',
@@ -77,6 +92,43 @@ namespace :local do
           suffix << " #{repo.language.bold}"
         end
         puts "#{repo.html_url}#{suffix}"
+      end
+    end
+  end
+
+  desc 'Update extension.json'
+  task :extension_json do
+    extension_ids = {}
+    url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/master/build/extensions.json'
+    JSON.load(open(url).read)['extensions'].each do |extension|
+      full_name = extension['url'][%r{\Ahttps://raw\.githubusercontent\.com/([^/]+/[^/]+)}, 1]
+      extension_ids[full_name] = extension['id']
+    end
+
+    each_path do |path, updated|
+      repo_name = File.basename(path)
+
+      if Dir.exist?(path) && extension?(repo_name) && !profile?(repo_name)
+        full_name = File.read(File.join(path, '.git', 'config')).match(/git@github.com:(\S+)\.git/)[1]
+        file_path = File.join(path, 'extension.json')
+
+        content = JSON.load(File.read(file_path))
+        expected = Marshal.load(Marshal.dump(content))
+
+        # Make changes to `content`
+        if extension_ids.include?(full_name)
+          content['documentationUrl'] = { 'en' => "https://extensions.open-contracting.org/en/extensions/#{extension_ids[full_name]}/" }
+        else
+          content['documentationUrl'] = { 'en' => "https://github.com/#{full_name}" }
+        end
+
+        # Write the content, if changed.
+        if JSON.dump(content) != JSON.dump(expected)
+          updated << repo_name
+          File.open(file_path, 'w') do |f|
+            f.write(JSON.pretty_generate(content) + "\n")
+          end
+        end
       end
     end
   end
