@@ -162,7 +162,7 @@ def test_example_backticks():
         },
 
         # Example query string parameters.
-        'ocds_api_extension': {
+        'ocds_pagination_extension': {
             'offset', 'offset=NUMBER', 'page', 'page=1', 'page=NUMBER', 'since', 'since=TIMESTAMP',
         },
 

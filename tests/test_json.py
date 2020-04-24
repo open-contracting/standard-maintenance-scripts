@@ -146,7 +146,7 @@ def _merge_obj(result, obj, pointer=''):  # changed code
                     repo_name in ('ocds_milestone_documents_extension', 'public-private-partnerships')):
                 warnings.warn('re-adds {}'.format(pointer))
             elif (value == [] and pointer_and_key == '/required' and
-                    repo_name == 'ocds_api_extension'):
+                    repo_name == 'ocds_pagination_extension'):
                 warnings.warn('empties {}'.format(pointer_and_key))
             elif repo_name in exceptional_extensions:
                 if pointer_and_key in overwrite_exceptions:
