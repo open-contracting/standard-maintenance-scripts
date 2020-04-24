@@ -222,12 +222,12 @@ namespace :local do
 
           # https://github.com/octokit/octokit.rb/issues/1216
           if !ci.empty?
-            line << "![Build Status](https://github.com/#{repo.full_name}/workflows/CI/badge.svg)"
+            line << "[![Build Status](https://github.com/#{repo.full_name}/workflows/CI/badge.svg)](https://github.com/#{repo.full_name}/actions?query=workflow%3ACI)"
             if hook
               puts client.remove_hook(repo.full_name, hook.id)
             end
           elsif !lint.empty?
-            line << "![Build Status](https://github.com/#{repo.full_name}/workflows/Lint/badge.svg)"
+            line << "[![Build Status](https://github.com/#{repo.full_name}/workflows/Lint/badge.svg)](https://github.com/#{repo.full_name}/actions?query=workflow%3ALint)"
             if hook
               puts client.remove_hook(repo.full_name, hook.id)
             end
