@@ -74,7 +74,8 @@
         "items": {
           "type": "string",
           "pattern": "^[XVI]+(\\.\\d+)+$"
-        }
+        },
+        "uniqueItems": true
       },
       "Notes": {
         "title": "Notes",
@@ -102,7 +103,8 @@
             "preQualification",
             "tender"
           ]
-        }
+        },
+        "uniqueItems": true
       },
       "Source": {
         "title": "Source",
@@ -152,6 +154,9 @@
         ],
         "pattern": "^(\\d{4}/\\d{4}|\\d{4}-\\d{2}(/\\d{4}-\\d{2})?)$"
       }
-    }
-  }
+    },
+    "minProperties": 1
+  },
+  "minItems": 1,
+  "uniqueItems": true
 }

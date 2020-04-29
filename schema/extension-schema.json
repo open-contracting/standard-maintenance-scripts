@@ -61,7 +61,8 @@
         "enum": [
           "1.1"
         ]
-      }
+      },
+      "uniqueItems": true
     },
     "codelists": {
       "title": "Extension codelists",
@@ -71,7 +72,8 @@
       "items": {
         "type": "string",
         "pattern": "^.+\\.csv$"
-      }
+      },
+      "uniqueItems": true
     },
     "schemas": {
       "title": "Extension schemas",
@@ -85,7 +87,8 @@
           "release-package-schema.json",
           "release-schema.json"
         ]
-      }
+      },
+      "uniqueItems": true
     },
     "dependencies": {
       "title": "Dependencies",
@@ -96,7 +99,8 @@
         "type": "string",
         "format": "uri",
         "pattern": "^.+/extension\\.json$"
-      }
+      },
+      "uniqueItems": true
     },
     "testDependencies": {
       "title": "Test dependencies",
@@ -107,7 +111,8 @@
         "type": "string",
         "format": "uri",
         "pattern": "^.+/extension\\.json$"
-      }
+      },
+      "uniqueItems": true
     },
     "contactPoint": {
       "title": "Contact point",
@@ -130,7 +135,9 @@
           "type": "string",
           "format": "email"
         }
-      }
+      },
+      "minProperties": 1
     }
-  }
+  },
+  "minProperties": 1
 }
