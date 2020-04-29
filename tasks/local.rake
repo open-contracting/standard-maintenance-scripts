@@ -78,8 +78,8 @@ namespace :local do
     basedir = variables('BASEDIR')[0]
 
     extension_repositories = Set.new
-    url = 'https://standard.open-contracting.org/extension_registry/master/extensions.json'
-    JSON.load(open(url).read).fetch('extensions').each do |extension|
+    url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/master/build/extensions.json'
+    JSON.load(open(url).read)['extensions'].each do |extension|
       extension_repositories << URI.parse(extension['url']).path.split('/')[2]
     end
 
@@ -118,11 +118,11 @@ namespace :local do
         # Make changes to `content`
         if extension_ids.include?(full_name)
           content['documentationUrl'] = { 'en' => "https://extensions.open-contracting.org/en/extensions/#{extension_ids[full_name]}/" }
-		  # Add a contact point block
-		  content['contactPoint'] = { 'name' => 'Open Contracting Partnership', 'email' => 'data@open-contracting.org' }
         else
           content['documentationUrl'] = { 'en' => "https://github.com/#{full_name}" }
         end
+
+        content['contactPoint'] = { 'name' => 'Open Contracting Partnership', 'email' => 'data@open-contracting.org' }
 
         # Write the content, if changed.
         if JSON.dump(content) != JSON.dump(expected)
