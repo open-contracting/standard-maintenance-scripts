@@ -204,6 +204,34 @@ Merges pull requests from a given branch:
 
     bundle exec rake pulls:merge REF=branch
 
+## Local repository tasks
+
+If you copy the [Makefile](/Makefile) to a directory of local repositories, the following commands are available.
+
+Prints a repository's status if it's not clean:
+
+    make -s status
+
+Prints a repository's unpushed commits:
+
+    make -s ahead
+
+Prints a repository's branch if it's not `master`:
+
+    make -s branch
+
+Prints a repository's stashes:
+
+    make -s stash
+
+Makes a commit on each repository:
+
+    env ARGS='-a -m "The commit message"' make -s commit
+
+Pushes all repositories with unpushed commits:
+
+    make -s push
+
 ## Miscellaneous tasks
 
 Regenerates the [badges page](badges.md) ⏰:
