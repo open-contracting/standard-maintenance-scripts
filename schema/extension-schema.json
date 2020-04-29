@@ -7,7 +7,8 @@
     "name",
     "description",
     "documentationUrl",
-    "compatibility"
+    "compatibility",
+    "contactPoint"
   ],
   "additionalProperties": false,
   "properties": {
@@ -106,6 +107,29 @@
         "type": "string",
         "format": "uri",
         "pattern": "^.+/extension\\.json$"
+      }
+    },
+    "contactPoint": {
+      "title": "Contact Point",
+      "description": "Contact point to get in touch with the extension's authors or maintainers",
+      "type": "object",
+      "required": [
+        "name",
+        "email"
+      ],
+      "properties": {
+        "name": {
+          "title": "Name",
+          "description": "Name of the contact point",
+          "type": "string",
+          "minLength": 1
+        },
+        "email": {
+          "title": "Email",
+          "description": "An email address for the contact point",
+          "type": "string",
+          "format": "email"
+        }
       }
     }
   }
