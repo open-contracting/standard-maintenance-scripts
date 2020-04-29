@@ -118,6 +118,8 @@ namespace :local do
         # Make changes to `content`
         if extension_ids.include?(full_name)
           content['documentationUrl'] = { 'en' => "https://extensions.open-contracting.org/en/extensions/#{extension_ids[full_name]}/" }
+		  # Add a contact point block
+		  content['contactPoint'] = { 'name' => 'Open Contracting Partnership', 'email' => 'data@open-contracting.org' }
         else
           content['documentationUrl'] = { 'en' => "https://github.com/#{full_name}" }
         end
