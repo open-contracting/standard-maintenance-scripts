@@ -18,6 +18,7 @@ namespace :local do
     'Specifications',
     'Guides',
     'Templates',
+    'Profiles',
     'Extensions',
     'Legacy',
   ]
@@ -42,8 +43,8 @@ namespace :local do
     'kingfisher' => ' ',
     'kingfisher-archive' => ' ',
     'kingfisher-colab' => ' ',
+    'kingfisher-collect' => '✴️', # key tool
     'kingfisher-process' => '✴️', # key tool
-    'kingfisher-scrape' => '✴️', # key tool
     'kingfisher-views' => '✴️', # key tool
     'lib-cove-oc4ids' => '✴️✴️', # sectoral tool
     'lib-cove-ocds' => '✴️✴️✴️', # implementation step
