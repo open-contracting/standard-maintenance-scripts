@@ -45,10 +45,16 @@ def test_valid():
         width = len(fieldnames)
         columns = []
 
+        duplicates = len(fieldnames) - len(set(fieldnames))
+        if duplicates:
+            errors += 1
+            warnings.warn('ERROR: {} has {} duplicate column headers'.format(path, duplicates))
+
         for row_index, row in enumerate(rows, 2):
-            if len(row) != width:
+            expected = len(row) + duplicates
+            if expected != width:
                 errors += 1
-                warnings.warn('ERROR: {} has {} not {} columns in row {}'.format(path, len(row), width, row_index))
+                warnings.warn('ERROR: {} has {} not {} columns in row {}'.format(path, expected, width, row_index))
             if not any(row.values()):
                 errors += 1
                 warnings.warn('ERROR: {} has empty row {}'.format(path, row_index))
