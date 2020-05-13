@@ -21,7 +21,7 @@ namespace :local do
       full_name = extension['url'][%r{\Ahttps://raw\.githubusercontent\.com/([^/]+/[^/]+)}, 1]
       extension_ids[full_name] = extension['id']
     end
-	extension_ids
+    extension_ids
   end
 
   REPOSITORY_CATEGORIES_WITHOUT_DOCS = [
@@ -109,7 +109,7 @@ namespace :local do
 
   desc 'Update extension.json'
   task :extension_json do
-	extension_ids = get_extension_ids
+    extension_ids = get_extension_ids
 
     each_path do |path, updated|
       repo_name = File.basename(path)
@@ -143,15 +143,14 @@ namespace :local do
 
   desc 'Convert codelist titles to Sentence case'
   task :codelist_titles do
-
-	extension_ids = get_extension_ids
+    extension_ids = get_extension_ids
 
     each_path do |path, updated|
       repo_name = File.basename(path)
-	  codelist_folder = File.join(path, 'codelists')
+      codelist_folder = File.join(path, 'codelists')
 
       if Dir.exist?(path) && extension?(repo_name) && !profile?(repo_name) && Dir.exists?(codelist_folder)
-	    Dir[File.join(codelist_folder,'*.csv')].each do |filename|
+        Dir[File.join(codelist_folder,'*.csv')].each do |filename|
           original = File.read(filename)
           table = CSV.parse(original, headers: true)
           if table.headers.include? 'Title'
