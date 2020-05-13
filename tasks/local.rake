@@ -141,25 +141,26 @@ namespace :local do
     end
   end
 
-  desc 'Convert codelist titles to Sentence case'
-  task :codelist_titles do
+  desc 'Convert code titles to sentence case'
+  task :code_titles do
     extension_ids = get_extension_ids
 
     each_path do |path, updated|
       repo_name = File.basename(path)
-      codelist_folder = File.join(path, 'codelists')
+      codelists_directory = File.join(path, 'codelists')
 
-      if Dir.exist?(path) && extension?(repo_name) && !profile?(repo_name) && Dir.exists?(codelist_folder)
-        Dir[File.join(codelist_folder,'*.csv')].each do |filename|
-          original = File.read(filename)
-          table = CSV.parse(original, headers: true)
-          if table.headers.include? 'Title'
+      if Dir.exist?(path) && extension?(repo_name) && !profile?(repo_name) && Dir.exists?(codelists_directory)
+        Dir[File.join(codelists_directory, '*.csv')].each do |filename|
+          expected = File.read(filename)
+          table = CSV.parse(expected, headers: true)
+
+          if table.headers.include?('Title')
             table.each do |row|
-              row["Title"] = row["Title"].capitalize
+              row['Title'] = row['Title'].capitalize
             end
           end
-          if original != table.to_s
-            puts "File #{filename} changed!"
+
+          if table.to_s != expected
             File.write(filename, table)
           end
         end
