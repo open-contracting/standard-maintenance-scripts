@@ -14,6 +14,16 @@ namespace :local do
     end
   end
 
+  def get_extension_ids
+    extension_ids = {}
+    url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/master/build/extensions.json'
+    JSON.load(open(url).read)['extensions'].each do |extension|
+      full_name = extension['url'][%r{\Ahttps://raw\.githubusercontent\.com/([^/]+/[^/]+)}, 1]
+      extension_ids[full_name] = extension['id']
+    end
+	extension_ids
+  end
+
   REPOSITORY_CATEGORIES_WITHOUT_DOCS = [
     'Specifications',
     'Guides',
@@ -99,12 +109,7 @@ namespace :local do
 
   desc 'Update extension.json'
   task :extension_json do
-    extension_ids = {}
-    url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/master/build/extensions.json'
-    JSON.load(open(url).read)['extensions'].each do |extension|
-      full_name = extension['url'][%r{\Ahttps://raw\.githubusercontent\.com/([^/]+/[^/]+)}, 1]
-      extension_ids[full_name] = extension['id']
-    end
+	extension_ids = get_extension_ids
 
     each_path do |path, updated|
       repo_name = File.basename(path)
@@ -130,6 +135,33 @@ namespace :local do
           updated << repo_name
           File.open(file_path, 'w') do |f|
             f.write(JSON.pretty_generate(content) + "\n")
+          end
+        end
+      end
+    end
+  end
+
+  desc 'Convert codelist titles to Sentence case'
+  task :codelist_titles do
+
+	extension_ids = get_extension_ids
+
+    each_path do |path, updated|
+      repo_name = File.basename(path)
+	  codelist_folder = File.join(path, 'codelists')
+
+      if Dir.exist?(path) && extension?(repo_name) && !profile?(repo_name) && Dir.exists?(codelist_folder)
+	    Dir[File.join(codelist_folder,'*.csv')].each do |filename|
+          original = File.read(filename)
+          table = CSV.parse(original, headers: true)
+          if table.headers.include? 'Title'
+            table.each do |row|
+              row["Title"] = row["Title"].capitalize
+            end
+          end
+          if original != table.to_s
+            puts "File #{filename} changed!"
+            File.write(filename, table)
           end
         end
       end

@@ -242,6 +242,10 @@ Make local changes to multiple extensions:
 
     bundle exec rake local:extension_json BASEDIR=../path/to/directory/of/extensions
 
+Convert codelist titles to sentence case locally:
+
+    bundle exec rake local:codelist_titles BASEDIR=../path/to/directory/of/extensions
+
 Lists web traffic statistics over past two weeks:
 
     bundle exec rake repos:traffic
