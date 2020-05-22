@@ -101,6 +101,7 @@ def test_codelist():
     Ensures all codelists files are valid against codelist-schema.json.
     """
     exceptions = {
+        'country.csv': "'Description' is a required property",
         'coveredBy.csv': "'Description' is a required property",
         'currency.csv': "'Description' is a required property",
     }
