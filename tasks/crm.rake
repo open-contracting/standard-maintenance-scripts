@@ -8,7 +8,6 @@ namespace :crm do
     # Program Managers
     'Bernadine Fernz',
     'Carey Kluttz',
-    'Hera Hussain',
     'Karolis Granickas',
     'Nicolás Penagos',
     'Oscar Hernandez',
