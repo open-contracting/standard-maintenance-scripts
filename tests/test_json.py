@@ -342,7 +342,7 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
     }
 
     def validate_metadata_presence_allow_missing(pointer):
-        return 'links' in pointer.rsplit('/')
+        return 'links' in pointer.split('/') or 'item_schema' in path  # ocds_pagination_extension, kingfisher-collect
 
     validate_metadata_presence_kwargs = {
         'allow_missing': validate_metadata_presence_allow_missing,
