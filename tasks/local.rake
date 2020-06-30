@@ -50,11 +50,11 @@ namespace :local do
     'cove-ocds' => '✴️✴️✴️', # implementation step
     'cove-oc4ids' => '✴️✴️', # sectoral tool
     'jscc' => ' ',
-    'kingfisher' => ' ',
     'kingfisher-archive' => ' ',
     'kingfisher-colab' => ' ',
     'kingfisher-collect' => '✴️', # key tool
     'kingfisher-process' => '✴️', # key tool
+    'kingfisher-vagrant' => ' ',
     'kingfisher-views' => '✴️', # key tool
     'lib-cove-oc4ids' => '✴️✴️', # sectoral tool
     'lib-cove-ocds' => '✴️✴️✴️', # implementation step
@@ -74,9 +74,11 @@ namespace :local do
 
     # Internal tools
     'deploy' => '✴️✴️✴️', # deployment dependency
+    'node-exporter-textfile-collector-scripts' => ' ', # deployment fork
     'european-union-support' => ' ', # scratch pad
     'json-schema-random' => ' ', # infrequently used
     'standard-development-handbook' => '✴️', # key internal documentation
+    'software-development-handbook' => ' ', # internal documentation
     'standard-maintenance-scripts' => '✴️', # internal quality assurance
 
     # Templates

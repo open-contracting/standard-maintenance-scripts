@@ -52,8 +52,10 @@ internal_tools = [
   'standard-maintenance-scripts',
 ]
 DOCUMENTATION_DEPENDENCIES = [
+  'docson',
   'ocds-babel',
   'sphinxcontrib-opencontracting',
+  'standard-search',
   'standard_theme',
 ]
 LEGACY = [
@@ -146,7 +148,7 @@ def core_extensions
     CSV.parse(open("#{base_url}/extension_versions.csv").read, headers: true).each do |version|
       parts = URI.parse(version.fetch('Base URL'))
       # Assumes different versions of the same extension use the same repository.
-      if ['bitbucket.org', 'raw.githubusercontent.com'].include?(parts.hostname)
+      if ['bitbucket.org', 'gitlab.com', 'raw.githubusercontent.com'].include?(parts.hostname)
         ids_to_repos[version.fetch('Id')] = parts.path.split('/')[1..2].join('/')
       else
         raise "#{parts.hostname} not supported (#{version['Id']})"
