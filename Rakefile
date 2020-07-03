@@ -25,7 +25,6 @@ TEMPLATES = [
 ]
 
 specifications = [
-  'data-quality-tool',
   'glossary',
   'infrastructure',
   'ocds-extensions',
@@ -35,6 +34,7 @@ specifications = [
 guides = [
   'ocds-kibana-manual',
   'ocds-r-manual',
+  'sample-data',
 ]
 extension_tools = [
   'extension-explorer',
@@ -45,14 +45,16 @@ extension_tools = [
 ]
 internal_tools = [
   'deploy',
-  'european-union-support',
   'jscc',
   'json-schema-random',
+  'node-exporter-textfile-collector-scripts',
+  'software-development-handbook',
   'standard-development-handbook',
   'standard-maintenance-scripts',
 ]
 DOCUMENTATION_DEPENDENCIES = [
   'docson',
+  'european-union-support',
   'ocds-babel',
   'sphinxcontrib-opencontracting',
   'standard-search',

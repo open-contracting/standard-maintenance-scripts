@@ -35,11 +35,11 @@ namespace :local do
 
   TECH_SUPPORT_PRIORITIES = {
     # Specifications
-    'data-quality-tool' => ' ', # issues only
     'glossary' => ' ', # documentation support
     'infrastructure' => '✴️✴️', # sector documentation
     'ocds-extensions' => ' ', # issues only
     'standard' => '✴️✴️✴️', # core documentation
+    'sample-data' => '✴️', # frequently used
     'translations' => ' ',
 
     # Guides
@@ -49,6 +49,7 @@ namespace :local do
     # Tools
     'cove-ocds' => '✴️✴️✴️', # implementation step
     'cove-oc4ids' => '✴️✴️', # sectoral tool
+    'data-quality-tool' => ' ', # issues only
     'jscc' => ' ',
     'kingfisher-archive' => ' ',
     'kingfisher-colab' => ' ',
@@ -63,7 +64,6 @@ namespace :local do
     'ocds-show-ppp' => ' ', # infrequently used
     'ocdskit' => '✴️', # key tool
     'toucan' => '✴️', # key tool
-    'sample-data' => '✴️', # frequently used
 
     # Extension tools
     'extension-explorer' => '✴️✴️', # extensions documentation
