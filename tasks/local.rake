@@ -75,7 +75,6 @@ namespace :local do
     # Internal tools
     'deploy' => '✴️✴️✴️', # deployment dependency
     'node-exporter-textfile-collector-scripts' => ' ', # deployment fork
-    'european-union-support' => ' ', # scratch pad
     'json-schema-random' => ' ', # infrequently used
     'standard-development-handbook' => '✴️', # key internal documentation
     'software-development-handbook' => ' ', # internal documentation
