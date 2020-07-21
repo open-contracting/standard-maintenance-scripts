@@ -526,17 +526,19 @@ def test_extension_json():
         for url in urls:
             try:
                 status_code = http_head(url).status_code
-                assert status_code == 200, 'HTTP {} on {}'.format(status_code, url)
             except requests.exceptions.ConnectionError as e:
                 assert False, '{} on {}'.format(e, url)
+            else:
+                assert status_code == 200, 'HTTP {} on {}'.format(status_code, url)
 
         urls = list(data['documentationUrl'].values())
         for url in urls:
             try:
                 status_code = http_get(url).status_code  # allow redirects
-                assert status_code == 200, 'HTTP {} on {}'.format(status_code, url)
             except requests.exceptions.ConnectionError as e:
                 assert False, '{} on {}'.format(e, url)
+            else:
+                assert status_code == 200, 'HTTP {} on {}'.format(status_code, url)
 
         actual_codelists = set(data.get('codelists', []))
         if actual_codelists != expected_codelists:
