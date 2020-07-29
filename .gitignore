@@ -1,4 +1,5 @@
 /tests/.cache
 /client_secret.json
 /credentials.txt
+/token.yaml
 /vendor
