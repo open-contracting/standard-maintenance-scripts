@@ -188,7 +188,7 @@ def test_example_backticks():
     patterns = set()
 
     # Add JSON Schema properties.
-    url = 'https://raw.githubusercontent.com/open-contracting/standard/1.1/standard/schema/meta-schema.json'
+    url = 'https://raw.githubusercontent.com/open-contracting/standard/1.1/schema/meta-schema.json'
     literals.update(http_get(url).json()['properties'])
 
     # Add codelist columns.

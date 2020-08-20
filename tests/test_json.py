@@ -193,7 +193,7 @@ def metaschemas():
         'not',
     }
 
-    url = 'https://raw.githubusercontent.com/open-contracting/standard/1.1/standard/schema/meta-schema.json'
+    url = 'https://raw.githubusercontent.com/open-contracting/standard/1.1/schema/meta-schema.json'
     metaschema = http_get(url).json()
 
     # Draft 6 removes `minItems` from `definitions/stringArray`.
