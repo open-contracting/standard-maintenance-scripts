@@ -49,7 +49,6 @@ namespace :local do
     # Tools
     'cove-ocds' => '✴️✴️✴️', # implementation step
     'cove-oc4ids' => '✴️✴️', # sectoral tool
-    'data-quality-tool' => ' ', # issues only
     'jscc' => ' ',
     'kingfisher-archive' => ' ',
     'kingfisher-colab' => ' ',
@@ -63,6 +62,7 @@ namespace :local do
     'ocds-show' => ' ', # infrequently used
     'ocds-show-ppp' => ' ', # infrequently used
     'ocdskit' => '✴️', # key tool
+    'pelican' => ' ', # issues only
     'toucan' => '✴️', # key tool
 
     # Extension tools
@@ -83,6 +83,7 @@ namespace :local do
     # Templates
     'standard_extension_template' => '✴️', # public template
     'standard_profile_template' => ' ', # internal template
+    'field-level-mapping-template' => '✴️✴️✴️', # implementation step
   }
 
   desc 'Report which non-extension repositories are not cloned'
@@ -236,6 +237,10 @@ namespace :local do
         end
 
         matches.each do |repo|
+          if repo.archived
+            next
+          end
+
           line = '|'
 
           begin

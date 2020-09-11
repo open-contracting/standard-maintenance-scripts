@@ -12,7 +12,6 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 |✴️✴️|[![Build Status](https://github.com/open-contracting/infrastructure/workflows/CI/badge.svg)](https://github.com/open-contracting/infrastructure/actions?query=workflow%3ACI)|[infrastructure](https://github.com/open-contracting/infrastructure)|
 | |-|[ocds-extensions](https://github.com/open-contracting/ocds-extensions)|
 |✴️✴️✴️|[![Build Status](https://github.com/open-contracting/standard/workflows/CI/badge.svg)](https://github.com/open-contracting/standard/actions?query=workflow%3ACI)|[standard](https://github.com/open-contracting/standard)|
-| |-|[translations](https://github.com/open-contracting/translations)|
 
 ## Guides
 
@@ -28,7 +27,7 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 |-|-|-|-|
 |✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/cove-oc4ids.svg)](https://travis-ci.org/open-contracting/cove-oc4ids) [![Coverage Status](https://coveralls.io/repos/github/open-contracting/cove-oc4ids/badge.svg?branch=master)](https://coveralls.io/github/open-contracting/cove-oc4ids?branch=master)|-|[cove-oc4ids](https://github.com/open-contracting/cove-oc4ids)|
 |✴️✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/cove-ocds.svg)](https://travis-ci.org/open-contracting/cove-ocds) [![Coverage Status](https://coveralls.io/repos/github/open-contracting/cove-ocds/badge.svg?branch=master)](https://coveralls.io/github/open-contracting/cove-ocds?branch=master)|[Docs](https://ocds-data-review-tool.readthedocs.io/)|[cove-ocds](https://github.com/open-contracting/cove-ocds)|
-| |-|-|[data-quality-tool](https://github.com/open-contracting/data-quality-tool)|
+|✴️✴️✴️|-|-|[field-level-mapping-template](https://github.com/open-contracting/field-level-mapping-template)|
 | |-|-|[kingfisher-archive](https://github.com/open-contracting/kingfisher-archive)|
 | |[![Build Status](https://github.com/open-contracting/kingfisher-colab/workflows/CI/badge.svg)](https://github.com/open-contracting/kingfisher-colab/actions?query=workflow%3ACI) [![Coverage Status](https://coveralls.io/repos/github/open-contracting/kingfisher-colab/badge.svg?branch=master)](https://coveralls.io/github/open-contracting/kingfisher-colab?branch=master)|[Docs](https://kingfisher-colab.readthedocs.io/)|[kingfisher-colab](https://github.com/open-contracting/kingfisher-colab)|
 |✴️|[![Build Status](https://github.com/open-contracting/kingfisher-collect/workflows/CI/badge.svg)](https://github.com/open-contracting/kingfisher-collect/actions?query=workflow%3ACI) [![Coverage Status](https://coveralls.io/repos/github/open-contracting/kingfisher-collect/badge.svg?branch=master)](https://coveralls.io/github/open-contracting/kingfisher-collect?branch=master)|[Docs](https://kingfisher-collect.readthedocs.io/)|[kingfisher-collect](https://github.com/open-contracting/kingfisher-collect)|
@@ -38,9 +37,8 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 |✴️✴️|[![Build Status](https://github.com/open-contracting/lib-cove-oc4ids/workflows/CI/badge.svg)](https://github.com/open-contracting/lib-cove-oc4ids/actions?query=workflow%3ACI) [![Coverage Status](https://coveralls.io/repos/github/open-contracting/lib-cove-oc4ids/badge.svg?branch=master)](https://coveralls.io/github/open-contracting/lib-cove-oc4ids?branch=master)|-|[lib-cove-oc4ids](https://github.com/open-contracting/lib-cove-oc4ids)|
 |✴️✴️✴️|[![Build Status](https://github.com/open-contracting/lib-cove-ocds/workflows/CI/badge.svg)](https://github.com/open-contracting/lib-cove-ocds/actions?query=workflow%3ACI) [![Coverage Status](https://coveralls.io/repos/github/open-contracting/lib-cove-ocds/badge.svg?branch=master)](https://coveralls.io/github/open-contracting/lib-cove-ocds?branch=master)|-|[lib-cove-ocds](https://github.com/open-contracting/lib-cove-ocds)|
 |✴️✴️|[![Build Status](https://github.com/open-contracting/ocds-merge/workflows/CI/badge.svg)](https://github.com/open-contracting/ocds-merge/actions?query=workflow%3ACI) [![Coverage Status](https://coveralls.io/repos/github/open-contracting/ocds-merge/badge.svg?branch=master)](https://coveralls.io/github/open-contracting/ocds-merge?branch=master)|[Docs](https://ocds-merge.readthedocs.io/)|[ocds-merge](https://github.com/open-contracting/ocds-merge)|
-| |[![Build Status](https://github.com/open-contracting/ocds-show/workflows/CI/badge.svg)](https://github.com/open-contracting/ocds-show/actions?query=workflow%3ACI)|-|[ocds-show](https://github.com/open-contracting/ocds-show)|
-| |[![Build Status](https://github.com/open-contracting/ocds-show-ppp/workflows/CI/badge.svg)](https://github.com/open-contracting/ocds-show-ppp/actions?query=workflow%3ACI)|-|[ocds-show-ppp](https://github.com/open-contracting/ocds-show-ppp)|
 |✴️|[![Build Status](https://github.com/open-contracting/ocdskit/workflows/CI/badge.svg)](https://github.com/open-contracting/ocdskit/actions?query=workflow%3ACI) [![Coverage Status](https://coveralls.io/repos/github/open-contracting/ocdskit/badge.svg?branch=master)](https://coveralls.io/github/open-contracting/ocdskit?branch=master)|[Docs](https://ocdskit.readthedocs.io/)|[ocdskit](https://github.com/open-contracting/ocdskit)|
+| |-|-|[pelican](https://github.com/open-contracting/pelican)|
 |✴️|[![Build Status](https://github.com/open-contracting/toucan/workflows/CI/badge.svg)](https://github.com/open-contracting/toucan/actions?query=workflow%3ACI) [![Coverage Status](https://coveralls.io/repos/github/open-contracting/toucan/badge.svg?branch=master)](https://coveralls.io/github/open-contracting/toucan?branch=master)|-|[toucan](https://github.com/open-contracting/toucan)|
 
 ## Extension tools
@@ -48,7 +46,6 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 |Priority|Build|Docs|Name|
 |-|-|-|-|
 |✴️✴️|[![Build Status](https://github.com/open-contracting/extension-explorer/workflows/CI/badge.svg)](https://github.com/open-contracting/extension-explorer/actions?query=workflow%3ACI) [![Coverage Status](https://coveralls.io/repos/github/open-contracting/extension-explorer/badge.svg?branch=master)](https://coveralls.io/github/open-contracting/extension-explorer?branch=master)|-|[extension-explorer](https://github.com/open-contracting/extension-explorer)|
-| |-|-|[extension_creator](https://github.com/open-contracting/extension_creator)|
 |✴️✴️|[![Build Status](https://github.com/open-contracting/extension_registry/workflows/CI/badge.svg)](https://github.com/open-contracting/extension_registry/actions?query=workflow%3ACI)|-|[extension_registry](https://github.com/open-contracting/extension_registry)|
 |✴️✴️|[![Build Status](https://github.com/open-contracting/extension_registry.py/workflows/CI/badge.svg)](https://github.com/open-contracting/extension_registry.py/actions?query=workflow%3ACI) [![Coverage Status](https://coveralls.io/repos/github/open-contracting/extension_registry.py/badge.svg?branch=master)](https://coveralls.io/github/open-contracting/extension_registry.py?branch=master)|[Docs](https://ocdsextensionregistry.readthedocs.io/)|[extension_registry.py](https://github.com/open-contracting/extension_registry.py)|
 |✴️✴️|-|-|[ocds-extensions-translations](https://github.com/open-contracting/ocds-extensions-translations)|
@@ -57,7 +54,7 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 
 |Priority|Build|Docs|Name|
 |-|-|-|-|
-|✴️✴️✴️|-|[Docs](https://ocdsdeploy.readthedocs.io/)|[deploy](https://github.com/open-contracting/deploy)|
+|✴️✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/deploy.svg)](https://travis-ci.org/open-contracting/deploy)|[Docs](https://ocdsdeploy.readthedocs.io/)|[deploy](https://github.com/open-contracting/deploy)|
 | |[![Build Status](https://github.com/open-contracting/jscc/workflows/CI/badge.svg)](https://github.com/open-contracting/jscc/actions?query=workflow%3ACI) [![Coverage Status](https://coveralls.io/repos/github/open-contracting/jscc/badge.svg?branch=master)](https://coveralls.io/github/open-contracting/jscc?branch=master)|[Docs](https://jscc.readthedocs.io/)|[jscc](https://github.com/open-contracting/jscc)|
 | |-|-|[json-schema-random](https://github.com/open-contracting/json-schema-random)|
 | |-|-|[node-exporter-textfile-collector-scripts](https://github.com/open-contracting/node-exporter-textfile-collector-scripts)|
@@ -156,5 +153,3 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 
 |Priority|Build|Name|
 |-|-|-|
-|N/A|-|[open-contracting.github.io](https://github.com/open-contracting/open-contracting.github.io)|
-|N/A|-|[standard-legacy-staticsites](https://github.com/open-contracting/standard-legacy-staticsites)|
