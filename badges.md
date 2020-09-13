@@ -27,7 +27,6 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 |-|-|-|-|
 |✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/cove-oc4ids.svg)](https://travis-ci.org/open-contracting/cove-oc4ids) [![Coverage Status](https://coveralls.io/repos/github/open-contracting/cove-oc4ids/badge.svg?branch=master)](https://coveralls.io/github/open-contracting/cove-oc4ids?branch=master)|-|[cove-oc4ids](https://github.com/open-contracting/cove-oc4ids)|
 |✴️✴️✴️|[![Build Status](https://travis-ci.org/open-contracting/cove-ocds.svg)](https://travis-ci.org/open-contracting/cove-ocds) [![Coverage Status](https://coveralls.io/repos/github/open-contracting/cove-ocds/badge.svg?branch=master)](https://coveralls.io/github/open-contracting/cove-ocds?branch=master)|[Docs](https://ocds-data-review-tool.readthedocs.io/)|[cove-ocds](https://github.com/open-contracting/cove-ocds)|
-|✴️✴️✴️|-|-|[field-level-mapping-template](https://github.com/open-contracting/field-level-mapping-template)|
 | |-|-|[kingfisher-archive](https://github.com/open-contracting/kingfisher-archive)|
 | |[![Build Status](https://github.com/open-contracting/kingfisher-colab/workflows/CI/badge.svg)](https://github.com/open-contracting/kingfisher-colab/actions?query=workflow%3ACI) [![Coverage Status](https://coveralls.io/repos/github/open-contracting/kingfisher-colab/badge.svg?branch=master)](https://coveralls.io/github/open-contracting/kingfisher-colab?branch=master)|[Docs](https://kingfisher-colab.readthedocs.io/)|[kingfisher-colab](https://github.com/open-contracting/kingfisher-colab)|
 |✴️|[![Build Status](https://github.com/open-contracting/kingfisher-collect/workflows/CI/badge.svg)](https://github.com/open-contracting/kingfisher-collect/actions?query=workflow%3ACI) [![Coverage Status](https://coveralls.io/repos/github/open-contracting/kingfisher-collect/badge.svg?branch=master)](https://coveralls.io/github/open-contracting/kingfisher-collect?branch=master)|[Docs](https://kingfisher-collect.readthedocs.io/)|[kingfisher-collect](https://github.com/open-contracting/kingfisher-collect)|
@@ -77,6 +76,7 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 
 |Priority|Build|Name|
 |-|-|-|
+|✴️✴️✴️|-|[field-level-mapping-template](https://github.com/open-contracting/field-level-mapping-template)|
 |✴️|[![Build Status](https://github.com/open-contracting/standard_extension_template/workflows/Lint/badge.svg)](https://github.com/open-contracting/standard_extension_template/actions?query=workflow%3ALint)|[standard_extension_template](https://github.com/open-contracting/standard_extension_template)|
 | |[![Build Status](https://github.com/open-contracting/standard_profile_template/workflows/CI/badge.svg)](https://github.com/open-contracting/standard_profile_template/actions?query=workflow%3ACI)|[standard_profile_template](https://github.com/open-contracting/standard_profile_template)|
 

@@ -22,6 +22,7 @@ PROFILES = [
 TEMPLATES = [
   'standard_extension_template',
   'standard_profile_template',
+  'field-level-mapping-template',
 ]
 
 specifications = [
