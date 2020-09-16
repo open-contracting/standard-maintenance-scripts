@@ -188,6 +188,10 @@ Report issues for this extension in the [ocds-extensions repository](https://git
           a.open_issues <=> b.open_issues
         end
       }.each do |repo|
+        if repo.archived
+          next
+        end
+
         pull_requests = repo.rels[:pulls].get.data.size
         # At time of writing, I'm the top contributor on most repositories (due
         # to widespread cleanup work), which is not useful information.
