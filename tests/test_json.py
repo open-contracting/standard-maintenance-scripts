@@ -17,6 +17,7 @@ from jscc.testing.checks import (get_empty_files, get_invalid_json_files, get_mi
 from jscc.testing.filesystem import walk_csv_data, walk_json_data
 from jscc.testing.util import difference, http_get, http_head, warn_and_assert
 from jsonref import JsonRef
+from ocdskit.schema import add_validation_properties
 
 # Whether to use the 1.1-dev version of OCDS.
 use_development_version = False
@@ -47,6 +48,16 @@ external_codelists = {
 exceptional_extensions = {
     'ocds_ppp_extension',
     'public-private-partnerships',
+}
+
+# https://github.com/open-contracting/extension_registry/blob/master/extensions.csv
+core_extensions = {
+    'ocds_bid_extension',
+    'ocds_enquiry_extension',
+    'ocds_location_extension',
+    'ocds_lots_extension',
+    'ocds_participationFee_extension',
+    'ocds_process_title_extension',
 }
 
 cwd = os.getcwd()
@@ -493,8 +504,28 @@ def test_schema_valid(path, name, data):
     validate_json_schema(path, name, data, metaschema)
 
 
+@pytest.mark.skipif(not is_extension, reason='not an extension (test_schema_strict)')
+@pytest.mark.skipif(repo_name in core_extensions, reason='not a community extension (test_schema_strict)')
+def test_schema_strict():
+    """
+    Ensures `ocdskit schema-strict` has been run on all JSON Schema files.
+    """
+    path = os.path.join(extensiondir, 'release-schema.json')
+    if os.path.isfile(path):
+        with open(path) as f:
+            data = json.load(f)
+
+        original = deepcopy(data)
+        add_validation_properties(data)
+
+        assert data == original, '{} is missing validation properties'.format(path)
+
+
 @pytest.mark.skipif(not is_extension, reason='not an extension (test_versioned_release_schema)')
 def test_versioned_release_schema():
+    """
+    Ensures the extension contains no versioned-release-validation-schema.json file.
+    """
     path = 'versioned-release-validation-schema.json'
     if os.path.exists(path):
         warn_and_assert([path], '{0} is present, run: rm {0}',
