@@ -314,7 +314,7 @@ namespace :local do
           end
 
           if maintainability_hook
-            line << " [![Maintainability](https://api.codeclimate.com/v1/badges/#{CODECLIMATE_IDS.fetch(repo.name)}/maintainability)](https://codeclimate.com/github/codeclimate/codeclimate/maintainability)"
+            line << " [![Maintainability](https://api.codeclimate.com/v1/badges/#{CODECLIMATE_IDS.fetch(repo.name)}/maintainability)](https://codeclimate.com/github/#{repo.full_name}/maintainability)"
           end
 
           if !ci.empty? || !lint.empty? || test_hook || maintainability_hook
