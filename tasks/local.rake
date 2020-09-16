@@ -33,60 +33,6 @@ namespace :local do
     'Legacy',
   ]
 
-  TECH_SUPPORT_PRIORITIES = {
-    # Specifications
-    'glossary' => ' ', # documentation support
-    'infrastructure' => '✴️✴️', # sector documentation
-    'ocds-extensions' => ' ', # issues only
-    'standard' => '✴️✴️✴️', # core documentation
-    'sample-data' => '✴️', # frequently used
-    'translations' => ' ',
-
-    # Guides
-    'ocds-kibana-manual' => ' ',
-    'ocds-r-manual' => ' ',
-
-    # Tools
-    'cove-ocds' => '✴️✴️✴️', # implementation step
-    'cove-oc4ids' => '✴️✴️', # sectoral tool
-    'covid-19-procurement-explorer' => ' ',
-    'jscc' => ' ',
-    'kingfisher-archive' => ' ',
-    'kingfisher-colab' => ' ',
-    'kingfisher-collect' => '✴️', # key tool
-    'kingfisher-process' => '✴️', # key tool
-    'kingfisher-vagrant' => ' ',
-    'kingfisher-views' => '✴️', # key tool
-    'lib-cove-oc4ids' => '✴️✴️', # sectoral tool
-    'lib-cove-ocds' => '✴️✴️✴️', # implementation step
-    'ocds-merge' => '✴️✴️', # reference implementation
-    'ocds-show' => ' ', # infrequently used
-    'ocds-show-ppp' => ' ', # infrequently used
-    'ocdskit' => '✴️', # key tool
-    'pelican' => ' ', # issues only
-    'toucan' => '✴️', # key tool
-
-    # Extension tools
-    'extension-explorer' => '✴️✴️', # extensions documentation
-    'extension_creator' => ' ', # infrequently used
-    'extension_registry' => '✴️✴️', # authoritative resource
-    'extension_registry.py' => '✴️✴️', # frequent dependency
-    'ocds-extensions-translations' => '✴️✴️', # extensions documentation
-
-    # Internal tools
-    'deploy' => '✴️✴️✴️', # deployment dependency
-    'node-exporter-textfile-collector-scripts' => ' ', # deployment fork
-    'json-schema-random' => ' ', # infrequently used
-    'standard-development-handbook' => '✴️', # key internal documentation
-    'software-development-handbook' => ' ', # internal documentation
-    'standard-maintenance-scripts' => '✴️', # internal quality assurance
-
-    # Templates
-    'standard_extension_template' => '✴️', # public template
-    'standard_profile_template' => ' ', # internal template
-    'field-level-mapping-template' => '✴️✴️✴️', # implementation step
-  }
-
   CODECLIMATE_IDS = {
     'cove-oc4ids' => 'f14b93f3eb3d0548d558',
     'cove-ocds' => 'c0f756a34d5cde6f3c2a',
@@ -196,24 +142,6 @@ namespace :local do
 
   desc 'Regenerates the badges pages'
   task :badges do
-    def tech_support_priority(repo)
-      if extension?(repo.name, profiles: false, templates: false)
-        if core_extensions[repo.full_name]
-          '✴️✴️'
-        else
-          '✴️'
-        end
-      elsif profile?(repo.name)
-        '✴️✴️'
-      elsif DOCUMENTATION_DEPENDENCIES.include?(repo.name)
-        '✴️✴️'
-      elsif LEGACY.include?(repo.name)
-        'N/A'
-      else
-        TECH_SUPPORT_PRIORITIES.fetch(repo.name)
-      end
-    end
-
     if ENV['ORG']
       filename = "badges-#{ENV['ORG']}.md"
     else
@@ -227,9 +155,9 @@ namespace :local do
     if ENV['ORG'] != 'open-contracting-partnership'
       output += [
         '',
-        'Tech support priority is assessed based on the impact of the project becoming unavailable and the degree of usage, which can be assessed based on [Python package downloads](http://www.pypi-stats.com/author/?q=30327), [GitHub traffic](https://github.com/open-contracting/standard-development-handbook/issues/76#issuecomment-334540063) and user feedback.',
+        'Tech support priority can be assessed based on the impact of the project becoming unavailable and the degree of usage, which can be assessed based on [Python package downloads](http://www.pypi-stats.com/author/?q=30327), [GitHub traffic](https://github.com/open-contracting/standard-development-handbook/issues/76#issuecomment-334540063) and user feedback.',
         '',
-        'In addition to the below, within the [OpenDataServices](https://github.com/OpenDataServices) organization, `lib-cove` and `lib-cove-web` are critical (as a step in implementation), and `sphinxcontrib-jsonschema` and `sphinxcontrib-opendataservices` are high (as dependencies of `standard`).'
+        'In addition to the below, within the [OpenDataServices](https://github.com/OpenDataServices) organization, the `lib-cove`, `lib-cove-web`, `sphinxcontrib-jsonschema` and `sphinxcontrib-opendataservices` dependencies are relevant.'
       ]
     end
 
@@ -250,13 +178,13 @@ namespace :local do
           ]
         elsif REPOSITORY_CATEGORIES_WITHOUT_DOCS.include?(heading)
           output += [
-            '|Priority|Build|Name|',
-            '|-|-|-|',
+            '|Build|Name|',
+            '|-|-|',
           ]
         else
           output += [
-            '|Priority|Build|Docs|Name|',
-            '|-|-|-|-|',
+            '|Build|Docs|Name|',
+            '|-|-|-|',
           ]
         end
 
@@ -271,12 +199,6 @@ namespace :local do
             hooks = repo.rels[:hooks].get.data
           rescue Octokit::NotFound
             hooks = []
-          end
-
-          if ENV['ORG'] != 'open-contracting-partnership'
-            priority = tech_support_priority(repo)
-
-            line << "#{priority}|"
           end
 
           # Support both GitHub Services and GitHub Apps until GitHub Services fully retired.
