@@ -4,6 +4,8 @@ Tech support priority can be assessed based on the impact of the project becomin
 
 In addition to the below, within the [OpenDataServices](https://github.com/OpenDataServices) organization, the `lib-cove`, `lib-cove-web`, `sphinxcontrib-jsonschema` and `sphinxcontrib-opendataservices` dependencies are relevant.
 
+Don't read too much into the CodeClimate maintainability scores. Use them to identify duplication and complexity, but don't increase a score for its own sake.
+
 ## Specifications
 
 |Build|Name|
