@@ -49,6 +49,7 @@ namespace :local do
     # Tools
     'cove-ocds' => '✴️✴️✴️', # implementation step
     'cove-oc4ids' => '✴️✴️', # sectoral tool
+    'covid-19-procurement-explorer' => ' ',
     'jscc' => ' ',
     'kingfisher-archive' => ' ',
     'kingfisher-colab' => ' ',
@@ -84,6 +85,29 @@ namespace :local do
     'standard_extension_template' => '✴️', # public template
     'standard_profile_template' => ' ', # internal template
     'field-level-mapping-template' => '✴️✴️✴️', # implementation step
+  }
+
+  CODECLIMATE_IDS = {
+    'cove-oc4ids' => 'f14b93f3eb3d0548d558',
+    'cove-ocds' => 'c0f756a34d5cde6f3c2a',
+    'extension-explorer' => '271bbb582eabae79bf84',
+    'extension_registry' => '3e4987f75d1a5d3b7414',
+    'extension_registry.py' => 'bce37ba7b2754e072793',
+    'jscc' => '0c8c3401e5030701fb3e',
+    'kingfisher-archive' => '1136c0a79cb06df1540a',
+    'kingfisher-colab' => '654ae197655319a3516d',
+    'kingfisher-collect' => 'd99c7be71834abe83a81',
+    'kingfisher-process' => '28efa551a6da047e08f1',
+    'kingfisher-views' => 'bb8dcc8a751e3d683407',
+    'lib-cove-oc4ids' => 'd217b495e80fd4e392ac',
+    'lib-cove-ocds' => 'd4c6b5a47d84473f8a1d',
+    'ocds-babel' => 'f29410cef5b0f9a16314',
+    'ocds-merge' => '1acee37f89fb00d7e086',
+    'ocdskit' => 'd4cb38a9007ee5de2b37',
+    'sphinxcontrib-opencontracting' => '5766e1bac00a61263a90',
+    'standard-maintenance-scripts' => '76db8a8485fc75e3c8a0',
+    'standard-search' => '9ae38bf02160da764f56',
+    'toucan' => 'd6c699bd328cac875ffa',
   }
 
   desc 'Report which non-extension repositories are not cloned'
@@ -205,7 +229,7 @@ namespace :local do
         '',
         'Tech support priority is assessed based on the impact of the project becoming unavailable and the degree of usage, which can be assessed based on [Python package downloads](http://www.pypi-stats.com/author/?q=30327), [GitHub traffic](https://github.com/open-contracting/standard-development-handbook/issues/76#issuecomment-334540063) and user feedback.',
         '',
-        'In addition to the below, within the [OpenDataServices](https://github.com/OpenDataServices) organization, `cove` is critical (as a step in implementation), and `sphinxcontrib-jsonschema` and `sphinxcontrib-opendataservices` are high (as dependencies of `standard`).'
+        'In addition to the below, within the [OpenDataServices](https://github.com/OpenDataServices) organization, `lib-cove` and `lib-cove-web` are critical (as a step in implementation), and `sphinxcontrib-jsonschema` and `sphinxcontrib-opendataservices` are high (as dependencies of `standard`).'
       ]
     end
 
@@ -256,7 +280,9 @@ namespace :local do
           end
 
           # Support both GitHub Services and GitHub Apps until GitHub Services fully retired.
-          hook = hooks.find{ |datum| datum.name == 'travis' || datum.config.url == 'https://notify.travis-ci.org' }
+          test_hook = hooks.find{ |datum| datum.name == 'travis' || datum.config.url == 'https://notify.travis-ci.org' }
+
+          maintainability_hook = hooks.find{ |datum| datum.config.url == 'https://codeclimate.com/webhooks' }
 
           ci = read_github_file(repo.full_name, '.github/workflows/ci.yml')
           lint = read_github_file(repo.full_name, '.github/workflows/lint.yml')
@@ -264,19 +290,19 @@ namespace :local do
           # https://github.com/octokit/octokit.rb/issues/1216
           if !ci.empty?
             line << "[![Build Status](https://github.com/#{repo.full_name}/workflows/CI/badge.svg)](https://github.com/#{repo.full_name}/actions?query=workflow%3ACI)"
-            if hook
-              puts client.remove_hook(repo.full_name, hook.id)
+            if test_hook
+              puts client.remove_hook(repo.full_name, test_hook.id)
             end
           elsif !lint.empty?
             line << "[![Build Status](https://github.com/#{repo.full_name}/workflows/Lint/badge.svg)](https://github.com/#{repo.full_name}/actions?query=workflow%3ALint)"
-            if hook
-              puts client.remove_hook(repo.full_name, hook.id)
+            if test_hook
+              puts client.remove_hook(repo.full_name, test_hook.id)
             end
-          elsif hook
+          elsif test_hook
             line << "[![Build Status](https://travis-ci.org/#{repo.full_name}.svg)](https://travis-ci.org/#{repo.full_name})"
           end
 
-          if !ci.empty? || !lint.empty? || hook
+          if !ci.empty? || !lint.empty? || test_hook
             if ['Tools', 'Extension tools', 'Internal tools', 'Documentation dependencies'].include?(heading)
               tox = read_github_file(repo.full_name, 'tox.ini')
               travis = read_github_file(repo.full_name, '.travis.yml')
@@ -285,6 +311,13 @@ namespace :local do
                 line << " [![Coverage Status](https://coveralls.io/repos/github/#{repo.full_name}/badge.svg?branch=master)](https://coveralls.io/github/#{repo.full_name}?branch=master)"
               end
             end
+          end
+
+          if maintainability_hook
+            line << " [![Maintainability](https://api.codeclimate.com/v1/badges/#{CODECLIMATE_IDS.fetch(repo.name)}/maintainability)](https://codeclimate.com/github/codeclimate/codeclimate/maintainability)"
+          end
+
+          if !ci.empty? || !lint.empty? || test_hook || maintainability_hook
             line << '|'
           else
             line << '-|'
