@@ -504,8 +504,8 @@ def test_schema_valid(path, name, data):
     validate_json_schema(path, name, data, metaschema)
 
 
-@pytest.mark.skipif(not is_extension, reason='not an extension (test_schema_strict)')
-@pytest.mark.skipif(repo_name in core_extensions, reason='not a community extension (test_schema_strict)')
+@pytest.mark.skipif(is_profile or not is_extension or repo_name in core_extensions,
+                    reason='is a profile, or is not a community extension (test_schema_strict)')
 def test_schema_strict():
     """
     Ensures `ocdskit schema-strict` has been run on all JSON Schema files.
