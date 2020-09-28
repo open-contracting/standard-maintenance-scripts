@@ -2,10 +2,10 @@ namespace :fix do
   REQUIRE_PULL_REQUEST_REVIEWS = [
     'cove-oc4ids',
     'cove-ocds',
-    'kingfisher',
     'kingfisher-archive',
     'kingfisher-collect',
     'kingfisher-process',
+    'kingfisher-vagrant',
     'kingfisher-views',
     'lib-cove-oc4ids',
     'lib-cove-ocds',
