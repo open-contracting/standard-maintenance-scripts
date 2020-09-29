@@ -177,6 +177,9 @@ def test_example_backticks():
             'Project.source',
             'Project.project',
         },
+        'ocds_submissionTerms_extension': {
+            'SubmissionTerms.requiresGuarantees',
+        },
         'ocds_qualification_extension': {
             'PreQualification.procurementMethodRationale',
             'PreQualification.awardCriteriaDetails',
