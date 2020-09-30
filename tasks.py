@@ -71,7 +71,6 @@ def set_topics(ctx):
         response.raise_for_status()
 
 
-
 @task
 def check_aspell_dictionary(ctx):
     with open(os.path.expanduser('~/.aspell.en.pws'), 'r', encoding='iso-8859-1') as f:

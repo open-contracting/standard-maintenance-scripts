@@ -5,7 +5,7 @@ set -xe
   \! -path '*/node_modules/*' \! -path '*/script/*' \! -name '*.sh' \! -name '*-cli' \! -name 'manage.py' \
   -o -type d \! -perm 755 \! -path '*/deploy/cache/*' | grep .
 
-flake8 --max-line-length 119
+flake8 . --max-line-length 119
 
 isort . --check-only --ignore-whitespace --line-width 119
 
