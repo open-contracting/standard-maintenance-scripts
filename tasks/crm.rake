@@ -57,7 +57,6 @@ namespace :crm do
   REDMINE_CDS_USERS_OCDS = [
     'Andrés Aguilera',
     'María Esther Cervantes',
-    'Romina Fernández Valdez',
     'Yohanna Lisnichuk',
   ]
   REDMINE_CDS_USERS = REDMINE_CDS_USERS_OCDS + [

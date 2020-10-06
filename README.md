@@ -56,6 +56,10 @@ Removes admin access to specific repositories from non-admin members:
 
     bundle exec rake org:collaborators
 
+Lists repositories that should be added or removed from each team:
+
+    bundle exec rake org:team_repos
+
 Review outside collaborators:
 
 * [open-contracting](https://github.com/orgs/open-contracting/outside-collaborators)
