@@ -543,7 +543,7 @@ def test_extension_json():
         with open(path) as f:
             schema = json.load(f)
     else:
-        url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/master/schema/extension-schema.json'  # noqa
+        url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/master/schema/extension-schema.json'  # noqa: E501
         schema = http_get(url).json()
 
     expected_codelists = {name for _, name, _, _, _ in
