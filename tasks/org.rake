@@ -9,6 +9,7 @@ namespace :org do
     # Centro de Desarrollo Sostenible
     'aguilerapy', # Andrés Aguilera
     'juanpane', # Juan Pane
+    'nativaldezt', # Natalia Valdez
     'yolile', # Yohanna Lisnichuk
 
     # Datlab
