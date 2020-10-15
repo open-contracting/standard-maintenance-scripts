@@ -130,8 +130,6 @@ namespace :fix do
 
       if !ci.empty? || !lint.empty?
         contexts << 'build'
-      elsif repo.rels[:hooks].get.data.any?{ |datum| datum.name == 'travis' || datum.config.url == 'https://notify.travis-ci.org' } && !read_github_file(repo.full_name, '.travis.yml').empty?
-        contexts << 'continuous-integration/travis-ci'
       end
 
       branches = repo.rels[:branches].get(headers: headers).data

@@ -190,7 +190,7 @@ namespace :local do
           ]
         end
 
-        matches.each do |repo|
+        matches.sort_by(&:full_name).each do |repo|
           if repo.archived
             next
           end
@@ -203,9 +203,6 @@ namespace :local do
             hooks = []
           end
 
-          # Support both GitHub Services and GitHub Apps until GitHub Services fully retired.
-          test_hook = hooks.find{ |datum| datum.name == 'travis' || datum.config.url == 'https://notify.travis-ci.org' }
-
           maintainability_hook = hooks.find{ |datum| datum.config.url == 'https://codeclimate.com/webhooks' }
 
           ci = read_github_file(repo.full_name, '.github/workflows/ci.yml')
@@ -214,24 +211,15 @@ namespace :local do
           # https://github.com/octokit/octokit.rb/issues/1216
           if !ci.empty?
             line << "[![Build Status](https://github.com/#{repo.full_name}/workflows/CI/badge.svg)](https://github.com/#{repo.full_name}/actions?query=workflow%3ACI)"
-            if test_hook
-              puts client.remove_hook(repo.full_name, test_hook.id)
-            end
           elsif !lint.empty?
             line << "[![Build Status](https://github.com/#{repo.full_name}/workflows/Lint/badge.svg)](https://github.com/#{repo.full_name}/actions?query=workflow%3ALint)"
-            if test_hook
-              puts client.remove_hook(repo.full_name, test_hook.id)
-            end
-          elsif test_hook
-            line << "[![Build Status](https://travis-ci.org/#{repo.full_name}.svg)](https://travis-ci.org/#{repo.full_name})"
           end
 
-          if !ci.empty? || !lint.empty? || test_hook
+          if !ci.empty? || !lint.empty?
             if ['Tools', 'Extension tools', 'Internal tools', 'Documentation dependencies'].include?(heading)
               tox = read_github_file(repo.full_name, 'tox.ini')
-              travis = read_github_file(repo.full_name, '.travis.yml')
 
-              if [ci, lint, tox, travis].any?{ |contents| contents.include?('coveralls') }
+              if [ci, lint, tox].any?{ |contents| contents.include?('coveralls') }
                 line << " [![Coverage Status](https://coveralls.io/repos/github/#{repo.full_name}/badge.svg?branch=master)](https://coveralls.io/github/#{repo.full_name}?branch=master)"
               end
             end
@@ -241,7 +229,7 @@ namespace :local do
             line << " [![Maintainability](https://api.codeclimate.com/v1/badges/#{CODECLIMATE_IDS.fetch(repo.name)}/maintainability)](https://codeclimate.com/github/#{repo.full_name}/maintainability)"
           end
 
-          if !ci.empty? || !lint.empty? || test_hook || maintainability_hook
+          if !ci.empty? || !lint.empty? || maintainability_hook
             line << '|'
           else
             line << '-|'

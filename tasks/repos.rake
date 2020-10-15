@@ -33,13 +33,7 @@ namespace :repos do
       if actual.empty?
         actual = read_github_file(repo.full_name, '.github/workflows/ci.yml')
       end
-      if actual.empty?
-        if read_github_file(repo.full_name, '.travis.yml').empty?
-          puts "#{repo.html_url} #{'lacks CI'.bold.yellow}"
-        else
-          puts "#{repo.html_url} #{'uses Travis'.bold.red}"
-        end
-      elsif actual != expected
+      if !actual.empty? && actual != expected
         diff = Hashdiff.diff(YAML.load(expected), YAML.load(actual))
         if diff.any?
           puts "#{repo.html_url}/blob/#{repo.default_branch}/.github/workflows #{'changes configuration'.bold}"
