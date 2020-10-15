@@ -32,20 +32,24 @@ namespace :org do
     'bjwebb', # Ben Webb
     'kindly', # David Raznick
     'michaelwood', # Michael Wood
-    'odscjames', # James Baster
-    'rhiaro', # Amy Guy
     'robredpath', # Rob Redpath
     'tim0th1', # Tim Williams
+    # 'rhiaro', # Amy Guy
     # 'bibianac', # Bibiana Cristofol
     # 'idlemoor', # David Spencer
-    # 'rory09', # Rory Scott
+    # 'odscjames', # James Baster
     # 'scatteredink', # Jack Lord
+    # 'rory09', # Rory Scott
 
     # Transparency International
     'sean-darby',
 
     # Young Innovations
+    'anjesh',
+    'duptitung',
+    'nirazanbasnet',
     'prashantsh',
+    'sonikabaniya',
   ]
 
   ADMINS = Set.new([
@@ -81,14 +85,12 @@ namespace :org do
       repo.rels[:collaborators].get(query: {affiliation: 'direct'}).data.each do |collaborator|
         owner = repo.owner.login.downcase
         login = collaborator.login.downcase
-        if collaborator.permissions.admin && !ADMINS.include?(login)
-          if owner == 'open-contracting-extensions' && login == 'colinmaudry'
-            client.add_collaborator(repo.full_name, collaborator.login, permission: 'maintain')
-            puts "#{repo.html_url}/settings/access changed #{collaborator.login.bold} from 'admin' to 'maintain'"
-          else
-            client.remove_collaborator(repo.full_name, collaborator.login)
-            puts "#{repo.html_url}/settings/access removed #{collaborator.login.bold}"
-          end
+        if collaborator.permissions.admin && !ADMINS.include?(login) # change role of repository creator
+          client.remove_collaborator(repo.full_name, collaborator.login)
+          puts "#{repo.html_url}/settings/access removed #{collaborator.login.bold}"
+        elsif owner == 'open-contracting-extensions' && login == 'colinmaudry' # has access via org membership
+          client.remove_collaborator(repo.full_name, collaborator.login)
+          puts "#{repo.html_url}/settings/access removed #{collaborator.login.bold}"
         else
           puts "#{repo.html_url}/settings/access #{collaborator.login}"
         end

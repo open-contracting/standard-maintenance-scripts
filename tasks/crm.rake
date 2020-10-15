@@ -9,6 +9,7 @@ namespace :crm do
     'Bernadine Fernz',
     'Carey Kluttz',
     'Karolis Granickas',
+    'Mariana San Martin',
     'Nicolás Penagos',
     'Oscar Hernandez',
     'Sofía Garzón',
@@ -21,6 +22,7 @@ namespace :crm do
     'Georg Neumann',
     'Kathrin Frauscher',
     'Kaye Sklar',
+    'Kisha Bwenge',
     'Marie Goumballa',
     'Sophie Brown',
   ]
@@ -34,18 +36,18 @@ namespace :crm do
     'Rachel Vint',
   ]
   REDMINE_ODS_USERS_TECH = [
-    'Amy Guy',
     'Ben Webb',
-    'Bibiana Cristofol',
     'David Raznick',
-    'James Baster',
     'Michael Wood',
     'Rob Redpath',
+    # 'Amy Guy',
+    # 'Bibiana Cristofol',
+    # 'James Baster',
   ]
   REDMINE_ODS_USERS_OTHER = [
-    'David Spencer',
-    'Jack Lord',
     'Tim Williams',
+    # 'David Spencer',
+    # 'Jack Lord',
     # 'Steven Flower',
   ]
   REDMINE_ODS_COORDINATOR = [
@@ -57,6 +59,7 @@ namespace :crm do
   REDMINE_CDS_USERS_OCDS = [
     'Andrés Aguilera',
     'María Esther Cervantes',
+    'Natalia Valdez Turcott',
     'Yohanna Lisnichuk',
   ]
   REDMINE_CDS_USERS = REDMINE_CDS_USERS_OCDS + [
@@ -70,6 +73,7 @@ namespace :crm do
   ]
 
   REDMINE_EXTERNAL_USERS = [
+    'Sabah Zdanowska',
   ]
 
   REDMINE_ALL_USERS = REDMINE_OCP_USERS + REDMINE_ODS_USERS + REDMINE_CDS_USERS + REDMINE_COST_USERS + REDMINE_EXTERNAL_USERS
