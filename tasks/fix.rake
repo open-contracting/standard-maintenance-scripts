@@ -9,6 +9,7 @@ namespace :fix do
     'kingfisher-views',
     'lib-cove-oc4ids',
     'lib-cove-ocds',
+    'oc4ids_database',
   ]
   ENFORCE_ADMINS = [
     'public-private-partnerships',
