@@ -150,6 +150,13 @@ def test_example_valid():
                     reason='not an extension (test_example_backticks)')
 def test_example_backticks():
     exceptions = {
+        'ocds_pagination_extension': {
+            # Example query string parameters.
+            'offset', 'offset=NUMBER', 'page', 'page=1', 'page=NUMBER', 'since', 'since=TIMESTAMP',
+            # Changelog entries for non-existent or removed fields.
+            'links.all', 'packageMetadata',
+        },
+
         # Substring of pattern property.
         'ocds_exchangeRate_extension': {
             'CODE',
@@ -161,21 +168,12 @@ def test_example_backticks():
             'publicAuthority',
         },
 
-        # Example query string parameters.
-        'ocds_pagination_extension': {
-            'offset', 'offset=NUMBER', 'page', 'page=1', 'page=NUMBER', 'since', 'since=TIMESTAMP',
-        },
-
         # Changelog entries for non-existent or removed fields.
         'ocds_bid_extension': {
             'BidsStatistic.requirementResponses',
         },
         'ocds_lots_extension': {
             'LotDetails',
-        },
-        'ocds_pagination_extension': {
-            'links.all',
-            'packageMetadata',
         },
         'ocds_project_extension': {
             'Project.source',
