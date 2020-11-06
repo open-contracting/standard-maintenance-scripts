@@ -173,6 +173,10 @@ def test_example_backticks():
         'ocds_lots_extension': {
             'LotDetails',
         },
+        'ocds_pagination_extension': {
+            'links.all',
+            'packageMetadata',
+        },
         'ocds_project_extension': {
             'Project.source',
             'Project.project',
