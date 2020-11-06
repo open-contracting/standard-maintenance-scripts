@@ -128,7 +128,13 @@ def test_example_valid():
             for value in data.values():
                 set_additional_properties_false(value)
 
-    patched = patch_schema()
+    for basename in ('release-schema.json', 'release-package-schema.json', 'record-package-schema.json'):
+        if os.path.isfile(os.path.join(cwd, basename)):
+            patched = patch_schema(basename)
+            break
+    else:
+        return
+
     set_additional_properties_false(patched)
 
     for i, text, data in examples():
