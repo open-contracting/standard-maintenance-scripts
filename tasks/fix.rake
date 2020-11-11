@@ -6,7 +6,7 @@ namespace :fix do
     'kingfisher-collect',
     'kingfisher-process',
     'kingfisher-vagrant',
-    'kingfisher-views',
+    'kingfisher-summarize',
     'lib-cove-oc4ids',
     'lib-cove-ocds',
     'oc4ids_database',

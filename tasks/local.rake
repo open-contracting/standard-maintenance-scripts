@@ -44,7 +44,7 @@ namespace :local do
     'kingfisher-colab' => '654ae197655319a3516d',
     'kingfisher-collect' => 'd99c7be71834abe83a81',
     'kingfisher-process' => '28efa551a6da047e08f1',
-    'kingfisher-views' => 'bb8dcc8a751e3d683407',
+    'kingfisher-summarize' => '24840a8f37e8e770cb06',
     'lib-cove-oc4ids' => 'd217b495e80fd4e392ac',
     'lib-cove-ocds' => 'd4c6b5a47d84473f8a1d',
     'ocds-babel' => 'f29410cef5b0f9a16314',
