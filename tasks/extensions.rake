@@ -86,7 +86,7 @@ namespace :extensions do
     begin
       require 'cld'
     rescue LoadError
-      raise 'You must install the cld2 or cld3 gem.'
+      abort 'You must install the cld2 or cld3 gem.'
     end
 
     basedir = variables('BASEDIR')[0]
