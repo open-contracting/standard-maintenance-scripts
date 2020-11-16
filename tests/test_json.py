@@ -131,8 +131,6 @@ def _merge_obj(result, obj, pointer=''):  # changed code
     removal_exceptions = {
         '/properties/buyer',  # becomes publicAuthority
         '/definitions/Award/properties/suppliers',  # becomes preferredBidders
-        '/definitions/Budget/properties/project',
-        '/definitions/Budget/properties/projectID',
     }
     overwrite_exceptions = {
         '/properties/tag/items/enum',
@@ -162,8 +160,6 @@ def _merge_obj(result, obj, pointer=''):  # changed code
             elif repo_name in exceptional_extensions:
                 if pointer_and_key in overwrite_exceptions:
                     warnings.warn('overwrites {}'.format(pointer_and_key))
-                elif value is None and 'deprecated' in result[key]:
-                    warnings.warn('removes deprecated {}'.format(pointer_and_key))
                 elif value is None and pointer_and_key in removal_exceptions:
                     warnings.warn('removes {}'.format(pointer_and_key))
                 else:
