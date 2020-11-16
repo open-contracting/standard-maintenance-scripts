@@ -1,5 +1,3 @@
-require 'cld'
-
 namespace :extensions do
   desc 'Discover new extensions on GitHub'
   task :discover do
@@ -85,6 +83,12 @@ namespace :extensions do
 
   desc 'Report the language and length of the documentation of unregistered extensions'
   task :documentation_language_length do
+    begin
+      require 'cld'
+    rescue LoadError
+      raise 'You must install the cld2 or cld3 gem.'
+    end
+
     basedir = variables('BASEDIR')[0]
 
     Dir[File.join(basedir, '*', '*')].each do |directory|
