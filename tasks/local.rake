@@ -48,11 +48,11 @@ namespace :local do
     'lib-cove-oc4ids' => 'd217b495e80fd4e392ac',
     'lib-cove-ocds' => 'd4c6b5a47d84473f8a1d',
     'ocds-babel' => 'f29410cef5b0f9a16314',
+    'ocds-index' => '7d84951d2abd29fa9e1a',
     'ocds-merge' => '1acee37f89fb00d7e086',
     'ocdskit' => 'd4cb38a9007ee5de2b37',
     'sphinxcontrib-opencontracting' => '5766e1bac00a61263a90',
     'standard-maintenance-scripts' => '76db8a8485fc75e3c8a0',
-    'standard-search' => '9ae38bf02160da764f56',
     'toucan' => 'd6c699bd328cac875ffa',
   }
 

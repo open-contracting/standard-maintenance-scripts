@@ -57,8 +57,8 @@ DOCUMENTATION_DEPENDENCIES = [
   'docson',
   'european-union-support',
   'ocds-babel',
+  'ocds-index',
   'sphinxcontrib-opencontracting',
-  'standard-search',
   'standard_theme',
 ]
 LEGACY = [
