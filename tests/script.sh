@@ -1,4 +1,4 @@
-set -xe
+set -xeuo pipefail
 
 # Ignore version control, untracked files and executable scripts.
 ! find . -type f \! -perm 644 \! -path '*/.git/*' \! -path '*/.tox/*' \! -path '*/__pycache__/*' \! -path '*/cache/*' \
