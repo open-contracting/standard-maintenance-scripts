@@ -105,7 +105,7 @@ def repos
     organizations.reduce([]) do |memo, organization|
       repos = client.org_repos(organization, per_page: 100, accept: 'application/vnd.github.drax-preview+json') # licenses
       if ENV['REPOS']
-        memo + repos.select{ |repo| ENV['REPOS'].include?(repo.name) }
+        memo + repos.select{ |repo| ENV['REPOS'].split(',').include?(repo.full_name) }
       else
         memo + repos
       end
