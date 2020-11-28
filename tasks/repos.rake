@@ -158,7 +158,7 @@ Report issues for this extension in the [ocds-extensions repository](https://git
 
   desc 'Lists repositories with number of issues, PRs, branches, milestones and whether wiki, pages, issues, projects are enabled'
   task :status do
-    format = '%-60s  %12s  %11s  %11s  %11s  %11s  %s  %s  %s  %s  %s'
+    format = '%-110s  %12s  %11s  %11s  %11s  %11s  %s  %s  %s  %s  %s'
 
     REPOSITORY_CATEGORIES.each do |heading, condition|
       puts
@@ -173,7 +173,7 @@ Report issues for this extension in the [ocds-extensions repository](https://git
       # Whether the repo has issues enabled
       # Whether the repo has projects enabled
       # The top contributor (e.g. to decide who to contact)
-      puts '%-60s   %s  %s  %s  %s  %s  %s  %s  %s  %s  %s' % [heading.upcase, '#I', '#P', '#B', '#M', '#R', 'W', 'P', 'I', 'P', 'C']
+      puts '%-110s   %s  %s  %s  %s  %s  %s  %s  %s  %s  %s' % [heading.upcase, '#I', '#P', '#B', '#M', '#R', 'W', 'P', 'I', 'P', 'C']
 
       repos.select(&condition).sort{ |a, b|
         if a.open_issues == b.open_issues
@@ -198,7 +198,7 @@ Report issues for this extension in the [ocds-extensions repository](https://git
         end
 
         puts format % [
-          repo.name,
+          "#{repo.html_url}/issues",
           i(repo.open_issues - pull_requests),
           i(pull_requests),
           i(non_default_or_pull_or_upstream_or_excluded_branches(repo).size),
