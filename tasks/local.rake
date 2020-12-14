@@ -220,7 +220,7 @@ namespace :local do
               tox = read_github_file(repo.full_name, 'tox.ini')
 
               if [ci, lint, tox].any?{ |contents| contents.include?('coveralls') }
-                line << " [![Coverage Status](https://coveralls.io/repos/github/#{repo.full_name}/badge.svg?branch=master)](https://coveralls.io/github/#{repo.full_name}?branch=master)"
+                line << " [![Coverage Status](https://coveralls.io/repos/github/#{repo.full_name}/badge.svg?branch=#{repo.default_branch})](https://coveralls.io/github/#{repo.full_name}?branch=#{repo.default_branch})"
               end
             end
           end
