@@ -34,7 +34,7 @@ branch:
 	for dir in */; do \
 		if [ -d $$dir/.git ]; then \
 			cd $$dir; \
-			if [[ `git branch` != "* master" ]] && [[ `git branch` != "* gh-pages" ]] && [[ `git branch | xargs` != "gh-pages * master" ]] && [[ `git branch | xargs` != "* gh-pages master" ]]; then \
+			if [[ `git branch` != "* main" ]] && [[ `git branch` != "* master" ]] && [[ `git branch` != "* gh-pages" ]] && [[ `git branch | xargs` != "gh-pages * master" ]] && [[ `git branch | xargs` != "* gh-pages master" ]]; then \
 				echo $$dir; \
 				git branch; \
 			fi; \
