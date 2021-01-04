@@ -29,9 +29,9 @@ The common [`.github/workflows/lint.yml`](fixtures/lint.yml) file performs:
 
 To run the tests locally, run the setup commands above, change into a repository's folder, then:
 
-    flake8 --max-line-length 119
-    isort --check-only --ignore-whitespace --line-width 119
-    py.test -rs --tb=line path/to/standard-maintenance-scripts/tests
+    flake8 . --max-line-length 119
+    isort . --check-only --ignore-whitespace --line-width 119
+    pytest -rs --tb=line path/to/standard-maintenance-scripts/tests
 
 To skip the JSON indentation test, set the `OCDS_NOINDENT` environment variable, with `export OCDS_NOINDENT=1` (Bash) or `setenv OCDS_NOINDENT 1` (fish).
 
