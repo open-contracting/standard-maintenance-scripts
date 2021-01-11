@@ -174,12 +174,15 @@ def test_example_backticks():
             'publicAuthority',
         },
 
-        # Changelog entries for non-existent or removed fields.
+        # Changelog entries for non-existent or removed fields or codelists.
         'ocds_bid_extension': {
             'BidsStatistic.requirementResponses',
         },
         'ocds_lots_extension': {
             'LotDetails',
+        },
+        'ocds_ppp_extension': {
+            'initiationType.csv',
         },
         'ocds_project_extension': {
             'Project.source',
@@ -227,6 +230,8 @@ def test_example_backticks():
                 if field.definition_path_components:
                     literals.add(field.definition_path)  # e.g. Lot
                     literals.add('{}.{}'.format(field.definition_path, field.path))  # e.g. Lot.id
+                if 'codelist' in field.schema:
+                    literals.add(field.schema['codelist'])
 
     errors = 0
 
