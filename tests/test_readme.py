@@ -181,9 +181,6 @@ def test_example_backticks():
         'ocds_lots_extension': {
             'LotDetails',
         },
-        'ocds_ppp_extension': {
-            'awards/suppliers',
-        },
         'ocds_project_extension': {
             'Project.source',
             'Project.project',
