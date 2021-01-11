@@ -181,16 +181,19 @@ def test_example_backticks():
         'ocds_lots_extension': {
             'LotDetails',
         },
+        'ocds_ppp_extension': {
+            'awards/suppliers',
+        },
         'ocds_project_extension': {
             'Project.source',
             'Project.project',
         },
-        'ocds_submissionTerms_extension': {
-            'requiresGuarantees',
-        },
         'ocds_qualification_extension': {
             'PreQualification.procurementMethodRationale',
             'PreQualification.awardCriteriaDetails',
+        },
+        'ocds_submissionTerms_extension': {
+            'requiresGuarantees',
         },
     }
 
