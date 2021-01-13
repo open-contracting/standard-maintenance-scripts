@@ -232,6 +232,8 @@ def test_example_backticks():
                     literals.add('{}.{}'.format(field.definition_path, field.path))  # e.g. Lot.id
                 if 'codelist' in field.schema:
                     literals.add(field.schema['codelist'])
+                    literals.add(f"+{field.schema['codelist']}")
+                    literals.add(f"-{field.schema['codelist']}")
 
     errors = 0
 
