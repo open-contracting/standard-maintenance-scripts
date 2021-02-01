@@ -48,7 +48,7 @@ To create a pull request to set up a new repository, run:
 
 ### GitHub
 
-Lists members not employed by the Open Contracting Partnership or its helpdesk teams:
+Lists members that should be added or removed from the organization:
 
     bundle exec rake org:members
 
@@ -56,9 +56,17 @@ Removes admin access to specific repositories from non-admin members:
 
     bundle exec rake org:collaborators
 
-Lists repositories that should be added or removed from each team:
+Lists members that should be added or removed from teams:
+
+    bundle exec rake org:team_perms
+
+Lists repositories that should be added or removed from teams:
 
     bundle exec rake org:team_repos
+
+Lists incorrect team repository permissions:
+
+    bundle exec rake org:team_perms
 
 Review outside collaborators:
 

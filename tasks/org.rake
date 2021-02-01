@@ -1,92 +1,102 @@
 namespace :org do
-  # Last updated 2020-04-09
-  KNOWN_MEMBERS = [
-    # Open Contracting Partnership
-    # https://www.open-contracting.org/about/team/
-    'jpmckinney', # James McKinney
-    'lindseyam', # Lindsey Marchessault
-    'yolile', # Yohanna Lisnichuk
+  # Last updated 2021-02-01
+  MEMBERS = {
+    'General' => [
+      # Open Contracting Partnership
+      # https://www.open-contracting.org/about/team/
+      'jpmckinney', # James McKinney
+      'lindseyam', # Lindsey Marchessault
+      'yolile', # Yohanna Lisnichuk
 
-    # Centro de Desarrollo Sostenible
-    'aguilerapy', # Andrés Aguilera
-    'nativaldezt', # Natalia Valdez
+      # Centro de Desarrollo Sostenible
+      'aguilerapy', # Andrés Aguilera
+      'nativaldezt', # Natalia Valdez
 
-    # Datlab
-    'jakubkrafka',
-    'hrubyjan',
+      # Open Data Services Co-operative Limited
+      # http://opendataservices.coop
+      'duncandewhurst', # Duncan Dewhurst
+      'mrshll1001', # Matt Marshall
+      'odscrachel', # Rachel Vint
+      'pindec', # Charlie Pinder
+      # Developers
+      'bjwebb', # Ben Webb
+      'kindly', # David Raznick
+      'michaelwood', # Michael Wood
+      'robredpath', # Rob Redpath
+      'tim0th1', # Tim Williams
+      # 'rhiaro', # Amy Guy
+      # 'bibianac', # Bibiana Cristofol
+      # 'idlemoor', # David Spencer
+      # 'odscjames', # James Baster
+      # 'scatteredink', # Jack Lord
+      # 'rory09', # Rory Scott
+    ],
+    'Datlab' => [
+      'jakubkrafka',
+      'hrubyjan',
+    ],
+    'Health' => [
+      # Transparency International
+      'sean-darby',
 
-    # Dogsbody Technology Limited
-    'dogsbody', # Dan Benton
-    'dogsbody-ashley', # Ashley Holland
-    'dogsbody-josh', # Josh Archer
-    'jimacarter', # Jim Carter
-    'robhooper', # Rob Hooper
+      # Young Innovations
+      'abhishekska',
+      'anjesh',
+      'anjilab',
+      'bigyan',
+      'bikramtuladhar',
+      'duptitung',
+      'kushalraj',
+      'nirazanbasnet',
+      'prashantsh',
+      'rubinakarki',
+      'simranthapa634',
+      'sonikabaniya',
+      'suhanapradhan',
+      'suyojman',
+    ],
+    'Standard' => [
+      'colinmaudry',
+      'jachymhercher',
+    ],
+    'Servers' => [
+      # Access to specific servers
+      'aguilerapy',
+      'bjwebb',
+      'bikramtuladhar',
+      'kindly',
+      'nativaldezt',
 
-    # Open Data Services Co-operative Limited
-    # http://opendataservices.coop
-    'duncandewhurst', # Duncan Dewhurst
-    'mrshll1001', # Matt Marshall
-    'odscrachel', # Rachel Vint
-    'pindec', # Charlie Pinder
-    # Developers
-    'bjwebb', # Ben Webb
-    'kindly', # David Raznick
-    'michaelwood', # Michael Wood
-    'robredpath', # Rob Redpath
-    'tim0th1', # Tim Williams
-    # 'rhiaro', # Amy Guy
-    # 'bibianac', # Bibiana Cristofol
-    # 'idlemoor', # David Spencer
-    # 'odscjames', # James Baster
-    # 'scatteredink', # Jack Lord
-    # 'rory09', # Rory Scott
-
-    # Health
-
-    # Transparency International
-    'sean-darby',
-
-    # Young Innovations
-    'abhishekska',
-    'anjesh',
-    'anjila',
-    'bigyan',
-    'bikramtuladhar',
-    'duptitung',
-    'kushalraj',
-    'nirazanbasnet',
-    'prashantsh',
-    'rubinakarki',
-    'simranthapa634',
-    'sonikabaniya',
-    'suhanapradhan',
-    'suyojman',
-
-    # Standard
-    'colinmaudry',
-    'jachymhercher',
-  ]
+      # Dogsbody Technology Limited
+      'dogsbody', # Dan Benton
+      'dogsbody-ashley', # Ashley Holland
+      'dogsbody-josh', # Josh Archer
+      'jimacarter', # Jim Carter
+      'robhooper', # Rob Hooper
+    ]
+  }
 
   ADMINS = Set.new([
-    'bjwebb',
     'jpmckinney',
-    'robredpath',
+    'yolile',
   ])
 
   desc 'Lists members that should be added or removed from the organization'
   task :members do
+    expected = MEMBERS.values.flatten
+
     organizations.each do |organization|
       people = client.org_members(organization, per_page: 100) + client.org_invitations(organization)
-
       names = people.map{ |member| member.login.downcase }
 
-      difference = names - KNOWN_MEMBERS
+      difference = names - expected
       if difference.any?
         puts "#{organization}: add to tasks/org.rake: #{difference.join(', ')}"
       end
 
+      # MEMBERS is based only on the membership of the open-contracting organization.
       if organization != 'open-contracting-extensions'
-        difference = KNOWN_MEMBERS - names
+        difference = expected - names
         if difference.any?
           puts "#{organization}: remove from tasks/org.rake: #{difference.join(', ')}"
         end
@@ -113,7 +123,25 @@ namespace :org do
     end
   end
 
-  desc 'Lists repositories that should be added or removed from each team'
+  desc 'Lists members that should be added or removed from teams'
+  task :team_members do
+    client.org_teams('open-contracting').each do |team|
+      names = client.team_members(team.id, per_page: 100).map{ |member| member.login.downcase }
+      expected = MEMBERS.fetch(team.name)
+
+      difference = names - expected
+      if difference.any?
+        puts "#{team.name}: add to '#{team.name}' in tasks/org.rake: #{difference.join(', ')}"
+      end
+
+      difference = expected - names
+      if difference.any?
+        puts "#{team.name}: remove from '#{team.name}' in tasks/org.rake: #{difference.join(', ')}"
+      end
+    end
+  end
+
+  desc 'Lists repositories that should be added or removed from teams'
   task :team_repos do
     # The repositories that should be accessible to these teams.
     datlab = [
@@ -122,78 +150,96 @@ namespace :org do
       'ocdskit',
       'pelican',
     ]
+    health = [
+      'covid-19-procurement-explorer',
+      'covid-19-procurement-explorer-admin',
+      'covid-19-procurement-explorer-public',
+    ]
     servers = [
       'deploy',
       'deploy-pillar-private',
       'deploy-salt-private',
       'dogsbody-maintenance',
     ]
-    health = [
-      'covid-19-procurement-explorer',
-      'covid-19-procurement-explorer-admin',
-      'covid-19-procurement-explorer-public',
+    standard = [
+      # Specifications
+      'glossary',
+      'infrastructure',
+      'ocds-extensions',
+      'standard',
+      # Extension tools
+      'extension_registry',
+      'ocds-extensions-translations',
+      # Internal tools
+      'standard-development-handbook',
+      # Documentation dependencies
+      'european-union-support',
+      # Templates
+      'standard_extension_template',
+      'standard_profile_template',
     ]
 
-    # The repositories that should be triage only (e.g. no code).
+    repos = client.org_repos('open-contracting', per_page: 100)
+    archived = repos.select(&:archived).map(&:name) - ['ocds-show', 'ocds-show-ppp']
+
+    expected = {
+      'General' => repos.map(&:name) - archived - servers - health,
+      'Datlab' => datlab,
+      'Health' => health,
+      'Servers' => servers,
+      'Standard' => standard,
+    }
+
+    client.org_teams('open-contracting').each do |team|
+      team_repos = client.team_repos(team.id, per_page: 100).map(&:name)
+
+      difference = team_repos - expected.fetch(team.name)
+      if difference.any?
+        puts "#{team.html_url}: remove from team: #{difference.join(', ')}"
+      end
+      difference = expected.fetch(team.name) - team_repos
+      if difference.any?
+        puts "#{team.html_url}: add to team: #{difference.join(', ')}"
+      end
+    end
+  end
+
+  desc 'Lists incorrect team repository permissions'
+  task :team_perms do
     triage = [
       'ocds-extensions',
       'pelican',
     ]
 
-    repos = client.org_repos('open-contracting', per_page: 100)
-    repo_names = repos.map(&:name)
-
-    archived = repos.select(&:archived).map(&:name) - ['ocds-show', 'ocds-show-ppp']
-
-    {
-      'General' => repo_names - archived - servers - health,
-      'Servers' => servers,
-      'Datlab' => datlab,
-      'Health' => health,
-    }.each do |team_name, expected|
-      team = client.team_by_name('open-contracting', team_name)
-
-      team_repos = client.team_repos(team.id, per_page: 100)
-      team_repo_names = team_repos.map(&:name)
-
-      team_repos.each do |team_repo|
+    client.org_teams('open-contracting').each do |team|
+      client.team_repos(team.id, per_page: 100).each do |team_repo|
         permissions = team_repo.permissions
 
         if triage.include?(team_repo.name)
-          if !permissions.triage && team_name != 'Datlab'
-            puts "#{team.html_url}: set #{team_repo.name} to Triage"
-          elsif !permissions.maintain && team_name == 'Datlab'
-            puts "#{team.html_url}: set #{team_repo.name} to Maintain"
+          # Datlab has maintain privileges to its triage repositories. Others have triage privileges.
+          expected = !permissions.pull && !permissions.push && !permissions.admin
+          if team.name == 'Datlab'
+            expected &&= !permissions.triage && permissions.maintain
+          else
+            expected &&= permissions.triage && !permissions.maintain
           end
-          if permissions.pull || permissions.push || permissions.admin
-            puts "#{team.html_url}: #{team_repo.name} #{permissions}"
+
+          if !expected
+            puts "#{team.html_url}/repositories: set #{team_repo.name} to #{team.name == 'Datlab' ? 'Maintain' : 'Triage'}"
           end
         else
-          if !permissions.push
-            if team_name != 'Health'
-              puts "#{team.html_url}: set #{team_repo.name} to Write"
-            else
-              puts "#{team.html_url}: set #{team_repo.name} to Admin"
-            end
+          # Health has admin privileges to its non-triage repositories. Others have write privileges.
+          expected = permissions.pull && permissions.push && !permissions.triage && !permissions.maintain
+          if team.name == 'Health'
+            expected &&= permissions.admin
+          else
+            expected &&= !permissions.admin
           end
-          if permissions.admin && team_name != 'Health'
-            puts "#{team.html_url}: set #{team_repo.name} to Write"
-          elsif !permissions.admin && team_name == 'Health'
-            puts "#{team.html_url}: set #{team_repo.name} to Admin"
-          end
-          if !permissions.pull || permissions.triage || permissions.maintain
-            puts "#{team.html_url}: #{team_repo.name} #{permissions}"
+
+          if !expected
+            puts "#{team.html_url}/repositories: set #{team_repo.name} to #{team.name == 'Health' ? 'Admin' : 'Write'}"
           end
         end
-      end
-
-      difference = team_repo_names - expected
-      if difference.any?
-        puts "#{team.html_url}: remove from team: #{difference.join(', ')}"
-      end
-      difference = expected - team_repo_names
-      if difference.any?
-        puts "#{team.html_url}: add to team: #{difference.join(', ')}"
       end
     end
   end
