@@ -52,6 +52,10 @@ Lists members that should be added or removed from the organization:
 
     bundle exec rake org:members
 
+Lists owners that should be added or removed from the organization:
+
+    bundle exec rake org:owners
+
 Removes admin access to specific repositories from non-admin members:
 
     bundle exec rake org:collaborators

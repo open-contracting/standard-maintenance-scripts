@@ -76,10 +76,10 @@ namespace :org do
     ]
   }
 
-  ADMINS = Set.new([
+  ADMINS = [
     'jpmckinney',
     'yolile',
-  ])
+  ]
 
   desc 'Lists members that should be added or removed from the organization'
   task :members do
@@ -91,15 +91,33 @@ namespace :org do
 
       difference = names - expected
       if difference.any?
-        puts "#{organization}: add to tasks/org.rake: #{difference.join(', ')}"
+        puts "#{organization}: add to MEMBERS in tasks/org.rake: #{difference.join(', ')}"
       end
 
       # MEMBERS is based only on the membership of the open-contracting organization.
       if organization != 'open-contracting-extensions'
         difference = expected - names
         if difference.any?
-          puts "#{organization}: remove from tasks/org.rake: #{difference.join(', ')}"
+          puts "#{organization}: remove from MEMBERS in tasks/org.rake: #{difference.join(', ')}"
         end
+      end
+    end
+  end
+
+  desc 'Lists owners that should be added or removed from the organization'
+  task :owners do
+    organizations.each do |organization|
+      people = client.org_members(organization, role: 'admin', per_page: 100)
+      names = people.map{ |member| member.login.downcase }
+
+      difference = names - ADMINS
+      if difference.any?
+        puts "#{organization}: add to ADMINS in tasks/org.rake: #{difference.join(', ')}"
+      end
+
+      difference = ADMINS - names
+      if difference.any?
+        puts "#{organization}: remove from ADMINS in tasks/org.rake: #{difference.join(', ')}"
       end
     end
   end
@@ -131,12 +149,12 @@ namespace :org do
 
       difference = names - expected
       if difference.any?
-        puts "#{team.name}: add to '#{team.name}' in tasks/org.rake: #{difference.join(', ')}"
+        puts "#{team.name}: add to MEMBERS['#{team.name}'] in tasks/org.rake: #{difference.join(', ')}"
       end
 
       difference = expected - names
       if difference.any?
-        puts "#{team.name}: remove from '#{team.name}' in tasks/org.rake: #{difference.join(', ')}"
+        puts "#{team.name}: remove from MEMBERS['#{team.name}'] in tasks/org.rake: #{difference.join(', ')}"
       end
     end
   end
