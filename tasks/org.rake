@@ -5,12 +5,11 @@ namespace :org do
     # https://www.open-contracting.org/about/team/
     'jpmckinney', # James McKinney
     'lindseyam', # Lindsey Marchessault
+    'yolile', # Yohanna Lisnichuk
 
     # Centro de Desarrollo Sostenible
     'aguilerapy', # Andrés Aguilera
-    'juanpane', # Juan Pane
     'nativaldezt', # Natalia Valdez
-    'yolile', # Yohanna Lisnichuk
 
     # Datlab
     'jakubkrafka',
@@ -19,6 +18,7 @@ namespace :org do
     # Dogsbody Technology Limited
     'dogsbody', # Dan Benton
     'dogsbody-ashley', # Ashley Holland
+    'dogsbody-josh', # Josh Archer
     'jimacarter', # Jim Carter
     'robhooper', # Rob Hooper
 
@@ -41,15 +41,30 @@ namespace :org do
     # 'scatteredink', # Jack Lord
     # 'rory09', # Rory Scott
 
+    # Health
+
     # Transparency International
     'sean-darby',
 
     # Young Innovations
+    'abhishekska',
     'anjesh',
+    'anjila',
+    'bigyan',
+    'bikramtuladhar',
     'duptitung',
+    'kushalraj',
     'nirazanbasnet',
     'prashantsh',
+    'rubinakarki',
+    'simranthapa634',
     'sonikabaniya',
+    'suhanapradhan',
+    'suyojman',
+
+    # Standard
+    'colinmaudry',
+    'jachymhercher',
   ]
 
   ADMINS = Set.new([
@@ -58,14 +73,14 @@ namespace :org do
     'robredpath',
   ])
 
-  desc 'Lists members not employed by the Open Contracting Partnership or its helpdesk teams'
+  desc 'Lists members that should be added or removed from the organization'
   task :members do
     organizations.each do |organization|
-      people = client.org_members(organization) + client.org_invitations(organization)
+      people = client.org_members(organization, per_page: 100) + client.org_invitations(organization)
 
       names = people.map{ |member| member.login.downcase }
 
-      difference = names - KNOWN_MEMBERS - ['colinmaudry']
+      difference = names - KNOWN_MEMBERS
       if difference.any?
         puts "#{organization}: add to tasks/org.rake: #{difference.join(', ')}"
       end
@@ -92,7 +107,7 @@ namespace :org do
           client.remove_collaborator(repo.full_name, collaborator.login)
           puts "#{repo.html_url}/settings/access removed #{collaborator.login.bold}"
         else
-          puts "#{repo.html_url}/settings/access #{collaborator.login}"
+          puts "#{repo.html_url}/settings/access #{collaborator.login} has access"
         end
       end
     end
@@ -100,27 +115,83 @@ namespace :org do
 
   desc 'Lists repositories that should be added or removed from each team'
   task :team_repos do
+    # The repositories that should be accessible to these teams.
+    datlab = [
+      'kingfisher-process',
+      'lib-cove-ocds',
+      'ocdskit',
+      'pelican',
+    ]
+    servers = [
+      'deploy',
+      'deploy-pillar-private',
+      'deploy-salt-private',
+      'dogsbody-maintenance',
+    ]
+    health = [
+      'covid-19-procurement-explorer',
+      'covid-19-procurement-explorer-admin',
+      'covid-19-procurement-explorer-public',
+    ]
+
+    # The repositories that should be triage only (e.g. no code).
+    triage = [
+      'ocds-extensions',
+      'pelican',
+    ]
+
     repos = client.org_repos('open-contracting', per_page: 100)
-    archived = repos.select(&:archived).map(&:name) - ['ocds-show', 'ocds-show-ppp']
-    deploy = ['deploy', 'deploy-pillar-private', 'deploy-salt-private', 'dogsbody-maintenance']
-    datlab = ['pelican', 'kingfisher-process']
-    young_innovations = ['covid-19-procurement-explorer']
     repo_names = repos.map(&:name)
 
+    archived = repos.select(&:archived).map(&:name) - ['ocds-show', 'ocds-show-ppp']
+
     {
-      'General' => repo_names - archived - deploy - young_innovations,
-      'Servers' => deploy,
+      'General' => repo_names - archived - servers - health,
+      'Servers' => servers,
       'Datlab' => datlab,
-      'Health' => young_innovations,
+      'Health' => health,
     }.each do |team_name, expected|
       team = client.team_by_name('open-contracting', team_name)
-      team_repos = client.team_repos(team.id, per_page: 100).map(&:name)
 
-      difference = team_repos - expected
+      team_repos = client.team_repos(team.id, per_page: 100)
+      team_repo_names = team_repos.map(&:name)
+
+      team_repos.each do |team_repo|
+        permissions = team_repo.permissions
+
+        if triage.include?(team_repo.name)
+          if !permissions.triage && team_name != 'Datlab'
+            puts "#{team.html_url}: set #{team_repo.name} to Triage"
+          elsif !permissions.maintain && team_name == 'Datlab'
+            puts "#{team.html_url}: set #{team_repo.name} to Maintain"
+          end
+          if permissions.pull || permissions.push || permissions.admin
+            puts "#{team.html_url}: #{team_repo.name} #{permissions}"
+          end
+        else
+          if !permissions.push
+            if team_name != 'Health'
+              puts "#{team.html_url}: set #{team_repo.name} to Write"
+            else
+              puts "#{team.html_url}: set #{team_repo.name} to Admin"
+            end
+          end
+          if permissions.admin && team_name != 'Health'
+            puts "#{team.html_url}: set #{team_repo.name} to Write"
+          elsif !permissions.admin && team_name == 'Health'
+            puts "#{team.html_url}: set #{team_repo.name} to Admin"
+          end
+          if !permissions.pull || permissions.triage || permissions.maintain
+            puts "#{team.html_url}: #{team_repo.name} #{permissions}"
+          end
+        end
+      end
+
+      difference = team_repo_names - expected
       if difference.any?
         puts "#{team.html_url}: remove from team: #{difference.join(', ')}"
       end
-      difference = expected - team_repos
+      difference = expected - team_repo_names
       if difference.any?
         puts "#{team.html_url}: add to team: #{difference.join(', ')}"
       end

@@ -5,6 +5,7 @@ namespace :crm do
     # Helpdesk Management
     'James McKinney',
     'Lindsey Marchessault',
+    'Yohanna Lisnichuk',
     # Program Managers
     'Bernadine Fernz',
     'Carey Kluttz',
@@ -60,7 +61,6 @@ namespace :crm do
     'Andrés Aguilera',
     'María Esther Cervantes',
     'Natalia Valdez Turcott',
-    'Yohanna Lisnichuk',
   ]
   REDMINE_CDS_USERS = REDMINE_CDS_USERS_OCDS + [
     'Juan Pane',
