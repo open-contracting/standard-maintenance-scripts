@@ -60,7 +60,7 @@ namespace :org do
       'jachymhercher',
     ],
     'Servers' => [
-      # Access to specific servers
+      # Root access to specific servers
       'aguilerapy',
       'bjwebb',
       'bikramtuladhar',
