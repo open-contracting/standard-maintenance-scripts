@@ -62,7 +62,7 @@ Removes admin access to specific repositories from non-admin members:
 
 Lists members that should be added or removed from teams:
 
-    bundle exec rake org:team_perms
+    bundle exec rake org:team_members
 
 Lists repositories that should be added or removed from teams:
 
