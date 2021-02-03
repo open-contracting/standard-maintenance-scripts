@@ -122,12 +122,6 @@ def _merge_obj(result, obj, pointer=''):  # changed code
     if not isinstance(obj, dict):
         return obj
 
-    # new code
-    removal_exceptions = {
-        '/properties/buyer',  # becomes publicAuthority
-        '/definitions/Award/properties/suppliers',  # becomes preferredBidders
-    }
-
     for key, value in obj.items():
         if isinstance(value, dict):
             target = result.get(key)
