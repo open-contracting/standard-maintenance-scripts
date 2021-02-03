@@ -45,11 +45,6 @@ external_codelists = {
     'unitClassificationScheme.csv',
 }
 
-exceptional_extensions = {
-    'ocds_ppp_extension',
-    'public-private-partnerships',
-}
-
 # https://github.com/open-contracting/extension_registry/blob/master/extensions.csv
 core_extensions = {
     'ocds_bid_extension',
@@ -132,10 +127,6 @@ def _merge_obj(result, obj, pointer=''):  # changed code
         '/properties/buyer',  # becomes publicAuthority
         '/definitions/Award/properties/suppliers',  # becomes preferredBidders
     }
-    overwrite_exceptions = {
-        '/properties/tag/items/enum',
-        '/properties/initiationType/enum',
-    }
 
     for key, value in obj.items():
         if isinstance(value, dict):
@@ -157,13 +148,6 @@ def _merge_obj(result, obj, pointer=''):  # changed code
             elif (value == [] and pointer_and_key == '/required' and
                     repo_name == 'ocds_pagination_extension'):
                 warnings.warn('empties {}'.format(pointer_and_key))
-            elif repo_name in exceptional_extensions:
-                if pointer_and_key in overwrite_exceptions:
-                    warnings.warn('overwrites {}'.format(pointer_and_key))
-                elif value is None and pointer_and_key in removal_exceptions:
-                    warnings.warn('removes {}'.format(pointer_and_key))
-                else:
-                    raise Exception('unexpectedly overwrites {}'.format(pointer_and_key))
             else:
                 raise Exception('unexpectedly overwrites {}'.format(pointer_and_key))
 
@@ -211,10 +195,6 @@ def metaschemas():
     if is_extension:
         # noqa: See https://github.com/open-contracting-extensions/ocds_milestone_documents_extension/blob/master/release-schema.json#L9
         metaschema['properties']['deprecated']['type'] = ['object', 'null']
-
-    if repo_name in exceptional_extensions:
-        # Allow null'ing a property in these repositories.
-        metaschema['type'] = ['object', 'null']
 
     project_package_metaschema = deepcopy(metaschema)
 
@@ -333,13 +313,6 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
         },
     }
 
-    def validate_codelist_enum_allow_enum(pointer):
-        # The PPP profile and extension overwrites the tag and initiationType enums.
-        return repo_name in exceptional_extensions and pointer in {
-            '/properties/tag',
-            '/properties/initiationType',
-        }
-
     def validate_codelist_enum_allow_missing(codelist):
         return is_extension and codelist in external_codelists
 
@@ -348,7 +321,6 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
             '/definitions/Metric/properties/id': ['string'],
             '/definitions/Milestone/properties/code': ['string', 'null'],
         },
-        'allow_enum': validate_codelist_enum_allow_enum,
         'allow_missing': validate_codelist_enum_allow_missing,
     }
 
