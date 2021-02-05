@@ -57,6 +57,15 @@
         ],
         "pattern": "^\\d+\\.\\d+$"
       },
+      "Deprecation note": {
+        "title": "Deprecation note",
+        "description": "The reason for the deprecation, and any guidance.",
+        "type": [
+          "string",
+          "null"
+        ],
+        "minLength": 1
+      },
       "Extension": {
         "title": "Extension",
         "description": "The title of the OCDS extension from which the code is sourced, or 'OCDS Core'.",
