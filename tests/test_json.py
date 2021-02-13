@@ -99,7 +99,8 @@ def patch(text):
     return text
 
 
-json_schemas = [(path, name, data) for path, name, _, data in walk_json_data(patch) if is_json_schema(data)]
+json_schemas = [(path, name, data) for path, name, _, data in walk_json_data(patch)
+                if is_json_schema(data) and repo_name != 'sphinxcontrib-opencontracting']
 
 
 def merge(*objs):
