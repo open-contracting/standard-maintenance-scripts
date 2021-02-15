@@ -100,7 +100,7 @@ Enables delete branch on merge, disables empty wikis, updates extensions' descri
 
     bundle exec rake fix:lint_repos
 
-Protects default branches ⏰ and the standard's minor version branches (checks *Require pull request reviews before merging* on Kingfisher and Data Review Tool repositories, checks *Require status checks to pass before merging*, unchecks *Require branches to be up to date before merging*, checks *build*, and checks *Include administrators* on ``standard`` and ``public-private-partnerships``):
+Protects default branches ⏰ and the standard's minor version branches (checks *Require pull request reviews before merging* on Kingfisher and Data Review Tool repositories, checks *Require status checks to pass before merging*, unchecks *Require branches to be up to date before merging*, checks *build*, and checks *Include administrators* on `standard` and `public-private-partnerships`):
 
     bundle exec rake fix:protect_branches
 
