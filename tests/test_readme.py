@@ -259,6 +259,7 @@ def test_example_codes():
 
         # Changelog entries for removed codes.
         'ocds_ppp_extension': {
+            'bidder',
             'disqualifiedBidder',
             'qualifiedBidder',
         },
@@ -267,7 +268,7 @@ def test_example_codes():
     literals = set()
 
     # Ostensibly, we should download all codelists. To save time, we only download those we presently reference.
-    for codelist in ('milestoneStatus', 'tenderStatus', 'releaseTag'):
+    for codelist in ('milestoneStatus', 'tenderStatus', 'partyRole', 'releaseTag'):
         reader = csv.DictReader(StringIO(http_get('{}/codelists/{}.csv'.format(url_prefix, codelist)).text))
         for row in reader:
             literals.add(row['Code'])
