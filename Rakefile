@@ -145,7 +145,7 @@ end
 
 def core_extensions
   @core_extensions ||= begin
-    base_url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/master/'
+    base_url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/main/'
 
     ids_to_repos = {}
     CSV.parse(open("#{base_url}/extension_versions.csv").read, headers: true).each do |version|

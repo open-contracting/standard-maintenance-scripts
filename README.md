@@ -39,7 +39,7 @@ To create a pull request to set up a new repository, run:
 
     git checkout -b ci
     mkdir -p .github/workflows
-    curl -o .github/workflows/lint.yml https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/master/fixtures/lint.yml
+    curl -o .github/workflows/lint.yml https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/main/fixtures/lint.yml
     git add .github/workflows/lint.yml
     git commit .github/workflows/lint.yml -m 'Add .github/workflows/lint.yml'
     git push -u origin ci

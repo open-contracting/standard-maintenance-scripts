@@ -206,7 +206,7 @@ def test_example_backticks():
     literals.update(http_get(url).json()['properties'])
 
     # Add codelist columns.
-    url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/master/schema/codelist-schema.json'  # noqa: E501
+    url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/main/schema/codelist-schema.json'  # noqa: E501
     literals.update(http_get(url).json()['items']['properties'])
 
     # Add codelist names.

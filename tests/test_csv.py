@@ -113,7 +113,7 @@ def test_codelist():
         with open(path) as f:
             codelist_schema = json.load(f)
     else:
-        url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/master/schema/codelist-schema.json'  # noqa: E501
+        url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/main/schema/codelist-schema.json'  # noqa: E501
         codelist_schema = requests.get(url).json()
 
     minus_schema = {

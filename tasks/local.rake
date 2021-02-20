@@ -16,7 +16,7 @@ namespace :local do
 
   def get_extension_ids
     extension_ids = {}
-    url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/master/build/extensions.json'
+    url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/main/build/extensions.json'
     JSON.load(open(url).read)['extensions'].each do |extension|
       full_name = extension['url'][%r{\Ahttps://raw\.githubusercontent\.com/([^/]+/[^/]+)}, 1]
       extension_ids[full_name] = extension['id']
@@ -61,7 +61,7 @@ namespace :local do
     basedir = variables('BASEDIR')[0]
 
     extension_repositories = Set.new
-    url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/master/build/extensions.json'
+    url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/main/build/extensions.json'
     JSON.load(open(url).read)['extensions'].each do |extension|
       extension_repositories << URI.parse(extension['url']).path.split('/')[2]
     end
