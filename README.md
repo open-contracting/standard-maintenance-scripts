@@ -232,7 +232,7 @@ Prints a repository's unpushed commits:
 
     make -s ahead
 
-Prints a repository's branch if it's not `master`:
+Prints a repository's branch if it's not the default branch:
 
     make -s branch
 

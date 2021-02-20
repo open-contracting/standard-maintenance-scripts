@@ -45,7 +45,7 @@ external_codelists = {
     'unitClassificationScheme.csv',
 }
 
-# https://github.com/open-contracting/extension_registry/blob/master/extensions.csv
+# https://github.com/open-contracting/extension_registry/blob/main/extensions.csv
 core_extensions = {
     'ocds_bid_extension',
     'ocds_enquiry_extension',
