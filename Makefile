@@ -34,7 +34,7 @@ branch:
 	for dir in */; do \
 		if [ -d $$dir/.git ]; then \
 			cd $$dir; \
-			if [[ `git branch` != "* main" ]]; then \
+			if [[ `git branch` != "* main" ]] && [[ `git branch` != "* master" ]] && [[ `git branch` != "* latest" ]]; then \
 				echo $$dir; \
 				git branch; \
 			fi; \
