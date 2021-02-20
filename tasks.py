@@ -37,7 +37,7 @@ def set_topics(ctx):
     format_string = 'https://raw.githubusercontent.com/open-contracting-extensions/{}/{}/docs/extension_versions.json'
 
     profiles = defaultdict(list)
-    for profile, branch in (('european-union', 'master'), ('public-private-partnerships', '1.0-dev')):
+    for profile, branch in (('european-union', 'latest'), ('public-private-partnerships', '1.0-dev')):
         extension_versions = requests.get(format_string.format(profile, branch)).json()
         for extension_id in extension_versions.keys():
             profiles[extension_id].append(profile)
