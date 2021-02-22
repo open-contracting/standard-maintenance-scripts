@@ -30,7 +30,6 @@ namespace :local do
     'Templates',
     'Profiles',
     'Extensions',
-    'Legacy',
   ]
 
   CODECLIMATE_IDS = {

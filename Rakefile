@@ -46,6 +46,7 @@ extension_tools = [
 ]
 internal_tools = [
   'deploy',
+  'editor-tools',
   'jscc',
   'json-schema-random',
   'node-exporter-textfile-collector-scripts',
@@ -61,11 +62,7 @@ DOCUMENTATION_DEPENDENCIES = [
   'sphinxcontrib-opencontracting',
   'standard_theme',
 ]
-LEGACY = [
-  'open-contracting.github.io',
-  'standard-legacy-staticsites',
-]
-non_tools = specifications + guides + DOCUMENTATION_DEPENDENCIES + LEGACY
+non_tools = specifications + guides + DOCUMENTATION_DEPENDENCIES
 
 REPOSITORY_CATEGORIES = {
   'Specifications' => -> (repo) { specifications.include?(repo.name) },
@@ -77,7 +74,6 @@ REPOSITORY_CATEGORIES = {
   'Templates' => -> (repo) { template?(repo.name) },
   'Profiles' => -> (repo) { profile?(repo.name) },
   'Extensions' => -> (repo) { extension?(repo.name, profiles: false, templates: false) },
-  'Legacy' => -> (repo) { LEGACY.include?(repo.name) },
 }
 
 def client
