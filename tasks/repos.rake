@@ -141,6 +141,20 @@ Report issues for this extension in the [ocds-extensions repository](https://git
     end
   end
 
+  desc 'Lists secrets'
+  task :secrets do
+    repos.each do |repo|
+      data = client.list_secrets(repo.full_name).secrets.map(&:name)
+      # Ignore OCDS documentation secrets.
+      if data.any? && data != ['ELASTICSEARCH_PASSWORD', 'PRIVATE_KEY']
+        puts "#{repo.html_url}/settings/secrets/actions"
+        data.each do |datum|
+          puts "- #{datum}"
+        end
+      end
+    end
+  end
+
   desc 'Lists non-ReadTheDocs, non-CodeClimate webhooks'
   task :webhooks do
     repos.each do |repo|

@@ -142,6 +142,10 @@ Lists non-extension releases:
 
     bundle exec rake repos:releases
 
+Lists GitHub Actions secrets:
+
+    bundle exec rake repos:secrets
+
 Lists non-ReadTheDocs webhooks:
 
     bundle exec rake repos:webhooks
