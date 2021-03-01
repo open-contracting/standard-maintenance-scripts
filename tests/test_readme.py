@@ -263,6 +263,12 @@ def test_example_codes():
             'disqualifiedBidder',
             'qualifiedBidder',
         },
+
+        # Codes introduced in OCDS 1.2.
+        'ocds_eu_extension': {
+            'informationService',
+            'securityClearanceDeadline',
+        },
     }
 
     literals = set()
