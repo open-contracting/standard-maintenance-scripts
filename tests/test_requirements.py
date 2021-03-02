@@ -86,9 +86,12 @@ class CodeVisitor(ast.NodeVisitor):
         :param str filename: The name of the file being read
         :param list packages: A list of first-party packages to ignore
         """
-        self.filename = filename
-        self.excluded = stdlib | set(packages)
         self.imports = set()
+        self.filename = filename
+        self.excluded = stdlib
+        self.excluded.update(packages)
+        if filename == 'setup.py':
+            self.excluded.add('setuptools')
 
     def visit_Import(self, node):
         for alias in node.names:
@@ -115,14 +118,6 @@ class CodeVisitor(ast.NodeVisitor):
                             if k.s == 'BACKEND' and v.s == 'django.core.cache.backends.memcached.MemcachedCache':
                                 self.add('memcache')
 
-    # def __getattr__(self, name):
-    #     def x(node):
-    #         if self.filename == 'settings.py':
-    #             print(repr([node, getattr(node, 'lineno', 0)]))
-    #         self.generic_visit(node)
-
-    #     return x
-
     def add(self, name):
         name = name.split('.', 1)[0]
         if name not in self.excluded:
@@ -130,14 +125,16 @@ class CodeVisitor(ast.NodeVisitor):
 
 
 def check_requirements(path, *requirements_files, dev=False, ignore=()):
-    filenames = ('setup.py', *requirements_files)
     setup_py = os.path.join(path, 'setup.py')
-    if not any(os.path.exists(os.path.join(path, filename)) for filename in filenames):
+    requirements_in = os.path.join(path, 'requirements.in')
+    if not any(os.path.exists(filename) for filename in (setup_py, requirements_in)):
         pytest.skip(f"No {'or'.join(filenames)} file found")
 
     excluded = ['.git', 'docs']
     if not dev:
         excluded.append('tests')
+
+    ignore.extend(os.getenv('STANDARD_MAINTENANCE_SCRIPTS_IGNORE', '').split(','))
 
     # Collect the modules that are imported.
     imports = defaultdict(set)
@@ -147,7 +144,7 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
             if directory in dirs:
                 dirs.remove(directory)
         for file in files:
-            if file.endswith('.py') and (dev or not file.startswith('test')):
+            if file.endswith('.py') and (dev or not file.startswith('test') and file != 'conftest.py'):
                 with open(os.path.join(root, file)) as f:
                     code = ast.parse(f.read())
                 code_visitor = CodeVisitor(file, packages)
@@ -162,9 +159,10 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
         setup_visitor = SetupVisitor()
         setup_visitor.visit(root)
         mapping = setup_visitor.mapping
-    else:
+
+    if os.path.exists(requirements_in):
         mapping = {}
-        for requirements_file in requirements_files:
+        for requirements_file in ('requirements.in', *requirements_files):
             with open(os.path.join(path, requirements_file)) as f:
                 mapping.update(projects_and_modules(f.read()))
 
@@ -189,16 +187,17 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
 def test_requirements():
     dev = repo_name == 'deploy'
     if dev:
-        ignore = ('ocdsindex', 'pip-tools')
+        ignore = ['ocdsindex', 'pip-tools']
     else:
-        ignore = ()
-    check_requirements(path, 'requirements.in', dev=dev, ignore=ignore)
+        ignore = []
+
+    check_requirements(path, dev=dev, ignore=ignore)
 
 
 @pytest.mark.skipif(not os.path.exists(os.path.join(path, 'requirements_dev.in')),
                     reason='No requirements_dev.in file found')
 def test_dev_requirements():
-    check_requirements(path, 'requirements.in', 'requirements_dev.in', dev=True, ignore=(
+    ignore = [
         # Dependency management.
         'pip-tools',
         # Code linters.
@@ -207,6 +206,7 @@ def test_dev_requirements():
         # Pytest plugins.
         'pytest-cov',
         'pytest-django',
+        'pytest-flask',
         'pytest-localserver',
         # Code coverage.
         'coverage',
@@ -217,4 +217,6 @@ def test_dev_requirements():
         # Build utilities.
         'libsass',
         'transifex-client',
-    ))
+    ]
+
+    check_requirements(path, 'requirements_dev.in', dev=True, ignore=ignore)
