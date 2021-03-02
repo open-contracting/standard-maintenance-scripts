@@ -9,7 +9,6 @@ from setuptools import find_packages
 import pytest
 
 path = os.getcwd()
-repo_name = os.path.basename(os.getenv('GITHUB_REPOSITORY', path))
 
 # https://github.com/PyCQA/isort/blob/develop/isort/stdlibs/py36.py
 stdlib = {
@@ -67,13 +66,19 @@ class SetupVisitor(ast.NodeVisitor):
     Reads a setup.py file and collects the modules that can be imported from each requirement.
     """
 
-    def __init__(self):
+    def __init__(self, extras=()):
         self.mapping = {}
+        self.extras = extras
 
     def visit_keyword(self, node):
         if node.arg == 'install_requires':
             for elt in node.value.elts:
                 self.mapping.update(projects_and_modules(elt.s))
+        elif node.arg == 'extras_require' and self.extras:
+            for key, value in zip(node.value.keys, node.value.values):
+                if key.s in self.extras:
+                    for elt in value.elts:
+                        self.mapping.update(projects_and_modules(elt.s))
 
 
 class CodeVisitor(ast.NodeVisitor):
@@ -92,6 +97,10 @@ class CodeVisitor(ast.NodeVisitor):
         self.excluded.update(packages)
         if filename == 'setup.py':
             self.excluded.add('setuptools')
+
+    def visit_Try(self, node):
+        if not any(h.type.id == 'ImportError' for h in node.handlers if isinstance(h.type, ast.Name)):
+            self.generic_visit(node)
 
     def visit_Import(self, node):
         for alias in node.names:
@@ -128,13 +137,14 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
     setup_py = os.path.join(path, 'setup.py')
     requirements_in = os.path.join(path, 'requirements.in')
     if not any(os.path.exists(filename) for filename in (setup_py, requirements_in)):
-        pytest.skip(f"No {'or'.join(filenames)} file found")
+        pytest.skip(f"No setup.py or requirements.in file found")
 
     excluded = ['.git', 'docs']
     if not dev:
         excluded.append('tests')
 
-    ignore.extend(os.getenv('STANDARD_MAINTENANCE_SCRIPTS_IGNORE', '').split(','))
+    ignore = list(ignore) + os.getenv('STANDARD_MAINTENANCE_SCRIPTS_IGNORE', '').split(',')
+    extras = os.getenv('STANDARD_MAINTENANCE_SCRIPTS_EXTRAS', '').split(',')
 
     # Collect the modules that are imported.
     imports = defaultdict(set)
@@ -156,7 +166,7 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
     if os.path.exists(setup_py):
         with open(setup_py) as f:
             root = ast.parse(f.read())
-        setup_visitor = SetupVisitor()
+        setup_visitor = SetupVisitor(extras=extras)
         setup_visitor.visit(root)
         mapping = setup_visitor.mapping
 
@@ -185,25 +195,20 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
 
 
 def test_requirements():
-    dev = repo_name == 'deploy'
-    if dev:
-        ignore = ['ocdsindex', 'pip-tools']
-    else:
-        ignore = []
-
-    check_requirements(path, dev=dev, ignore=ignore)
+    check_requirements(path)
 
 
 @pytest.mark.skipif(not os.path.exists(os.path.join(path, 'requirements_dev.in')),
                     reason='No requirements_dev.in file found')
 def test_dev_requirements():
+    # Ignore common dependencies that are not typically imported.
     ignore = [
         # Dependency management.
         'pip-tools',
         # Code linters.
         'flake8',
         'isort',
-        # Pytest plugins.
+        # Pytest plugins, which provide fixtures, for example.
         'pytest-cov',
         'pytest-django',
         'pytest-flask',
