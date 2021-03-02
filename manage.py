@@ -21,7 +21,7 @@ def cli():
 @click.argument('path')
 def download_extensions(path):
     """
-    Download all registered extensions to a directory.
+    Downloads all registered extensions to a directory.
     """
     path = path.rstrip('/')
 
@@ -84,7 +84,7 @@ def set_topics():
 @cli.command()
 def check_aspell_dictionary():
     """
-    Check whether ~/.aspell.en.pws contains unwanted words.
+    Checks whether ~/.aspell.en.pws contains unwanted words.
     """
     with open(os.path.expanduser('~/.aspell.en.pws'), 'r', encoding='iso-8859-1') as f:
         aspell = f.read()
