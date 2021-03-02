@@ -14,7 +14,7 @@ To run the Rake tasks:
 
 To list all available tasks:
 
-    invoke -l
+    ./manage.py
     bundle exec rake -AT
 
 ## Tests
@@ -106,7 +106,7 @@ Protects default branches ⏰ and the standard's minor version branches (checks 
 
 Sets topics of extensions ⏰:
 
-    invoke set-topics
+    ./manage.py set-topics
 
 Prepares repositories for archival (`REPOS` is a comma-separated list of repository names):
 
@@ -160,11 +160,11 @@ Periodically [spell-check](https://ocds-standard-development-handbook.readthedoc
 
 Download all registered extensions to a directory:
 
-    invoke download_extensions <directory>
+    ./manage.py download_extensions <directory>
 
 Check whether `~/.aspell.en.pws` contains unwanted words:
 
-    invoke check_aspell_dictionary
+    ./manage.py check_aspell_dictionary
 
 ### Review third-party extensions
 

@@ -1,29 +1,39 @@
+#!/usr/bin/env python
 import json
 import os
 import re
 from collections import defaultdict
 
+import click
 import requests
-from invoke import run, task
 from ocdsextensionregistry import ExtensionRegistry
 
 extensions_url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/main/extensions.csv'
 extension_versions_url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/main/extension_versions.csv'  # noqa: E501
 
 
-@task
-def download_extensions(ctx, path):
+@click.group()
+def cli():
+    pass
+
+
+@cli.command()
+@click.argument('path')
+def download_extensions(path):
+    """
+    Download all registered extensions to a directory.
+    """
     path = path.rstrip('/')
 
     registry = ExtensionRegistry(extension_versions_url)
     for version in registry:
         directory = os.path.join(path, version.repository_name)
         if not os.path.isdir(directory):
-            run('git clone {} {}'.format(version.repository_url, directory))
+            os.system('git clone {} {}'.format(version.repository_url, directory))
 
 
-@task
-def set_topics(ctx):
+@cli.command()
+def set_topics():
     """
     Adds topics to repositories in the open-contracting-extensions organization.
 
@@ -71,8 +81,11 @@ def set_topics(ctx):
         response.raise_for_status()
 
 
-@task
-def check_aspell_dictionary(ctx):
+@cli.command()
+def check_aspell_dictionary():
+    """
+    Check whether ~/.aspell.en.pws contains unwanted words.
+    """
     with open(os.path.expanduser('~/.aspell.en.pws'), 'r', encoding='iso-8859-1') as f:
         aspell = f.read()
 
@@ -126,3 +139,7 @@ def check_aspell_dictionary(ctx):
 
     # It's okay for there to be a capitalized singular building block and an uncapitalized plural field. Check anyway.
     report(lambda line: re.sub(r'e?s$', '', line).lower(), combined_exceptions)
+
+
+if __name__ == '__main__':
+    cli()
