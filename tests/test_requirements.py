@@ -145,12 +145,15 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
         find_packages_kwargs['exclude'] = ['tests', 'tests.*']
         excluded.append('tests')
 
+    packages = find_packages(where=path, **find_packages_kwargs)
+    if os.path.exists(os.path.join(path, 'manage.py')):
+        packages.append('manage')
+
     ignore = list(ignore) + os.getenv('STANDARD_MAINTENANCE_SCRIPTS_IGNORE', '').split(',')
     extras = os.getenv('STANDARD_MAINTENANCE_SCRIPTS_EXTRAS', '').split(',')
 
     # Collect the modules that are imported.
     imports = defaultdict(set)
-    packages = find_packages(where=path, **find_packages_kwargs)
     for root, dirs, files in os.walk(path):
         for directory in excluded:
             if directory in dirs:
@@ -216,6 +219,7 @@ def test_dev_requirements():
         'pytest-django',
         'pytest-flask',
         'pytest-localserver',
+        'pytest-order',
         # Code coverage.
         'coverage',
         'coveralls',
