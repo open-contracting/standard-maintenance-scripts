@@ -207,7 +207,7 @@ def test_requirements():
 @pytest.mark.skipif(not os.path.exists(os.path.join(path, 'requirements_dev.in')),
                     reason='No requirements_dev.in file found')
 def test_dev_requirements():
-    # Ignore common dependencies that are not typically imported.
+    # Ignore development dependencies that are not typically imported.
     ignore = [
         # Dependency management.
         'pip-tools',

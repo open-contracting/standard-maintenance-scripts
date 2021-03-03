@@ -26,6 +26,7 @@ The common [`.github/workflows/lint.yml`](fixtures/lint.yml) file performs:
   * JSON (readable by Python)
   * CSV (readable by Python)
 * Various checks against OCDS schema, codelists, readmes, etc.
+* Checks for unused requirements or undeclared dependencies in Python.
 
 To run the tests locally, run the setup commands above, change into a repository's folder, then:
 
