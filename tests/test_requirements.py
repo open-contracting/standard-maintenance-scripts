@@ -179,7 +179,7 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
     # Some modules affect the behavior of `jsonschema` without being imported.
     if 'jsonschema' in mapping:
         for project in ('rfc3987', 'strict-rfc3339'):
-            if project in mapping:
+            if project in mapping and not any(module for module in mapping[project] if module in imports):
                 del mapping[project]
 
     inverse_mapping = {module: project for project, modules in mapping.items() for module in modules}
