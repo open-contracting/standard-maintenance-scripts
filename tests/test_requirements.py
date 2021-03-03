@@ -215,6 +215,7 @@ def test_dev_requirements():
         'flake8',
         'isort',
         # Pytest plugins, which provide fixtures, for example.
+        'pytest',
         'pytest-cov',
         'pytest-django',
         'pytest-flask',
