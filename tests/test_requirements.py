@@ -140,7 +140,9 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
         pytest.skip(f"No setup.py or requirements.in file found")
 
     excluded = ['.git', 'docs']
+    find_packages_kwargs = {}
     if not dev:
+        find_packages_kwargs['exclude'] = ['tests', 'tests.*']
         excluded.append('tests')
 
     ignore = list(ignore) + os.getenv('STANDARD_MAINTENANCE_SCRIPTS_IGNORE', '').split(',')
@@ -148,7 +150,7 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
 
     # Collect the modules that are imported.
     imports = defaultdict(set)
-    packages = find_packages(where=path, exclude=['tests', 'tests.*'])
+    packages = find_packages(where=path, **find_packages_kwargs)
     for root, dirs, files in os.walk(path):
         for directory in excluded:
             if directory in dirs:
