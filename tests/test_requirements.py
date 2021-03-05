@@ -4,6 +4,7 @@ import os
 import pkg_resources
 from collections import defaultdict
 from io import StringIO
+from pathlib import Path
 from setuptools import find_packages
 
 import pytest
@@ -58,6 +59,8 @@ def projects_and_modules(requirements):
             for row in reader:
                 if row[0].endswith('.py'):
                     mapping[project_name].add(row[0].split(os.sep, 1)[0])
+                elif row[0].endswith('.so'):
+                    mapping[project_name].add(row[0].split('.', 1)[0])
     return mapping
 
 
@@ -92,10 +95,10 @@ class CodeVisitor(ast.NodeVisitor):
         :param list packages: A list of first-party packages to ignore
         """
         self.imports = set()
-        self.filename = filename
+        self.path = Path(filename)
         self.excluded = stdlib
         self.excluded.update(packages)
-        if filename == 'setup.py':
+        if self.path.name == 'setup.py':
             self.excluded.add('setuptools')
 
     def visit_Try(self, node):
@@ -112,7 +115,7 @@ class CodeVisitor(ast.NodeVisitor):
 
     def visit_Assign(self, node):
         # Handle Django settings.py file.
-        if self.filename == 'settings.py':
+        if self.path.name == 'settings.py' or self.path.parent.name == 'settings':
             for target in node.targets:
                 if not isinstance(target, ast.Name):
                     continue
@@ -163,9 +166,10 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
                 dirs.remove(directory)
         for file in files:
             if file.endswith('.py') and (dev or not file.startswith('test') and file != 'conftest.py'):
-                with open(os.path.join(root, file)) as f:
+                filename = os.path.join(root, file)
+                with open(filename) as f:
                     code = ast.parse(f.read())
-                code_visitor = CodeVisitor(file, packages)
+                code_visitor = CodeVisitor(os.path.relpath(filename, path), packages)
                 code_visitor.visit(code)
                 for module in code_visitor.imports:
                     imports[module].add(file)
