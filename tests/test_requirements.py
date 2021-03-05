@@ -211,11 +211,18 @@ def test_dev_requirements():
     ignore = [
         # Dependency management.
         'pip-tools',
+        # Interactive shells.
+        'ipython',
         # Code linters.
+        'autopep8',
         'flake8',
         'isort',
-        # Pytest plugins, which provide fixtures, for example.
+        'pylint',
+        # Debuggers.
+        'ipdb',
+        # Test runners.
         'pytest',
+        # Pytest plugins, which provide fixtures, for example.
         'pytest-cov',
         'pytest-django',
         'pytest-flask',
