@@ -128,6 +128,9 @@ class CodeVisitor(ast.NodeVisitor):
                                 self.add('memcache')
 
     def add(self, name):
+        if 'django.contrib.postgres' in name:
+            self.add('psycopg2')
+
         name = name.split('.', 1)[0]
         if name not in self.excluded:
             self.imports.add(name)
