@@ -304,7 +304,7 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
         'allow_invalid': {
             '/definitions/Amendment/properties/changes/items',  # deprecated
             '/definitions/AmendmentUnversioned/properties/changes/items',  # deprecated
-            '/definitions/record/properties/releases/oneOf/0/items',  # `type` is `object`
+            '/definitions/record/properties/releases/oneOf/0/items',  # 1.1
         },
     }
 
@@ -321,7 +321,7 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
 
     validate_letter_case_kwargs = {
         'property_exceptions': {'former_value'},  # deprecated
-        'definition_exceptions': {'record'},  # future fix
+        'definition_exceptions': {'record'},  # 1.1
     }
 
     def validate_metadata_presence_allow_missing(pointer):
