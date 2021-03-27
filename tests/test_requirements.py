@@ -222,6 +222,7 @@ def test_dev_requirements():
         'ipython',
         # Code linters.
         'autopep8',
+        'black',
         'flake8',
         'isort',
         'pylint',
