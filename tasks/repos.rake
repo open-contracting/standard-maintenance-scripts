@@ -24,6 +24,42 @@ namespace :repos do
     end
   end
 
+  desc 'Lists open and dismissed vulnerabilities'
+  task :vulnerabilities do
+    repos.each do |repo|
+      params = {
+        query: %({
+          repository(name: "#{repo.name}", owner: "#{repo.owner.login}") {
+            vulnerabilityAlerts(first: 100) {
+              nodes {
+                createdAt
+                dismissedAt
+                securityVulnerability {
+                  package {
+                    name
+                  }
+                }
+              }
+            }
+          }
+        })
+      }
+      response = Faraday.post('https://api.github.com/graphql', JSON.dump(params)) do |request|
+        request.headers['Authorization'] = "bearer #{ENV.fetch('GITHUB_ACCESS_TOKEN')}"
+      end
+      data = JSON.load(response.body)
+      if data['data']['repository']['vulnerabilityAlerts']['nodes'].any?
+        puts "#{repo.full_name}"
+        rows = data['data']['repository']['vulnerabilityAlerts']['nodes'].map do |node|
+          [node['securityVulnerability']['package']['name'], node['dismissedAt']]
+        end
+        rows.uniq.each do |package_name, dismissed_at|
+          puts "- #{package_name} #{dismissed_at}"
+        end
+      end
+    end
+  end
+
   desc 'Lists repositories with missing or unexpected continuous integration configuration'
   task :ci do
     expected = read_github_file('open-contracting/standard-maintenance-scripts', 'fixtures/lint.yml')
