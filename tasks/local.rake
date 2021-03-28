@@ -35,6 +35,9 @@ namespace :local do
   CODECLIMATE_IDS = {
     'cove-oc4ids' => 'f14b93f3eb3d0548d558',
     'cove-ocds' => 'c0f756a34d5cde6f3c2a',
+    'covid-19-procurement-explorer-admin' => 'b4ce9d104580c763e91a',
+    'covid-19-procurement-explorer-public' => '4458732fc7cd0ff63e97',
+    'data-registry' => 'ecf09e04e1de6d15879b',
     'extension-explorer' => '271bbb582eabae79bf84',
     'extension_registry' => '3e4987f75d1a5d3b7414',
     'extension_registry.py' => 'bce37ba7b2754e072793',
