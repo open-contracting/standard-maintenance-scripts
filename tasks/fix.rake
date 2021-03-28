@@ -183,6 +183,7 @@ namespace :fix do
               !enforce_admins && protection.enforce_admins.enabled ||
               protection.required_status_checks && protection.required_status_checks.strict ||
               protection.required_status_checks && protection.required_status_checks.contexts != contexts ||
+              protection.required_status_checks.nil? ||
               options[:required_pull_request_reviews] && !protection.required_pull_request_reviews ||
               !options[:required_pull_request_reviews] && protection.required_pull_request_reviews)
             messages = []
