@@ -131,10 +131,14 @@ class CodeVisitor(ast.NodeVisitor):
                                 self.add('memcache')
                 elif target.id == 'DATABASES':
                     for value in node.value.values:
-                        if isinstance(value, ast.Dict):
-                            for k, v in zip(value.keys, value.values):
-                                if k.s == 'ENGINE' and v.s.startswith('django.db.backends.postgresql'):
-                                    self.add('psycopg2')
+                        if not isinstance(value, ast.Dict):
+                            continue
+                        for k, v in zip(value.keys, value.values):
+                            if k.s == 'ENGINE' and isinstance(v, ast.Str) and v.s in (
+                                'django.db.backends.postgresql',
+                                'django.db.backends.postgresql_psycopg2',
+                            ):
+                                self.add('psycopg2')
 
     def add(self, name):
         if 'django.contrib.postgres' in name:
