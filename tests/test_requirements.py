@@ -129,6 +129,8 @@ class CodeVisitor(ast.NodeVisitor):
                         for k, v in zip(value.keys, value.values):
                             if k.s == 'BACKEND' and v.s == 'django.core.cache.backends.memcached.MemcachedCache':
                                 self.add('memcache')
+                            elif k.s == 'BACKEND' and v.s == 'django.core.cache.backends.memcached.PyMemcacheCache':
+                                self.add('pymemcache')
                 elif target.id == 'DATABASES':
                     for value in node.value.values:
                         if not isinstance(value, ast.Dict):
