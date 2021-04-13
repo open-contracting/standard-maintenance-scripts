@@ -215,7 +215,7 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
     difference = {k: v for k, v in mapping.items() if k not in ignore}
     assert not difference, f"Unused requirements: {', '.join(sorted(difference))}"
 
-    difference = {k: v for k, v in imports.items() if k not in inverse_mapping}
+    difference = {k: v for k, v in imports.items() if k not in inverse_mapping and k not in ignore}
     assert not difference, f"Missing requirements for modules: {', '.join(sorted(difference))}"
 
 
