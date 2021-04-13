@@ -54,6 +54,8 @@ namespace :local do
     'ocds-merge' => '1acee37f89fb00d7e086',
     'ocdskit' => 'd4cb38a9007ee5de2b37',
     'sphinxcontrib-opencontracting' => '5766e1bac00a61263a90',
+    'spoonbill' => 'ececf35844e13c815ac3',
+    'spoonbill-web' => '0d3a42cfd3ffac607e98',
     'standard-maintenance-scripts' => '76db8a8485fc75e3c8a0',
     'toucan' => 'd6c699bd328cac875ffa',
   }
