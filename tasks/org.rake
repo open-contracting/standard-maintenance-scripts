@@ -181,7 +181,6 @@ namespace :org do
     ]
     standard = [
       # Specifications
-      'glossary',
       'infrastructure',
       'ocds-extensions',
       'standard',

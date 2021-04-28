@@ -10,7 +10,6 @@ Don't read too much into the CodeClimate maintainability scores. Use them to ide
 
 |Build|Name|
 |-|-|
-|-|[glossary](https://github.com/open-contracting/glossary)|
 |[![Build Status](https://github.com/open-contracting/infrastructure/workflows/CI/badge.svg)](https://github.com/open-contracting/infrastructure/actions?query=workflow%3ACI)|[infrastructure](https://github.com/open-contracting/infrastructure)|
 |-|[ocds-extensions](https://github.com/open-contracting/ocds-extensions)|
 |[![Build Status](https://github.com/open-contracting/standard/workflows/CI/badge.svg)](https://github.com/open-contracting/standard/actions?query=workflow%3ACI)|[standard](https://github.com/open-contracting/standard)|

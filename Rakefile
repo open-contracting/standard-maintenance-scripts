@@ -26,7 +26,6 @@ TEMPLATES = [
 ]
 
 specifications = [
-  'glossary',
   'infrastructure',
   'ocds-extensions',
   'standard',
