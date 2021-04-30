@@ -45,7 +45,6 @@ Don't read too much into the CodeClimate maintainability scores. Use them to ide
 | [![Maintainability](https://api.codeclimate.com/v1/badges/ececf35844e13c815ac3/maintainability)](https://codeclimate.com/github/open-contracting/spoonbill/maintainability)|[Docs](https://spoonbill.readthedocs.io/)|[spoonbill](https://github.com/open-contracting/spoonbill)|
 |-|-|[spoonbill-test](https://github.com/open-contracting/spoonbill-test)|
 | [![Maintainability](https://api.codeclimate.com/v1/badges/0d3a42cfd3ffac607e98/maintainability)](https://codeclimate.com/github/open-contracting/spoonbill-web/maintainability)|-|[spoonbill-web](https://github.com/open-contracting/spoonbill-web)|
-|[![Build Status](https://github.com/open-contracting/toucan/workflows/CI/badge.svg)](https://github.com/open-contracting/toucan/actions?query=workflow%3ACI) [![Coverage Status](https://coveralls.io/repos/github/open-contracting/toucan/badge.svg?branch=main)](https://coveralls.io/github/open-contracting/toucan?branch=main) [![Maintainability](https://api.codeclimate.com/v1/badges/d6c699bd328cac875ffa/maintainability)](https://codeclimate.com/github/open-contracting/toucan/maintainability)|-|[toucan](https://github.com/open-contracting/toucan)|
 
 ## Extension tools
 
