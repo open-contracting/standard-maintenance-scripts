@@ -30,6 +30,7 @@ def test_csv_valid():
                     'CSV files are invalid. See warnings below.')
 
 
+@pytest.mark.skipif(repo_name in 'pelican-backend', reason='cached upstream file')
 def test_valid():
     """
     Ensures all CSV files are valid: no empty rows or columns, no leading or trailing whitespace in cells, same number
@@ -38,9 +39,6 @@ def test_valid():
     errors = 0
 
     for path, name, text, fieldnames, rows in walk_csv_data():
-        if '/1-1-3.csv' in path:
-            continue
-
         codelist = is_codelist(fieldnames)
         width = len(fieldnames)
         columns = []
@@ -96,6 +94,7 @@ def test_valid():
     assert errors == 0, 'One or more codelist CSV files are invalid. See warnings below.'
 
 
+@pytest.mark.skipif(repo_name in 'pelican-backend', reason='not a codelist')
 def test_codelist():
     """
     Ensures all codelists files are valid against codelist-schema.json.
