@@ -194,7 +194,7 @@ namespace :local do
         end
 
         matches.sort_by(&:full_name).each do |repo|
-          if repo.archived
+          if repo.archived || repo.private || ['standard_theme', 'toucan'].include?(repo.name)
             next
           end
 
