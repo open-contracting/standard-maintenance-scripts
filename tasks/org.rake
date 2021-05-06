@@ -4,13 +4,12 @@ namespace :org do
     'General' => [
       # Open Contracting Partnership
       # https://www.open-contracting.org/about/team/
-      'jpmckinney', # James McKinney
       'lindseyam', # Lindsey Marchessault
-      'yolile', # Yohanna Lisnichuk
 
       # Centro de Desarrollo Sostenible
       'aguilerapy', # Andrés Aguilera
       'nativaldezt', # Natalia Valdez
+      'cecicasco', # Cecilia Casco
 
       # Open Data Services Co-operative Limited
       # http://opendataservices.coop
@@ -32,12 +31,27 @@ namespace :org do
       # 'rory09', # Rory Scott
     ],
     'Datlab' => [
-      'jakubkrafka',
+      'sabahfromlondon',
+
+      # Datlab
       'hrubyjan',
+      'jakubkrafka',
+      't-mrazek',
+    ],
+    'Quintagroup' => [
+      'mariob0y',
+      'ohelesh',
+      'olehchepak',
+      'pontostroy',
+      'sorenabell',
+      'stasivoleh',
+      'vdigitall',
+      'yshalenyk',
+      'vasyldanyliv',
     ],
     'Health' => [
-      # Transparency International
-      'sean-darby',
+      # Open Contracting Partnership
+      'vtarnay1',
 
       # Young Innovations
       'abhishekska',
@@ -61,11 +75,10 @@ namespace :org do
     ],
     'Servers' => [
       # Root access to specific servers
-      'aguilerapy',
       'bjwebb',
       'bikramtuladhar',
       'kindly',
-      'nativaldezt',
+      'pontostroy',
 
       # Dogsbody Technology Limited
       'dogsbody', # Dan Benton
@@ -89,7 +102,7 @@ namespace :org do
       people = client.org_members(organization, per_page: 100) + client.org_invitations(organization)
       names = people.map{ |member| member.login.downcase }
 
-      difference = names - expected
+      difference = names - expected - ADMINS
       if difference.any?
         puts "#{organization}: add to MEMBERS in tasks/org.rake: #{difference.join(', ')}"
       end
@@ -162,11 +175,22 @@ namespace :org do
   desc 'Lists repositories that should be added or removed from teams'
   task :team_repos do
     # The repositories that should be accessible to these teams.
-    datlab = [
+    datlab_only = [
+      'pelican-backend',
+      'pelican-frontend',
+      'data-registry',
+    ]
+    datlab_shared = [
+      'kingfisher-collect',
       'kingfisher-process',
       'lib-cove-ocds',
       'ocdskit',
       'pelican',
+    ]
+    quintagroup = [
+      'spoonbill',
+      'spoonbill-test',
+      'spoonbill-web',
     ]
     health = [
       'covid-19-procurement-explorer',
@@ -200,8 +224,9 @@ namespace :org do
     archived = repos.select(&:archived).map(&:name) - ['ocds-show', 'ocds-show-ppp']
 
     expected = {
-      'General' => repos.map(&:name) - archived - servers - health,
-      'Datlab' => datlab,
+      'General' => repos.map(&:name) - archived - servers - health - datlab_only - quintagroup - ['backup-codes'],
+      'Datlab' => datlab_only + datlab_shared,
+      'Quintagroup' => quintagroup,
       'Health' => health,
       'Servers' => servers,
       'Standard' => standard,
@@ -223,38 +248,56 @@ namespace :org do
 
   desc 'Lists incorrect team repository permissions'
   task :team_perms do
-    triage = [
+    def human(permissions)
+      perms = permissions.to_h.select{|_,v| v}.keys
+      if perms.include?(:admin)
+        'Admin'
+      elsif perms.include?(:maintain)
+        'Maintain'
+      elsif perms.include?(:triage)
+        'Triage'
+      elsif perms.include?(:push) &&  perms.include?(:pull)
+        'Write'
+      end
+    end
+
+    issues_only = [
+      'covid-19-procurement-explorer',
       'ocds-extensions',
       'pelican',
+    ]
+
+    # Repositories under active development can set admin permissions.
+    active_development = [
+      'data-registry',
+      'spoonbill',
+      'spoonbill-web',
+      'spoonbill-test',
     ]
 
     client.org_teams('open-contracting').each do |team|
       client.team_repos(team.id, per_page: 100).each do |team_repo|
         permissions = team_repo.permissions
 
-        if triage.include?(team_repo.name)
-          # Datlab has maintain privileges to its triage repositories. Others have triage privileges.
+        if issues_only.include?(team_repo.name)
           expected = !permissions.pull && !permissions.push && !permissions.admin
-          if team.name == 'Datlab'
-            expected &&= !permissions.triage && permissions.maintain
-          else
-            expected &&= permissions.triage && !permissions.maintain
-          end
+          expected &&= permissions.triage && !permissions.maintain
 
           if !expected
-            puts "#{team.html_url}/repositories: set #{team_repo.name} to #{team.name == 'Datlab' ? 'Maintain' : 'Triage'}"
+            puts "#{team.html_url}/repositories: set #{team_repo.name} to 'Triage' (was #{human(permissions)})"
           end
         else
-          # Health has admin privileges to its non-triage repositories. Others have write privileges.
           expected = permissions.pull && permissions.push && !permissions.triage && !permissions.maintain
-          if team.name == 'Health'
+          if active_development.include?(team_repo.name)
             expected &&= permissions.admin
+            human_permission = 'Admin'
           else
             expected &&= !permissions.admin
+            human_permission = 'Write'
           end
 
           if !expected
-            puts "#{team.html_url}/repositories: set #{team_repo.name} to #{team.name == 'Health' ? 'Admin' : 'Write'}"
+            puts "#{team.html_url}/repositories: set #{team_repo.name} to #{human_permission} (was #{human(permissions)})"
           end
         end
       end
