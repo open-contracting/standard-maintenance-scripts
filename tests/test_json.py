@@ -481,7 +481,7 @@ def test_schema_strict():
         original = deepcopy(data)
         add_validation_properties(data)
 
-        assert data == original, '{} is missing validation properties'.format(path)
+        assert data == original, '{0} is missing validation properties, run: ocdskit schema-strict {0}'.format(path)
 
 
 @pytest.mark.skipif(not is_extension, reason='not an extension (test_versioned_release_schema)')
