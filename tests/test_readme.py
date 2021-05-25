@@ -192,7 +192,7 @@ def test_example_backticks():
             'PreQualification.procurementMethodRationale',
             'PreQualification.awardCriteriaDetails',
         },
-        'ocds_shareholdes_extension': {
+        'ocds_shareholders_extension': {
             'Organization.beneficialOwnership',
         },
         'ocds_submissionTerms_extension': {
