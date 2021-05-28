@@ -101,8 +101,14 @@ def test_codelist():
     """
     exceptions = {
         'country.csv': "'Description' is a required property",
-        'coveredBy.csv': "'Description' is a required property",
+        # ocds_countryCode_extension
         'currency.csv': "'Description' is a required property",
+        # ocds_coveredBy_extension
+        'coveredBy.csv': "'Description' is a required property",
+        # ocds_medicine_extension
+        'administrationRoute.csv': "'Description' is a required property",
+        'container.csv': "'Description' is a required property",
+        'dosageForm.csv': "'Description' is a required property",
     }
 
     array_columns = ('Framework', 'Section')
