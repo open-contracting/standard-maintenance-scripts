@@ -32,33 +32,6 @@ namespace :local do
     'Extensions',
   ]
 
-  CODECLIMATE_IDS = {
-    'cove-oc4ids' => 'f14b93f3eb3d0548d558',
-    'cove-ocds' => 'c0f756a34d5cde6f3c2a',
-    'covid-19-procurement-explorer-admin' => 'b4ce9d104580c763e91a',
-    'covid-19-procurement-explorer-public' => '4458732fc7cd0ff63e97',
-    'data-registry' => 'ecf09e04e1de6d15879b',
-    'extension-explorer' => '271bbb582eabae79bf84',
-    'extension_registry' => '3e4987f75d1a5d3b7414',
-    'extension_registry.py' => 'bce37ba7b2754e072793',
-    'jscc' => '0c8c3401e5030701fb3e',
-    'kingfisher-archive' => '1136c0a79cb06df1540a',
-    'kingfisher-colab' => '654ae197655319a3516d',
-    'kingfisher-collect' => 'd99c7be71834abe83a81',
-    'kingfisher-process' => '28efa551a6da047e08f1',
-    'kingfisher-summarize' => '24840a8f37e8e770cb06',
-    'lib-cove-oc4ids' => 'd217b495e80fd4e392ac',
-    'lib-cove-ocds' => 'd4c6b5a47d84473f8a1d',
-    'ocds-babel' => 'f29410cef5b0f9a16314',
-    'ocds-index' => '7d84951d2abd29fa9e1a',
-    'ocds-merge' => '1acee37f89fb00d7e086',
-    'ocdskit' => 'd4cb38a9007ee5de2b37',
-    'sphinxcontrib-opencontracting' => '5766e1bac00a61263a90',
-    'spoonbill' => 'ececf35844e13c815ac3',
-    'spoonbill-web' => '0d3a42cfd3ffac607e98',
-    'standard-maintenance-scripts' => '76db8a8485fc75e3c8a0',
-  }
-
   desc 'Report which non-extension repositories are not cloned'
   task :uncloned do
     basedir = variables('BASEDIR')[0]
@@ -161,8 +134,6 @@ namespace :local do
         'Tech support priority can be assessed based on the impact of the project becoming unavailable and the degree of usage, which can be assessed based on [Python package downloads](http://www.pypi-stats.com/author/?q=30327), [GitHub traffic](https://github.com/open-contracting/standard-development-handbook/issues/76#issuecomment-334540063) and user feedback.',
         '',
         'In addition to the below, within the [OpenDataServices](https://github.com/OpenDataServices) organization, the `lib-cove`, `lib-cove-web`, `sphinxcontrib-jsonschema` and `sphinxcontrib-opendataservices` dependencies are relevant.',
-        '',
-        "Don't read too much into the CodeClimate maintainability scores. Use them to identify duplication and complexity, but don't increase a score for its own sake.",
       ]
     end
 
@@ -206,8 +177,6 @@ namespace :local do
             hooks = []
           end
 
-          maintainability_hook = hooks.find{ |datum| datum.config.url == 'https://codeclimate.com/webhooks' }
-
           ci = read_github_file(repo.full_name, '.github/workflows/ci.yml')
           lint = read_github_file(repo.full_name, '.github/workflows/lint.yml')
 
@@ -228,11 +197,7 @@ namespace :local do
             end
           end
 
-          if maintainability_hook
-            line << " [![Maintainability](https://api.codeclimate.com/v1/badges/#{CODECLIMATE_IDS.fetch(repo.name)}/maintainability)](https://codeclimate.com/github/#{repo.full_name}/maintainability)"
-          end
-
-          if !ci.empty? || !lint.empty? || maintainability_hook
+          if !ci.empty? || !lint.empty?
             line << '|'
           else
             line << '-|'

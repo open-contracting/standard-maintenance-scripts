@@ -191,11 +191,11 @@ Report issues for this extension in the [ocds-extensions repository](https://git
     end
   end
 
-  desc 'Lists non-ReadTheDocs, non-CodeClimate webhooks'
+  desc 'Lists non-ReadTheDocs webhooks'
   task :webhooks do
     repos.each do |repo|
       data = repo.rels[:hooks].get.data.reject do |datum|
-        datum.config.url[%r{\A(https://readthedocs.org/api/v2/webhook/|https://codeclimate.com/webhooks\Z)}]
+        datum.config.url[%r{\A(https://readthedocs.org/api/v2/webhook/)}]
       end
       if data.any?
         puts "#{repo.html_url}/settings/hooks"
