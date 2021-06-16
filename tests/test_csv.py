@@ -101,6 +101,7 @@ def test_codelist():
     """
     exceptions = {
         'country.csv': "'Description' is a required property",
+        'mediaType.csv': "'Description' is a required property",
         # ocds_countryCode_extension
         'currency.csv': "'Description' is a required property",
         # ocds_coveredBy_extension
