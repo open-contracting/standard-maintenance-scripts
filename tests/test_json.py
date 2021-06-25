@@ -26,12 +26,13 @@ use_development_version = False
 external_codelists = {
     'awardCriteria.csv',
     'awardStatus.csv',
+    'classificationScheme.csv',  # 1.2
     'contractStatus.csv',
     'currency.csv',
     'documentType.csv',
     'extendedProcurementCategory.csv',
     'initiationType.csv',
-    'itemClassificationScheme.csv',
+    'itemClassificationScheme.csv',  # 1.1
     'method.csv',
     'milestoneStatus.csv',
     'milestoneType.csv',
