@@ -9,7 +9,7 @@ namespace :fix do
     'kingfisher-summarize',
     'lib-cove-oc4ids',
     'lib-cove-ocds',
-    'oc4ids_database',
+    'notebooks-oc4ids',
   ]
   ENFORCE_ADMINS = [
     'public-private-partnerships',
