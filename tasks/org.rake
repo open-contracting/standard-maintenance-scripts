@@ -261,13 +261,17 @@ namespace :org do
       end
     end
 
-    issues_only = [
+    issues_only_triage = [
       'covid-19-procurement-explorer',
       'ocds-extensions',
+    ]
+
+    # Issue-only repositories require Maintain permissions to add issues to projects.
+    issues_only_maintain = [
       'pelican',
     ]
 
-    # Repositories under active development can set admin permissions.
+    # Repositories under active development can have Admin permissions.
     active_development = [
       'data-registry',
       'spoonbill',
@@ -279,9 +283,14 @@ namespace :org do
       client.team_repos(team.id, per_page: 100).each do |team_repo|
         permissions = team_repo.permissions
 
-        if issues_only.include?(team_repo.name)
-          expected = !permissions.pull && !permissions.push && !permissions.admin
-          expected &&= permissions.triage && !permissions.maintain
+        if issues_only_maintain.include?(team_repo.name)
+          expected = !permissions.pull && !permissions.push && !permissions.admin && !permissions.triage && permissions.maintain
+
+          if !expected
+            puts "#{team.html_url}/repositories: set #{team_repo.name} to 'Maintain' (was #{human(permissions)})"
+          end
+        elsif issues_only_triage.include?(team_repo.name)
+          expected = !permissions.pull && !permissions.push && !permissions.admin && permissions.triage && !permissions.maintain
 
           if !expected
             puts "#{team.html_url}/repositories: set #{team_repo.name} to 'Triage' (was #{human(permissions)})"

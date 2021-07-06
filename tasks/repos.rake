@@ -213,15 +213,15 @@ Report issues for this extension in the [ocds-extensions repository](https://git
     REPOSITORY_CATEGORIES.each do |heading, condition|
       puts
 
-      # Number of open issues
-      # Number of open pull requests
-      # Number of branches, excluding default, pull, upstream, excluded branches
-      # Number of open milestones
-      # Number of open projects
-      # Whether the repo has a wiki
-      # Whether the repo has GitHub Pages
-      # Whether the repo has issues enabled
-      # Whether the repo has projects enabled
+      # Number of open [I]ssues
+      # Number of open [P]ull requests
+      # Number of [B]ranches, excluding default, pull, upstream, excluded branches
+      # Number of open [M]ilestones
+      # Number of open p[R]ojects
+      # Whether the repo has a [W]iki
+      # Whether the repo has GitHub [P]ages
+      # Whether the repo has [I]ssues enabled
+      # Whether the repo has [P]rojects enabled
       # The top contributor (e.g. to decide who to contact)
       puts '%-110s   %s  %s  %s  %s  %s  %s  %s  %s  %s  %s' % [heading.upcase, '#I', '#P', '#B', '#M', '#R', 'W', 'P', 'I', 'P', 'C']
 
