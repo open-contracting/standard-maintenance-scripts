@@ -161,8 +161,6 @@ Lists repository descriptions:
 
 ## Standard development tasks
 
-Periodically [spell-check](https://ocds-standard-development-handbook.readthedocs.io/en/latest/standard/technical/spellcheck.html) and [Markdownlint](https://ocds-standard-development-handbook.readthedocs.io/en/latest/coding/#linting) the `standard`, extension and profile repositories. ⏰
-
 Download all registered extensions to a directory:
 
     ./manage.py download_extensions <directory>
