@@ -8,7 +8,7 @@ find . -type f \! -perm 644 \! -path '*/.git/*' \! -path '*/.tox/*' \! -path '*/
 
 flake8 . --max-line-length 119
 
-isort . --check-only --ignore-whitespace --line-width 119
+isort . --check-only --line-width 119
 
 curl -s -S --retry 3 -o /tmp/test_csv.py "$BASEDIR"/tests/test_csv.py
 curl -s -S --retry 3 -o /tmp/test_json.py "$BASEDIR"/tests/test_json.py
