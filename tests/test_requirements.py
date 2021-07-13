@@ -1,13 +1,13 @@
 import ast
 import csv
 import os
-import pkg_resources
 from collections import defaultdict
 from io import StringIO
 from pathlib import Path
-from setuptools import find_packages
 
+import pkg_resources
 import pytest
+from setuptools import find_packages
 
 path = os.getcwd()
 
