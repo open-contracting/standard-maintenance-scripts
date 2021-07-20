@@ -373,6 +373,10 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
         'allow_no_null': {
             '/definitions/Amendment/properties/changes/items/properties/property',  # deprecated
 
+            # Children of fields with omitWhenMerged.
+            '/definitions/Link/properties/rel',
+            '/definitions/Link/properties/href',
+
             # The API extension adds metadata fields to which this rule doesn't apply.
             '/properties/packageMetadata',
             '/properties/packageMetadata/properties/uri',
