@@ -137,7 +137,6 @@ namespace :fix do
 
       branches_to_protect = [branches.find{ |branch| branch.name == repo.default_branch }]
       if ['standard', 'public-private-partnerships', 'infrastructure'].include?(repo.name)
-        branches_to_protect << branches.find{ |branch| branch.name == 'latest' }
         branches.each do |branch|
           if branch.name[/\A\d\.\d(?:-dev)?\z/]
             branches_to_protect << branch
