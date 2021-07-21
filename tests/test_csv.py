@@ -109,7 +109,7 @@ def test_codelist():
         'coveredBy.csv': "'Description' is a required property",
         # ocds_medicine_extension
         'administrationRoute.csv': "'Description' is a required property",
-        'container.csv': "'Description' is a required property",
+        'container.csv': "None is not of type 'string'",
         'dosageForm.csv': "None is not of type 'string'",
     }
 
