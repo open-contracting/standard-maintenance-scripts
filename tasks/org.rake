@@ -8,8 +8,8 @@ namespace :org do
 
       # Centro de Desarrollo Sostenible
       'aguilerapy', # Andrés Aguilera
-      'nativaldezt', # Natalia Valdez
       'cecicasco', # Cecilia Casco
+      'ravf95', # Rodrigo Villalba
 
       # Open Data Services Co-operative Limited
       # http://opendataservices.coop
@@ -20,34 +20,45 @@ namespace :org do
       # Developers
       'bjwebb', # Ben Webb
       'kindly', # David Raznick
-      'michaelwood', # Michael Wood
-      'robredpath', # Rob Redpath
       'tim0th1', # Tim Williams
-      # 'rhiaro', # Amy Guy
       # 'bibianac', # Bibiana Cristofol
       # 'idlemoor', # David Spencer
+      # 'michaelwood', # Michael Wood
       # 'odscjames', # James Baster
-      # 'scatteredink', # Jack Lord
+      # 'rhiaro', # Amy Guy
+      # 'robredpath', # Rob Redpath
       # 'rory09', # Rory Scott
+      # 'scatteredink', # Jack Lord
     ],
     'Datlab' => [
-      'sabahfromlondon',
-
-      # Datlab
       'hrubyjan',
       'jakubkrafka',
+      'lucyanne98',
       't-mrazek',
+      # Product management
+      'sabahfromlondon',
     ],
     'Quintagroup' => [
+      'anton-shakh-qg',
+      'maksym-quinta',
       'mariob0y',
+      'myroslav',
       'ohelesh',
       'olehchepak',
+      'open-contracting-automator',
       'pontostroy',
+      'romansavych',
       'sorenabell',
       'stasivoleh',
-      'vdigitall',
-      'yshalenyk',
       'vasyldanyliv',
+      'vdigitall',
+      'wijionejs',
+      'yshalenyk',
+      # Product management
+      'sabahfromlondon',
+    ],
+    'RBC Group' => [
+      'ocds-bi-tools',
     ],
     'Health' => [
       # Open Contracting Partnership
@@ -77,6 +88,7 @@ namespace :org do
       # Root access to specific servers
       'bjwebb',
       'bikramtuladhar',
+      'jakubkrafka',
       'kindly',
       'pontostroy',
 
@@ -84,7 +96,6 @@ namespace :org do
       'dogsbody', # Dan Benton
       'dogsbody-ashley', # Ashley Holland
       'dogsbody-josh', # Josh Archer
-      'jimacarter', # Jim Carter
       'robhooper', # Rob Hooper
     ]
   }
@@ -191,6 +202,9 @@ namespace :org do
       'spoonbill-test',
       'spoonbill-web',
     ]
+    rbcgroup = [
+      'bi.open-contracting.org',
+    ]
     health = [
       'covid-19-procurement-explorer-admin',
       'covid-19-procurement-explorer-public',
@@ -225,6 +239,7 @@ namespace :org do
       'General' => repos.map(&:name) - archived - servers - health - datlab_only - quintagroup - ['backup-codes'],
       'Datlab' => datlab_only + datlab_shared,
       'Quintagroup' => quintagroup,
+      'RBC Group' => rbcgroup,
       'Health' => health,
       'Servers' => servers,
       'Standard' => standard,
