@@ -50,6 +50,7 @@ internal_tools = [
   'json-schema-random',
   'notebooks-ocds',
   'notebooks-oc4ids',
+  'scrapyd-client',
   'software-development-handbook',
   'standard-development-handbook',
   'standard-maintenance-scripts',
