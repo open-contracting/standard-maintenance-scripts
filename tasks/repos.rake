@@ -237,9 +237,15 @@ Report issues for this extension in the [ocds-extensions repository](https://git
         end
 
         pull_requests = repo.rels[:pulls].get.data.size
-        # At time of writing, I'm the top contributor on most repositories (due
-        # to widespread cleanup work), which is not useful information.
-        top_contributor = repo.rels[:contributors].get.data.find{ |contributor| contributor.login != 'jpmckinney' }
+
+        top_contributor = repo.rels[:contributors].get.data
+        if top_contributor.empty?
+          # Occurs if the repository has no commits.
+          top_contributor = nil
+        else
+          # At time of writing, I'm the top contributor on most repositories, which is not useful information.
+          top_contributor = repo.rels[:contributors].get.data.find{ |contributor| contributor.login != 'jpmckinney' }
+        end
 
         if repo.has_projects
           projects = client.projects(repo.full_name, accept: 'application/vnd.github.inertia-preview+json').size # projects
