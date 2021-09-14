@@ -185,7 +185,6 @@ namespace :org do
       'kingfisher-process',
       'lib-cove-ocds',
       'ocdskit',
-      'pelican',
     ]
     quintagroup = [
       'spoonbill',
@@ -193,7 +192,6 @@ namespace :org do
       'spoonbill-web',
     ]
     health = [
-      'covid-19-procurement-explorer',
       'covid-19-procurement-explorer-admin',
       'covid-19-procurement-explorer-public',
     ]
@@ -262,13 +260,11 @@ namespace :org do
     end
 
     issues_only_triage = [
-      'covid-19-procurement-explorer',
       'ocds-extensions',
     ]
 
     # Issue-only repositories require Maintain permissions to add issues to projects.
     issues_only_maintain = [
-      'pelican',
     ]
 
     # Repositories under active development can have Admin permissions.
