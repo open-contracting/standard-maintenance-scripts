@@ -160,16 +160,16 @@ namespace :crm do
       5 => [:exactly, REDMINE_OCP_USERS],
       # Open Data Services
       4 => [:exactly, REDMINE_ODS_USERS],
-      # Centro de Desarrollo Sostenible
-      33 => [:exactly, REDMINE_CDS_USERS],
 
       # Everyone excluding non-OCDS ODS
       44 => [:exactly, REDMINE_OCP_USERS + REDMINE_ODS_USERS_OCDS + REDMINE_CDS_USERS + REDMINE_ODS_USERS_TECH],
-      # OCP Program Managers & Helpdesk Teams
+      # Program Managers & Helpdesk Teams
       65 => [:exactly, REDMINE_OCP_USERS_OCDS + REDMINE_ODS_USERS_OCDS + REDMINE_CDS_USERS_OCDS + REDMINE_OTHER_HELPDESK],
 
       # Helpdesk Teams
       43 => [:exactly, REDMINE_ODS_USERS_OCDS + REDMINE_CDS_USERS_OCDS],
+      # Latam Helpdesk Team
+      33 => [:exactly, REDMINE_CDS_USERS],
       # English Helpdesk Team
       66 => [:exactly, REDMINE_ODS_USERS_OCDS],
       # Partners and Consultants
