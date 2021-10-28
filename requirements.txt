@@ -7,5 +7,5 @@ ocdsextensionregistry
 ocdskit
 pytest
 requests
+rfc3339-validator
 rfc3987
-strict-rfc3339
