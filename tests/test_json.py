@@ -101,7 +101,7 @@ def patch(text):
 
 
 json_schemas = [(path, name, data) for path, name, _, data in walk_json_data(patch)
-                if is_json_schema(data) and repo_name != 'sphinxcontrib-opencontracting']
+                if is_json_schema(data) and repo_name not in ('pelican-backend', 'sphinxcontrib-opencontracting')]
 
 
 def merge(*objs):
