@@ -249,6 +249,7 @@ def test_dev_requirements():
         'pytest-flask',
         'pytest-localserver',
         'pytest-order',
+        'pytest-subtests',
         # Code coverage.
         'coverage',
         'coveralls',
