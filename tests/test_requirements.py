@@ -36,6 +36,11 @@ stdlib = {
     "zipfile", "zipimport", "zlib"
 }
 
+# Ignore web server dependencies.
+IGNORE = [
+    'gunicorn',
+]
+
 
 # https://setuptools.readthedocs.io/en/latest/pkg_resources.html#requirements-parsing
 # https://setuptools.readthedocs.io/en/latest/deprecated/python_eggs.html#top-level-txt-conflict-management-metadata
@@ -200,6 +205,9 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
             with open(os.path.join(path, requirements_file)) as f:
                 mapping.update(projects_and_modules(f.read()))
 
+    if 'psycopg2-binary' in mapping and 'psycopg2' in mapping:
+        del mapping['psycopg2-binary']
+
     # Some modules affect the behavior of `jsonschema` without being imported.
     if 'jsonschema' in mapping:
         for project in ('rfc3339-validator', 'rfc3987', 'strict-rfc3339'):
@@ -220,7 +228,7 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
 
 
 def test_requirements():
-    check_requirements(path)
+    check_requirements(path, ignore=IGNORE)
 
 
 @pytest.mark.skipif(not os.path.exists(os.path.join(path, 'requirements_dev.in')),
@@ -261,4 +269,4 @@ def test_dev_requirements():
         'transifex-client',
     ]
 
-    check_requirements(path, 'requirements_dev.in', dev=True, ignore=ignore)
+    check_requirements(path, 'requirements_dev.in', dev=True, ignore=IGNORE + ignore)
