@@ -162,7 +162,7 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
     if not any(os.path.exists(filename) for filename in (setup_py, requirements_in)):
         pytest.skip(f"No setup.py or requirements.in file found")
 
-    excluded = ['.git', 'docs']
+    excluded = ['.git', 'docs', 'node_modules']
     find_packages_kwargs = {}
     if not dev:
         find_packages_kwargs['exclude'] = ['tests', 'tests.*']
