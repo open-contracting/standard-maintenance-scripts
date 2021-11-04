@@ -265,7 +265,8 @@ def test_indent():
 
 
 def test_json_valid():
-    warn_and_assert(get_invalid_json_files(excluded=('node_modules',)), '{0} is not valid JSON: {1}',
+    excluded = ('.git', '.ve', '_static', 'build', 'fixtures', 'node_modules')
+    warn_and_assert(get_invalid_json_files(excluded=excluded), '{0} is not valid JSON: {1}',
                     'JSON files are invalid. See warnings below.')
 
 
