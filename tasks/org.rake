@@ -40,32 +40,32 @@ namespace :org do
     ],
     'Quintagroup' => [
       'anton-shakh-qg',
-      'maksym-quinta',
       'mariob0y',
-      'myroslav',
       'ohelesh',
       'olehchepak',
       'open-contracting-automator',
       'pontostroy',
-      'romansavych',
       'sorenabell',
       'stasivoleh',
-      'vasyldanyliv',
       'vdigitall',
-      'wijionejs',
       'yshalenyk',
+      # Did not accept invitation.
+      # 'maksym-quinta',
+      # 'myroslav',
+      # 'romansavych',
+      # 'vasyldanyliv',
+      # 'wijionejs',
       # Product management
       'sabahfromlondon',
     ],
     'RBC Group' => [
       'ocds-bi-tools',
     ],
-    'Health' => [
+    'Young Innovations' => [
       # Open Contracting Partnership
       'vtarnay1',
 
       # Young Innovations
-      'abhishekska',
       'anjesh',
       'anjilab',
       'bigyan',
@@ -79,6 +79,8 @@ namespace :org do
       'sonikabaniya',
       'suhanapradhan',
       'suyojman',
+      # Did not accept invitation.
+      # 'abhishekska',
     ],
     'Standard' => [
       'colinmaudry',
@@ -187,9 +189,9 @@ namespace :org do
   task :team_repos do
     # The repositories that should be accessible to these teams.
     datlab_only = [
+      'data-registry',
       'pelican-backend',
       'pelican-frontend',
-      'data-registry',
     ]
     datlab_shared = [
       'kingfisher-collect',
@@ -205,7 +207,7 @@ namespace :org do
     rbcgroup = [
       'bi.open-contracting.org',
     ]
-    health = [
+    young_innovations = [
       'covid-19-procurement-explorer-admin',
       'covid-19-procurement-explorer-public',
     ]
@@ -236,12 +238,12 @@ namespace :org do
     archived = repos.select(&:archived).map(&:name) - ['ocds-show', 'ocds-show-ppp']
 
     expected = {
-      'General' => repos.map(&:name) - archived - servers - health - datlab_only - quintagroup - ['backup-codes'],
+      'General' => repos.map(&:name) - archived - servers - datlab_only - quintagroup - young_innovations - ['backup-codes'],
       'Datlab' => datlab_only + datlab_shared,
       'Quintagroup' => quintagroup,
       'RBC Group' => rbcgroup,
-      'Health' => health,
-      'Servers' => servers,
+      'Young Innovations' => young_innovations,
+      'Servers' => servers + ['miscellaneous-private-scripts'], # Redmine patches
       'Standard' => standard,
     }
 
@@ -284,10 +286,6 @@ namespace :org do
 
     # Repositories under active development can have Admin permissions.
     active_development = [
-      'data-registry',
-      'spoonbill',
-      'spoonbill-web',
-      'spoonbill-test',
     ]
 
     client.org_teams('open-contracting').each do |team|
