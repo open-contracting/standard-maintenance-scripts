@@ -91,10 +91,6 @@ Lists groups with missing or unexpected users:
 
 ## Code tasks
 
-Check for TODOs that should be made into GitHub issues (skipping Git, vendored, translation, and generated files) ⏰:
-
-    grep -R -i --exclude-dir .git --exclude-dir .sass-cache --exclude-dir .tox --exclude-dir __pycache__ --exclude-dir _build --exclude-dir _static --exclude-dir build --exclude-dir dist --exclude-dir htmlcov --exclude-dir node_modules --exclude-dir sass --exclude-dir LC_MESSAGES --exclude app.js --exclude conf.py '\btodo\b' .
-
 ### Change GitHub repository configuration
 
 Enables delete branch on merge, disables empty wikis, updates extensions' descriptions and homepages, and lists repositories with invalid names, unexpected configurations, etc. ⏰:
