@@ -19,31 +19,20 @@ To list all available tasks:
 
 ## Tests
 
-The common [`.github/workflows/lint.yml`](fixtures/lint.yml) file performs:
+The [test files](tests/) can perform:
 
 * Linting of:
   * Python ([flake8](https://pypi.python.org/pypi/flake8), [isort](https://pypi.org/project/isort/))
   * JSON (readable by Python)
   * CSV (readable by Python)
 * Various checks against OCDS schema, codelists, readmes, etc.
-* Checks for unused requirements or undeclared dependencies in Python.
+* Checks for unused requirements or undeclared dependencies in Python (opt-in).
 
-To run the tests locally, run the setup commands above, change into a repository's folder, then:
-
-    flake8 . --max-line-length 119
-    isort . --check-only --ignore-whitespace --line-width 119
-    pytest -rs --tb=line path/to/standard-maintenance-scripts/tests
+To run the tests locally, run the [install.sh](tests/install.sh) file and then run the desired parts of the [script.sh](tests/script.sh) file.
 
 To skip the JSON indentation test, set the `OCDS_NOINDENT` environment variable, with `export OCDS_NOINDENT=1` (Bash) or `setenv OCDS_NOINDENT 1` (fish).
 
-To create a pull request to set up a new repository, run:
-
-    git checkout -b ci
-    mkdir -p .github/workflows
-    curl -o .github/workflows/lint.yml https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/main/fixtures/lint.yml
-    git add .github/workflows/lint.yml
-    git commit .github/workflows/lint.yml -m 'Add .github/workflows/lint.yml'
-    git push -u origin ci
+See the [Linting](https://ocp-software-handbook.readthedocs.io/en/latest/python/linting.html) page in the OCP Software Development Handbook to run these tests in a GitHub Actions workflow.
 
 ## Access tasks ⏰
 
