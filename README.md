@@ -30,7 +30,14 @@ The [test files](tests/) can perform:
 
 To run the tests locally, run the [install.sh](tests/install.sh) file and then run the desired parts of the [script.sh](tests/script.sh) file.
 
-To skip the JSON indentation test, set the `OCDS_NOINDENT` environment variable, with `export OCDS_NOINDENT=1` (Bash) or `setenv OCDS_NOINDENT 1` (fish).
+Control the tests' behavior with these environment variables:
+
+OCDS_NOINDENT=1
+  Skip the JSON indentation test.
+STANDARD_MAINTENANCE_SCRIPTS_EXTRAS
+  A comma-separated list of ``extras_require`` keys. Add the packages under these keys to the list of declared requirements.
+STANDARD_MAINTENANCE_SCRIPTS_IGNORE
+  A comma-separated list of Python packages. Don't error if these packages appear in a requirement file but aren't imported by the source code, or vice versa.
 
 See the [OCP Software Development Handbook](https://ocp-software-handbook.readthedocs.io/en/latest/python/linting.html) to run these tests in a GitHub Actions workflow.
 
