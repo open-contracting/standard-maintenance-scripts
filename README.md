@@ -32,7 +32,7 @@ To run the tests locally, run the [install.sh](tests/install.sh) file and then r
 
 To skip the JSON indentation test, set the `OCDS_NOINDENT` environment variable, with `export OCDS_NOINDENT=1` (Bash) or `setenv OCDS_NOINDENT 1` (fish).
 
-See the [Linting](https://ocp-software-handbook.readthedocs.io/en/latest/python/linting.html) page in the OCP Software Development Handbook to run these tests in a GitHub Actions workflow.
+See the [OCP Software Development Handbook](https://ocp-software-handbook.readthedocs.io/en/latest/python/linting.html) to run these tests in a GitHub Actions workflow.
 
 ## Access tasks ⏰
 
