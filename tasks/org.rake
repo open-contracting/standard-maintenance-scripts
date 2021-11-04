@@ -89,10 +89,7 @@ namespace :org do
     'Servers' => [
       # Root access to specific servers
       'bjwebb',
-      'bikramtuladhar',
-      'jakubkrafka',
       'kindly',
-      'pontostroy',
 
       # Dogsbody Technology Limited
       'dogsbody', # Dan Benton
