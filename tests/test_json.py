@@ -100,7 +100,8 @@ def patch(text):
     return text
 
 
-json_schemas = [(path, name, data) for path, name, _, data in walk_json_data(patch)
+excluded = ('.git', '.ve', '_static', 'build', 'fixtures', 'node_modules')
+json_schemas = [(path, name, data) for path, name, _, data in walk_json_data(patch, excluded=excluded)
                 if is_json_schema(data) and repo_name not in ('pelican-backend', 'sphinxcontrib-opencontracting')]
 
 
@@ -256,7 +257,8 @@ def test_empty():
 @pytest.mark.skipif(os.environ.get('OCDS_NOINDENT', False), reason='skipped indentation')
 def test_indent():
     def include(path, name):
-        return name != 'json-schema-draft-4.json'  # http://json-schema.org/draft-04/schema
+        # http://json-schema.org/draft-04/schema
+        return name not in ('json-schema-draft-4.json', 'package.json', 'package-lock.json')
 
     warn_and_assert(get_misindented_files(include), '{0} is not indented as expected, run: ocdskit indent {0}',
                     'Files are not indented as expected. See warnings below, or run: ocdskit indent -r .')
