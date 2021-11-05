@@ -131,8 +131,8 @@ namespace :local do
     workflows = {
       'ci' => 'CI',
       'lint' => 'Lint',
-      'js' => 'Lint JavaScript',
-      'shell' => 'Lint Shell',
+      'js' => 'Lint%20JavaScript',
+      'shell' => 'Lint%20Shell',
       'i18n' => 'Translations',
     }
 
