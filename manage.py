@@ -29,7 +29,7 @@ def download_extensions(path):
     for version in registry:
         directory = os.path.join(path, version.repository_name)
         if not os.path.isdir(directory):
-            os.system('git clone {} {}'.format(version.repository_url, directory))
+            os.system(f'git clone {version.repository_url} {directory}')
 
 
 @cli.command()
@@ -64,7 +64,7 @@ def set_topics():
             topics.append('ocds-profile')
 
         for version in registry:
-            if '/{}/'.format(repo['full_name']) in version.base_url:
+            if f"/{repo['full_name']}/" in version.base_url:
                 if version.core:
                     topics.append('ocds-core-extension')
                 else:
@@ -73,9 +73,9 @@ def set_topics():
                 break
         else:
             if 'ocds-profile' not in topics:
-                print('{} is not registered'.format(repo['name']))
+                print(f"{repo['name']} is not registered")
 
-        response = requests.put('https://api.github.com/repos/{}/topics'.format(repo['full_name']),
+        response = requests.put(f"https://api.github.com/repos/{repo['full_name']}/topics",
                                 data=json.dumps({'names': topics}),
                                 headers={'accept': 'application/vnd.github.mercy-preview+json'})
         response.raise_for_status()
@@ -97,7 +97,7 @@ def check_aspell_dictionary():
 
         for stem, count in stems.items():
             if count > 1 and stem not in exceptions:
-                print('{} {}'.format(count, stem))
+                print(f'{count} {stem}')
 
     plural_exceptions = [
         # Prose

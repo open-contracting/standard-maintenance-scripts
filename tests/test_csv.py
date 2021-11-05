@@ -46,16 +46,16 @@ def test_valid():
         duplicates = len(fieldnames) - len(set(fieldnames))
         if duplicates:
             errors += 1
-            warnings.warn('ERROR: {} has {} duplicate column headers'.format(path, duplicates))
+            warnings.warn(f'ERROR: {path} has {duplicates} duplicate column headers')
 
         for row_index, row in enumerate(rows, 2):
             expected = len(row) + duplicates
             if expected != width:
                 errors += 1
-                warnings.warn('ERROR: {} has {} not {} columns in row {}'.format(path, expected, width, row_index))
+                warnings.warn(f'ERROR: {path} has {expected} not {width} columns in row {row_index}')
             if not any(row.values()):
                 errors += 1
-                warnings.warn('ERROR: {} has empty row {}'.format(path, row_index))
+                warnings.warn(f'ERROR: {path} has empty row {row_index}')
             else:
                 for col_index, (header, cell) in enumerate(row.items(), 1):
                     if col_index > len(columns):
@@ -72,13 +72,13 @@ def test_valid():
                     for cell in cells:
                         if cell is not None and cell != cell.strip():
                             errors += 1
-                            warnings.warn('ERROR: {} {} "{}" has leading or trailing whitespace at {},{}'.format(
-                                path, header, cell, row_index, col_index))
+                            warnings.warn(f'ERROR: {path} {header} "{cell}" has leading or trailing whitespace at '
+                                          f'{row_index},{col_index}')
 
         for col_index, column in enumerate(columns, 1):
             if not any(column) and codelist:
                 errors += 1
-                warnings.warn('ERROR: {} has empty column {}'.format(path, col_index))
+                warnings.warn(f'ERROR: {path} has empty column {col_index}')
 
         output = StringIO()
         writer = csv.DictWriter(output, fieldnames=fieldnames, lineterminator='\n')
@@ -88,8 +88,8 @@ def test_valid():
 
         if text != expected and repo_name != 'sample-data':
             errors += 1
-            warnings.warn('ERROR: {} is improperly formatted (e.g. missing trailing newline, extra quoting '
-                          'characters, non-"\\n" line terminator):\n{!r}\n{!r}'.format(path, text, expected))
+            warnings.warn(f'ERROR: {path} is improperly formatted (e.g. missing trailing newline, extra quoting '
+                          f'characters, non-"\\n" line terminator):\n{text!r}\n{expected!r}')
 
     assert errors == 0, 'One or more codelist CSV files are invalid. See warnings below.'
 
@@ -153,7 +153,7 @@ def test_codelist():
                 code = row['Code']
                 if code in codes_seen:
                     any_errors = True
-                    warnings.warn('{}: Duplicate code "{}" on row {}'.format(path, code, row_index))
+                    warnings.warn(f'{path}: Duplicate code "{code}" on row {row_index}')
                 codes_seen.add(code)
 
                 item = {}
@@ -174,6 +174,6 @@ def test_codelist():
             for error in validator(schema, format_checker=FormatChecker()).iter_errors(data):
                 if error.message != exceptions.get(os.path.basename(path)):
                     any_errors = True
-                    warnings.warn('{}: {} ({})\n'.format(path, error.message, '/'.join(error.absolute_schema_path)))
+                    warnings.warn(f"{path}: {error.message} ({'/'.join(error.absolute_schema_path)})\n")
 
     assert not any_errors

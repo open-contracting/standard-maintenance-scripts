@@ -72,7 +72,7 @@ def examples():
         try:
             yield i, text, json.loads(text)
         except json.decoder.JSONDecodeError as e:
-            assert False, 'README.md: JSON block {} is not valid JSON ({})'.format(i, e)
+            assert False, f'README.md: JSON block {i} is not valid JSON ({e})'
 
 
 def patch_schema(basename='release-schema.json'):
@@ -108,8 +108,8 @@ def test_example_indent():
     Ensures all JSON snippets in the extension's documentation are valid and formatted for humans.
     """
     for i, text, data in examples():
-        expected = '\n{}\n'.format(json.dumps(data, ensure_ascii=False, indent=2))
-        assert text == expected, 'README.md: JSON example {} is not indented as expected'.format(i)
+        expected = f'\n{json.dumps(data, ensure_ascii=False, indent=2)}\n'
+        assert text == expected, f'README.md: JSON example {i} is not indented as expected'
 
 
 @pytest.mark.skipif(not is_extension or repo_name == 'standard_extension_template',
@@ -149,7 +149,7 @@ def test_example_valid():
 
         errors = validate_schema('README.md', release, patched)
 
-        assert not errors, 'README.md: JSON block {} is invalid. See warnings below.'.format(i)
+        assert not errors, f'README.md: JSON block {i} is invalid. See warnings below.'
 
 
 @pytest.mark.skipif(not is_extension or repo_name == 'standard_extension_template',
@@ -232,7 +232,7 @@ def test_example_backticks():
                     literals.add(field.path_components[-1])  # e.g. scale
                 if field.definition_path_components:
                     literals.add(field.definition_path)  # e.g. Lot
-                    literals.add('{}.{}'.format(field.definition_path, field.path))  # e.g. Lot.id
+                    literals.add(f'{field.definition_path}.{field.path}')  # e.g. Lot.id
                 if 'codelist' in field.schema:
                     literals.add(field.schema['codelist'])
                     literals.add(f"+{field.schema['codelist']}")
@@ -245,7 +245,7 @@ def test_example_backticks():
                 # e.g. `"uniqueItems": true`
                 and not text.startswith('"') and text not in exceptions.get(repo_name, [])):
             errors += 1
-            warnings.warn('README.md: "{}" term is not in schema'.format(text))
+            warnings.warn(f'README.md: "{text}" term is not in schema')
 
     assert errors == 0, 'README.md: Backtick terms are invalid. See warnings below.'
 
@@ -278,7 +278,7 @@ def test_example_codes():
 
     # Ostensibly, we should download all codelists. To save time, we only download those we presently reference.
     for codelist in ('milestoneStatus', 'tenderStatus', 'partyRole', 'releaseTag'):
-        reader = csv.DictReader(StringIO(http_get('{}/codelists/{}.csv'.format(url_prefix, codelist)).text))
+        reader = csv.DictReader(StringIO(http_get(f'{url_prefix}/codelists/{codelist}.csv').text))
         for row in reader:
             literals.add(row['Code'])
 
@@ -296,6 +296,6 @@ def test_example_codes():
     for text in re.findall(r"'(\S+)'", read_readme(), re.DOTALL):
         if text not in literals and text not in exceptions.get(repo_name, []):
             errors += 1
-            warnings.warn('README.md: "{}" code is not in codelists'.format(text))
+            warnings.warn(f'README.md: "{text}" code is not in codelists')
 
     assert errors == 0, 'README.md: Single-quote terms are invalid. See warnings below.'

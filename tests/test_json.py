@@ -77,7 +77,7 @@ else:
 
 def formatwarning(message, category, filename, lineno, line=None):
     if category != DeepPropertiesWarning:
-        message = 'ERROR: {}'.format(message)
+        message = f'ERROR: {message}'
     return str(message).replace(cwd + os.sep, '')
 
 
@@ -129,24 +129,24 @@ def _merge_obj(result, obj, pointer=''):  # changed code
         if isinstance(value, dict):
             target = result.get(key)
             if isinstance(target, dict):
-                _merge_obj(target, value, pointer='{}/{}'.format(pointer, key))  # changed code
+                _merge_obj(target, value, pointer=f'{pointer}/{key}')  # changed code
                 continue
             result[key] = {}
-            _merge_obj(result[key], value, pointer='{}/{}'.format(pointer, key))  # changed code
+            _merge_obj(result[key], value, pointer=f'{pointer}/{key}')  # changed code
             continue
 
         # new code
         if key in result:
-            pointer_and_key = '{}/{}'.format(pointer, key)
+            pointer_and_key = f'{pointer}/{key}'
             # Exceptions.
             if (value is None and pointer_and_key == '/definitions/Milestone/properties/documents/deprecated' and
                     repo_name in ('ocds_milestone_documents_extension', 'public-private-partnerships')):
-                warnings.warn('re-adds {}'.format(pointer))
+                warnings.warn(f're-adds {pointer}')
             elif (value == [] and pointer_and_key == '/required' and
                     repo_name == 'ocds_pagination_extension'):
-                warnings.warn('empties {}'.format(pointer_and_key))
+                warnings.warn(f'empties {pointer_and_key}')
             else:
-                raise Exception('unexpectedly overwrites {}'.format(pointer_and_key))
+                raise Exception(f'unexpectedly overwrites {pointer_and_key}')
 
         if value is None:
             result.pop(key, None)
@@ -408,7 +408,7 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
 
     errors += validate_schema(path, data, schema)
     if errors:
-        warnings.warn('{0} is not valid JSON Schema ({1} errors)'.format(path, errors))
+        warnings.warn(f'{path} is not valid JSON Schema ({errors} errors)')
 
     if name not in schema_exceptions:
         if 'versioned-release-validation-schema.json' in path:
@@ -489,7 +489,7 @@ def test_schema_strict():
         original = deepcopy(data)
         add_validation_properties(data)
 
-        assert data == original, '{0} is missing validation properties, run: ocdskit schema-strict {0}'.format(path)
+        assert data == original, f'{path} is missing validation properties, run: ocdskit schema-strict {path}'
 
 
 @pytest.mark.skipif(not is_extension, reason='not an extension (test_versioned_release_schema)')
@@ -534,30 +534,28 @@ def test_extension_json():
             try:
                 status_code = http_head(url).status_code
             except requests.exceptions.ConnectionError as e:
-                assert False, '{} on {}'.format(e, url)
+                assert False, f'{e} on {url}'
             else:
-                assert status_code == 200, 'HTTP {} on {}'.format(status_code, url)
+                assert status_code == 200, f'HTTP {status_code} on {url}'
 
         urls = list(data['documentationUrl'].values())
         for url in urls:
             try:
                 status_code = http_get(url).status_code  # allow redirects
             except requests.exceptions.ConnectionError as e:
-                assert False, '{} on {}'.format(e, url)
+                assert False, f'{e} on {url}'
             else:
-                assert status_code == 200, 'HTTP {} on {}'.format(status_code, url)
+                assert status_code == 200, f'HTTP {status_code} on {url}'
 
         actual_codelists = set(data.get('codelists', []))
         if actual_codelists != expected_codelists:
             added, removed = difference(actual_codelists, expected_codelists)
-            assert False, '{} has mismatch with codelists{}{}'.format(
-                path, added, removed)
+            assert False, f'{path} has mismatch with codelists{added}{removed}'
 
         actual_schemas = set(data.get('schemas', []))
         if actual_schemas != expected_schemas:
             added, removed = difference(actual_schemas, expected_schemas)
-            assert False, '{} has mismatch with schema{}{}'.format(
-                path, added, removed)
+            assert False, f'{path} has mismatch with schema{added}{removed}'
     else:
         # This code is never reached, as the test is only run if there is an extension.json file.
         assert False, 'expected an extension.json file'
@@ -600,7 +598,7 @@ def test_json_merge_patch():
                 try:
                     patched = merge(unpatched, data)
                 except Exception as e:
-                    assert False, 'Exception: {} {}'.format(e, path)
+                    assert False, f'Exception: {e} {path}'
 
                 # All metadata should be present.
                 validate_json_schema(path, name, patched, metaschemas()['metaschema'], full_schema=True)
