@@ -128,6 +128,14 @@ namespace :local do
       '# Project Statuses',
     ]
 
+    workflows = {
+      'ci' => 'CI',
+      'lint' => 'Lint',
+      'js' => 'Lint JavaScript',
+      'shell' => 'Lint Shell',
+      'i18n' => 'Translations',
+    }
+
     if ENV['ORG'] != 'open-contracting-partnership'
       output += [
         '',
@@ -177,27 +185,26 @@ namespace :local do
             hooks = []
           end
 
-          ci = read_github_file(repo.full_name, '.github/workflows/ci.yml')
-          lint = read_github_file(repo.full_name, '.github/workflows/lint.yml')
-
-          # https://github.com/octokit/octokit.rb/issues/1216
-          if !ci.empty?
-            line << "[![Build Status](https://github.com/#{repo.full_name}/workflows/CI/badge.svg)](https://github.com/#{repo.full_name}/actions?query=workflow%3ACI)"
-          elsif !lint.empty?
-            line << "[![Build Status](https://github.com/#{repo.full_name}/workflows/Lint/badge.svg)](https://github.com/#{repo.full_name}/actions?query=workflow%3ALint)"
+          # Replace with https://docs.github.com/en/rest/reference/actions#list-repository-workflows
+          workflow_files = {}
+          workflows.each do |basename, label|
+            workflow_files[basename] = read_github_file(repo.full_name, ".github/workflows/#{basename}.yml")
+            if !workflow_files[basename].empty?
+              line << "[![Build Status](https://github.com/#{repo.full_name}/workflows/#{label}/badge.svg)](https://github.com/#{repo.full_name}/actions?query=workflow%3A#{label})"
+            end
           end
 
-          if !ci.empty? || !lint.empty?
+          if !workflow_files['ci'].empty?
             if ['Tools', 'Extension tools', 'Internal tools', 'Documentation dependencies'].include?(heading)
               tox = read_github_file(repo.full_name, 'tox.ini')
 
-              if [ci, lint, tox].any?{ |contents| contents.include?('coveralls') }
+              if [workflow_files['ci'], tox].any?{ |contents| contents.include?('coveralls') }
                 line << " [![Coverage Status](https://coveralls.io/repos/github/#{repo.full_name}/badge.svg?branch=#{repo.default_branch})](https://coveralls.io/github/#{repo.full_name}?branch=#{repo.default_branch})"
               end
             end
           end
 
-          if !ci.empty? || !lint.empty?
+          if workflow_files.any?{ |_, content| !content.empty? }
             line << '|'
           else
             line << '-|'
