@@ -248,7 +248,7 @@ def metaschemas():
 def test_empty():
     def include(path, name):
         return repo_name not in {'standard_extension_template', 'standard_profile_template'} or name not in \
-            {'.keep', 'record-package-schema.json', 'release-package-schema.json', 'release-schema.json'}
+            {'.gitkeep', '.keep', 'record-package-schema.json', 'release-package-schema.json', 'release-schema.json'}
 
     warn_and_assert(get_empty_files(include), '{0} is empty, run: rm {0}',
                     'Files are empty. See warnings below.')
