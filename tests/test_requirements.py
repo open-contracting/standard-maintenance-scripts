@@ -4,6 +4,7 @@ import os
 from collections import defaultdict
 from io import StringIO
 from pathlib import Path
+from urllib.parse import urlsplit
 
 import pkg_resources
 import pytest
@@ -138,14 +139,24 @@ class CodeVisitor(ast.NodeVisitor):
                                 self.add('pymemcache')
                 elif target.id == 'DATABASES':
                     for value in node.value.values:
-                        if not isinstance(value, ast.Dict):
-                            continue
-                        for k, v in zip(value.keys, value.values):
-                            if k.s == 'ENGINE' and isinstance(v, ast.Str) and v.s in (
-                                'django.db.backends.postgresql',
-                                'django.db.backends.postgresql_psycopg2',
-                            ):
+                        if isinstance(value, ast.Call):
+                            # value.func <ast.Attribute>
+                            #   .value <ast.Name>
+                            #     .id == "dj_database_url"
+                            #   .attr == "config"
+                            # value.keywords[0] <ast.keyword>
+                            #   .arg == "default"
+                            #   .value <ast.Constant>
+                            #     .value == "postgresql://"
+                            if urlsplit(value.keywords[0].value.value).scheme == 'postgresql':
                                 self.add('psycopg2')
+                        elif isinstance(value, ast.Dict):
+                            for k, v in zip(value.keys, value.values):
+                                if k.s == 'ENGINE' and isinstance(v, ast.Str) and v.s in (
+                                    'django.db.backends.postgresql',
+                                    'django.db.backends.postgresql_psycopg2',
+                                ):
+                                    self.add('psycopg2')
 
     def add(self, name):
         if 'django.contrib.postgres' in name:
