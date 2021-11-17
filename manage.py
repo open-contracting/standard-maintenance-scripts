@@ -21,7 +21,7 @@ def cli():
 @click.argument('path')
 def download_extensions(path):
     """
-    Downloads all registered extensions to a directory.
+    Download all registered extensions to a directory.
     """
     path = path.rstrip('/')
 
@@ -35,7 +35,7 @@ def download_extensions(path):
 @cli.command()
 def set_topics():
     """
-    Adds topics to repositories in the open-contracting-extensions organization.
+    Add topics to repositories in the open-contracting-extensions organization.
 
     -  ocds-extension
     -  ocds-core-extension
@@ -84,7 +84,7 @@ def set_topics():
 @cli.command()
 def check_aspell_dictionary():
     """
-    Checks whether ~/.aspell.en.pws contains unwanted words.
+    Check whether ~/.aspell.en.pws contains unwanted words.
     """
     with open(os.path.expanduser('~/.aspell.en.pws'), 'r', encoding='iso-8859-1') as f:
         aspell = f.read()
