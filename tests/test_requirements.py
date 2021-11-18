@@ -43,6 +43,15 @@ IGNORE = [
 ]
 
 
+def val(node):
+    # ast.Num, ast.Str, ast.Bytes, ast.NameConstant and ast.Ellipsis are deprecated in favor of ast.Constant in 3.8.
+    if isinstance(node, ast.Constant):
+        return node.value
+    if isinstance(node, ast.Str):
+        return node.s
+    raise NotImplementedError
+
+
 # https://setuptools.readthedocs.io/en/latest/pkg_resources.html#requirements-parsing
 # https://setuptools.readthedocs.io/en/latest/deprecated/python_eggs.html#top-level-txt-conflict-management-metadata
 # https://packaging.python.org/specifications/recording-installed-packages/#the-record-file
@@ -82,12 +91,12 @@ class SetupVisitor(ast.NodeVisitor):
     def visit_keyword(self, node):
         if node.arg == 'install_requires':
             for elt in node.value.elts:
-                self.mapping.update(projects_and_modules(elt.s))
+                self.mapping.update(projects_and_modules(val(elt)))
         elif node.arg == 'extras_require' and self.extras:
             for key, value in zip(node.value.keys, node.value.values):
-                if key.s in self.extras:
+                if val(key) in self.extras:
                     for elt in value.elts:
-                        self.mapping.update(projects_and_modules(elt.s))
+                        self.mapping.update(projects_and_modules(val(elt)))
 
 
 class CodeVisitor(ast.NodeVisitor):
@@ -128,15 +137,16 @@ class CodeVisitor(ast.NodeVisitor):
                 # A requirement might be declared as an installed app or middleware.
                 if target.id in ('INSTALLED_APPS', 'MIDDLEWARE'):
                     for elt in node.value.elts:
-                        self.add(elt.s)
+                        self.add(val(elt))
                 # A requirement might be required by a backend.
                 elif target.id == 'CACHES':
                     for value in node.value.values:
                         for k, v in zip(value.keys, value.values):
-                            if k.s == 'BACKEND' and v.s == 'django.core.cache.backends.memcached.MemcachedCache':
-                                self.add('memcache')
-                            elif k.s == 'BACKEND' and v.s == 'django.core.cache.backends.memcached.PyMemcacheCache':
-                                self.add('pymemcache')
+                            if val(k) == 'BACKEND':
+                                if val(v) == 'django.core.cache.backends.memcached.MemcachedCache':
+                                    self.add('memcache')
+                                elif val(v) == 'django.core.cache.backends.memcached.PyMemcacheCache':
+                                    self.add('pymemcache')
                 elif target.id == 'DATABASES':
                     for value in node.value.values:
                         if isinstance(value, ast.Call):
@@ -148,11 +158,12 @@ class CodeVisitor(ast.NodeVisitor):
                             #   .arg == "default"
                             #   .value <ast.Constant>
                             #     .value == "postgresql://"
-                            if urlsplit(value.keywords[0].value.value).scheme == 'postgresql':
+                            default = next((keyword for keyword in value.keywords if keyword.arg == "default"), None)
+                            if default and urlsplit(val(default.value)).scheme == 'postgresql':
                                 self.add('psycopg2')
                         elif isinstance(value, ast.Dict):
                             for k, v in zip(value.keys, value.values):
-                                if k.s == 'ENGINE' and isinstance(v, ast.Str) and v.s in (
+                                if val(k) == 'ENGINE' and val(v) in (
                                     'django.db.backends.postgresql',
                                     'django.db.backends.postgresql_psycopg2',
                                 ):
