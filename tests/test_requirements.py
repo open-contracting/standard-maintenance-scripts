@@ -37,8 +37,10 @@ stdlib = {
     "zipfile", "zipimport", "zlib"
 }
 
-# Ignore web server dependencies.
 IGNORE = [
+    # https://docs.python.org/3/library/__future__.html
+    '__future__',
+    # Web server dependencies.
     'gunicorn',
 ]
 
@@ -65,6 +67,8 @@ def projects_and_modules(requirements):
     requirements = [line for line in requirements.splitlines() if not line.startswith('-')]
     for requirement in pkg_resources.parse_requirements(requirements):
         project_name = requirement.project_name
+        if requirement.marker and not requirement.marker.evaluate():
+            continue
         project = pkg_resources.get_distribution(project_name)
         try:
             for module in project.get_metadata('top_level.txt').splitlines():
