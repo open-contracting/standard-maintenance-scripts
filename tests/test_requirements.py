@@ -51,7 +51,10 @@ def val(node):
         return node.value
     if isinstance(node, ast.Str):
         return node.s
-    raise NotImplementedError
+    # django-environ sets the default value when creating the Env object, not when setting the engine key.
+    if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == "env" and not node.keywords:
+        return None
+    raise NotImplementedError(repr(node))
 
 
 # https://setuptools.readthedocs.io/en/latest/pkg_resources.html#requirements-parsing
