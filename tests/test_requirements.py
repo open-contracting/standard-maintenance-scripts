@@ -124,7 +124,16 @@ class CodeVisitor(ast.NodeVisitor):
             self.excluded.add('setuptools')
 
     def visit_Try(self, node):
+        # Don't collect imports in `try: ... except ImportError: ...` blocks.
         if not any(h.type.id == 'ImportError' for h in node.handlers if isinstance(h.type, ast.Name)):
+            self.generic_visit(node)
+
+    def visit_If(self, node):
+        # Don't collect imports in `if sys.version_info[:2] >= (3, 8): ... else: ...` blocks.
+        if not (
+            isinstance(node.test, ast.Compare)
+            and any(isinstance(val(e), int) for c in node.test.comparators if isinstance(c, ast.Tuple) for e in c.elts)
+        ):
             self.generic_visit(node)
 
     def visit_Import(self, node):
