@@ -244,12 +244,12 @@ def metaschemas():
     }
 
 
-# Template repositories are allowed to have empty schema files and .keep files.
 def test_empty():
     def include(path, name):
-        return name not in {'.gitkeep'} and (
-            repo_name not in {'standard_extension_template', 'standard_profile_template'}
-            or name not in {'record-package-schema.json', 'release-package-schema.json', 'release-schema.json'}
+        return name not in {'.gitkeep', 'py.typed'} and (
+            # Template repositories are allowed to have empty schema files.
+            name not in {'record-package-schema.json', 'release-package-schema.json', 'release-schema.json'}
+            or repo_name not in {'standard_extension_template', 'standard_profile_template'}
         )
 
     warn_and_assert(get_empty_files(include), '{0} is empty, run: rm {0}',
