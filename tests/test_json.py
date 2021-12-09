@@ -234,6 +234,7 @@ def metaschemas():
     del release_package_metaschema['properties']['oneOf']
     del project_package_metaschema['properties']['oneOf']
 
+    metaschema['$id'] = deepcopy(metaschema['id'])
     metaschema['properties']['$id'] = deepcopy(metaschema['properties']['id'])
 
     return {
