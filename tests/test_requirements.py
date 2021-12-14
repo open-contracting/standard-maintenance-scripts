@@ -74,7 +74,7 @@ def projects_and_modules(requirements):
             continue
         project = pkg_resources.get_distribution(project_name)
         try:
-            for module in project.get_metadata('top_level.txt').splitlines():
+            for module in project.get_metadata_lines('top_level.txt'):
                 mapping[project_name].add(module)
         except FileNotFoundError:
             reader = csv.reader(StringIO(project.get_metadata('RECORD')))
