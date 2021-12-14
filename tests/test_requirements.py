@@ -301,6 +301,7 @@ def test_dev_requirements():
         'coverage',
         'coveralls',
         # Documentation dependencies.
+        'furo',
         'sphinx',
         'sphinx-rtd-theme',
         # Build utilities.
