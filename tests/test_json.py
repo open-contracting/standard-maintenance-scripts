@@ -280,7 +280,7 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
     errors = 0
 
     # The standard repository has an example extension.
-    if 'docs/examples/organizational-units/ocds_divisionCode_extension' in path:
+    if 'docs/examples/organizations/organizational_units/ocds_divisionCode_extension' in path:
         full_schema = False
 
     # Kingfisher Collect uses JSON Schema files to validate Scrapy items.
