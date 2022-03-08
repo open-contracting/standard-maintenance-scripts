@@ -10,10 +10,10 @@ import requests
 from jscc.exceptions import DeepPropertiesWarning
 from jscc.schema import extend_schema, is_json_merge_patch, is_json_schema, rejecting_dict
 from jscc.testing.checks import (get_empty_files, get_invalid_json_files, get_misindented_files,
-                                 validate_codelist_enum, validate_deep_properties, validate_items_type,
-                                 validate_letter_case, validate_merge_properties, validate_metadata_presence,
-                                 validate_null_type, validate_object_id, validate_ref, validate_schema,
-                                 validate_schema_codelists_match)
+                                 validate_array_items, validate_codelist_enum, validate_deep_properties,
+                                 validate_items_type, validate_letter_case, validate_merge_properties,
+                                 validate_metadata_presence, validate_null_type, validate_object_id, validate_ref,
+                                 validate_schema, validate_schema_codelists_match)
 from jscc.testing.filesystem import walk_csv_data, walk_json_data
 from jscc.testing.util import difference, http_get, http_head, warn_and_assert
 from jsonref import JsonRef
@@ -401,6 +401,13 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
         },
     }
 
+    validate_array_items_kwargs = {
+        'allow_invalid': {
+            '/definitions/Amendment/properties/changes/items/properties/former_value',  # deprecated
+            '/definitions/Location/properties/geometry/properties/coordinates/items',  # recursion
+        },
+    }
+
     validate_deep_properties_kwargs = {
         'allow_deep': {
             '/definitions/Amendment/properties/changes/items',  # deprecated
@@ -412,6 +419,8 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
     errors += validate_schema(path, data, schema)
     if errors:
         warnings.warn(f'{path} is not valid JSON Schema ({errors} errors)')
+
+    errors += validate_array_items(path, data, **validate_array_items_kwargs)
 
     if name not in schema_exceptions:
         if 'versioned-release-validation-schema.json' in path:
