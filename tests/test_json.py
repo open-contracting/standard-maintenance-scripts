@@ -420,11 +420,10 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
     if errors:
         warnings.warn(f'{path} is not valid JSON Schema ({errors} errors)')
 
-    errors += validate_array_items(path, data, **validate_array_items_kwargs)
-
     if name not in schema_exceptions:
         if 'versioned-release-validation-schema.json' in path:
             validate_items_type_kwargs['additional_valid_types'] = ['object']
+        errors += validate_array_items(path, data, **validate_array_items_kwargs)
         errors += validate_items_type(path, data, **validate_items_type_kwargs)
         if not code_repo:
             errors += validate_codelist_enum(path, data, **validate_codelist_enum_kwargs)
