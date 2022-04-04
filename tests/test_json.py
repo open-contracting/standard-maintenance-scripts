@@ -20,8 +20,7 @@ from jsonref import JsonRef
 from ocdskit.schema import add_validation_properties
 
 # Whether to use the 1.2-dev version of OCDS.
-use_development_version = os.getenv('GITHUB_REF_NAME') == '1.2' or os.getenv('GITHUB_BASE_REF') == '1.2'
-raise Exception(f"GITHUB_REF_NAME={os.getenv('GITHUB_REF_NAME')} GITHUB_BASE_REF={os.getenv('GITHUB_BASE_REF')}")
+use_development_version = '1.2' in os.getenv('GITHUB_REF_NAME', '')
 
 # The codelists defined in `schema/codelists`. XXX Hardcoding.
 external_codelists = {

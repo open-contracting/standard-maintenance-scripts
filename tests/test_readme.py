@@ -15,7 +15,7 @@ from jscc.testing.util import http_get
 from ocdskit.schema import get_schema_fields
 
 # Whether to use the 1.2-dev version of OCDS.
-use_development_version = os.getenv('GITHUB_REF_NAME') == '1.2' or os.getenv('GITHUB_BASE_REF') == '1.2'
+use_development_version = '1.2' in os.getenv('GITHUB_REF_NAME', '')
 
 cwd = os.getcwd()
 repo_name = os.path.basename(os.getenv('GITHUB_REPOSITORY', cwd))
