@@ -19,8 +19,8 @@ from jscc.testing.util import difference, http_get, http_head, warn_and_assert
 from jsonref import JsonRef
 from ocdskit.schema import add_validation_properties
 
-# Whether to use the 1.1-dev version of OCDS.
-use_development_version = False
+# Whether to use the 1.2-dev version of OCDS.
+use_development_version = os.getenv('GITHUB_REF_NAME') == '1.2' or os.getenv('GITHUB_BASE_REF') == '1.2'
 
 # The codelists defined in `schema/codelists`. XXX Hardcoding.
 external_codelists = {
@@ -28,11 +28,15 @@ external_codelists = {
     'awardStatus.csv',
     'classificationScheme.csv',  # 1.2
     'contractStatus.csv',
+    'country.csv',  # 1.2
     'currency.csv',
     'documentType.csv',
     'extendedProcurementCategory.csv',
     'initiationType.csv',
     'itemClassificationScheme.csv',  # 1.1
+    'language.csv',  # 1.2
+    'linkRelationType.csv',  # 1.2
+    'mediaType.csv',  # 1.2
     'method.csv',
     'milestoneStatus.csv',
     'milestoneType.csv',
@@ -67,7 +71,7 @@ if repo_name == 'infrastructure':
     ocds_schema_base_url = 'https://standard.open-contracting.org/infrastructure/schema/'
 else:
     ocds_schema_base_url = 'https://standard.open-contracting.org/schema/'
-development_base_url = 'https://raw.githubusercontent.com/open-contracting/standard/1.1-dev/schema'
+development_base_url = 'https://raw.githubusercontent.com/open-contracting/standard/1.2-dev/schema'
 ocds_tags = re.findall(r'\d+__\d+__\d+', http_get(ocds_schema_base_url).text)
 if ocds_version:
     ocds_tag = ocds_version.replace('.', '__')
