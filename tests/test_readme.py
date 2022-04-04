@@ -14,8 +14,8 @@ from jscc.testing.checks import validate_schema
 from jscc.testing.util import http_get
 from ocdskit.schema import get_schema_fields
 
-# Whether to use the 1.1-dev version of OCDS.
-use_development_version = False
+# Whether to use the 1.2-dev version of OCDS.
+use_development_version = os.getenv('GITHUB_REF_NAME') == '1.2' or os.getenv('GITHUB_BASE_REF') == '1.2'
 
 cwd = os.getcwd()
 repo_name = os.path.basename(os.getenv('GITHUB_REPOSITORY', cwd))
@@ -23,7 +23,7 @@ ocds_version = os.environ.get('OCDS_TEST_VERSION')
 is_extension = os.path.isfile(os.path.join(cwd, 'extension.json'))
 
 ocds_schema_base_url = 'https://standard.open-contracting.org/schema/'
-development_base_url = 'https://raw.githubusercontent.com/open-contracting/standard/1.1-dev/schema'
+development_base_url = 'https://raw.githubusercontent.com/open-contracting/standard/1.2-dev/schema'
 ocds_tags = re.findall(r'\d+__\d+__\d+', http_get(ocds_schema_base_url).text)
 if ocds_version:
     ocds_tag = ocds_version.replace('.', '__')
