@@ -21,8 +21,7 @@ from ocdskit.schema import add_validation_properties
 
 # Whether to use the 1.2-dev version of OCDS.
 use_development_version = os.getenv('GITHUB_REF_NAME') == '1.2' or os.getenv('GITHUB_BASE_REF') == '1.2'
-warnings.warn(os.getenv('GITHUB_REF_NAME'))
-warnings.warn(os.getenv('GITHUB_BASE_REF'))
+raise Exception(f"GITHUB_REF_NAME={os.getenv('GITHUB_REF_NAME')} GITHUB_BASE_REF={os.getenv('GITHUB_BASE_REF')}")
 
 # The codelists defined in `schema/codelists`. XXX Hardcoding.
 external_codelists = {
