@@ -28,11 +28,13 @@ namespace :repos do
   task :vulnerabilities do
     repos.each do |repo|
       params = {
+        # vulnerabilityAlerts at https://docs.github.com/en/graphql/reference/objects#repository
+        # https://docs.github.com/en/graphql/reference/objects#repositoryvulnerabilityalert
         query: %({
           repository(name: "#{repo.name}", owner: "#{repo.owner.login}") {
             vulnerabilityAlerts(first: 100) {
               nodes {
-                createdAt
+                fixedAt
                 dismissedAt
                 securityVulnerability {
                   package {
@@ -48,9 +50,10 @@ namespace :repos do
         request.headers['Authorization'] = "bearer #{ENV.fetch('GITHUB_ACCESS_TOKEN')}"
       end
       data = JSON.load(response.body)
-      if data['data']['repository']['vulnerabilityAlerts']['nodes'].any?
+      nodes = data['data']['repository']['vulnerabilityAlerts']['nodes'].reject{ |node| node['fixedAt'] }
+      if nodes.any?
         puts "#{repo.full_name}"
-        rows = data['data']['repository']['vulnerabilityAlerts']['nodes'].map do |node|
+        rows = nodes.map do |node|
           [node['securityVulnerability']['package']['name'], node['dismissedAt']]
         end
         rows.uniq.each do |package_name, dismissed_at|
