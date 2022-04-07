@@ -62,7 +62,7 @@ core_extensions = {
 
 cwd = os.getcwd()
 repo_name = os.path.basename(os.getenv('GITHUB_REPOSITORY', cwd))
-ocds_version = os.environ.get('OCDS_TEST_VERSION')
+ocds_version = os.getenv('OCDS_TEST_VERSION')
 is_profile = os.path.isfile('Makefile') and repo_name not in ('standard', 'infrastructure')
 is_extension = os.path.isfile('extension.json') or is_profile
 extensiondir = os.path.join('schema', 'profile') if is_profile else '.'
@@ -261,7 +261,7 @@ def test_empty():
                     'Files are empty. See warnings below.')
 
 
-@pytest.mark.skipif(os.environ.get('OCDS_NOINDENT', False), reason='skipped indentation')
+@pytest.mark.skipif(os.getenv('OCDS_NOINDENT', False), reason='skipped indentation')
 def test_indent():
     def include(path, name):
         # http://json-schema.org/draft-04/schema
@@ -303,11 +303,15 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
         'meta-schema-patch.json',
     }
     ocds_schema_exceptions = {
+        'dereferenced-release-schema.json',
+        # standard-maintenance-scripts
         'codelist-schema.json',
         'extension-schema.json',
+        # extension_registry
         'extensions-schema.json',
         'extension_versions-schema.json',
-        'dereferenced-release-schema.json',
+        # spoonbill
+        'ocds-simplified-schema.json',
     }
     schema_exceptions = json_schema_exceptions | ocds_schema_exceptions
 
