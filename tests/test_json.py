@@ -357,18 +357,14 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
     validate_object_id_kwargs = {
         'allow_missing': validate_object_id_allow_missing,
         'allow_optional': {
+            # 1.2 fixed. https://github.com/open-contracting/ocds-extensions/issues/83
+            '/definitions/Enquiry',
             # 2.0 fixes.
             # See https://github.com/open-contracting/standard/issues/650
             '/definitions/Amendment',
             '/definitions/Organization',
             '/definitions/OrganizationReference',
             '/definitions/RelatedProcess',
-            # Core extensions.
-            '/definitions/Lot',
-            '/definitions/LotGroup',
-            '/definitions/ParticipationFee',
-            # See https://github.com/open-contracting/ocds-extensions/issues/83
-            '/definitions/Enquiry',
         },
     }
     if repo_name == 'infrastructure':
@@ -402,10 +398,6 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
             '/definitions/Organization/properties/id',
             '/definitions/OrganizationReference/properties/id',
             '/definitions/RelatedProcess/properties/id',
-            # Core extensions.
-            '/definitions/Lot/properties/id',
-            '/definitions/LotGroup/properties/id',
-            '/definitions/ParticipationFee/properties/id',
         },
     }
 
