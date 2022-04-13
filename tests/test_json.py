@@ -385,12 +385,6 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
             '/definitions/Link/properties/rel',
             '/definitions/Link/properties/href',
 
-            # The API extension adds metadata fields to which this rule doesn't apply.
-            '/properties/packageMetadata',
-            '/properties/packageMetadata/properties/uri',
-            '/properties/packageMetadata/properties/publishedDate',
-            '/properties/packageMetadata/properties/publisher',
-
             # 2.0 fixes.
             # See https://github.com/open-contracting/standard/issues/650
             '/definitions/Organization/properties/id',
