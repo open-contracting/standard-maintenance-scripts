@@ -375,8 +375,6 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
             '/definitions/Amendment/properties/changes/items/properties/former_value',  # deprecated
             # See https://github.com/open-contracting/standard/pull/738#issuecomment-440727233
             '/definitions/Organization/properties/details',
-            # See https://github.com/open-contracting/ocds-extensions/issues/83
-            '/definitions/Tender/properties/enquiries',
         },
         'allow_no_null': {
             '/definitions/Amendment/properties/changes/items/properties/property',  # deprecated
