@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import csv
 import json
 import os
 import re
@@ -73,12 +74,13 @@ def set_topics():
                 break
         else:
             if 'ocds-profile' not in topics:
-                print(f"{repo['name']} is not registered")
+                click.echo(f"{repo['name']} is not registered")
 
-        response = requests.put(f"https://api.github.com/repos/{repo['full_name']}/topics",
-                                data=json.dumps({'names': topics}),
-                                headers={'accept': 'application/vnd.github.mercy-preview+json'})
-        response.raise_for_status()
+        requests.put(
+            f"https://api.github.com/repos/{repo['full_name']}/topics",
+            data=json.dumps({'names': topics}),
+            headers={'accept': 'application/vnd.github.mercy-preview+json'}
+        ).raise_for_status()
 
 
 @cli.command()
@@ -97,7 +99,7 @@ def check_aspell_dictionary():
 
         for stem, count in stems.items():
             if count > 1 and stem not in exceptions:
-                print(f'{count} {stem}')
+                click.echo(f'{count} {stem}')
 
     plural_exceptions = [
         # Prose
@@ -139,6 +141,92 @@ def check_aspell_dictionary():
 
     # It's okay for there to be a capitalized singular building block and an uncapitalized plural field. Check anyway.
     report(lambda line: re.sub(r'e?s$', '', line).lower(), combined_exceptions)
+
+
+@cli.command()
+@click.argument('file', type=click.File())
+def check_licenses(file):
+    """
+    Report strong copyleft and unknown licenses in FILE.
+
+    FILE must be a CSV file with Name,Version,License columns.
+    """
+    permissive = {
+        'Public Domain',
+        # https://en.wikipedia.org/wiki/BSD_licenses
+        '3-Clause BSD License',
+        'BSD',
+        'BSD 3-Clause',
+        'BSD License',
+        'BSD-3-Clause',
+        # https://en.wikipedia.org/wiki/Academic_Free_License
+        'Academic Free License (AFL)',
+        # https://en.wikipedia.org/wiki/Apache_License
+        'Apache 2.0',
+        'Apache License 2.0',
+        'Apache Software License',
+        'Apache Software License 2.0',
+        # https://en.wikipedia.org/wiki/Artistic_License
+        'Artistic License',
+        # https://en.wikipedia.org/wiki/Historical_Permission_Notice_and_Disclaimer
+        'Historical Permission Notice and Disclaimer (HPND)',
+        # https://en.wikipedia.org/wiki/ISC_license
+        'ISC License (ISCL)',
+        # https://en.wikipedia.org/wiki/MIT_License
+        'MIT',
+        'MIT License',
+        'The MIT License (MIT)',
+        # https://en.wikipedia.org/wiki/Python_Software_Foundation_License
+        'Python Software Foundation License',
+        # https://en.wikipedia.org/wiki/Zlib_License
+        'zlib/php',
+        # https://en.wikipedia.org/wiki/Zope_Public_License
+        'Zope Public License',
+        'ZPL 2.1',
+    }
+
+    # "Weak copyleft" typically means that unmodified use imposes no additional requirements to permissive licenses.
+    weak_copyleft = {
+        # https://en.wikipedia.org/wiki/Eclipse_Public_License
+        # https://fossa.com/blog/open-source-software-licenses-101-eclipse-public-license/
+        'Eclipse Public License 2.0 (EPL-2.0)',
+        # https://en.wikipedia.org/wiki/GNU_Lesser_General_Public_License
+        # https://fossa.com/blog/open-source-software-licenses-101-lgpl-license/
+        'GNU Lesser General Public License v3 or later (LGPLv3+)',
+        'GNU Library or Lesser General Public License (LGPL)',
+        'LGPL',
+        # https://en.wikipedia.org/wiki/Mozilla_Public_License
+        # https://fossa.com/blog/open-source-software-licenses-101-mozilla-public-license-2-0/
+        'Mozilla Public License 2.0 (MPL 2.0)',
+    }
+
+    strong_copyleft = {
+        # https://en.wikipedia.org/wiki/GNU_Affero_General_Public_License
+        'GNU Affero General Public License v3 or later (AGPLv3+)',
+        # https://en.wikipedia.org/wiki/GNU_General_Public_License
+        'GNU General Public License (GPL)',
+        'GNU General Public License v2 or later (GPLv2+)',
+        'GNU General Public License v3 (GPLv3)',
+        'GNU General Public License v3 or later (GPLv3+)',
+        'GPLv2',
+    }
+
+    packages = {}
+    for row in csv.DictReader(file):
+        row['License'] = set(row['License'].split('; '))
+        if row['License'] & permissive or row['License'] & weak_copyleft:
+            continue
+        packages.setdefault(row['Name'], [row, []])
+        packages[row['Name']][1].append(row['Venv'])
+
+    for name, (row, venvs) in packages.items():
+        licenses = row['License']
+        if licenses & strong_copyleft:
+            click.secho(f'{name}: {", ".join(licenses)}', fg='red')
+        else:
+            click.secho(f'{name}: {", ".join(licenses)} {row["URL"]}', fg='yellow')
+        for venv in venvs:
+            click.echo(f'  {venv}')
 
 
 if __name__ == '__main__':
