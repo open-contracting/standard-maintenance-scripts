@@ -213,6 +213,7 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
 
     ignore = list(ignore) + os.getenv('STANDARD_MAINTENANCE_SCRIPTS_IGNORE', '').split(',')
     extras = os.getenv('STANDARD_MAINTENANCE_SCRIPTS_EXTRAS', '').split(',')
+    requirements_files += tuple(os.getenv('STANDARD_MAINTENANCE_SCRIPTS_FILES', '').split(','))
 
     # Collect the modules that are imported.
     imports = defaultdict(set)
