@@ -249,7 +249,7 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
 
     # Some modules affect the behavior of `jsonschema` without being imported.
     if 'jsonschema' in mapping:
-        for project in ('rfc3339-validator', 'rfc3986-validator', 'rfc3987', 'strict-rfc3339'):
+        for project in ('rfc3339-validator', 'rfc3986-validator', 'rfc3987'):
             if project in mapping and not any(module for module in mapping[project] if module in imports):
                 del mapping[project]
 
