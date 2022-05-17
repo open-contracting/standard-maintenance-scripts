@@ -180,6 +180,8 @@ def test_example_backticks():
         },
         'ocds_lots_extension': {
             'LotDetails',
+            'Bid.relatedLots',
+            'Finance.relatedLots',
         },
         'ocds_ppp_extension': {
             'initiationType.csv',
