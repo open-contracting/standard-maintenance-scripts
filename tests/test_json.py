@@ -41,6 +41,7 @@ external_codelists = {
     'milestoneStatus.csv',
     'milestoneType.csv',
     'partyRole.csv',
+    'partyScale.csv',  # 1.2
     'procurementCategory.csv',
     'relatedProcess.csv',
     'relatedProcessScheme.csv',
