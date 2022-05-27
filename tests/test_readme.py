@@ -178,6 +178,10 @@ def test_example_backticks():
         'ocds_bid_extension': {
             'BidsStatistic.requirementResponses',
         },
+        'ocds_eu_extension': {
+            'minimumValue',
+            'Lot.minimumValue',
+        },
         'ocds_lots_extension': {
             'LotDetails',
             'Bid.relatedLots',
