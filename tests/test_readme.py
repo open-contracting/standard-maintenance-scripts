@@ -182,6 +182,9 @@ def test_example_backticks():
             'minimumValue',
             'Lot.minimumValue',
         },
+        'ocds_legalBasis_extension': {
+            '+itemClassificationScheme.csv',
+        },
         'ocds_lots_extension': {
             'LotDetails',
             'Bid.relatedLots',
