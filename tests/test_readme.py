@@ -176,7 +176,15 @@ def test_example_backticks():
 
         # Changelog entries for non-existent or removed fields or codelists.
         'ocds_bid_extension': {
+            'BidsStatistic',
+            'BidsStatistic.currency',
+            'BidsStatistic.id',
+            'BidsStatistic.measure',
             'BidsStatistic.requirementResponses',
+            'BidsStatistic.value',
+            'BidsStatistic.valueGross',
+            'BidStatistic',
+            'bidStatistics.csv',
         },
         'ocds_eu_extension': {
             'minimumValue',
