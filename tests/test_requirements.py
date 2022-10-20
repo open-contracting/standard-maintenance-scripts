@@ -80,7 +80,7 @@ def projects_and_modules(requirements):
             reader = csv.reader(StringIO(project.get_metadata('RECORD')))
             for row in reader:
                 if row[0].endswith('.py'):
-                    mapping[project_name].add(row[0].split(os.sep, 1)[0])
+                    mapping[project_name].add(row[0].split(os.sep, 1)[0][:-3])
                 elif row[0].endswith('.so'):
                     mapping[project_name].add(row[0].split('.', 1)[0])
     return mapping
