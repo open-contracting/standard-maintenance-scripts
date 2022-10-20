@@ -79,9 +79,9 @@ def projects_and_modules(requirements):
         except FileNotFoundError:
             reader = csv.reader(StringIO(project.get_metadata('RECORD')))
             for row in reader:
-                if row[0].endswith('.py'):
-                    mapping[project_name].add(row[0].split(os.sep, 1)[0][:-3])
-                elif row[0].endswith('.so'):
+                if row[0].endswith('.py') and os.sep in row[0]:
+                    mapping[project_name].add(row[0].split(os.sep, 1)[0])
+                elif row[0].endswith(('.py', '.so')):
                     mapping[project_name].add(row[0].split('.', 1)[0])
     return mapping
 
