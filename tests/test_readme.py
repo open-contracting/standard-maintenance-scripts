@@ -238,7 +238,7 @@ def test_example_backticks():
         if not os.path.isfile(os.path.join(cwd, basename)):
             continue
 
-        schema = jsonref.JsonRef.replace_refs(patch_schema(basename))
+        schema = jsonref.replace_refs(patch_schema(basename))
         for field in get_schema_fields(schema):
             if 'patternProperties' in field.pointer_components:
                 literal, pattern = re.search(r'^(.*)\(\^?(.+)\$?\)$', field.path).groups()

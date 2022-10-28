@@ -6,6 +6,7 @@ from copy import deepcopy
 from functools import lru_cache
 
 import pytest
+import jsonref
 import requests
 from jscc.exceptions import DeepPropertiesWarning
 from jscc.schema import extend_schema, is_json_merge_patch, is_json_schema, rejecting_dict
@@ -16,7 +17,6 @@ from jscc.testing.checks import (get_empty_files, get_invalid_json_files, get_mi
                                  validate_schema, validate_schema_codelists_match)
 from jscc.testing.filesystem import walk_csv_data, walk_json_data
 from jscc.testing.util import difference, http_get, http_head, warn_and_assert
-from jsonref import JsonRef
 from ocdskit.schema import add_validation_properties
 
 # Whether to use the 1.2-dev version of OCDS.
@@ -442,7 +442,7 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
             errors += validate_metadata_presence(path, data, **validate_metadata_presence_kwargs)
             if not code_repo:
                 # Extensions aren't expected to repeat referenced `definitions`.
-                errors += validate_object_id(path, JsonRef.replace_refs(data), **validate_object_id_kwargs)
+                errors += validate_object_id(path, jsonref.replace_refs(data), **validate_object_id_kwargs)
 
         if name not in exceptions_plus_versioned_and_packages:
             # Extensions aren't expected to repeat `required`. Packages don't have merge rules.
