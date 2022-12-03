@@ -239,7 +239,7 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
     if os.path.exists(setup_cfg):
         config = configparser.ConfigParser()
         config.read(setup_cfg)
-        mapping = projects_and_modules(config['options']['install_requires'])
+        mapping = projects_and_modules(config.get('options', {}).get('install_requires', ''))
 
     if os.path.exists(setup_py):
         with open(setup_py) as f:
