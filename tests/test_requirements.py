@@ -1,4 +1,5 @@
 import ast
+import configparser
 import csv
 import os
 from collections import defaultdict
@@ -196,10 +197,11 @@ class CodeVisitor(ast.NodeVisitor):
 
 
 def check_requirements(path, *requirements_files, dev=False, ignore=()):
+    setup_cfg = os.path.join(path, 'setup.cfg')
     setup_py = os.path.join(path, 'setup.py')
     requirements_in = os.path.join(path, 'requirements.in')
-    if not any(os.path.exists(filename) for filename in (setup_py, requirements_in)):
-        pytest.skip(f"No setup.py or requirements.in file found")
+    if not any(os.path.exists(filename) for filename in (setup_cfg, setup_py, requirements_in)):
+        pytest.skip(f"No setup.cfg, setup.py or requirements.in file found")
 
     excluded = ['.git', 'docs', 'node_modules']
     find_packages_kwargs = {}
@@ -234,6 +236,11 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
                     imports[module].add(file)
 
     # Collect the requirements and the modules that can be imported.
+    if os.path.exists(setup_cfg):
+        config = configparser.ConfigParser()
+        config.read(setup_cfg)
+        mapping = projects_and_modules(config['options']['install_requires'])
+
     if os.path.exists(setup_py):
         with open(setup_py) as f:
             root = ast.parse(f.read())
