@@ -240,6 +240,8 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
         config = configparser.ConfigParser()
         config.read(setup_cfg)
         mapping = projects_and_modules(config.get('options', 'install_requires', fallback=''))
+        for extra in extras:
+            mapping.update(projects_and_modules(config.get('options.extras_require', extra, fallback='')))
 
     if os.path.exists(setup_py):
         with open(setup_py) as f:
