@@ -318,7 +318,6 @@ def test_dev_requirements():
         'sphinx-rtd-theme',
         # Build utilities.
         'libsass',
-        'transifex-client',
     ]
 
     check_requirements(path, 'requirements_dev.in', dev=True, ignore=IGNORE + ignore)
