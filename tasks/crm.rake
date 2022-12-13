@@ -4,18 +4,21 @@ namespace :crm do
   REDMINE_OCP_USERS_OCDS = [
     # Data Team
     'Andidiong Okon',
+    'Andrii Hazin',
     'Camila Salazar',
+    'Félix Penna',
     'James McKinney',
     'Lindsey Marchessault',
     'Yohanna Lisnichuk',
     # Program Managers
     'Bernadine Fernz',
     'Carey Kluttz',
+    'Edwin Muhumuza',
     'Guillermo Burr',
     'Karolis Granickas',
     'Mariana Lopez Fernandez',
     'Mariana San Martin',
-    'Nkechi Coker',
+    'Nanda Sihombing',
     'Oscar Hernandez',
     'Reilly Martin',
     'Sofía Garzón',
@@ -32,46 +35,6 @@ namespace :crm do
     'Sophie Brown',
   ]
 
-  # Open Data Services Co-operative Limited
-  # http://opendataservices.coop
-  REDMINE_ODS_USERS_OCDS = [
-    'Charlie Pinder',
-    'Duncan Dewhurst',
-    'Matt Marshall',
-    'Rachel Vint',
-  ]
-  REDMINE_ODS_USERS_TECH = [
-    'Ben Webb',
-    'David Raznick',
-    # 'Amy Guy',
-    # 'Bibiana Cristofol',
-    # 'James Baster',
-    # 'Michael Wood',
-    # 'Rob Redpath',
-  ]
-  REDMINE_ODS_USERS_OTHER = [
-    'Jack Lord',
-    'Kadie Armstrong',
-    'Simon Whitehouse',
-    'Tim Williams',
-    # 'David Spencer',
-    # 'Jack Lord',
-    # 'Steven Flower',
-  ]
-  REDMINE_ODS_USERS = REDMINE_ODS_USERS_OCDS + REDMINE_ODS_USERS_TECH + REDMINE_ODS_USERS_OTHER
-
-  # Centro de Desarrollo Sostenible
-  REDMINE_CDS_USERS_OCDS = [
-    'Andrés Aguilera',
-    'Cecilia Casco',
-    'Dulce Areco',
-    'María Esther Cervantes',
-    'Rodrigo Villalba',
-  ]
-  REDMINE_CDS_USERS = REDMINE_CDS_USERS_OCDS + [
-    'Juan Pane',
-  ]
-
   # Infrastructure Transparency Initiative
   REDMINE_COST_USERS = [
     'Evelyn Hernandez',
@@ -80,16 +43,10 @@ namespace :crm do
 
   REDMINE_EXTERNAL_USERS = [
     'Eric Reese',
-    'Nanda Sihombing',
     'Sabah Zdanowska',
   ]
 
-  REDMINE_OTHER_HELPDESK = [
-    'Nanda Sihombing',
-    # 'Rob Redpath',
-  ]
-
-  REDMINE_ALL_USERS = REDMINE_OCP_USERS + REDMINE_ODS_USERS + REDMINE_CDS_USERS + REDMINE_COST_USERS + REDMINE_EXTERNAL_USERS
+  REDMINE_ALL_USERS = REDMINE_OCP_USERS + REDMINE_COST_USERS + REDMINE_EXTERNAL_USERS
 
   def crm_api_client
     @crm_api_client ||= begin
@@ -159,19 +116,19 @@ namespace :crm do
       # Open Contracting Partnership
       5 => [:exactly, REDMINE_OCP_USERS],
       # Open Data Services
-      4 => [:exactly, REDMINE_ODS_USERS],
+      4 => [:exactly, []],
 
-      # Everyone excluding non-OCDS ODS
-      44 => [:exactly, REDMINE_OCP_USERS + REDMINE_ODS_USERS_OCDS + REDMINE_CDS_USERS + REDMINE_ODS_USERS_TECH],
+      # Open Contracting Partnership & Helpdesk Teams
+      44 => [:exactly, REDMINE_OCP_USERS],
       # Program Managers & Helpdesk Teams
-      65 => [:exactly, REDMINE_OCP_USERS_OCDS + REDMINE_ODS_USERS_OCDS + REDMINE_CDS_USERS_OCDS + REDMINE_OTHER_HELPDESK],
+      65 => [:exactly, REDMINE_OCP_USERS_OCDS],
 
       # Helpdesk Teams
-      43 => [:exactly, REDMINE_ODS_USERS_OCDS + REDMINE_CDS_USERS_OCDS],
+      43 => [:exactly, []],
       # Latam Helpdesk Team
-      33 => [:exactly, REDMINE_CDS_USERS],
+      33 => [:exactly, []],
       # English Helpdesk Team
-      66 => [:exactly, REDMINE_ODS_USERS_OCDS],
+      66 => [:exactly, []],
       # Partners and Consultants
       6 => [:exactly, REDMINE_EXTERNAL_USERS],
     }
