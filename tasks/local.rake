@@ -173,7 +173,7 @@ namespace :local do
         end
 
         matches.sort_by(&:full_name).each do |repo|
-          if repo.archived || repo.private || ['standard_theme', 'toucan'].include?(repo.name)
+          if repo.archived || repo.private || ['standard_theme'].include?(repo.name)
             next
           end
 
