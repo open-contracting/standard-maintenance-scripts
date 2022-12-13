@@ -1,105 +1,51 @@
 namespace :org do
-  # Last updated 2021-02-01
+  # Last updated 2022-12-13
+  #
+  # https://www.open-contracting.org/about/team/
+  # http://opendataservices.coop
   MEMBERS = {
     'General' => [
       # Open Contracting Partnership
-      # https://www.open-contracting.org/about/team/
-      'lindseyam', # Lindsey Marchessault
-
-      # Centro de Desarrollo Sostenible
-      'aguilerapy', # Andrés Aguilera
-      'cecicasco', # Cecilia Casco
-      'ravf95', # Rodrigo Villalba
-
+      'fppenna', # Félix Penna
+      'ndrhzn',  # Andrii Hazin
+    ],
+    'OC4IDS' => [
       # Open Data Services Co-operative Limited
-      # http://opendataservices.coop
-      'duncandewhurst', # Duncan Dewhurst
-      'mrshll1001', # Matt Marshall
-      'odscrachel', # Rachel Vint
-      'pindec', # Charlie Pinder
-      # Developers
       'bjwebb', # Ben Webb
+      'duncandewhurst', # Duncan Dewhurst
+      'odscrachel', # Rachel Vint
       'kindly', # David Raznick
-      'tim0th1', # Tim Williams
-      # 'bibianac', # Bibiana Cristofol
-      # 'idlemoor', # David Spencer
-      # 'michaelwood', # Michael Wood
-      # 'odscjames', # James Baster
-      # 'rhiaro', # Amy Guy
-      # 'robredpath', # Rob Redpath
-      # 'rory09', # Rory Scott
-      # 'scatteredink', # Jack Lord
-    ],
-    'Datlab' => [
-      'hrubyjan',
-      'jakubkrafka',
-      'lucyanne98',
-      't-mrazek',
-      # Product management
-      'sabahfromlondon',
-    ],
-    'Quintagroup' => [
-      'anton-shakh-qg',
-      'mariob0y',
-      'ohelesh',
-      'olehchepak',
-      'open-contracting-automator',
-      'pontostroy',
-      'sorenabell',
-      'stasivoleh',
-      'vdigitall',
-      'yshalenyk',
-      # Did not accept invitation.
-      # 'maksym-quinta',
-      # 'myroslav',
-      # 'romansavych',
-      # 'vasyldanyliv',
-      # 'wijionejs',
-      # Product management
-      'sabahfromlondon',
     ],
     'RBC Group' => [
       'ocds-bi-tools',
     ],
-    'Young Innovations' => [
-      # Open Contracting Partnership
-      'vtarnay1',
-
-      # Young Innovations
-      'anjesh',
-      'anjilab',
-      'bigyan',
-      'bikramtuladhar',
-      'duptitung',
-      'kushalraj',
-      'nirazanbasnet',
-      'prashantsh',
-      'rubinakarki',
-      'simranthapa634',
-      'sonikabaniya',
-      'suhanapradhan',
-      'suyojman',
-      # Did not accept invitation.
-      # 'abhishekska',
-    ],
     'Standard' => [
       'colinmaudry',
       'jachymhercher',
+      # Open Data Services Co-operative Limited
+      'duncandewhurst', # Duncan Dewhurst
+      'odscjen', # Jen Harris
     ],
     'Servers' => [
-      # Root access to specific servers
-      'bjwebb',
-      'kindly',
-
       # Dogsbody Technology Limited
       'dogsbody', # Dan Benton
       'dogsbody-ashley', # Ashley Holland
       'dogsbody-josh', # Josh Archer
       'robhooper', # Rob Hooper
-    ]
+    ],
+    'Transfers' => [
+    ],
   }
 
+  ISSUES_ONLY = [
+    'sabahfromlondon', # Sabah Zdanowska
+    # Open Contracting Partnership
+    'lindseyam', # Lindsey Marchessault
+    'vtarnay1', # Volodymyr Tarnay
+  ]
+
   ADMINS = [
+    # Open Contracting Partnership
     'jpmckinney',
     'yolile',
   ]
@@ -112,7 +58,7 @@ namespace :org do
       people = client.org_members(organization, per_page: 100) + client.org_invitations(organization)
       names = people.map{ |member| member.login.downcase }
 
-      difference = names - expected - ADMINS
+      difference = names - expected - ADMINS - ISSUES_ONLY
       if difference.any?
         puts "#{organization}: add to MEMBERS in tasks/org.rake: #{difference.join(', ')}"
       end
@@ -185,28 +131,15 @@ namespace :org do
   desc 'Lists repositories that should be added or removed from teams'
   task :team_repos do
     # The repositories that should be accessible to these teams.
-    datlab_only = [
-      'data-registry',
-      'pelican-backend',
-      'pelican-frontend',
-    ]
-    datlab_shared = [
-      'kingfisher-collect',
-      'kingfisher-process',
-      'lib-cove-ocds',
-      'ocdskit',
-    ]
-    quintagroup = [
-      'spoonbill',
-      'spoonbill-test',
-      'spoonbill-web',
-    ]
     rbcgroup = [
       'bi.open-contracting.org',
     ]
-    young_innovations = [
-      'covid-19-procurement-explorer-admin',
-      'covid-19-procurement-explorer-public',
+    oc4ids = [
+      'cove-oc4ids',
+      'infrastructure',
+      'lib-cove-oc4ids',
+      'notebooks-oc4ids',
+      'oc4idskit',
     ]
     servers = [
       'deploy',
@@ -216,7 +149,6 @@ namespace :org do
     ]
     standard = [
       # Specifications
-      'infrastructure',
       'ocds-extensions',
       'standard',
       # Extension tools
@@ -232,16 +164,15 @@ namespace :org do
     ]
 
     repos = client.org_repos('open-contracting', per_page: 100)
-    archived = repos.select(&:archived).map(&:name) - ['ocds-show', 'ocds-show-ppp']
+    archived = repos.select(&:archived).map(&:name)
 
     expected = {
-      'General' => repos.map(&:name) - archived - servers - datlab_only - quintagroup - young_innovations - ['backup-codes'],
-      'Datlab' => datlab_only + datlab_shared,
-      'Quintagroup' => quintagroup,
+      'General' => repos.map(&:name) - archived - servers - ['backup-codes'],
+      'OC4IDS' => oc4ids,
       'RBC Group' => rbcgroup,
-      'Young Innovations' => young_innovations,
       'Servers' => servers + ['miscellaneous-private-scripts'], # Redmine patches
       'Standard' => standard,
+      'Transfers' => [],
     }
 
     client.org_teams('open-contracting').each do |team|
@@ -266,10 +197,10 @@ namespace :org do
         'Admin'
       elsif perms.include?(:maintain)
         'Maintain'
+      elsif perms.include?(:push)
+        'Write'
       elsif perms.include?(:triage)
         'Triage'
-      elsif perms.include?(:push) &&  perms.include?(:pull)
-        'Write'
       end
     end
 
@@ -296,13 +227,13 @@ namespace :org do
             puts "#{team.html_url}/repositories: set #{team_repo.name} to 'Maintain' (was #{human(permissions)})"
           end
         elsif issues_only_triage.include?(team_repo.name)
-          expected = !permissions.pull && !permissions.push && !permissions.admin && permissions.triage && !permissions.maintain
+          expected = permissions.pull && !permissions.push && !permissions.admin && permissions.triage && !permissions.maintain
 
           if !expected
             puts "#{team.html_url}/repositories: set #{team_repo.name} to 'Triage' (was #{human(permissions)})"
           end
         else
-          expected = permissions.pull && permissions.push && !permissions.triage && !permissions.maintain
+          expected = permissions.pull && permissions.push && permissions.triage && !permissions.maintain
           if active_development.include?(team_repo.name)
             expected &&= permissions.admin
             human_permission = 'Admin'
@@ -312,7 +243,7 @@ namespace :org do
           end
 
           if !expected
-            puts "#{team.html_url}/repositories: set #{team_repo.name} to #{human_permission} (was #{human(permissions)})"
+            puts "#{team.html_url}/repositories: set #{team_repo.name} to '#{human_permission}' (was #{human(permissions)})"
           end
         end
       end
