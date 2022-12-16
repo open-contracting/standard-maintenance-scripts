@@ -50,9 +50,11 @@ internal_tools = [
   'json-schema-random',
   'notebooks-ocds',
   'notebooks-oc4ids',
+  'scrapy-log-analyzer',
   'software-development-handbook',
   'standard-development-handbook',
   'standard-maintenance-scripts',
+  'yapw',
 ]
 DOCUMENTATION_DEPENDENCIES = [
   'docson',
