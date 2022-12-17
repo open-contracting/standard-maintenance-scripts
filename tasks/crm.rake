@@ -93,7 +93,7 @@ namespace :crm do
     "http://crm.open-contracting.org/contacts/#{contact['id']}#{suffix}".ljust(45 + suffix.size)
   end
 
-  desc 'Lists users not employed by the Open Contracting Partnership or its helpdesk teams'
+  desc 'Lists users not employed by the Open Contracting Partnership'
   task :users do
     known_users = REDMINE_ALL_USERS
 

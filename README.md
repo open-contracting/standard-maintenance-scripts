@@ -77,7 +77,7 @@ Review outside collaborators:
 
 ### Redmine CRM
 
-Lists users not employed by the Open Contracting Partnership or its helpdesk teams:
+Lists users not employed by the Open Contracting Partnership:
 
     bundle exec rake crm:users
 
