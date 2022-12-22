@@ -1,7 +1,7 @@
 namespace :crm do
   # Open Contracting Partnership
   # https://www.open-contracting.org/about/team/
-  REDMINE_OCP_USERS_OCDS = [
+  REDMINE_OCP_USERS = [
     # Data Team
     'Andidiong Okon',
     'Andrii Hazin',
@@ -24,8 +24,7 @@ namespace :crm do
     'Sofía Garzón',
     'Viktor Nestulia',
     'Volodymyr Tarnay',
-  ]
-  REDMINE_OCP_USERS = REDMINE_OCP_USERS_OCDS + [
+    # Others
     'Gavin Hayman',
     'Georg Neumann',
     'Kathrin Frauscher',
@@ -35,18 +34,9 @@ namespace :crm do
     'Sophie Brown',
   ]
 
-  # Infrastructure Transparency Initiative
-  REDMINE_COST_USERS = [
-    'Evelyn Hernandez',
-    'John Hawkins',
-  ]
+  REDMINE_EXTERNAL_USERS = []
 
-  REDMINE_EXTERNAL_USERS = [
-    'Eric Reese',
-    'Sabah Zdanowska',
-  ]
-
-  REDMINE_ALL_USERS = REDMINE_OCP_USERS + REDMINE_COST_USERS + REDMINE_EXTERNAL_USERS
+  REDMINE_ALL_USERS = REDMINE_OCP_USERS + REDMINE_EXTERNAL_USERS
 
   def crm_api_client
     @crm_api_client ||= begin
@@ -114,21 +104,10 @@ namespace :crm do
   task :groups do
     groups = {
       # Open Contracting Partnership
-      5 => [:exactly, REDMINE_OCP_USERS],
-      # Open Data Services
-      4 => [:exactly, []],
+      65 => [:exactly, REDMINE_OCP_USERS],
 
-      # Open Contracting Partnership & Helpdesk Teams
-      44 => [:exactly, REDMINE_OCP_USERS],
-      # Program Managers & Helpdesk Teams
-      65 => [:exactly, REDMINE_OCP_USERS_OCDS],
-
-      # Helpdesk Teams
+      # Helpdesk Analysts
       43 => [:exactly, []],
-      # Latam Helpdesk Team
-      33 => [:exactly, []],
-      # English Helpdesk Team
-      66 => [:exactly, []],
       # Partners and Consultants
       6 => [:exactly, REDMINE_EXTERNAL_USERS],
     }
