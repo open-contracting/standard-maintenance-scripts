@@ -130,7 +130,7 @@ class CodeVisitor(ast.NodeVisitor):
             self.generic_visit(node)
 
     def visit_If(self, node):
-        # Don't collect imports in `if sys.version_info[:2] >= (3, 8): ... else: ...` blocks.
+        # Don't collect imports in `if sys.version_info >= (3, 8): ... else: ...` blocks.
         if (
             not isinstance(node.test, ast.Compare)
             or any(isinstance(op, (ast.In, ast.NotIn, ast.Is, ast.IsNot)) for op in node.test.ops)
