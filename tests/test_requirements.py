@@ -134,7 +134,9 @@ class CodeVisitor(ast.NodeVisitor):
         if (
             not isinstance(node.test, ast.Compare)
             or any(isinstance(op, (ast.In, ast.NotIn, ast.Is, ast.IsNot)) for op in node.test.ops)
-            or not any(isinstance(val(e), int) for c in node.test.comparators if isinstance(c, ast.Tuple) for e in c.elts)
+            or not any(
+                isinstance(val(e), int) for c in node.test.comparators if isinstance(c, ast.Tuple) for e in c.elts
+            )
         ):
             self.generic_visit(node)
 
@@ -201,7 +203,7 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
     setup_py = os.path.join(path, 'setup.py')
     requirements_in = os.path.join(path, 'requirements.in')
     if not any(os.path.exists(filename) for filename in (setup_cfg, setup_py, requirements_in)):
-        pytest.skip(f"No setup.cfg, setup.py or requirements.in file found")
+        pytest.skip("No setup.cfg, setup.py or requirements.in file found")
 
     excluded = ['.git', 'docs', 'node_modules']
     find_packages_kwargs = {}

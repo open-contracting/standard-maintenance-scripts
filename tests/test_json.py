@@ -195,7 +195,7 @@ def metaschemas():
 
     # See https://tools.ietf.org/html/rfc7396
     if is_extension:
-        # noqa: See https://github.com/open-contracting-extensions/ocds_milestone_documents_extension/blob/master/release-schema.json#L9
+        # See https://github.com/open-contracting-extensions/ocds_milestone_documents_extension/blob/master/release-schema.json#L9 # noqa: E501
         metaschema['properties']['deprecated']['type'] = ['object', 'null']
 
     project_package_metaschema = deepcopy(metaschema)
