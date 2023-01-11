@@ -64,7 +64,7 @@ core_extensions = {
 cwd = os.getcwd()
 repo_name = os.path.basename(os.getenv('GITHUB_REPOSITORY', cwd))
 ocds_version = os.getenv('OCDS_TEST_VERSION')
-is_profile = os.path.isfile('Makefile') and repo_name not in ('standard', 'infrastructure')
+is_profile = os.path.isfile('Makefile') and os.path.isdir('docs') and repo_name not in ('standard', 'infrastructure')
 is_extension = os.path.isfile('extension.json') or is_profile
 extensiondir = os.path.join('schema', 'profile') if is_profile else '.'
 
