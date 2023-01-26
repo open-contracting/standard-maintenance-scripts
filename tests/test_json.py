@@ -106,8 +106,9 @@ def patch(text):
 
 
 excluded = ('.git', '.ve', '_static', 'build', 'fixtures', 'node_modules')
+excluded_repo_name = ('pelican-backend', 'pelican-frontend', 'sphinxcontrib-opencontracting')
 json_schemas = [(path, name, data) for path, name, _, data in walk_json_data(patch, excluded=excluded)
-                if is_json_schema(data) and repo_name not in ('pelican-backend', 'sphinxcontrib-opencontracting')]
+                if is_json_schema(data) and repo_name not in excluded_repo_name]
 
 
 def merge(*objs):
