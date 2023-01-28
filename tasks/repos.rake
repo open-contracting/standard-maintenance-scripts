@@ -19,6 +19,10 @@ namespace :repos do
       exclusions << 'master'
     end
 
+    if extension?(repo.name, profiles: false, templates: false) && repo.default_branch == '1.1'
+      exclusions << '1.2'
+    end
+
     repo.rels[:branches].get.data.reject do |branch|
       branch.name == repo.default_branch || pulls.include?(branch.name) || exclusions.include?(branch.name)
     end

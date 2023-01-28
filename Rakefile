@@ -15,6 +15,7 @@ require 'safe_yaml'
 SafeYAML::OPTIONS[:default_mode] = :safe
 
 PROFILES = [
+  'eforms',
   'european-union',
   'government-procurement-agreement',
   'public-private-partnerships',
