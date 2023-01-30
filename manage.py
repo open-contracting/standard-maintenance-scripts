@@ -3,7 +3,8 @@ import csv
 import json
 import os
 import re
-from collections import defaultdict
+from collections import Counter, defaultdict
+from datetime import datetime, timedelta
 
 import click
 import requests
@@ -227,6 +228,54 @@ def check_licenses(file):
             click.secho(f'{name}: {", ".join(licenses)} {row["URL"]}', fg='yellow')
         for venv in venvs:
             click.echo(f'  {venv}')
+
+
+@cli.command()
+@click.argument('user', nargs=-1)
+@click.option('--days', type=int, default=90, help='Days ago from which to count contributions')
+def github_activity(user, days):
+
+    format_string = '''\
+query {{
+{queries}
+}}
+fragment f on User {{
+    contributionsCollection(from: "{since}") {{
+        commitContributionsByRepository(maxRepositories: 100) {{
+            contributions {{
+                totalCount
+            }}
+            repository {{
+                url
+            }}
+        }}
+    }}
+}}'''
+
+    query = format_string.format(
+        queries='\n'.join(f'  user{i}: user(login: "{login}") {{\n    ...f\n  }}''' for i, login in enumerate(user)),
+        since=(datetime.utcnow() - timedelta(days=days)).strftime("%Y-%m-%dT%H:%M:%SZ"),
+    )
+
+    response = requests.post('https://api.github.com/graphql', json={'query': query})
+    response.raise_for_status()
+
+    json = response.json()
+    if 'errors' in json:
+        click.echo(json)
+        return
+
+    counter = defaultdict(int)
+    for _, data in response.json()['data'].items():
+        try:
+            for by in data['contributionsCollection']['commitContributionsByRepository']:
+                counter[by['repository']['url']] += by['contributions']['totalCount']
+        except KeyError:
+            click.echo(data)
+
+    click.echo('  R   C  URL')
+    for i, (url, count) in enumerate(sorted(counter.items(), key=lambda item: item[1], reverse=True), 1):
+        click.echo(f'{i:3d} {count:3d} {url}')
 
 
 if __name__ == '__main__':
