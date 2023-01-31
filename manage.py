@@ -233,14 +233,15 @@ def check_licenses(file):
 @cli.command()
 @click.argument('user', nargs=-1)
 @click.option('--days', type=int, default=90, help='Days ago from which to count contributions')
-def github_activity(user, days):
-
+@click.option('--start', help='Datetime from which to count contributions')
+@click.option('--end', help='Datetime up to which to count contributions')
+def github_activity(user, days, start, end):
     format_string = '''\
 query {{
 {queries}
 }}
 fragment f on User {{
-    contributionsCollection(from: "{since}") {{
+    contributionsCollection(from: "{start}", to: "{end}") {{
         commitContributionsByRepository(maxRepositories: 100) {{
             contributions {{
                 totalCount
@@ -251,10 +252,20 @@ fragment f on User {{
         }}
     }}
 }}'''
+    if start:
+        start += "T00:00:00Z"
+    if end:
+        end += "T23:59:59Z"
+
+    if not start and days:
+        start = (datetime.utcnow() - timedelta(days=days)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    if not end:
+        end = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
 
     query = format_string.format(
         queries='\n'.join(f'  user{i}: user(login: "{login}") {{\n    ...f\n  }}''' for i, login in enumerate(user)),
-        since=(datetime.utcnow() - timedelta(days=days)).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        start=start,
+        end=end,
     )
 
     response = requests.post('https://api.github.com/graphql', json={'query': query})
