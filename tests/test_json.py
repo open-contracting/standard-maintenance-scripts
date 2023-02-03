@@ -94,8 +94,7 @@ def patch(text):
     """
     Handle unreleased tag in $ref.
     """
-    match = re.search(r'\d+__\d+__\d+', text)
-    if match:
+    if match := re.search(r'\d+__\d+__\d+', text):
         tag = match.group(0)
         if tag not in ocds_tags:
             if ocds_version or not use_development_version:
