@@ -162,7 +162,8 @@ def _merge_obj(result, obj, pointer=''):  # changed code
 
 @lru_cache()
 def metaschemas():
-    # See https://tools.ietf.org/html/draft-fge-json-schema-validation-00
+    # Novel uses of JSON Schema features may require updates to other repositories.
+    # See https://ocds-standard-development-handbook.readthedocs.io/en/latest/meta/schema_style_guide.html#validation-keywords # noqa: E501
     unused_json_schema_properties = {
         # Validation keywords for numeric instances
         'multipleOf',
@@ -198,6 +199,7 @@ def metaschemas():
         # See https://github.com/open-contracting-extensions/ocds_milestone_documents_extension/blob/master/release-schema.json#L9 # noqa: E501
         metaschema['properties']['deprecated']['type'] = ['object', 'null']
 
+    # Fork the project package schema here, to not add merge properties to it.
     project_package_metaschema = deepcopy(metaschema)
 
     # jsonmerge fields for OCDS 1.0.
@@ -226,14 +228,18 @@ def metaschemas():
         },
     }
 
-    # Novel uses of JSON Schema features may require updates to other repositories.
-    # See https://github.com/open-contracting/standard/issues/757
+    # Fork the record package schema here, to not delete properties from metaschema.
     record_package_metaschema = deepcopy(metaschema)
 
     for prop in unused_json_schema_properties:
         del record_package_metaschema['properties'][prop]
         del project_package_metaschema['properties'][prop]
 
+    subschema = {'$ref': '#/definitions/schemaArray'}
+    record_package_metaschema['properties']['items']['anyOf'].remove(subschema)
+    project_package_metaschema['properties']['items']['anyOf'].remove(subschema)
+
+    # Record package schema allows oneOf, but release package schema does not.
     release_package_metaschema = deepcopy(record_package_metaschema)
 
     del release_package_metaschema['properties']['oneOf']
