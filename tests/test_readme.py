@@ -186,6 +186,9 @@ def test_example_backticks():
             'BidStatistic',
             'bidStatistics.csv',
         },
+        'ocds_countryCode_extension': {
+            'countryCode',
+        },
         'ocds_eu_extension': {
             'minimumValue',
             'Lot.minimumValue',
