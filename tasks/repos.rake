@@ -53,6 +53,9 @@ namespace :repos do
       response = Faraday.post('https://api.github.com/graphql', JSON.dump(params)) do |request|
         request.headers['Authorization'] = "bearer #{ENV.fetch('GITHUB_ACCESS_TOKEN')}"
       end
+      if response.status != 200
+        raise response.body
+      end
       data = JSON.load(response.body)
       nodes = data['data']['repository']['vulnerabilityAlerts']['nodes'].reject{ |node| node['fixedAt'] }
       if nodes.any?
