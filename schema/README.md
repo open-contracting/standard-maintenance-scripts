@@ -13,7 +13,7 @@ If changes are made to `codelist-schema.json`, changes may be needed to:
 
 ### extension-schema.json
 
-This repository holds `extension-schema.json`, against which `extension.json` files are tested. The schema is documented in [standard_extension_template](https://github.com/open-contracting/standard_extension_template#extensionjson).
+This repository holds `extension-schema.json`, against which `extension.json` files are tested. The schema is documented in [standard_extension_template](https://github.com/open-contracting/standard_extension_template#extensionjson) – except for the `testDependencies` field, which is documented in the [OCDS Development Handbook](https://ocds-standard-development-handbook.readthedocs.io/en/latest/extensions/), because it is only relevant to OCP-authored extensions.
 
 If changes are made to `extension-schema.json`, changes may be needed to:
 
