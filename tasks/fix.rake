@@ -143,6 +143,11 @@ namespace :fix do
           end
         end
       end
+      branches_to_protect.compact!
+
+      if not branches_to_protect
+        raise "no branches to protect"
+      end
 
       options = headers.merge({
         enforce_admins: false,
