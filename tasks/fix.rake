@@ -43,6 +43,10 @@ namespace :fix do
   desc "Enables delete branch on merge, disables empty wikis, updates extensions' descriptions and homepages, and lists repositories with invalid names, unexpected configurations, etc."
   task :lint_repos do
     repos.each do |repo|
+      if repo.archived
+        puts "Skipping archived repo #{repo.html_url}"
+        next
+      end
       if not repo.delete_branch_on_merge
         client.edit_repository(repo.full_name, delete_branch_on_merge: true)
         puts "#{repo.html_url}/settings #{'enabled delete_branch_on_merge'.bold}"
