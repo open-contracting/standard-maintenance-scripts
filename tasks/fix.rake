@@ -44,7 +44,6 @@ namespace :fix do
   task :lint_repos do
     repos.each do |repo|
       if repo.archived
-        puts "Skipping archived repo #{repo.html_url}"
         next
       end
       if not repo.delete_branch_on_merge
