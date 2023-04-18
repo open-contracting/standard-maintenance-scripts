@@ -16,7 +16,7 @@
         "title": "Code",
         "description": "The value to use in OCDS data. Codes should match the letter case of external codes (e.g. ISO 4217, JSON Schema, GeoJSON, IANA Media Types) and should be camel case, otherwise.",
         "type": "string",
-        "pattern": "^([a-z]+([A-Z][a-z]+|EU)*|[A-Z]+[0-9]?|[a-z]+(.[a-z]+)*|[A-Z]{2}(-[A-Z]+)+|TED_[A-Z]+(_[A-Z]+)*|date-time|LineString|Point|Polygon|MultiLineString|MultiPoint|MultiPolygon|(application|audio|font|example|image|message|model|multipart|text|video)/[\\w.+-]+)$"
+        "pattern": "^([a-z]+([A-Z][a-z]+|EU|GPP)*|[A-Z]+[0-9]?|[a-z]+(.[a-z]+)*|[A-Z]{2}(-[A-Z]+)+|TED_[A-Z]+(_[A-Z]+)*|date-time|LineString|Point|Polygon|MultiLineString|MultiPoint|MultiPolygon|(application|audio|font|example|image|message|model|multipart|text|video)/[\\w.+-]+)$"
       },
       "Title": {
         "title": "Title",
