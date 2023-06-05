@@ -136,6 +136,28 @@ namespace :local do
       'i18n' => 'Translations',
     }
 
+    # https://github.com/organizations/open-contracting/settings/installations/20658712
+    # Using an installation access token is too complicated.
+    # https://docs.github.com/en/rest/apps/installations?apiVersion=2022-11-28
+    precommit = Set.new([
+      'cardinal-py',
+      'cardinal-rs',
+      'cove-oc4ids',
+      'cove-ocds',
+      'credere-backend',
+      'credere-frontend',
+      'data-registry',
+      'european-union-support',
+      'flake8-opencontracting',
+      'kingfisher-process',
+      'pelican-backend',
+      'pelican-frontend',
+      'scrapy-log-analyzer',
+      'spoonbill',
+      'spoonbill-web',
+      'yapw',
+    ])
+
     if ENV['ORG'] != 'open-contracting-partnership'
       output += [
         '',
@@ -202,6 +224,10 @@ namespace :local do
                 line << " [![Coverage Status](https://coveralls.io/repos/github/#{repo.full_name}/badge.svg?branch=#{repo.default_branch})](https://coveralls.io/github/#{repo.full_name}?branch=#{repo.default_branch})"
               end
             end
+          end
+
+          if precommit.include?(repo.name)
+            line << " [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/#{repo.full_name}/#{repo.default_branch}.svg)](https://results.pre-commit.ci/latest/github/#{repo.full_name}/#{repo.default_branch})"
           end
 
           if workflow_files.any?{ |_, content| !content.empty? }
