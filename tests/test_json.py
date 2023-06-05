@@ -105,7 +105,10 @@ def patch(text):
 
 
 excluded = ('.git', '.ve', '_static', 'build', 'fixtures', 'node_modules')
-excluded_repo_name = ('pelican-backend', 'pelican-frontend', 'sphinxcontrib-opencontracting')
+# data-support extends and stores the release schema to, for example, unflatten data.
+# pelican-frontend and pelican-backend have a copy of the release schema to generate and validate check names.
+# sphincontrib-opencontracting uses simplified schema files in its documentation.
+excluded_repo_name = ('data-support', 'pelican-backend', 'pelican-frontend', 'sphinxcontrib-opencontracting')
 json_schemas = [(path, name, data) for path, name, _, data in walk_json_data(patch, excluded=excluded)
                 if is_json_schema(data) and repo_name not in excluded_repo_name]
 
