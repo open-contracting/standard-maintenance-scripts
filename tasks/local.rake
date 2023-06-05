@@ -148,14 +148,16 @@ namespace :local do
       'credere-frontend',
       'data-registry',
       'european-union-support',
-      'flake8-opencontracting',
       'kingfisher-process',
+      'ocds-merge-rs',
       'pelican-backend',
       'pelican-frontend',
       'scrapy-log-analyzer',
       'spoonbill',
       'spoonbill-web',
       'yapw',
+      # Archived
+      'flake8-opencontracting',
     ])
 
     if ENV['ORG'] != 'open-contracting-partnership'
@@ -230,7 +232,7 @@ namespace :local do
             line << " [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/#{repo.full_name}/#{repo.default_branch}.svg)](https://results.pre-commit.ci/latest/github/#{repo.full_name}/#{repo.default_branch})"
           end
 
-          if workflow_files.any?{ |_, content| !content.empty? }
+          if workflow_files.any?{ |_, content| !content.empty? } || precommit.include?(repo.name)
             line << '|'
           else
             line << '-|'
