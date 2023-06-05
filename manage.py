@@ -21,7 +21,8 @@ def cli():
 
 @cli.command()
 @click.argument('path')
-def download_extensions(path):
+@click.option('--match', help='')
+def download_extensions(path, match):
     """
     Download all registered extensions to a directory.
     """
@@ -29,9 +30,12 @@ def download_extensions(path):
 
     registry = ExtensionRegistry(extension_versions_url)
     for version in registry:
-        directory = os.path.join(path, version.repository_name)
-        if not os.path.isdir(directory):
-            os.system(f'git clone {version.repository_url} {directory}')
+        if not match or match in version.base_url:
+            directory = os.path.join(path, version.repository_name)
+            if not os.path.isdir(directory):
+                command = f'git clone {version.repository_url} {directory}'
+                click.echo(command)
+                os.system(command)
 
 
 @cli.command()
