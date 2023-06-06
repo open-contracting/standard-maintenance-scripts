@@ -140,7 +140,6 @@ namespace :local do
     # Using an installation access token is too complicated.
     # https://docs.github.com/en/rest/apps/installations?apiVersion=2022-11-28
     precommit = Set.new([
-      'cardinal-py',
       'cardinal-rs',
       'cove-oc4ids',
       'cove-ocds',
