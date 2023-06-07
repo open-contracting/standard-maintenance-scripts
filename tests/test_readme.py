@@ -212,6 +212,13 @@ def test_example_backticks():
             'PreQualification.procurementMethodRationale',
             'PreQualification.awardCriteriaDetails',
         },
+        'ocds_requirements_extension': {
+            'Award.requirementResponses',
+            'Contract.requirementResponses',
+            'Criterion.source',
+            'RequirementResponse.relatedTenderer',
+            'responseSource.csv',
+        },
         'ocds_shareholders_extension': {
             'Organization.beneficialOwnership',
         },
