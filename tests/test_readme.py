@@ -215,8 +215,10 @@ def test_example_backticks():
         'ocds_requirements_extension': {
             'Award.requirementResponses',
             'Contract.requirementResponses',
+            'Criterion.relatesTo',
             'Criterion.source',
             'RequirementResponse.relatedTenderer',
+            'relatesTo.csv',
             'responseSource.csv',
         },
         'ocds_shareholders_extension': {
