@@ -202,6 +202,8 @@ def test_example_backticks():
             'Finance.relatedLots',
         },
         'ocds_ppp_extension': {
+            '+documentType.csv',
+            '+partyRole.csv',
             'initiationType.csv',
         },
         'ocds_project_extension': {
