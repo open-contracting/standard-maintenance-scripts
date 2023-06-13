@@ -17,11 +17,11 @@ cwd = os.getcwd()
 repo_name = os.path.basename(os.getenv('GITHUB_REPOSITORY', cwd))
 
 
-def showwarning(message, category, filename, lineno, file=None, line=None):
+def formatwarning(message, category, filename, lineno, line=None):
     return str(message).replace(cwd + os.sep, '')
 
 
-warnings.showwarning = showwarning
+warnings.formatwarning = formatwarning
 pytestmark = pytest.mark.filterwarnings('always')
 
 
