@@ -80,13 +80,13 @@ else:
     ocds_tag = ocds_tags[-1]
 
 
-def formatwarning(message, category, filename, lineno, line=None):
+def showwarning(message, category, filename, lineno, file=None, line=None):
     if category != DeepPropertiesWarning:
         message = f'ERROR: {message}'
     return str(message).replace(cwd + os.sep, '')
 
 
-warnings.formatwarning = formatwarning
+warnings.showwarning = showwarning
 pytestmark = pytest.mark.filterwarnings('always')
 
 
