@@ -17,6 +17,8 @@ from jscc.testing.checks import (get_empty_files, get_invalid_json_files, get_mi
                                  validate_schema_codelists_match)
 from jscc.testing.filesystem import walk_csv_data, walk_json_data
 from jscc.testing.util import difference, http_get, http_head, warn_and_assert
+from jsonschema import FormatChecker
+from jsonschema.validators import Draft4Validator
 from ocdskit.schema import add_validation_properties
 
 # Whether to use the 1.2-dev version of OCDS.
@@ -416,7 +418,9 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
     if is_extension:  # avoid repetition in extensions
         validate_deep_properties_kwargs['allow_deep'].add('/definitions/Item/properties/unit')
 
-    errors += validate_schema(path, data, schema)
+    validator = Draft4Validator(schema, format_checker=FormatChecker())
+
+    errors += validate_schema(path, data, validator)
     if errors:
         warnings.warn(f'{path} is not valid JSON Schema ({errors} errors)')
 

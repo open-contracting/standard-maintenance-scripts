@@ -12,6 +12,8 @@ import pytest
 from jscc.schema import extend_schema
 from jscc.testing.checks import validate_schema
 from jscc.testing.util import http_get
+from jsonschema import FormatChecker
+from jsonschema.validators import Draft4Validator
 from ocdskit.schema import get_schema_fields
 
 # Whether to use the 1.2-dev version of OCDS.
@@ -137,6 +139,8 @@ def test_example_valid():
 
     set_additional_properties_false(patched)
 
+    validator = Draft4Validator(patched, format_checker=FormatChecker())
+
     for i, text, data in examples():
         # Skip packages (only occurs once in ocds_ppp_extension).
         if 'releases' in data:
@@ -147,7 +151,7 @@ def test_example_valid():
         if 'tender' in release and 'id' not in release['tender']:
             release['tender']['id'] = '1'
 
-        errors = validate_schema('README.md', release, patched)
+        errors = validate_schema('README.md', release, validator)
 
         assert not errors, f'README.md: JSON block {i} is invalid. See warnings below.'
 
