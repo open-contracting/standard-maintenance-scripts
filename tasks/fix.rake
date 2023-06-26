@@ -150,6 +150,13 @@ namespace :fix do
           end
         end
       end
+      if extension?(repo.name, profiles: false, templates: false)
+        branches.each do |branch|
+          if branch.name == "1.2"
+            branches_to_protect << branch
+          end
+        end
+      end
       branches_to_protect.compact!
 
       if not branches_to_protect
