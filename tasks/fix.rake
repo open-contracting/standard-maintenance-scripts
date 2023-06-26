@@ -46,6 +46,10 @@ namespace :fix do
       if repo.archived
         next
       end
+
+      # delete_branch_on_merge is not returned by org_repos.
+      repo = client.repo(repo.full_name)
+
       if not repo.delete_branch_on_merge
         client.edit_repository(repo.full_name, delete_branch_on_merge: true)
         puts "#{repo.html_url}/settings #{'enabled delete_branch_on_merge'.bold}"
