@@ -156,7 +156,11 @@ def _merge_obj(result, obj, pointer=''):  # changed code
                     repo_name == 'ocds_pagination_extension'):
                 warnings.warn(f'empties {pointer_and_key}')
             else:
-                raise Exception(f'unexpectedly overwrites {pointer_and_key}')
+                if is_profile:
+                    message = ' - check for repeats across extension_versions.json, dependencies, testDependencies'
+                else:
+                    message = ''
+                raise Exception(f'unexpectedly overwrites {pointer_and_key}{message}')
 
         if value is None:
             result.pop(key, None)
