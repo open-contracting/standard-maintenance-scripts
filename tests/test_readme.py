@@ -204,6 +204,8 @@ def test_example_backticks():
             'LotDetails',
             'Bid.relatedLots',
             'Finance.relatedLots',
+            # Adding the bid extension as a test dependency to avoid this error causes an overwrite error.
+            'Bid',
         },
         'ocds_ppp_extension': {
             '+documentType.csv',
