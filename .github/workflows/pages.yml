@@ -8,8 +8,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
-          mkdir dist
-          cp badges.md dist/README.md
+          mkdir _site
+          cp badges.md _site/README.md
       - uses: actions/upload-pages-artifact@v2
   deploy:
     needs: build
