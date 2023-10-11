@@ -77,6 +77,8 @@ def projects_and_modules(requirements):
             continue
         for file in distribution(requirement.name).files:
             path = str(file)
+            if path.startswith(f'src{os.sep}'):
+                path = path[4:]
             if path.endswith('.py') and os.sep in path:
                 mapping[requirement.name].add(path.split(os.sep, 1)[0])
             elif path.endswith(('.py', '.so')):
@@ -155,6 +157,11 @@ class CodeVisitor(ast.NodeVisitor):
                 if target.id in ('INSTALLED_APPS', 'MIDDLEWARE'):
                     for elt in node.value.elts:
                         self.add(val(elt))
+                elif target.id == 'CELERY_BROKER_URL':
+                    if isinstance(node.value, ast.Call):
+                        default = node.value.args[1] if len(node.value.args) == 2 else None
+                        if default and urlsplit(val(default)).scheme == 'redis':
+                            self.add('redis')
                 # A requirement might be required by a backend.
                 elif target.id == 'CACHES':
                     for value in node.value.values:
@@ -164,6 +171,11 @@ class CodeVisitor(ast.NodeVisitor):
                                     self.add('memcache')
                                 elif val(v) == 'django.core.cache.backends.memcached.PyMemcacheCache':
                                     self.add('pymemcache')
+                elif target.id == 'CHANNEL_LAYERS':
+                    for value in node.value.values:
+                        for k, v in zip(value.keys, value.values):
+                            if val(k) in 'BACKEND' and val(v) == 'channels_redis.core.RedisChannelLayer':
+                                self.add('channels_redis')
                 elif target.id == 'DATABASES':
                     for value in node.value.values:
                         if isinstance(value, ast.Call):
@@ -306,8 +318,10 @@ def test_dev_requirements():
         # Test runners.
         'pytest',
         # Pytest plugins, which provide fixtures, for example.
+        'pytest-asyncio',
         'pytest-cov',
         'pytest-django',
+        'pytest-env',
         'pytest-flask',
         'pytest-localserver',
         'pytest-mock',
