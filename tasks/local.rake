@@ -131,8 +131,8 @@ namespace :local do
     workflows = {
       'ci' => 'CI',
       'lint' => 'Lint',
-      'js' => 'Lint%20JavaScript',
-      'shell' => 'Lint%20Shell',
+      'js' => 'Lint JavaScript',
+      'shell' => 'Lint Shell',
       'i18n' => 'Translations',
     }
 
@@ -213,7 +213,7 @@ namespace :local do
           workflows.each do |basename, label|
             workflow_files[basename] = read_github_file(repo.full_name, ".github/workflows/#{basename}.yml")
             if !workflow_files[basename].empty?
-              line << " [![#{label}](https://github.com/#{repo.full_name}/actions/workflows/#{basename}/badge.svg)](https://github.com/#{repo.full_name}/actions/workflows/#{basename})"
+              line << " [![#{label}](https://github.com/#{repo.full_name}/actions/workflows/#{basename}.yml/badge.svg)](https://github.com/#{repo.full_name}/actions/workflows/#{basename}.yml)"
             end
           end
 
