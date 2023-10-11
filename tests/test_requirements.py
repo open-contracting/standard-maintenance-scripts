@@ -1,10 +1,8 @@
 import ast
 import configparser
-import csv
 import glob
 import os
 from collections import defaultdict
-from io import StringIO
 from pathlib import Path
 from urllib.parse import urlsplit
 
@@ -14,7 +12,7 @@ from setuptools import find_packages
 
 try:
     from importlib.metadata import distribution
-except:
+except ImportError:
     from importlib_metadata import distribution
 
 path = os.getcwd()
