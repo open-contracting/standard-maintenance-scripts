@@ -1,15 +1,21 @@
 import ast
 import configparser
 import csv
+import glob
 import os
 from collections import defaultdict
 from io import StringIO
 from pathlib import Path
 from urllib.parse import urlsplit
 
-import pkg_resources
 import pytest
+from packaging.requirements import Requirement
 from setuptools import find_packages
+
+try:
+    from importlib.metadata import distribution
+except:
+    from importlib_metadata import distribution
 
 path = os.getcwd()
 
@@ -58,9 +64,6 @@ def val(node):
     raise NotImplementedError(repr(node))
 
 
-# https://setuptools.readthedocs.io/en/latest/pkg_resources.html#requirements-parsing
-# https://setuptools.readthedocs.io/en/latest/deprecated/python_eggs.html#top-level-txt-conflict-management-metadata
-# https://packaging.python.org/specifications/recording-installed-packages/#the-record-file
 def projects_and_modules(requirements):
     """
     :param str requirements: one or more requirements
@@ -68,22 +71,18 @@ def projects_and_modules(requirements):
     :rtype: dict
     """
     mapping = defaultdict(set)
-    requirements = [line for line in requirements.splitlines() if not line.startswith('-')]
-    for requirement in pkg_resources.parse_requirements(requirements):
-        project_name = requirement.project_name
+    for line in requirements.splitlines():
+        if not line or line.startswith(('-', '#')):
+            continue
+        requirement = Requirement(line)
         if requirement.marker and not requirement.marker.evaluate():
             continue
-        project = pkg_resources.get_distribution(project_name)
-        try:
-            for module in project.get_metadata_lines('top_level.txt'):
-                mapping[project_name].add(module)
-        except FileNotFoundError:
-            reader = csv.reader(StringIO(project.get_metadata('RECORD')))
-            for row in reader:
-                if row[0].endswith('.py') and os.sep in row[0]:
-                    mapping[project_name].add(row[0].split(os.sep, 1)[0])
-                elif row[0].endswith(('.py', '.so')):
-                    mapping[project_name].add(row[0].split('.', 1)[0])
+        for file in distribution(requirement.name).files:
+            path = str(file)
+            if path.endswith('.py') and os.sep in path:
+                mapping[requirement.name].add(path.split(os.sep, 1)[0])
+            elif path.endswith(('.py', '.so')):
+                mapping[requirement.name].add(path.split('.', 1)[0])
     return mapping
 
 
@@ -202,8 +201,18 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
     setup_cfg = os.path.join(path, 'setup.cfg')
     setup_py = os.path.join(path, 'setup.py')
     requirements_in = os.path.join(path, 'requirements.in')
-    if not any(os.path.exists(filename) for filename in (setup_cfg, setup_py, requirements_in)):
-        pytest.skip("No setup.cfg, setup.py or requirements.in file found")
+
+    ignore = list(ignore) + os.getenv('STANDARD_MAINTENANCE_SCRIPTS_IGNORE', '').split(',')
+    extras = os.getenv('STANDARD_MAINTENANCE_SCRIPTS_EXTRAS', '').split(',')
+    files = os.getenv('STANDARD_MAINTENANCE_SCRIPTS_FILES', '').split(',')
+    if any(files):
+        requirements_files += tuple(files)
+    if os.path.exists(requirements_in):
+        requirements_files += (requirements_in,)
+
+    files = (setup_cfg, setup_py) + requirements_files
+    if not any(os.path.exists(filename) for filename in files):
+        pytest.skip(f"No {', '.join(files)} file found")
 
     excluded = ['.git', 'docs', 'node_modules']
     find_packages_kwargs = {}
@@ -212,14 +221,8 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
         excluded.append('tests')
 
     packages = find_packages(where=path, **find_packages_kwargs)
-    if os.path.exists(os.path.join(path, 'manage.py')):
-        packages.append('manage')
-
-    ignore = list(ignore) + os.getenv('STANDARD_MAINTENANCE_SCRIPTS_IGNORE', '').split(',')
-    extras = os.getenv('STANDARD_MAINTENANCE_SCRIPTS_EXTRAS', '').split(',')
-    files = os.getenv('STANDARD_MAINTENANCE_SCRIPTS_FILES', '').split(',')
-    if any(files):
-        requirements_files += tuple(files)
+    for filename in glob.glob(os.path.join(path, '*.py')):
+        packages.append(os.path.splitext(os.path.basename(filename))[0])
 
     # Collect the modules that are imported.
     imports = defaultdict(set)
@@ -252,9 +255,9 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
         setup_visitor.visit(root)
         mapping = setup_visitor.mapping
 
-    if os.path.exists(requirements_in):
+    if any(os.path.exists(filename) for filename in requirements_files):
         mapping = {}
-        for requirements_file in ('requirements.in', *requirements_files):
+        for requirements_file in requirements_files:
             with open(os.path.join(path, requirements_file)) as f:
                 mapping.update(projects_and_modules(f.read()))
 
@@ -309,6 +312,7 @@ def test_dev_requirements():
         'pytest-django',
         'pytest-flask',
         'pytest-localserver',
+        'pytest-mock',
         'pytest-order',
         'pytest-subtests',
         # Code coverage.
