@@ -90,6 +90,7 @@ def test_valid():
 
 
 @pytest.mark.skipif(repo_name in ('pelican-backend',), reason='not a codelist')
+@pytest.mark.skipif(repo_name in ('european-union-support',), reason='not a codelist')
 def test_codelist():
     """
     Ensures all codelists files are valid against codelist-schema.json.
