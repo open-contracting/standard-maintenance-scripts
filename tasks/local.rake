@@ -213,7 +213,7 @@ namespace :local do
           workflows.each do |basename, label|
             workflow_files[basename] = read_github_file(repo.full_name, ".github/workflows/#{basename}.yml")
             if !workflow_files[basename].empty?
-              line << " [![Build Status](https://github.com/#{repo.full_name}/workflows/#{label}/badge.svg)](https://github.com/#{repo.full_name}/actions?query=workflow%3A#{label})"
+              line << " [![#{label}](https://github.com/#{repo.full_name}/actions/workflows/#{basename}/badge.svg)](https://github.com/#{repo.full_name}/actions/workflows/#{basename})"
             end
           end
 
