@@ -59,7 +59,7 @@ def val(node):
     # django-environ sets the default value when creating the Env object, not when setting the engine key.
     if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == "env" and not node.keywords:
         return None
-    raise NotImplementedError(repr(node))
+    raise NotImplementedError(ast.dump(node))
 
 
 def projects_and_modules(requirements):
@@ -133,6 +133,7 @@ class CodeVisitor(ast.NodeVisitor):
         if (
             not isinstance(node.test, ast.Compare)
             or any(isinstance(op, (ast.In, ast.NotIn, ast.Is, ast.IsNot)) for op in node.test.ops)
+            or isinstance(node.test.left, ast.Tuple)
             or not any(
                 isinstance(val(e), int) for c in node.test.comparators if isinstance(c, ast.Tuple) for e in c.elts
             )
@@ -313,6 +314,7 @@ def test_dev_requirements():
         'isort',
         'pre-commit',
         'pylint',
+        'ruff',
         # Debuggers.
         'ipdb',
         # Test runners.
