@@ -22,7 +22,7 @@ from jsonschema.validators import Draft4Validator
 from ocdskit.schema import add_validation_properties
 
 # Whether to use the 1.2-dev version of OCDS.
-use_development_version = '1.2' in os.getenv('GITHUB_REF_NAME', '')
+use_development_version = '1.2' in os.getenv('GITHUB_REF_NAME', '') or '1.2' in os.getenv('GITHUB_BASE_REF', '')
 
 # The codelists defined in `schema/codelists`. XXX Hardcoding.
 external_codelists = {
@@ -74,7 +74,7 @@ if repo_name == 'infrastructure':
     ocds_schema_base_url = 'https://standard.open-contracting.org/infrastructure/schema/'
 else:
     ocds_schema_base_url = 'https://standard.open-contracting.org/schema/'
-development_base_url = 'https://raw.githubusercontent.com/open-contracting/standard/1.2-dev/schema'
+development_base_url = f"https://raw.githubusercontent.com/open-contracting/standard/{os.getenv('GITHUB_REF_NAME', '1.2-dev')}/schema"
 ocds_tags = re.findall(r'\d+__\d+__\d+', http_get(ocds_schema_base_url).text)
 if ocds_version:
     ocds_tag = ocds_version.replace('.', '__')
