@@ -21,7 +21,7 @@ use_development_version = '1.2' in os.getenv('GITHUB_REF_NAME', '')
 
 cwd = os.getcwd()
 repo_name = os.path.basename(os.getenv('GITHUB_REPOSITORY', cwd))
-ocds_version = os.environ.get('OCDS_TEST_VERSION')
+ocds_version = os.getenv('OCDS_TEST_VERSION')
 is_extension = os.path.isfile(os.path.join(cwd, 'extension.json'))
 
 ocds_schema_base_url = 'https://standard.open-contracting.org/schema/'
