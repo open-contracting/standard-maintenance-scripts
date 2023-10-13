@@ -406,6 +406,7 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
 
             # 2.0 fixes.
             # See https://github.com/open-contracting/standard/issues/650
+            '/definitions/LinkedRelease/properties/tag',
             '/definitions/Organization/properties/id',
             '/definitions/OrganizationReference/properties/id',
             '/definitions/RelatedProcess/properties/id',
@@ -455,6 +456,10 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
             'release-package-schema.json',
         }
 
+        exceptions_plus_versioned_and_packages_and_record = exceptions_plus_versioned_and_packages | {
+            'record-schema.json',
+        }
+
         if not code_repo:
             # Extensions aren't expected to repeat referenced `definitions`.
             errors += validate_ref(path, data)
@@ -469,8 +474,10 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
         if name not in exceptions_plus_versioned_and_packages:
             # Extensions aren't expected to repeat `required`. Packages don't have merge rules.
             errors += validate_null_type(path, data, **validate_null_type_kwargs)
-            # Extensions aren't expected to repeat referenced codelist CSV files
-            # TODO: This code assumes each schema uses all codelists. So, for now, skip package schema.
+
+        if name not in exceptions_plus_versioned_and_packages_and_record:
+            # Extensions aren't expected to repeat referenced codelist CSV files.
+            # Only the release schema is presently expected to use all codelists.
             errors += validate_schema_codelists_match(path, data, cwd, is_extension, is_profile, external_codelists)
 
     else:
