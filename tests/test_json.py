@@ -74,7 +74,8 @@ if repo_name == 'infrastructure':
     ocds_schema_base_url = 'https://standard.open-contracting.org/infrastructure/schema/'
 else:
     ocds_schema_base_url = 'https://standard.open-contracting.org/schema/'
-development_base_url = f"https://raw.githubusercontent.com/open-contracting/standard/{os.getenv('GITHUB_REF_NAME', '1.2-dev')}/schema"
+development_base_ref = os.getenv('GITHUB_REF_NAME', '1.2-dev')
+development_base_url = f"https://raw.githubusercontent.com/open-contracting/standard/{development_base_ref}/schema"
 ocds_tags = re.findall(r'\d+__\d+__\d+', http_get(ocds_schema_base_url).text)
 if ocds_version:
     ocds_tag = ocds_version.replace('.', '__')
