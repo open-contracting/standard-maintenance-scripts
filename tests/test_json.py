@@ -117,6 +117,7 @@ def patch(text):
             ocds_version,
             use_development_version,
             os.getenv('GITHUB_REF_NAME', ''),
+            os.getenv('GITHUB_HEAD_REF', ''),
             os.getenv('GITHUB_BASE_REF', ''),
             ocds_schema_base_url + tag,
             development_base_url,
@@ -526,6 +527,7 @@ def test_schema_valid(path, name, data):
     else:
         metaschema = schemas['metaschema']
 
+    warnings.warn(repr(data))
     validate_json_schema(path, name, data, metaschema)
 
 
