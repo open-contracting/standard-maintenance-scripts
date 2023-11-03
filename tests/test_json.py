@@ -109,27 +109,12 @@ def patch(text):
     """
     Handle unreleased tag in $ref.
     """
-    if match := re.search(r'\d+__\d+__\d+', text):
-        tag = match.group(0)
+    for tag in re.findall(r'\d+__\d+__\d+', text):
         if tag not in ocds_tags:
             if ocds_version or not use_development_version:
                 text = text.replace(tag, ocds_tag)
             else:
                 text = text.replace(ocds_schema_base_url + tag, development_base_url)
-        warnings.warn(repr([
-            tag,
-            ocds_tags,
-            ocds_version,
-            use_development_version,
-            os.getenv('GITHUB_REF_NAME', ''),
-            os.getenv('GITHUB_HEAD_REF', ''),
-            os.getenv('GITHUB_BASE_REF', ''),
-            tag not in ocds_tags,
-            ocds_version or not use_development_version,
-            ocds_schema_base_url + tag,
-            development_base_url,
-            text,
-        ]))
     return text
 
 
@@ -530,7 +515,6 @@ def test_schema_valid(path, name, data):
     else:
         metaschema = schemas['metaschema']
 
-    warnings.warn(repr(data))
     validate_json_schema(path, name, data, metaschema)
 
 
