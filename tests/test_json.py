@@ -111,6 +111,11 @@ def patch(text):
     """
     if match := re.search(r'\d+__\d+__\d+', text):
         tag = match.group(0)
+        if tag not in ocds_tags:
+            if ocds_version or not use_development_version:
+                text = text.replace(tag, ocds_tag)
+            else:
+                text = text.replace(ocds_schema_base_url + tag, development_base_url)
         warnings.warn(repr([
             tag,
             ocds_tags,
@@ -119,14 +124,12 @@ def patch(text):
             os.getenv('GITHUB_REF_NAME', ''),
             os.getenv('GITHUB_HEAD_REF', ''),
             os.getenv('GITHUB_BASE_REF', ''),
+            tag not in ocds_tags,
+            ocds_version or not use_development_version,
             ocds_schema_base_url + tag,
             development_base_url,
+            text,
         ]))
-        if tag not in ocds_tags:
-            if ocds_version or not use_development_version:
-                text = text.replace(tag, ocds_tag)
-            else:
-                text = text.replace(ocds_schema_base_url + tag, development_base_url)
     return text
 
 
