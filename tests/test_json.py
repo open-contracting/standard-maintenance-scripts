@@ -111,6 +111,7 @@ def patch(text):
     """
     if match := re.search(r'\d+__\d+__\d+', text):
         tag = match.group(0)
+        print([tag, ocds_tags, ocds_version, use_development_version, ocds_schema_base_url + tag, development_base_url])
         if tag not in ocds_tags:
             if ocds_version or not use_development_version:
                 text = text.replace(tag, ocds_tag)
@@ -129,7 +130,7 @@ excluded_repo_name = (
     # sphincontrib-opencontracting uses simplified schema files in its documentation.
     'sphinxcontrib-opencontracting',
 )
-print([ocds_tags, ocds_version, use_development_version, ocds_schema_base_url + tag, development_base_url])
+print([ocds_tags, ocds_version, use_development_version, ocds_schema_base_url, development_base_url])
 json_schemas = [(path, name, data) for path, name, _, data in walk_json_data(patch, excluded=excluded)
                 if is_json_schema(data) and repo_name not in excluded_repo_name]
 
