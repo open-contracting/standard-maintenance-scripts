@@ -44,7 +44,7 @@ def test_valid():
             warnings.warn(f'ERROR: {path} has {duplicates} duplicate column headers')
 
         for row_index, row in enumerate(rows, 2):
-            expected = len(row) + duplicates
+            expected = len([cell for cell in row.values() if cell is not None]) + duplicates
             if expected != width:
                 errors += 1
                 warnings.warn(f'ERROR: {path} has {expected} not {width} columns in row {row_index}')
@@ -76,7 +76,7 @@ def test_valid():
                 warnings.warn(f'ERROR: {path} has empty column {col_index}')
 
         output = StringIO()
-        writer = csv.DictWriter(output, fieldnames=fieldnames, lineterminator='\n')
+        writer = csv.DictWriter(output, fieldnames=fieldnames, lineterminator='\n', extrasaction='ignore')
         writer.writeheader()
         writer.writerows(rows)
         expected = output.getvalue()
