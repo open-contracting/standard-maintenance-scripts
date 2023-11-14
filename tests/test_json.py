@@ -635,7 +635,11 @@ def test_json_merge_patch():
         url_pattern = development_base_url + '/{}'
 
     for basename in basenames:
-        schemas[basename] = http_get(url_pattern.format(basename)).json()
+        # Remove this condition after OCDS 1.2.0 released.
+        if basename == 'record-schema.json':
+            schemas[basename] = http_get(f'{development_base_url}/{basename}').json()
+        else:
+            schemas[basename] = http_get(url_pattern.format(basename)).json()
 
         if basename == 'release-schema.json':
             path = os.path.join(extensiondir, 'extension.json')
