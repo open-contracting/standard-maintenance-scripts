@@ -193,6 +193,17 @@ def test_example_backticks():
         'ocds_countryCode_extension': {
             'countryCode',
         },
+        'ocds_finance_extension': {
+            'Finance.financeCategory',
+            'Finance.financeType',
+            'financeCategory.csv',
+            'financeType.csv',
+            # Codes
+            'mezzanineDebt',
+            'publicBondIssue',
+            'seniorDebt',
+            'supplierCredit',
+        },
         'ocds_eu_extension': {
             'minimumValue',
             'Lot.minimumValue',
