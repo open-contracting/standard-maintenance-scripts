@@ -378,7 +378,9 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
     }
 
     def validate_metadata_presence_allow_missing(pointer):
-        return 'links' in pointer.split('/') or code_repo  # ocds_pagination_extension
+        parts = pointer.split('/')
+        # record-schema.json sets "type" as sibling to "oneOf".
+        return 'links' in parts or 'oneOf' in parts or code_repo  # ocds_pagination_extension
 
     validate_metadata_presence_kwargs = {
         'allow_missing': validate_metadata_presence_allow_missing,
@@ -415,6 +417,7 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
             '/definitions/Organization/properties/details',
         },
         'allow_no_null': {
+            '/properties/releases',  # record-schema.json disallows "releases": null
             '/definitions/Amendment/properties/changes/items/properties/property',  # deprecated
 
             # Children of fields with omitWhenMerged.
@@ -434,6 +437,7 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
         'allow_invalid': {
             '/definitions/Amendment/properties/changes/items/properties/former_value',  # deprecated
             '/definitions/Location/properties/geometry/properties/coordinates/items',  # recursion
+            '/properties/releases',  # record-schema.json sets "items" within "oneOf"
         },
     }
 
