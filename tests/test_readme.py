@@ -193,20 +193,15 @@ def test_example_backticks():
         'ocds_countryCode_extension': {
             'countryCode',
         },
+        'ocds_eu_extension': {
+            'minimumValue',
+            'Lot.minimumValue',
+        },
         'ocds_finance_extension': {
             'Finance.financeCategory',
             'Finance.financeType',
             'financeCategory.csv',
             'financeType.csv',
-            # Codes
-            'mezzanineDebt',
-            'publicBondIssue',
-            'seniorDebt',
-            'supplierCredit',
-        },
-        'ocds_eu_extension': {
-            'minimumValue',
-            'Lot.minimumValue',
         },
         'ocds_legalBasis_extension': {
             '+itemClassificationScheme.csv',
@@ -309,6 +304,12 @@ def test_example_codes():
         },
 
         # Changelog entries for removed codes.
+        'ocds_finance_extension': {
+            'mezzanineDebt',
+            'publicBondIssue',
+            'seniorDebt',
+            'supplierCredit',
+        },
         'ocds_ppp_extension': {
             'bidder',
             'disqualifiedBidder',
