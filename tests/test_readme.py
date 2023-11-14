@@ -200,6 +200,7 @@ def test_example_backticks():
         'ocds_finance_extension': {
             'Finance.financeCategory',
             'Finance.financeType',
+            'Finance.repaymentFrequency',
             'financeCategory.csv',
             'financeType.csv',
         },
