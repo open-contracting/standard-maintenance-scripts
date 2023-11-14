@@ -286,7 +286,12 @@ def test_empty():
     def include(path, name):
         return name not in {'.gitkeep', 'py.typed'} and (
             # Template repositories are allowed to have empty schema files.
-            name not in {'record-package-schema.json', 'release-package-schema.json', 'release-schema.json'}
+            name not in {
+                'record-package-schema.json',
+                'record-schema.json',
+                'release-package-schema.json',
+                'release-schema.json',
+            }
             or repo_name not in {'standard_extension_template', 'standard_profile_template'}
         )
 
@@ -508,7 +513,7 @@ def test_schema_valid(path, name, data):
     schemas = metaschemas()
     if name in ('release-schema.json', 'release-package-schema.json'):
         metaschema = schemas['release_package_metaschema']
-    elif name == 'record-package-schema.json':
+    elif name in ('record-schema.json', 'record-package-schema.json'):
         metaschema = schemas['record_package_metaschema']
     elif name in ('project-schema.json', 'project-package-schema.json'):
         metaschema = schemas['project_package_metaschema']
@@ -614,6 +619,7 @@ def test_json_merge_patch():
 
     basenames = (
         'record-package-schema.json',
+        'record-schema.json',
         'release-package-schema.json',
         'release-schema.json',
         'versioned-release-validation-schema.json',
