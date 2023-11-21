@@ -240,6 +240,7 @@ def test_example_backticks():
             'Organization.beneficialOwnership',
         },
         'ocds_submissionTerms_extension': {
+            'SubmissionTerms.nonElectronicSubmissionRationale',
             'requiresGuarantees',
         },
     }
