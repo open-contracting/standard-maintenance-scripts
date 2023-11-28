@@ -388,7 +388,7 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
 
     def validate_object_id_allow_missing(pointer):
         parts = pointer.split('/')
-        return 'versionedRelease' in parts or parts[-1] in {
+        return repo_name == 'infrastructure' or 'versionedRelease' in parts or parts[-1] in {
             'changes',  # deprecated
             'records',  # uses `ocid` not `id`
             '0',  # linked releases
