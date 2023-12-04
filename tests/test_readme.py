@@ -214,6 +214,10 @@ def test_example_backticks():
             # Adding the bid extension as a test dependency to avoid this error causes an overwrite error.
             'Bid',
         },
+        'ocds_medicine_extension': {
+            'container',
+            'container.csv',
+        },
         'ocds_ppp_extension': {
             '+documentType.csv',
             '+partyRole.csv',
