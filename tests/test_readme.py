@@ -16,13 +16,18 @@ from jsonschema import FormatChecker
 from jsonschema.validators import Draft4Validator
 from ocdskit.schema import get_schema_fields
 
-# Whether to use the 1.2-dev version of OCDS.
-use_development_version = '1.2' in os.getenv('GITHUB_REF_NAME', '')
-
 cwd = os.getcwd()
 repo_name = os.path.basename(os.getenv('GITHUB_REPOSITORY', cwd))
 ocds_version = os.getenv('OCDS_TEST_VERSION')
 is_extension = os.path.isfile(os.path.join(cwd, 'extension.json'))
+
+# Whether to use the 1.2-dev version of OCDS.
+use_development_version = (
+    '1.2' in os.getenv('GITHUB_REF_NAME', '')
+    or '1.2' in os.getenv('GITHUB_BASE_REF', '')
+    # Extensions that are versioned with OCDS.
+    or repo_name in ('ocds_lots_extension',)
+)
 
 ocds_schema_base_url = 'https://standard.open-contracting.org/schema/'
 development_base_url = 'https://raw.githubusercontent.com/open-contracting/standard/1.2-dev/schema'
