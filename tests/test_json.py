@@ -33,9 +33,6 @@ from jsonschema import FormatChecker
 from jsonschema.validators import Draft4Validator
 from ocdskit.schema import add_validation_properties
 
-# Whether to use the 1.2-dev version of OCDS.
-use_development_version = '1.2' in os.getenv('GITHUB_REF_NAME', '') or '1.2' in os.getenv('GITHUB_BASE_REF', '')
-
 # The codelists defined in `schema/codelists`. XXX Hardcoding.
 external_codelists = {
     'awardCriteria.csv',
@@ -82,6 +79,14 @@ ocds_version = os.getenv('OCDS_TEST_VERSION')
 is_profile = os.path.isfile('Makefile') and os.path.isdir('docs') and repo_name not in ('standard', 'infrastructure')
 is_extension = os.path.isfile('extension.json') or is_profile
 extensiondir = os.path.join('schema', 'profile') if is_profile else '.'
+
+# Whether to use the 1.2-dev version of OCDS.
+use_development_version = (
+    '1.2' in os.getenv('GITHUB_REF_NAME', '')
+    or '1.2' in os.getenv('GITHUB_BASE_REF', '')
+    # Extensions that are versioned with OCDS.
+    or repo_name in ('ocds_lots_extension',)
+)
 
 if repo_name == 'infrastructure':
     ocds_schema_base_url = 'https://standard.open-contracting.org/infrastructure/schema/'
@@ -167,12 +172,24 @@ def _merge_obj(result, obj, pointer=''):  # changed code
         if key in result:
             pointer_and_key = f'{pointer}/{key}'
             # Exceptions.
-            if (value is None and pointer_and_key == '/definitions/Milestone/properties/documents/deprecated' and
-                    repo_name in ('ocds_milestone_documents_extension', 'public-private-partnerships')):
+            if (
+                value is None
+                and pointer_and_key == '/definitions/Milestone/properties/documents/deprecated'
+                and repo_name in ('ocds_milestone_documents_extension', 'public-private-partnerships')
+            ):
                 warnings.warn(f're-adds {pointer}')
-            elif (value == [] and pointer_and_key == '/required' and
-                    repo_name == 'ocds_pagination_extension'):
+            elif (
+                value == []
+                and pointer_and_key == '/required'
+                and repo_name == 'ocds_pagination_extension'
+            ):
                 warnings.warn(f'empties {pointer_and_key}')
+            elif (
+                # XXX: Remove after OCDS 1.2 release.
+                pointer_and_key.startswith('/definitions/SimpleIdentifier/')
+                and repo_name in ('ocds_lots_extension',)
+            ):
+                warnings.warn(f'copies {pointer_and_key}')
             else:
                 if is_profile:
                     message = ' - check for repeats across extension_versions.json, dependencies, testDependencies'
