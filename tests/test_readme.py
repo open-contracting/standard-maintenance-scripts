@@ -16,6 +16,13 @@ from jsonschema import FormatChecker
 from jsonschema.validators import Draft4Validator
 from ocdskit.schema import get_schema_fields
 
+
+def read_metadata():
+    path = os.path.join(cwd, 'extension.json')
+    with open(path) as f:
+        return json.load(f)
+
+
 cwd = os.getcwd()
 repo_name = os.path.basename(os.getenv('GITHUB_REPOSITORY', cwd))
 ocds_version = os.getenv('OCDS_TEST_VERSION')
@@ -27,6 +34,11 @@ use_development_version = (
     or '1.2' in os.getenv('GITHUB_BASE_REF', '')
     # Extensions that are versioned with OCDS.
     or repo_name in ('ocds_lots_extension',)
+    # Extensions that depend on those extensions.
+    or (
+        'https://raw.githubusercontent.com/open-contracting-extensions/ocds_lots_extension/master/extension.json'
+        in read_metadata().get('testDependencies', [])
+    )
 )
 
 ocds_schema_base_url = 'https://standard.open-contracting.org/schema/'
@@ -57,12 +69,6 @@ def formatwarning(message, category, filename, lineno, line=None):
 
 warnings.formatwarning = formatwarning
 pytestmark = pytest.mark.filterwarnings('always')
-
-
-def read_metadata():
-    path = os.path.join(cwd, 'extension.json')
-    with open(path) as f:
-        return json.load(f)
 
 
 def read_readme():
