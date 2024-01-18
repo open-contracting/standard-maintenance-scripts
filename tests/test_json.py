@@ -74,8 +74,10 @@ core_extensions = {
 }
 
 
-def read_metadata():
+def read_metadata(allow_missing=False):
     path = os.path.join(cwd, 'extension.json')
+    if allow_missing and not os.path.isfile(path):
+        return {}
     with open(path) as f:
         return json.load(f)
 
@@ -96,7 +98,7 @@ use_development_version = (
     # Extensions that depend on those extensions.
     or (
         'https://raw.githubusercontent.com/open-contracting-extensions/ocds_lots_extension/master/extension.json'
-        in read_metadata().get('testDependencies', [])
+        in read_metadata(allow_missing=True).get('testDependencies', [])
     )
 )
 
