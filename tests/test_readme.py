@@ -258,6 +258,7 @@ def test_example_backticks():
         },
         'ocds_submissionTerms_extension': {
             'SubmissionTerms.nonElectronicSubmissionRationale',
+            'electronicCataloguePolicy',
             'requiresGuarantees',
         },
     }
