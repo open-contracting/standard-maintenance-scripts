@@ -169,11 +169,14 @@ Report issues for this extension in the [ocds-extensions repository](https://git
     end
   end
 
-  desc 'Lists non-extension releases'
+  desc 'Lists non-extension, non-Rust releases'
   task :releases do
-    expected_extension_tags = Set.new(['ppp', 'v1.1', 'v1.1.1', 'v1.1.3', 'v1.1.4'])
+    expected_extension_tags = Set.new(['ppp', 'v1.1', 'v1.1.1', 'v1.1.3', 'v1.1.4', 'v1.1.5'])
 
     repos.each do |repo|
+      if repo.language == 'Rust'
+        next
+      end
       data = repo.rels[:releases].get.data
       if extension?(repo.name)
         data.reject!{ |datum| expected_extension_tags.include?(datum.tag_name) }
