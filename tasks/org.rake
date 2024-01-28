@@ -201,6 +201,8 @@ namespace :org do
         'Write'
       elsif perms.include?(:triage)
         'Triage'
+      else
+        'Read'
       end
     end
 
@@ -232,13 +234,22 @@ namespace :org do
           if !expected
             puts "#{team.html_url}/repositories: set #{team_repo.name} to 'Triage' (was #{human(permissions)})"
           end
+        elsif team.name == 'Robots'
+          expected = permissions.pull
+          if team_repo.name != 'deploy-salt-private'
+            expected &= permissions.push && permissions.triage && permissions.maintain && permissions.admin
+          end
+
+          if !expected
+            puts "#{team.html_url}/repositories: set #{team_repo.name} to 'Admin' (was #{human(permissions)})"
+          end
         else
-          expected = permissions.pull && permissions.push && permissions.triage && !permissions.maintain
+          expected = permissions.pull && permissions.push && permissions.triage && !permissions.admin
           if active_development.include?(team_repo.name)
-            expected &&= permissions.admin
+            expected &&= permissions.maintain
             human_permission = 'Admin'
           else
-            expected &&= !permissions.admin
+            expected &&= !permissions.maintain
             human_permission = 'Write'
           end
 
