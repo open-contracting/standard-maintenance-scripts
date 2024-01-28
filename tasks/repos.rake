@@ -70,32 +70,13 @@ namespace :repos do
     end
   end
 
-  desc 'Lists repositories with missing or unexpected continuous integration configuration'
-  task :ci do
-    expected = read_github_file('open-contracting/standard-maintenance-scripts', 'fixtures/lint.yml')
-
-    repos.each do |repo|
-      actual = read_github_file(repo.full_name, '.github/workflows/lint.yml')
-      if actual.empty?
-        actual = read_github_file(repo.full_name, '.github/workflows/ci.yml')
-      end
-      if !actual.empty? && actual != expected
-        diff = Hashdiff.diff(YAML.load(expected), YAML.load(actual))
-        if diff.any?
-          puts "#{repo.html_url}/blob/#{repo.default_branch}/.github/workflows #{'changes configuration'.bold}"
-        end
-        PP.pp(diff, $>, 120)
-      end
-    end
-  end
-
   desc 'Lists repositories with unexpected, old branches'
   task :branches do
     repos.each do |repo|
       branches = non_default_or_pull_or_upstream_or_excluded_branches(repo)
 
       if branches.any?
-        puts "#{repo.html_url}/branches"
+        puts "#{repo.html_url}/branches/all"
         puts "  #{branches.size}: #{branches.map(&:name).join(' ')}"
       end
     end

@@ -41,8 +41,6 @@ See the [OCP Software Development Handbook](https://ocp-software-handbook.readth
 
 ## Access tasks ⏰
 
-### GitHub
-
 Lists members that should be added or removed from the organization:
 
     bundle exec rake org:members
@@ -107,10 +105,6 @@ Lists open and dismissed vulnerabilities (`GITHUB_ACCESS_TOKEN` should match the
 
     env GITHUB_ACCESS_TOKEN=... bundle exec rake repos:vulnerabilities ORGS=open-contracting
 
-Lists repositories with missing or unexpected continuous integration configuration:
-
-    bundle exec rake repos:ci
-
 Lists repositories with unexpected, old branches:
 
     bundle exec rake repos:branches [EXCLUDE=branch1,branch2]
@@ -123,7 +117,7 @@ Lists missing or unexpected licenses:
 
     bundle exec rake repos:licenses
 
-Lists non-extension releases:
+Lists non-extension, non-Rust releases:
 
     bundle exec rake repos:releases
 
