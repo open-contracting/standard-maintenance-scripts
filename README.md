@@ -73,16 +73,6 @@ Review outside collaborators:
 * [open-contracting-extensions](https://github.com/orgs/open-contracting-extensions/outside-collaborators)
 * [open-contracting-archive](https://github.com/orgs/open-contracting-archive/outside-collaborators)
 
-### Redmine CRM
-
-Lists users not employed by the Open Contracting Partnership:
-
-    bundle exec rake crm:users
-
-Lists groups with missing or unexpected users:
-
-    bundle exec rake crm:groups
-
 ## Code tasks
 
 ### Change GitHub repository configuration
