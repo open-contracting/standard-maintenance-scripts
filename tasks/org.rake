@@ -6,22 +6,33 @@ namespace :org do
   MEMBERS = {
     'General' => [
       # Open Contracting Partnership
+      'camilamila', # Camila Salazar
       'fppenna', # Félix Penna
-      'ndrhzn',  # Andrii Hazin
+      'ndrhzn', # Andrii Hazin
+      'allakulov', # Umrbek Allakulov
     ],
     'OC4IDS' => [
       # Open Data Services Co-operative Limited
       'bjwebb', # Ben Webb
       'duncandewhurst', # Duncan Dewhurst
       'odscrachel', # Rachel Vint
-      'kindly', # David Raznick
+      'neelima-j', # Neelima Janardhanan
+      'odscjen', # Jen Harris
     ],
     'RBC Group' => [
+      'a-radik',
+      'andrzejbeletsky', # Andrzej Beletsky
+      'karandinserhii', # Sergey Karandin
+      'ndrhzn', # Andrii Hazin
       'ocds-bi-tools',
+      'vgeryarbc', # Vadim Gerya
+    ],
+    'Robots' => [
+      'ocp-deploy',
     ],
     'Standard' => [
-      'colinmaudry',
-      'jachymhercher',
+      'colinmaudry', # Colin Maudry
+      'jachymhercher', # Jachym Hercher
       # Open Data Services Co-operative Limited
       'duncandewhurst', # Duncan Dewhurst
       'odscjen', # Jen Harris
@@ -31,9 +42,11 @@ namespace :org do
       'dogsbody', # Dan Benton
       'dogsbody-ashley', # Ashley Holland
       'dogsbody-josh', # Josh Archer
-      'robhooper', # Rob Hooper
     ],
     'Transfers' => [
+    ],
+    'uStudio Design' => [
+      'paulboroday', # Paul Boroday
     ],
   }
 
@@ -130,6 +143,10 @@ namespace :org do
 
   desc 'Lists repositories that should be added or removed from teams'
   task :team_repos do
+    dream_bi = [
+      'bi.dream.gov.ua',
+      'bi.dream.gov.ua-mdcp',
+    ]
     # The repositories that should be accessible to these teams.
     rbcgroup = [
       'bi.open-contracting.org',
@@ -140,6 +157,18 @@ namespace :org do
       'lib-cove-oc4ids',
       'notebooks-oc4ids',
       'oc4idskit',
+    ]
+    robots = [
+      'deploy-salt-private',
+      # lint.yml workflows using the stefanzweifel/git-auto-commit-action action with a personal access token (PAT).
+      'cove-oc4ids',
+      'cove-ocds',
+      'credere-backend',
+      'data-registry',
+      'kingfisher-process',
+      'kingfisher-summarize',
+      'pelican-backend',
+      'pelican-frontend',
     ]
     servers = [
       'deploy',
@@ -162,17 +191,23 @@ namespace :org do
       'standard_extension_template',
       'standard_profile_template',
     ]
+    ustudio_design = [
+      'dream',
+      'dream-api-docs',
+    ]
 
     repos = client.org_repos('open-contracting', per_page: 100)
     archived = repos.select(&:archived).map(&:name)
 
     expected = {
-      'General' => repos.map(&:name) - archived - servers - ['backup-codes'],
+      'General' => repos.map(&:name) - archived - servers - dream_bi - ustudio_design - ['backup-codes'],
       'OC4IDS' => oc4ids,
-      'RBC Group' => rbcgroup,
+      'RBC Group' => rbcgroup + dream_bi,
+      'Robots' => robots,
       'Servers' => servers + ['miscellaneous-private-scripts'], # Redmine patches
       'Standard' => standard,
       'Transfers' => [],
+      'uStudio Design' => ustudio_design,
     }
 
     client.org_teams('open-contracting').each do |team|
@@ -214,8 +249,12 @@ namespace :org do
     issues_only_maintain = [
     ]
 
-    # Repositories under active development can have Admin permissions.
+    # Repositories under active development can have Maintain permissions.
     active_development = [
+      'bi.dream.gov.ua',
+      'bi.dream.gov.ua-mdcp',
+      'dream',
+      'dream-api-docs',
     ]
 
     client.org_teams('open-contracting').each do |team|
