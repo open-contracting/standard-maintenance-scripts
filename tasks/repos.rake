@@ -99,15 +99,30 @@ Report issues for this extension in the [ocds-extensions repository](https://git
 
   desc 'Lists missing or unexpected licenses'
   task :licenses do
+    license_overrides = {
+      'lib-cove-oc4ids:other' => 'other:agpl-3.0-or-later',
+      'lib-cove-ocds:other' => 'other:agpl-3.0-or-later',
+      'cove-oc4ids:other' => 'other:agpl-3.0-or-later',
+      'cove-ocds:other' => 'other:agpl-3.0-or-later',
+      'software-development-handbook:other' => 'other:cc-by-4.0',
+      'standard-development-handbook:other' => 'other:cc-by-4.0',
+    }
+    language_overrides = {
+      'extension-explorer:SCSS' => 'Python',
+      'pelican-frontend:Vue' => 'Python',
+    }
+
     repos.partition{ |repo| extension?(repo.name) }.each_with_index do |set, i|
       puts
       licenses = {}
       set.each do |repo|
         license = repo.license&.key.to_s
         language = repo.language.to_s
+        license = license_overrides.fetch("#{repo.name}:#{license}", license)
+        language = language_overrides.fetch("#{repo.name}:#{language}", language)
         licenses[license] ||= {}
         licenses[license][language] ||= []
-        licenses[license][language] << repo.html_url
+        licenses[license][language] << repo
       end
 
       licenses.sort.each do |license, languages|
@@ -116,20 +131,44 @@ Report issues for this extension in the [ocds-extensions repository](https://git
           next
         end
 
-        if license.empty?
-          puts 'missing'.bold
-        else
-          puts license.bold
-        end
+        printed_license = false
 
         languages.sort.each do |language, repos|
-          # JavaScript and Ruby are expected to be MIT. Python is expected to be BSD 3-Clause.
-          if i.nonzero? && (license == 'mit' && %w(JavaScript Ruby).include?(language) || license == 'bsd-3-clause' && language == 'Python')
+          if i.nonzero? && (
+            # https://blog.opensource.org/the-most-popular-licenses-for-each-language-2023/
+            license == 'mit' && ['JavaScript', 'Ruby', 'Rust', 'TypeScript'].include?(language) ||
+            # https://github.com/django/django/blob/main/LICENSE
+            # https://github.com/jupyter/notebook/blob/main/LICENSE
+            # https://github.com/pallets/click/blob/main/LICENSE.rst
+            # https://github.com/pallets/flask/blob/main/LICENSE.rst
+            license == 'bsd-3-clause' && ['Jupyter Notebook', 'Python'].include?(language) ||
+            # https://en.wikipedia.org/wiki/Robot_Framework
+            # https://en.wikipedia.org/wiki/Salt_(software)
+            license == 'apache-2.0' && ['RobotFramework', 'SaltStack'].include?(language)
+          )
             next
           end
 
-          repos.each do |html_url|
-            line = html_url
+          repos = repos.reject do |repo|
+            # Standard documentation.
+            license == 'apache-2.0' && ['standard', 'infrastructure', 'extension_registry', 'ocds-extensions-translations'].include?(repo.name) ||
+            # Forks, excluding manuals, can use upstream license.
+            repo.fork && !repo.name.end_with?('-manual') ||
+            # Archived and private repositories can have no license.
+            license.empty? && (repo.archived || repo.private)
+          end
+
+          if !printed_license && !repos.empty?
+            if license.empty?
+              puts 'missing'.bold
+            else
+              puts license.bold
+            end
+            printed_license = true
+          end
+
+          repos.each do |repo|
+            line = repo.html_url
             if !language.empty?
               line << " (#{language})"
             end

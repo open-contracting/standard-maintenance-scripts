@@ -23,14 +23,12 @@ PROFILES = [
 TEMPLATES = [
   'standard_extension_template',
   'standard_profile_template',
-  'field-level-mapping-template',
 ]
 
 specifications = [
   'infrastructure',
   'ocds-extensions',
   'standard',
-  'translations',
 ]
 guides = [
   'ocds-kibana-manual',
@@ -73,7 +71,7 @@ REPOSITORY_CATEGORIES = {
   'Extension tools' => -> (repo) { extension_tools.include?(repo.name) },
   'Internal tools' => -> (repo) { internal_tools.include?(repo.name) },
   'Documentation dependencies' => -> (repo) { DOCUMENTATION_DEPENDENCIES.include?(repo.name) },
-  'Templates' => -> (repo) { template?(repo.name) },
+  'Templates' => -> (repo) { template?(repo.name) || repo_name == 'field-level-mapping-template' },
   'Profiles' => -> (repo) { profile?(repo.name) },
   'Extensions' => -> (repo) { extension?(repo.name, profiles: false, templates: false) },
 }
