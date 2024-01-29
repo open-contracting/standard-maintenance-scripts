@@ -152,6 +152,13 @@ json_schemas = [(path, name, data) for path, name, _, data in walk_json_data(pat
                 if is_json_schema(data) and repo_name not in excluded_repo_name]
 
 
+def loader(url, **kwargs):
+    if repo_name == 'standard' and url.startswith('https://standard.open-contracting.org/schema/'):
+        with open(os.path.join(cwd, 'schema', url.rsplit('/', 1)[1])) as f:
+            return json.load(f)
+    return jsonref.jsonloader(url, **kwargs)
+
+
 def merge(*objs):
     """
     Copied from json_merge_patch.
@@ -521,14 +528,14 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
 
         if not code_repo:
             # Extensions aren't expected to repeat referenced `definitions`.
-            errors += validate_ref(path, data)
+            errors += validate_ref(path, data, loader=loader)
 
         if name not in exceptions_plus_versioned:
             # Extensions aren't expected to repeat `title`, `description`, `type`.
             errors += validate_metadata_presence(path, data, **validate_metadata_presence_kwargs)
             if not code_repo:
                 # Extensions aren't expected to repeat referenced `definitions`.
-                errors += validate_object_id(path, jsonref.replace_refs(data), **validate_object_id_kwargs)
+                errors += validate_object_id(path, jsonref.replace_refs(data, loader=loader), **validate_object_id_kwargs)
 
         if name not in exceptions_plus_versioned_and_packages:
             # Extensions aren't expected to repeat `required`. Packages don't have merge rules.
