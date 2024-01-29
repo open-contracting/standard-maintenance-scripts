@@ -535,7 +535,9 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
             errors += validate_metadata_presence(path, data, **validate_metadata_presence_kwargs)
             if not code_repo:
                 # Extensions aren't expected to repeat referenced `definitions`.
-                errors += validate_object_id(path, jsonref.replace_refs(data, loader=loader), **validate_object_id_kwargs)
+                errors += validate_object_id(
+                    path, jsonref.replace_refs(data, loader=loader), **validate_object_id_kwargs
+                )
 
         if name not in exceptions_plus_versioned_and_packages:
             # Extensions aren't expected to repeat `required`. Packages don't have merge rules.
