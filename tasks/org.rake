@@ -204,7 +204,7 @@ namespace :org do
       'OC4IDS' => oc4ids,
       'RBC Group' => rbcgroup + dream_bi,
       'Robots' => robots,
-      'Servers' => servers + ['miscellaneous-private-scripts'], # Redmine patches
+      'Servers' => servers,
       'Standard' => standard,
       'Transfers' => [],
       'uStudio Design' => ustudio_design,
