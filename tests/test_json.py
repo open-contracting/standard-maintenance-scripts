@@ -88,6 +88,10 @@ ocds_version = os.getenv('OCDS_TEST_VERSION')
 is_profile = os.path.isfile('Makefile') and os.path.isdir('docs') and repo_name not in ('standard', 'infrastructure')
 is_extension = os.path.isfile('extension.json') or is_profile
 extensiondir = os.path.join('schema', 'profile') if is_profile else '.'
+if repo_name == 'standard':
+    standard_owner = os.getenv('GITHUB_REPOSITORY_OWNER', 'open-contracting')
+else:
+    standard_owner = 'open-contracting'
 
 # Whether to use the 1.2-dev version of OCDS.
 use_development_version = (
@@ -107,7 +111,7 @@ if repo_name == 'infrastructure':
 else:
     ocds_schema_base_url = 'https://standard.open-contracting.org/schema/'
 development_base_ref = os.getenv('GITHUB_HEAD_REF') or '1.2-dev'
-development_base_url = f"https://raw.githubusercontent.com/open-contracting/standard/{development_base_ref}/schema"
+development_base_url = f"https://raw.githubusercontent.com/{standard_owner}/standard/{development_base_ref}/schema"
 ocds_tags = re.findall(r'\d+__\d+__\d+', http_get(ocds_schema_base_url).text)
 if ocds_version:
     ocds_tag = ocds_version.replace('.', '__')
