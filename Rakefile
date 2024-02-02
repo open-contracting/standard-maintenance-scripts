@@ -43,8 +43,11 @@ extension_tools = [
   'ocds-extensions-translations',
 ]
 internal_tools = [
+  'collect-generic',
+  'data-support',
   'deploy',
   'editor-tools',
+  'field-level-mapping-template',
   'jscc',
   'json-schema-random',
   'notebooks-ocds',
@@ -71,7 +74,7 @@ REPOSITORY_CATEGORIES = {
   'Extension tools' => -> (repo) { extension_tools.include?(repo.name) },
   'Internal tools' => -> (repo) { internal_tools.include?(repo.name) },
   'Documentation dependencies' => -> (repo) { DOCUMENTATION_DEPENDENCIES.include?(repo.name) },
-  'Templates' => -> (repo) { template?(repo.name) || repo_name == 'field-level-mapping-template' },
+  'Templates' => -> (repo) { template?(repo.name) },
   'Profiles' => -> (repo) { profile?(repo.name) },
   'Extensions' => -> (repo) { extension?(repo.name, profiles: false, templates: false) },
 }
