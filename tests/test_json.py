@@ -89,7 +89,7 @@ is_profile = os.path.isfile('Makefile') and os.path.isdir('docs') and repo_name 
 is_extension = os.path.isfile('extension.json') or is_profile
 extensiondir = os.path.join('schema', 'profile') if is_profile else '.'
 if repo_name == 'standard':
-    standard_owner = os.getenv('GITHUB_REPOSITORY_OWNER', 'open-contracting')
+    standard_owner = os.getenv('GITHUB_ACTOR', 'open-contracting')
 else:
     standard_owner = 'open-contracting'
 
