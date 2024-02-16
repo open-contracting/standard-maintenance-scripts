@@ -88,7 +88,9 @@ ocds_version = os.getenv('OCDS_TEST_VERSION')
 is_profile = os.path.isfile('Makefile') and os.path.isdir('docs') and repo_name not in ('standard', 'infrastructure')
 is_extension = os.path.isfile('extension.json') or is_profile
 extensiondir = os.path.join('schema', 'profile') if is_profile else '.'
-if repo_name == 'standard':
+if repo_name == 'standard' and os.getenv('GITHUB_ACTOR').lower() not in (
+    'colinmaudry', 'duncandewhurst', 'jachymhercher', 'odscjen' 'jpmckinney', 'yolile'
+):
     standard_owner = os.getenv('GITHUB_ACTOR', 'open-contracting')
 else:
     standard_owner = 'open-contracting'
