@@ -213,13 +213,19 @@ def _merge_obj(result, obj, pointer=''):  # changed code
                 warnings.warn(f'empties {pointer_and_key}')
             elif (
                 # XXX: Remove after OCDS 1.2 release.
-                repo_name in ('ocds_lots_extension',)
+                repo_name == 'ocds_lots_extension'
                 and pointer_and_key.startswith('/definitions/SimpleIdentifier/')
-                or repo_name in ('ocds_submissionTerms_extension',)
+                or repo_name == 'ocds_submissionTerms_extension'
                 and pointer_and_key.startswith((
                     '/definitions/SubmissionTerms/',
                     '/definitions/Tender/properties/submissionTerms/',
+                    # Included in master version (1.2) of lots extension.
                     '/definitions/Lot/properties/submissionTerms/',
+                ))
+                or repo_name == 'ocds_selectionCriteria_extension'
+                and pointer_and_key.startswith((
+                    '/definitions/SelectionCriteria/',
+                    '/definitions/Tender/properties/selectionCriteria/',
                 ))
             ):
                 warnings.warn(f'copies {pointer_and_key}')
