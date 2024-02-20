@@ -255,7 +255,7 @@ Report issues for this extension in the [ocds-extensions repository](https://git
       # Whether the repo has GitHub [P]ages
       # Whether the repo has [I]ssues enabled
       # Whether the repo has [P]rojects enabled
-      # The top contributor (e.g. to decide who to contact)
+      # The top contributor outside OCP (e.g. to decide who to contact)
       puts '%-110s   %s  %s  %s  %s  %s  %s  %s  %s  %s  %s' % [heading.upcase, '#I', '#P', '#B', '#M', '#R', 'W', 'P', 'I', 'P', 'C']
 
       repos.select(&condition).sort{ |a, b|
@@ -277,7 +277,9 @@ Report issues for this extension in the [ocds-extensions repository](https://git
           top_contributor = nil
         else
           # At time of writing, I'm the top contributor on most repositories, which is not useful information.
-          top_contributor = repo.rels[:contributors].get.data.find{ |contributor| contributor.login != 'jpmckinney' }
+          top_contributor = repo.rels[:contributors].get.data.find do |contributor|
+            !['jpmckinney', 'yolile'].include?(contributor.login) && !contributor.login.end_with?('[bot]')
+          end
         end
 
         if repo.has_projects
