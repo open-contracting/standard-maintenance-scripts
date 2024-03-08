@@ -308,7 +308,10 @@ def test_example_backticks():
                 # e.g. `"uniqueItems": true`
                 and not text.startswith('"') and text not in exceptions.get(repo_name, [])):
             errors += 1
-            warnings.warn(f'README.md: "{text}" term is not in schema')
+            if "/" in text:
+                warnings.warn(f'README.md: "{text}" term is not in schema (try {text.replace("/", ".")})')
+            else:
+                warnings.warn(f'README.md: "{text}" term is not in schema')
 
     assert errors == 0, 'README.md: Backtick terms are invalid. See warnings below.'
 
