@@ -510,7 +510,7 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
 
     errors += validate_schema(path, data, validator)
     if errors:
-        warnings.warn(f'{path} is not valid JSON Schema ({errors} errors)')
+        warnings.warn(f'{path} is not valid against the schema ({errors} errors)')
 
     if name not in schema_exceptions:
         if 'versioned-release-validation-schema.json' in path:
