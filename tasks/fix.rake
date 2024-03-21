@@ -57,7 +57,7 @@ namespace :fix do
       end
 
       # "Allow auto-merge"
-      if profile?(repo.name) or specification?(repo.name)
+      if profile?(repo.name) or specification?(repo.name) or repo.name == 'standard_profile_template'
         # Merging causes a deployment. Only merge PRs manually.
         if repo.allow_auto_merge
           client.edit_repository(repo.full_name, allow_auto_merge: false)
