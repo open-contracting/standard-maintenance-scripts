@@ -57,13 +57,22 @@ namespace :fix do
       end
 
       # "Allow auto-merge"
-      if not repo.allow_auto_merge
-        begin
-          if client.contents(repo.full_name, path: '.github/dependabot.yml')
-            client.edit_repository(repo.full_name, allow_auto_merge: true)
-            puts "#{repo.html_url}/settings #{'enabled allow_auto_merge'.bold}"
-          end
-        rescue Octokit::NotFound
+      if profile?(repo.name) or specification?(repo.name)
+        # Merging causes a deployment. Only merge PRs manually.
+        if repo.allow_auto_merge
+          client.edit_repository(repo.full_name, allow_auto_merge: false)
+          puts "#{repo.html_url}/settings #{'disabled allow_auto_merge'.bold}"
+        end
+      elsif has_github_file(repo.full_name, '.github/workflows/deploy.yml')
+        # Merging causes a deployment. Only merge PRs manually.
+        if repo.allow_auto_merge
+          client.edit_repository(repo.full_name, allow_auto_merge: false)
+          puts "#{repo.html_url}/settings #{'disabled allow_auto_merge'.bold}"
+        end
+      elsif not repo.allow_auto_merge
+        if has_github_file(repo.full_name, '.github/dependabot.yml')
+          client.edit_repository(repo.full_name, allow_auto_merge: true)
+          puts "#{repo.html_url}/settings #{'enabled allow_auto_merge'.bold}"
         end
       end
 

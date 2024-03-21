@@ -24,12 +24,12 @@ TEMPLATES = [
   'standard_extension_template',
   'standard_profile_template',
 ]
-
-specifications = [
+SPECIFICATIONS = [
   'infrastructure',
   'ocds-extensions',
   'standard',
 ]
+
 guides = [
   'ocds-kibana-manual',
   'ocds-r-manual',
@@ -65,10 +65,10 @@ DOCUMENTATION_DEPENDENCIES = [
   'ocds-index',
   'sphinxcontrib-opencontracting',
 ]
-non_tools = specifications + guides + DOCUMENTATION_DEPENDENCIES
+non_tools = SPECIFICATIONS + guides + DOCUMENTATION_DEPENDENCIES
 
 REPOSITORY_CATEGORIES = {
-  'Specifications' => -> (repo) { specifications.include?(repo.name) },
+  'Specifications' => -> (repo) { specification?(repo.name) },
   'Guides' => -> (repo) { guides.include?(repo.name) },
   'Tools' => -> (repo) { !extension?(repo.name) && !extension_tools.include?(repo.name) && !internal_tools.include?(repo.name) && !non_tools.include?(repo.name) },
   'Extension tools' => -> (repo) { extension_tools.include?(repo.name) },
@@ -112,6 +112,13 @@ def repos
   end
 end
 
+def has_github_file(full_name, path)
+  begin
+    client.contents(full_name, path: path)
+  rescue Octokit::NotFound
+  end
+end
+
 def read_github_file(full_name, path)
   begin
     Base64.decode64(client.contents(full_name, path: path).content)
@@ -126,6 +133,10 @@ end
 
 def template?(name)
   TEMPLATES.include?(name)
+end
+
+def specification?(name)
+  SPECIFICATIONS.include?(name)
 end
 
 def extension?(name, profiles: true, templates: true)
