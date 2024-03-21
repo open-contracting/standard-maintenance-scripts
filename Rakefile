@@ -112,9 +112,9 @@ def repos
   end
 end
 
-def read_github_file(repo, path)
+def read_github_file(full_name, path)
   begin
-    Base64.decode64(client.contents(repo, path: path).content)
+    Base64.decode64(client.contents(full_name, path: path).content)
   rescue Octokit::NotFound
     ''
   end

@@ -47,19 +47,34 @@ namespace :fix do
         next
       end
 
-      # delete_branch_on_merge is not returned by org_repos.
+      # allow_auto_merge and delete_branch_on_merge are not returned by org_repos.
       repo = client.repo(repo.full_name)
 
+      # "Automatically delete head branches"
       if not repo.delete_branch_on_merge
         client.edit_repository(repo.full_name, delete_branch_on_merge: true)
         puts "#{repo.html_url}/settings #{'enabled delete_branch_on_merge'.bold}"
       end
 
+      # "Allow auto-merge"
+      if not repo.allow_auto_merge
+        begin
+          if client.contents(repo.full_name, path: '.github/dependabot.yml')
+            client.edit_repository(repo.full_name, allow_auto_merge: true)
+            puts "#{repo.html_url}/settings #{'enabled allow_auto_merge'.bold}"
+          end
+        rescue Octokit::NotFound
+        end
+      end
+
+      # Extensions
       if extension?(repo.name, profiles: false, templates: false)
+        # Name
         if !repo.name[/\Aocds_\w+_extension\z/]
           puts "#{repo.name} is not a valid extension name"
         end
 
+        # Issues and projects
         disable_issues(repo, 'should be moved and disabled')
         disable_projects(repo, 'should be moved and disabled')
 
@@ -67,11 +82,13 @@ namespace :fix do
         if !metadata.nil?
           options = {}
 
+          # Description
           description = metadata['description'].fetch('en')
           if description != repo.description
             options[:description] = description
           end
 
+          # Homepage
           homepage = metadata['documentationUrl'].fetch('en')
           if homepage == repo.html_url || homepage['https://github.com/open-contracting']
             homepage = nil # don't link to itself
@@ -89,6 +106,7 @@ namespace :fix do
         end
       end
 
+      # Wiki
       if repo.has_wiki
         response = Faraday.get("#{repo.html_url}/wiki")
         if response.status == 302 && response.headers['location'] == repo.html_url
@@ -97,10 +115,12 @@ namespace :fix do
         end
       end
 
+      # Private
       if repo.private
-        puts "#{repo.html_url} is private"
+        puts "#{repo.html_url} is #{"private".yellow}"
       end
 
+      # Deployments and keys
       {
         # The only deployments should be for GitHub Pages.
         deployments: {
