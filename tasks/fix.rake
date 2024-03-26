@@ -49,30 +49,32 @@ namespace :fix do
 
       # allow_auto_merge and delete_branch_on_merge are not returned by org_repos.
       repo = client.repo(repo.full_name)
+      options = {}
 
       # "Automatically delete head branches"
       if not repo.delete_branch_on_merge
-        client.edit_repository(repo.full_name, delete_branch_on_merge: true)
-        puts "#{repo.html_url}/settings #{'enabled delete_branch_on_merge'.bold}"
+        options[:delete_branch_on_merge] = true
+      end
+
+      # "Allow squash merging"
+      if not repo.allow_squash_merge
+        options[:allow_squash_merge] = true
       end
 
       # "Allow auto-merge"
       if profile?(repo.name) or specification?(repo.name) or repo.name == 'standard_profile_template'
         # Merging causes a deployment. Only merge PRs manually.
         if repo.allow_auto_merge
-          client.edit_repository(repo.full_name, allow_auto_merge: false)
-          puts "#{repo.html_url}/settings #{'disabled allow_auto_merge'.bold}"
+          options[:allow_auto_merge] = false
         end
       elsif has_github_file(repo.full_name, '.github/workflows/deploy.yml')
         # Merging causes a deployment. Only merge PRs manually.
         if repo.allow_auto_merge
-          client.edit_repository(repo.full_name, allow_auto_merge: false)
-          puts "#{repo.html_url}/settings #{'disabled allow_auto_merge'.bold}"
+          options[:allow_auto_merge] = false
         end
       elsif not repo.allow_auto_merge
         if has_github_file(repo.full_name, '.github/dependabot.yml')
-          client.edit_repository(repo.full_name, allow_auto_merge: true)
-          puts "#{repo.html_url}/settings #{'enabled allow_auto_merge'.bold}"
+          options[:allow_auto_merge] = true
         end
       end
 
@@ -89,8 +91,6 @@ namespace :fix do
 
         metadata = JSON.load(read_github_file(repo.full_name, 'extension.json'))
         if !metadata.nil?
-          options = {}
-
           # Description
           description = metadata['description'].fetch('en')
           if description != repo.description
@@ -105,11 +105,6 @@ namespace :fix do
           if homepage != repo.homepage
             options[:homepage] = homepage
           end
-
-          if options.any?
-            client.edit_repository(repo.full_name, options.dup)
-            puts "#{repo.html_url} #{"updated #{options.keys.join(' and ')}".bold.yellow}"
-          end
         else
           puts "#{repo.html_url} #{"no extension.json file!".bold}"
         end
@@ -119,8 +114,21 @@ namespace :fix do
       if repo.has_wiki
         response = Faraday.get("#{repo.html_url}/wiki")
         if response.status == 302 && response.headers['location'] == repo.html_url
-          client.edit_repository(repo.full_name, has_wiki: false)
-          puts "#{repo.html_url}/settings #{'disabled wiki'.bold}"
+          options[:has_wiki] = false
+        end
+      end
+
+      if options.any?
+        client.edit_repository(repo.full_name, options.dup)
+        puts "#{repo.html_url}"
+        options.each do |key, value|
+          if value == true
+            puts "- enabled #{key}".bold
+          elsif value == false
+            puts "- disabled #{key}".bold
+          else
+            puts "- updated #{key}".bold
+          end
         end
       end
 
