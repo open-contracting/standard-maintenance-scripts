@@ -39,6 +39,8 @@ namespace :repos do
             vulnerabilityAlerts(first: 100) {
               nodes {
                 fixedAt
+                dismissComment
+                dismissReason
                 dismissedAt
                 securityVulnerability {
                   package {
@@ -61,10 +63,10 @@ namespace :repos do
       if nodes.any?
         puts "#{repo.full_name}"
         rows = nodes.map do |node|
-          [node['securityVulnerability']['package']['name'], node['dismissedAt']]
+          [node['securityVulnerability']['package']['name'], node['dismissedAt'], node['dismissReason'], node['dismissComment']]
         end
-        rows.uniq.each do |package_name, dismissed_at|
-          puts "- #{package_name} #{dismissed_at}"
+        rows.uniq.each do |package_name, dismissed_at, reason, comment|
+          puts "- #{package_name.ljust(25)} #{dismissed_at}  #{reason}  #{comment}"
         end
       end
     end
