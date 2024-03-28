@@ -36,8 +36,10 @@ from ocdskit.schema import add_validation_properties
 # The codelists defined in `schema/codelists`. XXX Hardcoding.
 external_codelists = {
     'awardCriteria.csv',
+    'awardFinalStatus.csv',  # 1.2
     'awardStatus.csv',
     'classificationScheme.csv',  # 1.2
+    'contractFinalStatus.csv',  # 1.2
     'contractStatus.csv',
     'country.csv',  # 1.2
     'currency.csv',
@@ -59,6 +61,7 @@ external_codelists = {
     'relatedProcessScheme.csv',
     'releaseTag.csv',
     'submissionMethod.csv',
+    'tenderFinalStatus.csv',  # 1.2
     'tenderStatus.csv',
     'unitClassificationScheme.csv',
 }
