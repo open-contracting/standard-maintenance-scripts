@@ -158,12 +158,6 @@ def check_licenses(file):
     """
     permissive = {
         'Public Domain',
-        # https://en.wikipedia.org/wiki/BSD_licenses
-        '3-Clause BSD License',
-        'BSD',
-        'BSD 3-Clause',
-        'BSD License',
-        'BSD-3-Clause',
         # https://en.wikipedia.org/wiki/Academic_Free_License
         'Academic Free License (AFL)',
         # https://en.wikipedia.org/wiki/Apache_License
@@ -171,8 +165,18 @@ def check_licenses(file):
         'Apache License 2.0',
         'Apache Software License',
         'Apache Software License 2.0',
+        'Apache License, Version 2.0',
+        # https://en.wikipedia.org/wiki/BSD_licenses
+        '3-Clause BSD License',
+        'BSD',
+        'BSD 3-Clause',
+        'BSD License',
+        'BSD-3-Clause',
         # https://en.wikipedia.org/wiki/Artistic_License
         'Artistic License',
+        # https://en.wikipedia.org/wiki/Creative_Commons_license#Zero_/_public_domain
+        'CC0 1.0 Universal',
+        'CC0 (copyright waived)',
         # https://en.wikipedia.org/wiki/Historical_Permission_Notice_and_Disclaimer
         'Historical Permission Notice and Disclaimer (HPND)',
         # https://en.wikipedia.org/wiki/ISC_license
@@ -183,11 +187,13 @@ def check_licenses(file):
         'The MIT License (MIT)',
         # https://en.wikipedia.org/wiki/Python_Software_Foundation_License
         'Python Software Foundation License',
-        # https://en.wikipedia.org/wiki/Zlib_License
-        'zlib/php',
+        # https://en.wikipedia.org/wiki/Unlicense
+        'The Unlicense (Unlicense)',
         # https://en.wikipedia.org/wiki/Zope_Public_License
         'Zope Public License',
         'ZPL 2.1',
+        # https://en.wikipedia.org/wiki/Zlib_License
+        'zlib/php',
     }
 
     # "Weak copyleft" typically means that unmodified use imposes no additional requirements to permissive licenses.
@@ -197,12 +203,15 @@ def check_licenses(file):
         'Eclipse Public License 2.0 (EPL-2.0)',
         # https://en.wikipedia.org/wiki/GNU_Lesser_General_Public_License
         # https://fossa.com/blog/open-source-software-licenses-101-lgpl-license/
+        'GNU Lesser General Public License v2 (LGPLv2)',
+        'GNU Lesser General Public License v2 or later (LGPLv2+)',
         'GNU Lesser General Public License v3 or later (LGPLv3+)',
         'GNU Library or Lesser General Public License (LGPL)',
         'LGPL',
         # https://en.wikipedia.org/wiki/Mozilla_Public_License
         # https://fossa.com/blog/open-source-software-licenses-101-mozilla-public-license-2-0/
         'Mozilla Public License 2.0 (MPL 2.0)',
+        'MPL-2.0',
     }
 
     strong_copyleft = {
@@ -210,10 +219,12 @@ def check_licenses(file):
         'GNU Affero General Public License v3 or later (AGPLv3+)',
         # https://en.wikipedia.org/wiki/GNU_General_Public_License
         'GNU General Public License (GPL)',
+        'GNU General Public License v2 (GPLv2)',
         'GNU General Public License v2 or later (GPLv2+)',
         'GNU General Public License v3 (GPLv3)',
         'GNU General Public License v3 or later (GPLv3+)',
         'GPLv2',
+        'GPL v2',
     }
 
     packages = {}
