@@ -218,6 +218,7 @@ def _merge_obj(result, obj, pointer=''):  # changed code
                 # XXX: Remove after OCDS 1.2 release.
                 repo_name == 'ocds_lots_extension'
                 and pointer_and_key.startswith('/definitions/SimpleIdentifier/')
+                # https://github.com/open-contracting/standard/issues/1183
                 or repo_name == 'ocds_submissionTerms_extension'
                 and pointer_and_key.startswith((
                     '/definitions/SubmissionTerms/',
@@ -225,6 +226,7 @@ def _merge_obj(result, obj, pointer=''):  # changed code
                     # Included in master version (1.2) of lots extension.
                     '/definitions/Lot/properties/submissionTerms/',
                 ))
+                # https://github.com/open-contracting/standard/issues/1607
                 or repo_name == 'ocds_selectionCriteria_extension'
                 and pointer_and_key.startswith((
                     '/definitions/SelectionCriteria/',
