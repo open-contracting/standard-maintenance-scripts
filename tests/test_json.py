@@ -56,6 +56,7 @@ external_codelists = {
     'partyRole.csv',
     'partyScale.csv',  # 1.2
     'permission.csv',  # 1.2
+    'planningFinalStatus.csv',  # 1.2
     'procurementCategory.csv',
     'relatedProcess.csv',
     'relatedProcessScheme.csv',
