@@ -408,6 +408,9 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
         # extension_registry
         'extensions-schema.json',
         'extension_versions-schema.json',
+        # kingfisher-collect
+        '1.0.json',
+        '1.1.json',
         # spoonbill
         'ocds-simplified-schema.json',
     }
