@@ -388,9 +388,6 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
     if 'docs/examples/organizations/organizational_units/ocds_divisionCode_extension' in path:
         full_schema = False
 
-    # Kingfisher Collect uses JSON Schema files to validate Scrapy items.
-    code_repo = repo_name == 'kingfisher-collect'
-
     # Non-OCDS schema don't:
     # * pair "enum" and "codelist"
     # * disallow "null" in "type" of "items"
@@ -443,7 +440,7 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
     def validate_metadata_presence_allow_missing(pointer):
         parts = pointer.split('/')
         # record-schema.json sets "type" as sibling to "oneOf".
-        return 'links' in parts or 'oneOf' in parts or code_repo  # ocds_pagination_extension
+        return 'links' in parts or 'oneOf' in parts  # ocds_pagination_extension
 
     validate_metadata_presence_kwargs = {
         'allow_missing': validate_metadata_presence_allow_missing,
@@ -473,7 +470,7 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
 
     validate_null_type_kwargs = {
         # OCDS allows null. OC4IDS disallows null.
-        'no_null': repo_name == 'infrastructure' or code_repo,
+        'no_null': repo_name == 'infrastructure',
         'allow_object_null': {
             '/definitions/Amendment/properties/changes/items/properties/former_value',  # deprecated
             # See https://github.com/open-contracting/standard/pull/738#issuecomment-440727233
@@ -523,9 +520,8 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
             validate_items_type_kwargs['additional_valid_types'] = ['object']
         errors += validate_array_items(path, data, **validate_array_items_kwargs)
         errors += validate_items_type(path, data, **validate_items_type_kwargs)
-        if not code_repo:
-            errors += validate_codelist_enum(path, data, **validate_codelist_enum_kwargs)
-            errors += validate_letter_case(path, data, **validate_letter_case_kwargs)
+        errors += validate_codelist_enum(path, data, **validate_codelist_enum_kwargs)
+        errors += validate_letter_case(path, data, **validate_letter_case_kwargs)
         errors += validate_merge_properties(path, data)
 
     # `full_schema` is set to not expect extensions to repeat information from core.
@@ -544,18 +540,16 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
             'record-schema.json',
         }
 
-        if not code_repo:
-            # Extensions aren't expected to repeat referenced `definitions`.
-            errors += validate_ref(path, data, loader=loader)
+        # Extensions aren't expected to repeat referenced `definitions`.
+        errors += validate_ref(path, data, loader=loader)
 
         if name not in exceptions_plus_versioned:
             # Extensions aren't expected to repeat `title`, `description`, `type`.
             errors += validate_metadata_presence(path, data, **validate_metadata_presence_kwargs)
-            if not code_repo:
-                # Extensions aren't expected to repeat referenced `definitions`.
-                errors += validate_object_id(
-                    path, jsonref.replace_refs(data, loader=loader), **validate_object_id_kwargs
-                )
+            # Extensions aren't expected to repeat referenced `definitions`.
+            errors += validate_object_id(
+                path, jsonref.replace_refs(data, loader=loader), **validate_object_id_kwargs
+            )
 
         if name not in exceptions_plus_versioned_and_packages:
             # Extensions aren't expected to repeat `required`. Packages don't have merge rules.
