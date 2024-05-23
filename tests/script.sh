@@ -1,5 +1,6 @@
-#!/usr/bin/env bash
-set -xeuo pipefail
+#!/bin/sh
+
+set -xeu
 
 # Ignore version control, untracked files and executable scripts.
 find . -type f \! -perm 644 \! -path '*/.git/*' \! -path '*/.ruff_cache/*' \! -path '*/.tox/*' \
