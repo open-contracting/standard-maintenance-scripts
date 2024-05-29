@@ -366,7 +366,7 @@ def test_empty():
 def test_indent():
     def include(path, name):
         # http://json-schema.org/draft-04/schema
-        return name not in ('json-schema-draft-4.json', 'package.json', 'package-lock.json')
+        return name not in ('biome.json', 'json-schema-draft-4.json', 'package.json', 'package-lock.json')
 
     warn_and_assert(get_misindented_files(include), '{0} is not indented as expected, run: ocdskit indent {0}',
                     'Files are not indented as expected. See warnings below, or run: ocdskit indent -r .')
