@@ -335,6 +335,7 @@ def test_dev_requirements():
         # Documentation dependencies.
         'furo',
         'sphinx',
+        'sphinx-intl',
         'sphinx-rtd-theme',
         # Build utilities.
         'libsass',
