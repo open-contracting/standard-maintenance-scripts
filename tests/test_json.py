@@ -501,6 +501,9 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
             '/definitions/Amendment/properties/changes/items/properties/former_value',  # deprecated
             '/definitions/Location/properties/geometry/properties/coordinates/items',  # recursion
             '/properties/releases',  # record-schema.json sets "items" within "oneOf"
+            # versioned-release-validation-schema.json
+            '/definitions/Location/properties/geometry/properties/coordinates/items/properties/value/items',  # recursion
+            '/definitions/LocationUnversioned/properties/geometry/properties/coordinates/items',  # recursion
         },
     }
 
