@@ -124,6 +124,11 @@ if ocds_version:
 else:
     ocds_tag = ocds_tags[-1]
 
+print(
+    f"{repo_name=}\n{ocds_version=}\n{ocds_tag=}\n{is_profile=}\n{is_extension=}\n{extensiondir=}\n{standard_owner}\n"
+    f"{use_development_version=}\n{ocds_schema_base_url=}\n{development_base_ref=}\n{development_base_url=}"
+)
+
 
 def formatwarning(message, category, filename, lineno, line=None):
     if category != DeepPropertiesWarning:
