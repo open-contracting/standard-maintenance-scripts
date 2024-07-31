@@ -1,6 +1,8 @@
 source 'https://rubygems.org'
 
+gem 'base64'
 gem 'colored'
+gem 'csv'
 gem 'faraday'
 gem 'google-api-client'
 gem 'hashdiff'
