@@ -312,6 +312,7 @@ def test_dev_requirements():
         'black',
         'flake8',
         'isort',
+        'mypy',
         'pre-commit',
         'pylint',
         'ruff',
