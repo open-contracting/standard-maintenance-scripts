@@ -330,6 +330,8 @@ def test_dev_requirements():
         'pytest-mock',
         'pytest-order',
         'pytest-subtests',
+        # Stub files.
+        'sqlalchemy-stubs',
         # Code coverage.
         'coverage',
         'coveralls',
