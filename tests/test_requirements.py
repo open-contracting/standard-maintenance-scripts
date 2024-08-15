@@ -337,6 +337,7 @@ def test_dev_requirements():
         'furo',
         'sphinx',
         'sphinx-autobuild',
+        'sphinx-design',
         'sphinx-intl',
         'sphinx-rtd-theme',
         # Build utilities.
