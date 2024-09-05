@@ -257,7 +257,7 @@ def _merge_obj(result, obj, pointer=''):  # changed code
 @lru_cache()
 def metaschemas():
     # Novel uses of JSON Schema features may require updates to other repositories.
-    # See https://ocds-standard-development-handbook.readthedocs.io/en/latest/meta/schema_style_guide.html#validation-keywords # noqa: E501
+    # See https://ocds-standard-development-handbook.readthedocs.io/en/latest/meta/schema_style_guide.html#validation-keywords
     unused_json_schema_properties = {
         # Validation keywords for numeric instances
         'multipleOf',
@@ -290,7 +290,7 @@ def metaschemas():
 
     # See https://tools.ietf.org/html/rfc7396
     if is_extension:
-        # See https://github.com/open-contracting-extensions/ocds_milestone_documents_extension/blob/master/release-schema.json#L9 # noqa: E501
+        # See https://github.com/open-contracting-extensions/ocds_milestone_documents_extension/blob/master/release-schema.json#L9
         metaschema['properties']['deprecated']['type'] = ['object', 'null']
 
     # Fork the project package schema here, to not add merge properties to it.
