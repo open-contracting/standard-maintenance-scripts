@@ -303,19 +303,9 @@ def test_requirements():
 def test_dev_requirements():
     # Ignore development dependencies that are not typically imported.
     ignore = [
-        # Interactive shells.
-        'ipython',
         # Code linters.
-        'autopep8',
-        'black',
-        'flake8',
-        'isort',
         'mypy',
-        'pre-commit',
         'pylint',
-        'ruff',
-        # Debuggers.
-        'ipdb',
         # Test runners.
         'pytest',
         # Pytest plugins, which provide fixtures, for example.
@@ -335,10 +325,8 @@ def test_dev_requirements():
         # Documentation dependencies.
         'furo',
         'sphinx',
-        'sphinx-autobuild',
         'sphinx-design',
         'sphinx-intl',
-        'sphinx-rtd-theme',
         # Build utilities.
         'libsass',
     ]
