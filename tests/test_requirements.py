@@ -303,8 +303,6 @@ def test_requirements():
 def test_dev_requirements():
     # Ignore development dependencies that are not typically imported.
     ignore = [
-        # Dependency management.
-        'pip-tools',
         # Interactive shells.
         'ipython',
         # Code linters.
