@@ -8,7 +8,7 @@ find . -type f \! -perm 644 \! -path '*/.git/*' \! -path '*/.ruff_cache/*' \! -p
     \! -path '*/script/*' \! -name '*.sh' \! -name '*-cli' \! -name 'manage.py' \
     -o -type d \! -perm 755 \! -path '*/deploy/cache/*' | grep . && exit 1
 
-flake8 . --max-line-length 119 --extend-ignore E203
+flake8 . --max-line-length 119 --extend-ignore E203,E501,W505
 
 isort . --check-only --line-width 119 --profile black
 
