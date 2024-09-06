@@ -5,7 +5,7 @@ set -xeu
 # Ignore version control, untracked files and executable scripts.
 find . -type f \! -perm 644 \! -path '*/.git/*' \! -path '*/.ruff_cache/*' \! -path '*/.tox/*' \
     \! -path '*/__pycache__/*' \! -path '*/cache/*' \! -path '*/node_modules/*' \! -path '*/venv/*' \
-    \! -path '*/script/*' \! -name '*.sh' \! -name '*-cli' \! -name 'manage.py' \
+    \! -path '*/script/*' \! -name '*.sh' \! -name '*-cli' \! -name 'manage.py' \! -name 'run.py' \
     -o -type d \! -perm 755 \! -path '*/deploy/cache/*' | grep . && exit 1
 
 flake8 . --max-line-length 119 --extend-ignore E203,E501,W505
