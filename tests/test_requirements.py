@@ -305,12 +305,12 @@ def test_dev_requirements():
     ignore = [
         # Code linters.
         'mypy',
+        'pre-commit',
         'pylint',
         # Test runners.
         'pytest',
         # Pytest plugins, which provide fixtures, for example.
         'pytest-asyncio',
-        'pytest-cov',
         'pytest-django',
         'pytest-env',
         'pytest-flask',
@@ -321,7 +321,6 @@ def test_dev_requirements():
         'pytest-subtests',
         # Code coverage.
         'coverage',
-        'coveralls',
         # Documentation dependencies.
         'furo',
         'sphinx',
