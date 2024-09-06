@@ -70,7 +70,7 @@ def projects_and_modules(requirements):
     """
     mapping = defaultdict(set)
     for line in requirements.splitlines():
-        if not line or line.startswith(('-', '#')):
+        if not line or line.startswith(('-', '#', 'git+')):
             continue
         requirement = Requirement(line)
         if requirement.marker and not requirement.marker.evaluate():
