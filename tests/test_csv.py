@@ -23,10 +23,9 @@ warnings.formatwarning = formatwarning
 pytestmark = pytest.mark.filterwarnings('always')
 
 
-@pytest.mark.skipif(repo_name == 'deploy', reason='mapping-sheet.csv')
-@pytest.mark.skipif(repo_name == 'data-support', reason='expected trailing whitespace')
-@pytest.mark.skipif(repo_name == 'european-union-support', reason='extra quoting characters')
-@pytest.mark.skipif(repo_name == 'pelican-backend', reason='cached upstream file')
+@pytest.mark.skipif(repo_name in ('pelican-backend',), reason='cached upstream file')
+@pytest.mark.skipif(repo_name in ('data-support',), reason='expected trailing whitespace')
+@pytest.mark.skipif(repo_name in ('european-union-support',), reason='extra quoting characters')
 def test_valid():
     """
     Ensures all CSV files are valid: no empty rows or columns, no leading or trailing whitespace in cells, same number
