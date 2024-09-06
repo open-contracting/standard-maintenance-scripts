@@ -12,8 +12,4 @@ flake8 . --max-line-length 119 --extend-ignore E203,E501,W505
 
 isort . --check-only --line-width 119 --profile black
 
-curl -s -S --retry 3 -o /tmp/test_csv.py "$BASEDIR"/tests/test_csv.py
-curl -s -S --retry 3 -o /tmp/test_json.py "$BASEDIR"/tests/test_json.py
-curl -s -S --retry 3 -o /tmp/test_readme.py "$BASEDIR"/tests/test_readme.py
-curl -s -S --retry 3 -o /tmp/test_requirements.py "$BASEDIR"/tests/test_requirements.py
 pytest -rs --tb=line /tmp/test_csv.py /tmp/test_json.py /tmp/test_readme.py # test_requirements.py is opt-in
