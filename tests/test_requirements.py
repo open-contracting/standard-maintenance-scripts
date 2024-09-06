@@ -305,6 +305,7 @@ def test_dev_requirements():
     ignore = [
         # Code linters.
         'mypy',
+        'nbqa',
         'pre-commit',
         'pylint',
         # Test runners.
