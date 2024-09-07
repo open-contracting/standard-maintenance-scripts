@@ -1,0 +1,11 @@
+-r requirements.txt
+jscc
+json-merge-patch
+jsonref
+jsonschema
+ocdskit
+packaging
+pytest
+rfc3339-validator
+rfc3986-validator
+setuptools
