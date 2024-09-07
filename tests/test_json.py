@@ -157,9 +157,10 @@ excluded = ('.git', '.ve', '_static', 'build', 'fixtures', 'node_modules')
 excluded_repo_name = (
     # data-support extends and stores the release schema to, for example, unflatten data.
     'data-support',
-    # pelican-frontend and pelican-backend have a copy of the release schema to generate and validate check names.
+    # These have a copy of the release schema, e.g. to generate and validate check names.
     'pelican-backend',
     'pelican-frontend',
+    'spoonbill-web',
     # sphincontrib-opencontracting uses simplified schema files in its documentation.
     'sphinxcontrib-opencontracting',
 )
