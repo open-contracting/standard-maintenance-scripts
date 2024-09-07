@@ -225,7 +225,7 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
     if not any(os.path.exists(filename) for filename in files):
         pytest.skip(f"No {', '.join(files)} file found")
 
-    excluded = ['.git', '.venv', 'docs', 'node_modules']
+    excluded = ['.git', '.venv', 'docs', 'node_modules', 'vendor']
     find_packages_kwargs = {}
     if not dev:
         find_packages_kwargs['exclude'] = ['tests', 'tests.*']
