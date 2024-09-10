@@ -2,8 +2,10 @@
 
 set -eu
 
-pip install flake8 flake8-comprehensions 'isort>=5' importlib-metadata 'jscc>=0.2' json-merge-patch \
-    'jsonref>=1' jsonschema packaging 'pytest<8' 'ocdskit>=1' requests rfc3339-validator rfc3986-validator setuptools
+pip install ruff jscc json-merge-patch jsonref jsonschema ocdskit packaging pytest requests rfc3339-validator \
+    rfc3986-validator setuptools
+
+echo "line-length = 119" > /tmp/ruff.toml
 
 curl -s -S --retry 3 -o /tmp/test_csv.py "$BASEDIR"/tests/test_csv.py
 curl -s -S --retry 3 -o /tmp/test_json.py "$BASEDIR"/tests/test_json.py

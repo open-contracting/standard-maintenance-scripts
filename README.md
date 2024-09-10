@@ -22,7 +22,7 @@ To list all available tasks:
 The [test files](tests/) can perform:
 
 * Linting of:
-  * Python ([flake8](https://pypi.python.org/pypi/flake8), [isort](https://pypi.org/project/isort/))
+  * Python ([ruff](https://docs.astral.sh/ruff/))
   * JSON (readable by Python)
   * CSV (readable by Python)
 * Various checks against OCDS schema, codelists, readmes, etc.
