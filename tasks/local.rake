@@ -141,22 +141,40 @@ namespace :local do
     # https://docs.github.com/en/rest/apps/installations?apiVersion=2022-11-28
     precommit = Set.new([
       'cardinal-rs',
+      'collect-generic',
       'cove-oc4ids',
       'cove-ocds',
       'credere-backend',
       'credere-frontend',
       'data-registry',
+      'data-support',
+      'data-support-private',
+      'deploy',
       'european-union-support',
+      'extension-explorer',
+      'extension_registry',
+      'field-level-mapping-template',
+      'flake8-opencontracting',  # archived
+      'green-cure',
+      'infrastructure',
       'kingfisher-process',
+      'lib-cove-oc4ids',
+      'lib-cove-ocds',
+      'notebooks-ocds',
+      'ocds-extensions-translations',
+      'ocds-index',
       'ocds-merge-rs',
       'pelican-backend',
       'pelican-frontend',
+      'sample-data',
       'scrapy-log-analyzer',
+      'software-development-handbook',
       'spoonbill',
+      'spoonbill-test',
       'spoonbill-web',
+      'standard-maintenance-scripts',
+      'standard_profile_template',
       'yapw',
-      # Archived
-      'flake8-opencontracting',
     ])
 
     if ENV['ORG'] != 'open-contracting-partnership'
