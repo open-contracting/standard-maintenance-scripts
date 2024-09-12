@@ -1,16 +1,14 @@
 import ast
-import configparser
 import glob
 import os
 from collections import defaultdict
+from importlib.metadata import distribution
 from pathlib import Path
 from urllib.parse import urlsplit
 
 import pytest
 from packaging.requirements import Requirement
 from setuptools import find_packages
-
-from importlib.metadata import distribution
 
 try:
     import tomllib

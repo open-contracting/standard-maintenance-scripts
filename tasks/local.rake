@@ -128,12 +128,19 @@ namespace :local do
       '# Project Statuses',
     ]
 
+    # find . -path '*/.github/workflows/*' ! -path '*/node_modules/*' ! -path '*/vendor/*' ! -name ci.yml \
+    # ! -name lint.yml ! -name js.yml ! -name shell.yml ! -name i18n.yml ! -name a11y.yml ! -name mypy.yml \
+    # ! -name spellcheck.yml ! -name docker.yml ! -name deploy.yml ! -name pypi.yml ! -name release.yml \
+    # ! -name automerge.yml
     workflows = {
       'ci' => 'CI',
       'lint' => 'Lint',
       'js' => 'Lint JavaScript',
       'shell' => 'Lint Shell',
       'i18n' => 'Translations',
+      'a11y' => 'Accessibility',
+      'mypy' => 'Mypy',
+      'spellcheck' => 'Spell-check',
     }
 
     # https://github.com/organizations/open-contracting/settings/installations/20658712
