@@ -10,10 +10,12 @@ import pytest
 from packaging.requirements import Requirement
 from setuptools import find_packages
 
+from importlib.metadata import distribution
+
 try:
-    from importlib.metadata import distribution
+    import tomllib
 except ImportError:
-    from importlib_metadata import distribution
+    import tomli as tomllib  # Python 3.10 or less
 
 path = os.getcwd()
 
@@ -64,12 +66,12 @@ def val(node):
 
 def projects_and_modules(requirements):
     """
-    :param str requirements: one or more requirements
+    :param list requirements: one or more requirements
     :returns: a dict in which the key is a project and the value is a list of the project's top-level modules
     :rtype: dict
     """
     mapping = defaultdict(set)
-    for line in requirements.splitlines():
+    for line in requirements:
         if not line or line.startswith(('-', '#', 'git+')):
             continue
         requirement = Requirement(line)
@@ -209,7 +211,7 @@ class CodeVisitor(ast.NodeVisitor):
 
 
 def check_requirements(path, *requirements_files, dev=False, ignore=()):
-    setup_cfg = os.path.join(path, 'setup.cfg')
+    pyproject_toml = os.path.join(path, 'pyproject.toml')
     setup_py = os.path.join(path, 'setup.py')
     requirements_in = os.path.join(path, 'requirements.in')
 
@@ -221,7 +223,7 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
     if os.path.exists(requirements_in):
         requirements_files += (requirements_in,)
 
-    files = (setup_cfg, setup_py) + requirements_files
+    files = (pyproject_toml, setup_py) + requirements_files
     if not any(os.path.exists(filename) for filename in files):
         pytest.skip(f"No {', '.join(files)} file found")
 
@@ -252,12 +254,12 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
                     imports[module].add(file)
 
     # Collect the requirements and the modules that can be imported.
-    if os.path.exists(setup_cfg):
-        config = configparser.ConfigParser()
-        config.read(setup_cfg)
-        mapping = projects_and_modules(config.get('options', 'install_requires', fallback=''))
+    if os.path.exists(pyproject_toml):
+        with open(pyproject_toml, 'rb') as f:
+            config = tomllib.load(f)
+        mapping = projects_and_modules(config['project'].get('dependencies', []))
         for extra in extras:
-            mapping.update(projects_and_modules(config.get('options.extras_require', extra, fallback='')))
+            mapping.update(projects_and_modules(config['project'].get('optional-dependencies', {}).get(extra, [])))
 
     if os.path.exists(setup_py):
         with open(setup_py) as f:
@@ -270,7 +272,7 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
         mapping = {}
         for requirements_file in requirements_files:
             with open(os.path.join(path, requirements_file)) as f:
-                mapping.update(projects_and_modules(f.read()))
+                mapping.update(projects_and_modules(f.read().splitlines()))
 
     if 'psycopg2-binary' in mapping and 'psycopg2' in mapping:
         del mapping['psycopg2-binary']
