@@ -55,7 +55,7 @@ IGNORE=(
     D
     DTZ
     PTH
-    FIX002 # line-contains-todo (TD003 missing-todo-link)
+    FIX002  # line-contains-todo (TD003 missing-todo-link)
     PLR2004 # magic-value-comparison
     PLW2901 # redefined-loop-name
     S607    # start-process-with-partial-path
@@ -174,7 +174,7 @@ PER_FILE_IGNORES=(
     */commands/*:T201 # print
 
     # Documentation
-    docs/*:D100 # undocumented-public-module
+    docs/*:D100   # undocumented-public-module
     docs/*:INP001 # implicit-namespace-package
 
     # Migrations
@@ -200,8 +200,8 @@ PER_FILE_IGNORES=(
     tests/*:S      # security
     test_*:S       # [kingfisher-collect]
     # Specific repositories
-    tests/*:RUF012 # mutable-class-default [pelican-backend]
-    tests/fixtures/*:T201   # print [yapw]
+    tests/*:RUF012        # mutable-class-default [pelican-backend]
+    tests/fixtures/*:T201 # print [yapw]
 )
 if [ -f MANIFEST.in ]; then
     PER_FILE_IGNORES+=(
