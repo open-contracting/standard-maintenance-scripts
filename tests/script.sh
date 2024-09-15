@@ -29,24 +29,17 @@ BUILTINS_IGNORELIST=(
 )
 
 IGNORE=(
-    # Project-specific
-    ANN
-    D
-    DTZ
-    PTH
-    PLR2004 # magic-value-comparison
-    PLW2901 # redefined-loop-name
-    S607    # start-process-with-partial-path
-    # Error handling
-    B028   # no-explicit-stacklevel (nice warnings)
-    TRY003 # raise-vanilla-args (nice errors)
-    # False positives
-    S603 # subprocess-without-shell-equals-true
-    # Unique issues
-    EXE003 # shebang-missing-python [deploy]
+    RUF100 # Specific repositories can have stricter rules in pyproject.toml, with more noqa in files.
 
-    # Duplicate https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
-    FIX002 # line-contains-todo (TD003 missing-todo-link)
+    # Duplicate
+    ANN # annotation (mypy)
+
+    # Incompatible
+    # https://docs.astral.sh/ruff/linter/#rule-selection
+    D203 # one-blank-line-before-class (D211 blank-line-before-class)
+    D212 # multi-line-summary-first-line (D213 multi-line-summary-second-line)
+    D415 # ends-in-punctuation (D400 ends-in-period)
+    # https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
     COM812 # missing-trailing-comma (ruff format)
     Q000   # bad-quotes-inline-string (ruff format)
 
@@ -57,6 +50,22 @@ IGNORE=(
     # Irrelevant
     EM      # flake8-errmsg (nice backtrace)
     PERF203 # try-except-in-loop ("Why is this bad?" https://docs.astral.sh/ruff/rules/try-except-in-loop/)
+
+    # Project-specific
+    D
+    DTZ
+    PTH
+    FIX002 # line-contains-todo (TD003 missing-todo-link)
+    PLR2004 # magic-value-comparison
+    PLW2901 # redefined-loop-name
+    S607    # start-process-with-partial-path
+    # Error handling
+    TRY003 # raise-vanilla-args (nice errors)
+    # False positives
+    S603 # subprocess-without-shell-equals-true
+    # Specific repositories
+    B028   # no-explicit-stacklevel [jscc, ocds-merge, sample-data, standard, standard-maintenance-scripts]
+    EXE003 # shebang-missing-python [deploy]
 )
 if [ -n "$REQUIREMENTS_FILE" ]; then
     if grep babel $REQUIREMENTS_FILE > /dev/null; then
@@ -165,6 +174,7 @@ PER_FILE_IGNORES=(
     */commands/*:T201 # print
 
     # Documentation
+    docs/*:D100 # undocumented-public-module
     docs/*:INP001 # implicit-namespace-package
 
     # Migrations
@@ -184,15 +194,14 @@ PER_FILE_IGNORES=(
     */settings.py:ERA001 # commented-out-code
 
     # Tests
-    tests/*:INP001 # implicit-namespace-package
     tests/*:FBT003 # boolean-positional-value-in-call
-    tests/*:RUF012 # mutable-class-default
+    tests/*:INP001 # implicit-namespace-package
+    tests/*:TRY003 # raise-vanilla-args (AssertionError)
     tests/*:S      # security
     test_*:S       # [kingfisher-collect]
-
-    # Fixtures
-    */fixtures/*:INP001 # implicit-namespace-package
-    */fixtures/*:T201   # print [yapw]
+    # Specific repositories
+    tests/*:RUF012 # mutable-class-default [pelican-backend]
+    tests/fixtures/*:T201   # print [yapw]
 )
 if [ -f MANIFEST.in ]; then
     PER_FILE_IGNORES+=(
