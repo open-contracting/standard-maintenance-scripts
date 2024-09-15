@@ -127,7 +127,7 @@ def patch(text):
     return text
 
 
-excluded = ('.git', '.ve', '_static', 'build', 'fixtures', 'node_modules')
+excluded = ('.git', '.ve', '.venv', '_static', 'build', 'fixtures', 'node_modules')
 excluded_repo_name = (
     # data-support extends and stores the release schema to, for example, unflatten data.
     'data-support',
@@ -343,7 +343,7 @@ def test_empty():
                     'Files are empty. See warnings below.')
 
 
-@pytest.mark.skipif(os.getenv('OCDS_NOINDENT', ""), reason='skipped indentation')
+@pytest.mark.skipif(bool(os.getenv('OCDS_NOINDENT', '')), reason='skipped indentation')
 def test_indent():
     def include(path, name):
         # http://json-schema.org/draft-04/schema
@@ -354,7 +354,7 @@ def test_indent():
 
 
 def test_json_valid():
-    excluded = ('.git', '.ve', '_static', 'build', 'fixtures', 'node_modules')
+    excluded = ('.git', '.ve', '.venv', '_static', 'build', 'fixtures', 'node_modules')
     warn_and_assert(get_invalid_json_files(excluded=excluded), '{0} is not valid JSON: {1}',
                     'JSON files are invalid. See warnings below.')
 
