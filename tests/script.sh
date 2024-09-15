@@ -36,9 +36,9 @@ IGNORE=(
     PTH
     PLR2004 # magic-value-comparison
     PLW2901 # redefined-loop-name
-    S607 # start-process-with-partial-path
+    S607    # start-process-with-partial-path
     # Error handling
-    B028 # no-explicit-stacklevel (nice warnings)
+    B028   # no-explicit-stacklevel (nice warnings)
     TRY003 # raise-vanilla-args (nice errors)
     # False positives
     S603 # subprocess-without-shell-equals-true
@@ -48,14 +48,14 @@ IGNORE=(
     # Duplicate https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
     FIX002 # line-contains-todo (TD003 missing-todo-link)
     COM812 # missing-trailing-comma (ruff format)
-    Q000 # bad-quotes-inline-string (ruff format)
+    Q000   # bad-quotes-inline-string (ruff format)
 
     # Complexity
-    C901 # complex-structure
+    C901   # complex-structure
     PLR091 # too-many-...
 
     # Irrelevant
-    EM # flake8-errmsg (nice backtrace)
+    EM      # flake8-errmsg (nice backtrace)
     PERF203 # try-except-in-loop ("Why is this bad?" https://docs.astral.sh/ruff/rules/try-except-in-loop/)
 )
 if [ -n "$REQUIREMENTS_FILE" ]; then
@@ -74,9 +74,9 @@ if [ -n "$REQUIREMENTS_FILE" ]; then
     fi
     if grep django $REQUIREMENTS_FILE > /dev/null; then
         IGNORE+=(
-            PT # pytest
+            PT    # pytest
             DJ008 # django-model-without-dunder-str
-            S308 # suspicious-mark-safe-usage (false positive)
+            S308  # suspicious-mark-safe-usage (false positive)
             # https://docs.djangoproject.com/en/4.2/topics/http/views/
             ARG001 # unused-function-argument
             # https://docs.djangoproject.com/en/4.2/topics/class-based-views/
@@ -106,7 +106,7 @@ if [ -n "$REQUIREMENTS_FILE" ]; then
         IGNORE+=(
             # https://fastapi.tiangolo.com/reference/dependencies/
             ARG001 # unused-function-argument
-            B008 # function-call-in-default-argument
+            B008   # function-call-in-default-argument
         )
         BUILTINS_IGNORELIST+=(
             "'id'" # path component
@@ -159,23 +159,23 @@ fi
 
 PER_FILE_IGNORES=(
     # Command-line interfaces
-    __main__.py:T201 # print
-    manage.py:T201 # print
-    run.py:T201 # print
+    __main__.py:T201  # print
+    manage.py:T201    # print
+    run.py:T201       # print
     */commands/*:T201 # print
 
     # Documentation
     docs/*:INP001 # implicit-namespace-package
 
     # Migrations
-    *migrations/*:E501 # line-too-long
+    *migrations/*:E501   # line-too-long
     *migrations/*:INP001 # implicit-namespace-package
 
     # Notebooks
-    *.ipynb:E501 # line-too-long
+    *.ipynb:E501   # line-too-long
     *.ipynb:ERA001 # commented-out-code
-    *.ipynb:F401 # unused-import
-    *.ipynb:F821 # undefined-name
+    *.ipynb:F401   # unused-import
+    *.ipynb:F821   # undefined-name
 
     # Namespace packages
     sphinxcontrib/*:INP001 # implicit-namespace-package
@@ -187,12 +187,12 @@ PER_FILE_IGNORES=(
     tests/*:INP001 # implicit-namespace-package
     tests/*:FBT003 # boolean-positional-value-in-call
     tests/*:RUF012 # mutable-class-default
-    tests/*:S # security
-    test_*:S # [kingfisher-collect]
+    tests/*:S      # security
+    test_*:S       # [kingfisher-collect]
 
     # Fixtures
     */fixtures/*:INP001 # implicit-namespace-package
-    */fixtures/*:T201 # print [yapw]
+    */fixtures/*:T201   # print [yapw]
 )
 if [ -f MANIFEST.in ]; then
     PER_FILE_IGNORES+=(
@@ -215,11 +215,20 @@ if [ -f common-requirements.txt ]; then
 fi
 
 ruff check . --select ALL \
-    --ignore "$(IFS=,; echo "${IGNORE[*]}")" \
-    --per-file-ignores "$(IFS=,; echo "${PER_FILE_IGNORES[*]}")" \
+    --ignore "$(
+        IFS=,
+        echo "${IGNORE[*]}"
+    )" \
+    --per-file-ignores "$(
+        IFS=,
+        echo "${PER_FILE_IGNORES[*]}"
+    )" \
     --config 'line-length = 119' \
     --config "lint.allowed-confusables = ['’']" \
-    --config "lint.flake8-builtins.builtins-ignorelist = [$(IFS=,; echo "${BUILTINS_IGNORELIST[*]}")]" \
+    --config "lint.flake8-builtins.builtins-ignorelist = [$(
+        IFS=,
+        echo "${BUILTINS_IGNORELIST[*]}"
+    )]" \
     --config 'lint.flake8-self.extend-ignore-names = ["_job"]' \
     --exclude 'demo_docs,t'
 
