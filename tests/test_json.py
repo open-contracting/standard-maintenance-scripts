@@ -1,7 +1,9 @@
+import io
 import json
 import os
 import re
 import warnings
+import zipfile
 from copy import deepcopy
 from functools import lru_cache
 
@@ -33,39 +35,14 @@ from jsonschema import FormatChecker
 from jsonschema.validators import Draft4Validator
 from ocdskit.schema import add_validation_properties
 
-# The codelists defined in `schema/codelists`. XXX Hardcoding.
-external_codelists = {
-    'awardCriteria.csv',
-    'awardFinalStatus.csv',  # 1.2
-    'awardStatus.csv',
-    'classificationScheme.csv',  # 1.2
-    'contractFinalStatus.csv',  # 1.2
-    'contractStatus.csv',
-    'country.csv',  # 1.2
-    'currency.csv',
-    'documentType.csv',
-    'extendedProcurementCategory.csv',
-    'initiationType.csv',
-    'itemClassificationScheme.csv',  # 1.1
-    'language.csv',  # 1.2
-    'linkRelationType.csv',  # 1.2
-    'mediaType.csv',  # 1.2
-    'method.csv',
-    'milestoneStatus.csv',
-    'milestoneType.csv',
-    'partyRole.csv',
-    'partyScale.csv',  # 1.2
-    'permission.csv',  # 1.2
-    'planningFinalStatus.csv',  # 1.2
-    'procurementCategory.csv',
-    'relatedProcess.csv',
-    'relatedProcessScheme.csv',
-    'releaseTag.csv',
-    'submissionMethod.csv',
-    'tenderFinalStatus.csv',  # 1.2
-    'tenderStatus.csv',
-    'unitClassificationScheme.csv',
-}
+external_codelists = set()
+for version in ('1.1', '1.2'):
+    response = requests.get(f'https://codeload.github.com/open-contracting/standard/zip/{version}-dev')
+    response.raise_for_status()
+    with zipfile.ZipFile(io.BytesIO(response.content)) as z:
+        external_codelists |= {
+            os.path.basename(name) for name in z.namelist() if 'codelists/' in name and name.endswith('.csv')
+        }
 
 # https://github.com/open-contracting/extension_registry/blob/main/extensions.csv
 core_extensions = {
@@ -78,7 +55,7 @@ core_extensions = {
 }
 
 
-def read_metadata(allow_missing=False):
+def read_metadata(*, allow_missing=False):
     path = os.path.join(cwd, 'extension.json')
     if allow_missing and not os.path.isfile(path):
         return {}
@@ -119,10 +96,7 @@ else:
 development_base_ref = os.getenv('GITHUB_HEAD_REF') or '1.2-dev'
 development_base_url = f"https://raw.githubusercontent.com/{standard_owner}/standard/{development_base_ref}/schema"
 ocds_tags = re.findall(r'\d+__\d+__\d+', http_get(ocds_schema_base_url).text)
-if ocds_version:
-    ocds_tag = ocds_version.replace('.', '__')
-else:
-    ocds_tag = ocds_tags[-1]
+ocds_tag = ocds_version.replace('.', '__') if ocds_version else ocds_tags[-1]
 
 
 def formatwarning(message, category, filename, lineno, line=None):
@@ -222,7 +196,8 @@ def _merge_obj(result, obj, pointer=''):  # changed code
             ):
                 warnings.warn(f'empties {pointer_and_key}')
             elif (
-                # XXX: Remove after OCDS 1.2 release.
+                # TODO(james): Remove after OCDS 1.2 release.
+                # https://github.com/open-contracting/standard-maintenance-scripts/issues/175
                 repo_name == 'ocds_lots_extension'
                 and pointer_and_key.startswith('/definitions/SimpleIdentifier/')
                 # https://github.com/open-contracting/standard/issues/1183
@@ -246,7 +221,7 @@ def _merge_obj(result, obj, pointer=''):  # changed code
                     message = ' - check for repeats across extension_versions.json, dependencies, testDependencies'
                 else:
                     message = ''
-                raise Exception(f'unexpectedly overwrites {pointer_and_key}{message}')
+                raise AssertionError(f'unexpectedly overwrites {pointer_and_key}{message}')
 
         if value is None:
             result.pop(key, None)
@@ -255,7 +230,7 @@ def _merge_obj(result, obj, pointer=''):  # changed code
     return result
 
 
-@lru_cache()
+@lru_cache
 def metaschemas():
     # Novel uses of JSON Schema features may require updates to other repositories.
     # See https://ocds-standard-development-handbook.readthedocs.io/en/latest/meta/schema_style_guide.html#validation-keywords
@@ -368,7 +343,7 @@ def test_empty():
                     'Files are empty. See warnings below.')
 
 
-@pytest.mark.skipif(os.getenv('OCDS_NOINDENT', False), reason='skipped indentation')
+@pytest.mark.skipif(os.getenv('OCDS_NOINDENT', ""), reason='skipped indentation')
 def test_indent():
     def include(path, name):
         # http://json-schema.org/draft-04/schema
@@ -579,7 +554,7 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
     assert not errors, 'One or more JSON Schema files are invalid. See warnings below.'
 
 
-@pytest.mark.parametrize('path,name,data', json_schemas)
+@pytest.mark.parametrize(('path', 'name', 'data'), json_schemas)
 def test_schema_valid(path, name, data):
     """
     Ensures all JSON Schema files are valid JSON Schema Draft 4 and use codelists correctly. Unless this is an
@@ -637,7 +612,7 @@ def test_extension_json():
         with open(path) as f:
             schema = json.load(f)
     else:
-        url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/main/schema/extension-schema.json'  # noqa: E501
+        url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/main/schema/extension-schema.json'
         schema = http_get(url).json()
 
     expected_codelists = {name for _, name, _, _, _ in
@@ -657,7 +632,7 @@ def test_extension_json():
             try:
                 status_code = http_head(url).status_code
             except requests.exceptions.ConnectionError as e:
-                assert False, f'{e} on {url}'
+                raise AssertionError(url) from e
             else:
                 assert status_code == 200, f'HTTP {status_code} on {url}'
 
@@ -666,22 +641,22 @@ def test_extension_json():
             try:
                 status_code = http_get(url).status_code  # allow redirects
             except requests.exceptions.ConnectionError as e:
-                assert False, f'{e} on {url}'
+                raise AssertionError(url) from e
             else:
                 assert status_code == 200, f'HTTP {status_code} on {url}'
 
         actual_codelists = set(data.get('codelists', []))
         if actual_codelists != expected_codelists:
             added, removed = difference(actual_codelists, expected_codelists)
-            assert False, f'{path} has mismatch with codelists{added}{removed}'
+            raise AssertionError(f'{path} has mismatch with codelists{added}{removed}')
 
         actual_schemas = set(data.get('schemas', []))
         if actual_schemas != expected_schemas:
             added, removed = difference(actual_schemas, expected_schemas)
-            assert False, f'{path} has mismatch with schema{added}{removed}'
+            raise AssertionError(f'{path} has mismatch with schema{added}{removed}')
     else:
         # This code is never reached, as the test is only run if there is an extension.json file.
-        assert False, 'expected an extension.json file'
+        raise AssertionError('expected an extension.json file')
 
 
 @pytest.mark.skipif(not is_extension, reason='not an extension (test_json_merge_patch)')
@@ -719,17 +694,16 @@ def test_json_merge_patch():
                 schemas[basename] = extend_schema(basename, schemas[basename], metadata, codelists=external_codelists)
 
     # This loop is somewhat unnecessary, as repositories contain at most one of each schema file.
-    for path, name, text, data in walk_json_data(patch):
-        if is_json_merge_patch(data):
-            if name in basenames:
-                unpatched = deepcopy(schemas[name])
-                try:
-                    patched = merge(unpatched, data)
-                except Exception as e:
-                    assert False, f'Exception: {e} {path}'
+    for path, name, _, data in walk_json_data(patch):
+        if is_json_merge_patch(data) and name in basenames:
+            unpatched = deepcopy(schemas[name])
+            try:
+                patched = merge(unpatched, data)
+            except Exception as e:
+                raise AssertionError(path) from e
 
-                # All metadata should be present.
-                validate_json_schema(path, name, patched, metaschemas()['metaschema'], full_schema=True)
+            # All metadata should be present.
+            validate_json_schema(path, name, patched, metaschemas()['metaschema'], full_schema=True)
 
-                # Empty patches aren't allowed. json_merge_patch mutates `unpatched`, so `schemas[name]` is tested.
-                assert patched != schemas[name]
+            # Empty patches aren't allowed. json_merge_patch mutates `unpatched`, so `schemas[name]` is tested.
+            assert patched != schemas[name]

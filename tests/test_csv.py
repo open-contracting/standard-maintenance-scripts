@@ -9,7 +9,7 @@ import requests
 from jscc.schema import is_codelist
 from jscc.testing.filesystem import walk_csv_data
 from jsonschema import FormatChecker
-from jsonschema.validators import Draft4Validator as validator
+from jsonschema.validators import Draft4Validator as Validator
 
 cwd = os.getcwd()
 repo_name = os.path.basename(os.getenv('GITHUB_REPOSITORY', cwd))
@@ -33,7 +33,7 @@ def test_valid():
     """
     errors = 0
 
-    for path, name, text, fieldnames, rows in walk_csv_data():
+    for path, _, text, fieldnames, rows in walk_csv_data():
         codelist = is_codelist(fieldnames)
         width = len(fieldnames)
         columns = []
@@ -59,15 +59,12 @@ def test_valid():
                     columns[col_index - 1].append(cell)
 
                     # Extra cells are added to a None columns.
-                    if header is None and isinstance(cell, list):
-                        cells = cell
-                    else:
-                        cells = [cell]
+                    cells = cell if header is None and isinstance(cell, list) else [cell]
 
-                    for cell in cells:
-                        if cell is not None and cell != cell.strip():
+                    for value in cells:
+                        if value is not None and value != value.strip():
                             errors += 1
-                            warnings.warn(f'ERROR: {path} {header} "{cell}" has leading or trailing whitespace at '
+                            warnings.warn(f'ERROR: {path} {header} "{value}" has leading or trailing whitespace at '
                                           f'{row_index},{col_index}')
 
         for col_index, column in enumerate(columns, 1):
@@ -116,7 +113,7 @@ def test_codelist():
         with open(path) as f:
             codelist_schema = json.load(f)
     else:
-        url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/main/schema/codelist-schema.json'  # noqa: E501
+        url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/main/schema/codelist-schema.json'
         codelist_schema = requests.get(url).json()
 
     minus_schema = {
@@ -141,7 +138,7 @@ def test_codelist():
 
     any_errors = False
 
-    for path, name, text, fieldnames, rows in walk_csv_data():
+    for path, _, _, fieldnames, rows in walk_csv_data():
         codes_seen = set()
         if is_codelist(fieldnames):
             data = []
@@ -162,12 +159,9 @@ def test_codelist():
                         item[k] = None
                 data.append(item)
 
-            if os.path.basename(path).startswith('-'):
-                schema = minus_schema
-            else:
-                schema = codelist_schema
+            schema = minus_schema if os.path.basename(path).startswith('-') else codelist_schema
 
-            for error in validator(schema, format_checker=FormatChecker()).iter_errors(data):
+            for error in Validator(schema, format_checker=FormatChecker()).iter_errors(data):
                 if error.message != exceptions.get(os.path.basename(path)):
                     any_errors = True
                     warnings.warn(f"{path}: {error.message} ({'/'.join(error.absolute_schema_path)})\n")

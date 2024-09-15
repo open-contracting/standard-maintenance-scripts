@@ -17,7 +17,7 @@ from jsonschema.validators import Draft4Validator
 from ocdskit.schema import get_schema_fields
 
 
-def read_metadata(allow_missing=False):
+def read_metadata(*, allow_missing=False):
     path = os.path.join(cwd, 'extension.json')
     if allow_missing and not os.path.isfile(path):
         return {}
@@ -46,14 +46,8 @@ use_development_version = (
 ocds_schema_base_url = 'https://standard.open-contracting.org/schema/'
 development_base_url = 'https://raw.githubusercontent.com/open-contracting/standard/1.2-dev/schema'
 ocds_tags = re.findall(r'\d+__\d+__\d+', http_get(ocds_schema_base_url).text)
-if ocds_version:
-    ocds_tag = ocds_version.replace('.', '__')
-else:
-    ocds_tag = ocds_tags[-1]
-if ocds_version or not use_development_version:
-    url_prefix = ocds_schema_base_url + ocds_tag
-else:
-    url_prefix = development_base_url
+ocds_tag = ocds_version.replace('.', '__') if ocds_version else ocds_tags[-1]
+url_prefix = ocds_schema_base_url + ocds_tag if ocds_version or not use_development_version else development_base_url
 
 # Same as tests/fixtures/release_minimal.json in ocdskit.
 minimal_release = {
@@ -75,11 +69,9 @@ pytestmark = pytest.mark.filterwarnings('always')
 
 def read_readme():
     path = os.path.join(cwd, 'README.md')
-    if os.path.isfile(path):
-        with open(path) as f:
-            return f.read()
-    else:
-        assert os.path.isfile(path), 'expected a README.md file'
+    assert os.path.isfile(path), 'expected a README.md file'
+    with open(path) as f:
+        return f.read()
 
 
 def examples():
@@ -87,7 +79,7 @@ def examples():
         try:
             yield i, text, json.loads(text)
         except json.decoder.JSONDecodeError as e:
-            assert False, f'README.md: JSON block {i} is not valid JSON ({e})'
+            raise AssertionError(f'README.md: JSON block {i} is not valid JSON') from e
 
 
 def patch_schema(basename='release-schema.json'):
@@ -114,7 +106,8 @@ def test_example_present():
     readme = read_readme()
 
     # ocds_enquiry_extension has "Example" as text, instead of as a heading.
-    assert re.search(r'\bexamples?\b', readme, re.IGNORECASE) and '```json' in readme, 'README.md: expected an example'
+    assert re.search(r'\bexamples?\b', readme, re.IGNORECASE), 'README.md: expected an Example heading'
+    assert '```json' in readme, 'README.md: expected a JSON example'
 
 
 @pytest.mark.skipif(not is_extension, reason='not an extension (test_example_indent)')
@@ -154,7 +147,7 @@ def test_example_valid():
 
     validator = Draft4Validator(patched, format_checker=FormatChecker())
 
-    for i, text, data in examples():
+    for i, _, data in examples():
         # Skip packages (only occurs once in ocds_ppp_extension).
         if 'releases' in data:
             continue
@@ -272,7 +265,7 @@ def test_example_backticks():
     literals.update(http_get(url).json()['properties'])
 
     # Add codelist columns.
-    url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/main/schema/codelist-schema.json'  # noqa: E501
+    url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/main/schema/codelist-schema.json'
     literals.update(http_get(url).json()['items']['properties'])
 
     # Add codelist names.

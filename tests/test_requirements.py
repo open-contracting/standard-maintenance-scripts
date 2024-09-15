@@ -18,7 +18,7 @@ except ImportError:
 path = os.getcwd()
 
 # https://github.com/PyCQA/isort/blob/develop/isort/stdlibs/py38.py
-stdlib = stdlib = {
+stdlib = {
     "_ast", "_dummy_thread", "_thread", "abc", "aifc", "argparse", "array", "ast", "asynchat", "asyncio", "asyncore",
     "atexit", "audioop", "base64", "bdb", "binascii", "binhex", "bisect", "builtins", "bz2", "cProfile", "calendar",
     "cgi", "cgitb", "chunk", "cmath", "cmd", "code", "codecs", "codeop", "collections", "colorsys", "compileall",
@@ -123,12 +123,12 @@ class CodeVisitor(ast.NodeVisitor):
         if self.path.name == 'setup.py':
             self.excluded.add('setuptools')
 
-    def visit_Try(self, node):
+    def visit_Try(self, node):  # noqa: N802 # false positive
         # Don't collect imports in `try: ... except ImportError: ...` blocks.
         if not any(h.type.id == 'ImportError' for h in node.handlers if isinstance(h.type, ast.Name)):
             self.generic_visit(node)
 
-    def visit_If(self, node):
+    def visit_If(self, node):  # noqa: N802 # false positive
         # Don't collect imports in `if sys.version_info >= (3, 8): ... else: ...` blocks.
         if (
             not isinstance(node.test, ast.Compare)
@@ -140,15 +140,15 @@ class CodeVisitor(ast.NodeVisitor):
         ):
             self.generic_visit(node)
 
-    def visit_Import(self, node):
+    def visit_Import(self, node):  # noqa: N802 # false positive
         for alias in node.names:
             self.add(alias.name)
 
-    def visit_ImportFrom(self, node):
+    def visit_ImportFrom(self, node):  # noqa: N802 # false positive
         if node.module and not node.level:
             self.add(node.module)
 
-    def visit_Assign(self, node):
+    def visit_Assign(self, node):  # noqa: N802 # false positive
         # Handle Django settings.py file.
         if self.path.name == 'settings.py' or self.path.parent.name == 'settings':
             for target in node.targets:
@@ -165,7 +165,7 @@ class CodeVisitor(ast.NodeVisitor):
                             self.add('redis')
                 # A requirement might be required by a backend.
                 elif target.id == 'CACHES':
-                    for value in node.value.values:
+                    for value in node.value.values:  # noqa: PD011 # false positive
                         for k, v in zip(value.keys, value.values):
                             if val(k) == 'BACKEND':
                                 if val(v) == 'django.core.cache.backends.memcached.MemcachedCache':
@@ -173,12 +173,12 @@ class CodeVisitor(ast.NodeVisitor):
                                 elif val(v) == 'django.core.cache.backends.memcached.PyMemcacheCache':
                                     self.add('pymemcache')
                 elif target.id == 'CHANNEL_LAYERS':
-                    for value in node.value.values:
+                    for value in node.value.values:  # noqa: PD011 # false positive
                         for k, v in zip(value.keys, value.values):
                             if val(k) in 'BACKEND' and val(v) == 'channels_redis.core.RedisChannelLayer':
                                 self.add('channels_redis')
                 elif target.id == 'DATABASES':
-                    for value in node.value.values:
+                    for value in node.value.values:  # noqa: PD011 # false positive
                         if isinstance(value, ast.Call):
                             # value.func <ast.Attribute>
                             #   .value <ast.Name>
@@ -221,7 +221,7 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
     if os.path.exists(requirements_in):
         requirements_files += (requirements_in,)
 
-    files = (pyproject_toml, setup_py) + requirements_files
+    files = (pyproject_toml, setup_py, *requirements_files)
     if not any(os.path.exists(filename) for filename in files):
         pytest.skip(f"No {', '.join(files)} file found")
 

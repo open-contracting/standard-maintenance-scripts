@@ -4,6 +4,7 @@ import datetime
 import json
 import os
 import re
+import subprocess
 from collections import defaultdict
 
 import click
@@ -11,7 +12,7 @@ import requests
 from ocdsextensionregistry import ExtensionRegistry
 
 extensions_url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/main/extensions.csv'
-extension_versions_url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/main/extension_versions.csv'  # noqa: E501
+extension_versions_url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/main/extension_versions.csv'
 
 
 @click.group()
@@ -33,9 +34,9 @@ def download_extensions(path, match):
         if not match or match in version.base_url:
             directory = os.path.join(path, version.repository_name)
             if not os.path.isdir(directory):
-                command = f'git clone {version.repository_url} {directory}'
-                click.echo(command)
-                os.system(command)
+                command = ['git', 'clone', version.repository_url, directory]
+                click.echo(' '.join(command))
+                subprocess.call(command)
 
 
 @cli.command()
@@ -54,13 +55,17 @@ def set_topics():
 
     profiles = defaultdict(list)
     for profile, branch in (('european-union', 'latest'), ('public-private-partnerships', '1.0-dev')):
-        extension_versions = requests.get(format_string.format(profile, branch)).json()
-        for extension_id in extension_versions.keys():
+        response = requests.get(format_string.format(profile, branch), timeout=10)
+        response.raise_for_status()
+        extension_versions = response.json()
+        for extension_id in extension_versions:
             profiles[extension_id].append(profile)
 
     registry = ExtensionRegistry(extension_versions_url, extensions_url)
 
-    repos = requests.get('https://api.github.com/orgs/open-contracting-extensions/repos?per_page=100').json()
+    response = requests.get('https://api.github.com/orgs/open-contracting-extensions/repos?per_page=100', timeout=10)
+    response.raise_for_status()
+    repos = response.json()
     for repo in repos:
         topics = []
 
@@ -84,7 +89,8 @@ def set_topics():
         requests.put(
             f"https://api.github.com/repos/{repo['full_name']}/topics",
             data=json.dumps({'names': topics}),
-            headers={'accept': 'application/vnd.github.mercy-preview+json'}
+            headers={'accept': 'application/vnd.github.mercy-preview+json'},
+            timeout=10,
         ).raise_for_status()
 
 
@@ -93,7 +99,7 @@ def check_aspell_dictionary():
     """
     Check whether ~/.aspell.en.pws contains unwanted words.
     """
-    with open(os.path.expanduser('~/.aspell.en.pws'), 'r', encoding='iso-8859-1') as f:
+    with open(os.path.expanduser('~/.aspell.en.pws'), encoding='iso-8859-1') as f:
         aspell = f.read()
 
     def report(method, exceptions):
@@ -251,7 +257,7 @@ def check_licenses(file):
 @click.option('--start', help='Datetime from which to count contributions')
 @click.option('--end', help='Datetime up to which to count contributions')
 def github_activity(user, days, start, end):
-    format_string = '''\
+    format_string = """\
 query {{
 {queries}
 }}
@@ -266,7 +272,7 @@ fragment f on User {{
             }}
         }}
     }}
-}}'''
+}}"""
     if start:
         start += "T00:00:00Z"
     if end:
@@ -278,21 +284,20 @@ fragment f on User {{
         end = datetime.datetime.now(tz=datetime.UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     query = format_string.format(
-        queries='\n'.join(f'  user{i}: user(login: "{login}") {{\n    ...f\n  }}''' for i, login in enumerate(user)),
+        queries='\n'.join(f'  user{i}: user(login: "{login}") {{\n    ...f\n  }}' for i, login in enumerate(user)),
         start=start,
         end=end,
     )
 
-    response = requests.post('https://api.github.com/graphql', json={'query': query})
+    response = requests.post('https://api.github.com/graphql', json={'query': query}, timeout=10)
     response.raise_for_status()
-
     json = response.json()
     if 'errors' in json:
         click.echo(json)
         return
 
     counter = defaultdict(int)
-    for _, data in response.json()['data'].items():
+    for data in response.json()['data'].values():
         try:
             for by in data['contributionsCollection']['commitContributionsByRepository']:
                 counter[by['repository']['url']] += by['contributions']['totalCount']
