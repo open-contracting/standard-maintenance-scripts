@@ -25,7 +25,7 @@ elif [ -f pyproject.toml ]; then
 fi
 
 BUILTINS_IGNORELIST=(
-    "'type'"
+    "'type'" # [credere-backend, pelican-frontend]
 )
 
 IGNORE=(
@@ -34,7 +34,6 @@ IGNORE=(
     D
     DTZ
     PTH
-    EXE003 # shebang-missing-python [deploy]
     PLR2004 # magic-value-comparison
     PLW2901 # redefined-loop-name
     S607 # start-process-with-partial-path
@@ -42,8 +41,9 @@ IGNORE=(
     B028 # no-explicit-stacklevel (nice warnings)
     TRY003 # raise-vanilla-args (nice errors)
     # False positives
-    S308 # suspicious-mark-safe-usage
     S603 # subprocess-without-shell-equals-true
+    # Unique issues
+    EXE003 # shebang-missing-python [deploy]
 
     # Duplicate https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
     FIX002 # line-contains-todo (TD003 missing-todo-link)
@@ -76,6 +76,7 @@ if [ -n "$REQUIREMENTS_FILE" ]; then
         IGNORE+=(
             PT # pytest
             DJ008 # django-model-without-dunder-str
+            S308 # suspicious-mark-safe-usage (false positive)
             # https://docs.djangoproject.com/en/4.2/topics/http/views/
             ARG001 # unused-function-argument
             # https://docs.djangoproject.com/en/4.2/topics/class-based-views/
@@ -92,7 +93,7 @@ if [ -n "$REQUIREMENTS_FILE" ]; then
             SLF001 # private-member-access
         )
         BUILTINS_IGNORELIST+=(
-            "'id'"  # path component
+            "'id'" # path component
         )
     fi
     if grep djangorestframework $REQUIREMENTS_FILE > /dev/null; then
@@ -108,7 +109,7 @@ if [ -n "$REQUIREMENTS_FILE" ]; then
             B008 # function-call-in-default-argument
         )
         BUILTINS_IGNORELIST+=(
-            "'id'"  # path component
+            "'id'" # path component
         )
     fi
     if grep pika $REQUIREMENTS_FILE > /dev/null; then
@@ -195,20 +196,20 @@ PER_FILE_IGNORES=(
 )
 if [ -f MANIFEST.in ]; then
     PER_FILE_IGNORES+=(
-        tests/*:ARG001  # unused-function-argument (fixtures)
+        tests/*:ARG001 # unused-function-argument (fixtures)
     )
 fi
 if [ -f requirements_dev.txt ]; then
     if grep pytest requirements_dev.txt > /dev/null; then
         PER_FILE_IGNORES+=(
-            tests/*:ARG001 test_*:ARG001  # unused-function-argument (fixtures)
+            tests/*:ARG001 test_*:ARG001 # unused-function-argument (fixtures)
         )
     fi
 fi
 if [ -f common-requirements.txt ]; then
     if grep pytest common-requirements.txt > /dev/null; then
         PER_FILE_IGNORES+=(
-            tests/*:ARG001  # unused-function-argument (fixtures)
+            tests/*:ARG001 # unused-function-argument (fixtures)
         )
     fi
 fi
