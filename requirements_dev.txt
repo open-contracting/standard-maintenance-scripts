@@ -34,7 +34,7 @@ ijson==3.3.0
     # via ocdskit
 iniconfig==2.0.0
     # via pytest
-jscc==0.2.4
+jscc==0.3.0
     # via -r requirements_dev.in
 json-merge-patch==0.2
     # via
@@ -54,11 +54,11 @@ jsonschema==4.23.0
     # via -r requirements_dev.in
 jsonschema-specifications==2023.12.1
     # via jsonschema
-ocdsextensionregistry==0.3.8
+ocdsextensionregistry==0.4.0
     # via
     #   -r requirements.txt
     #   ocdskit
-ocdskit==1.1.13
+ocdskit==1.2.0
     # via -r requirements_dev.in
 ocdsmerge==0.7.0
     # via ocdskit
