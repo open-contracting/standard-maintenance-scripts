@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# shellcheck disable=SC2269
 CI="$CI"
 
 if [ -n "$CI" ]; then
@@ -33,7 +34,7 @@ IGNORE=(
     D
     DTZ
     PTH
-    EXE003 # shebang-missing-python (deploy repository)
+    EXE003 # shebang-missing-python [deploy]
     PLR2004 # magic-value-comparison
     PLW2901 # redefined-loop-name
     S607 # start-process-with-partial-path
@@ -185,18 +186,12 @@ PER_FILE_IGNORES=(
     tests/*:INP001 # implicit-namespace-package
     tests/*:FBT003 # boolean-positional-value-in-call
     tests/*:RUF012 # mutable-class-default
-    # Security
-    *tests/*:S101 test_*:S101 # assert (settings_tests)
-    tests/*:S105 # hardcoded-password-string
-    tests/*:S106 # hardcoded-password-func-arg
-    tests/*:S108 # hardcoded-temp-file
-    tests/*:S113 # request-without-timeout
-    tests/*:S311 # suspicious-non-cryptographic-random-usage
-    tests/*:S608 # hardcoded-sql-expression
+    tests/*:S # security
+    test_*:S # [kingfisher-collect]
 
     # Fixtures
     */fixtures/*:INP001 # implicit-namespace-package
-    */fixtures/*:T201 # print
+    */fixtures/*:T201 # print [yapw]
 )
 if [ -f MANIFEST.in ]; then
     PER_FILE_IGNORES+=(
@@ -219,12 +214,12 @@ if [ -f common-requirements.txt ]; then
 fi
 
 ruff check . --select ALL \
-    --ignore $(IFS=,; echo "${IGNORE[*]}") \
-    --per-file-ignores $(IFS=,; echo "${PER_FILE_IGNORES[*]}") \
+    --ignore "$(IFS=,; echo "${IGNORE[*]}")" \
+    --per-file-ignores "$(IFS=,; echo "${PER_FILE_IGNORES[*]}")" \
     --config 'line-length = 119' \
-    --config 'lint.allowed-confusables = ["’"]' \
+    --config "lint.allowed-confusables = ['’']" \
     --config "lint.flake8-builtins.builtins-ignorelist = [$(IFS=,; echo "${BUILTINS_IGNORELIST[*]}")]" \
-    --config 'lint.flake8-self.ignore-names = ["_job", "_replace"]' \
+    --config 'lint.flake8-self.extend-ignore-names = ["_job"]' \
     --exclude 'demo_docs,t'
 
 if [ -n "$CI" ]; then
