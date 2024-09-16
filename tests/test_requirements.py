@@ -100,7 +100,7 @@ class SetupVisitor(ast.NodeVisitor):
             for elt in node.value.elts:
                 self.mapping.update(projects_and_modules(val(elt)))
         elif node.arg == 'extras_require' and self.extras:
-            for key, value in zip(node.value.keys, node.value.values):
+            for key, value in zip(node.value.keys, node.value.values, strict=True):
                 if val(key) in self.extras:
                     for elt in value.elts:
                         self.mapping.update(projects_and_modules(val(elt)))
@@ -123,16 +123,16 @@ class CodeVisitor(ast.NodeVisitor):
         if self.path.name == 'setup.py':
             self.excluded.add('setuptools')
 
-    def visit_Try(self, node):  # noqa: N802 # false positive
+    def visit_Try(self, node):
         # Don't collect imports in `try: ... except ImportError: ...` blocks.
         if not any(h.type.id == 'ImportError' for h in node.handlers if isinstance(h.type, ast.Name)):
             self.generic_visit(node)
 
-    def visit_If(self, node):  # noqa: N802 # false positive
+    def visit_If(self, node):
         # Don't collect imports in `if sys.version_info >= (3, 8): ... else: ...` blocks.
         if (
             not isinstance(node.test, ast.Compare)
-            or any(isinstance(op, (ast.In, ast.NotIn, ast.Is, ast.IsNot)) for op in node.test.ops)
+            or any(isinstance(op, ast.In | ast.NotIn | ast.Is | ast.IsNot) for op in node.test.ops)
             or isinstance(node.test.left, ast.Tuple)
             or not any(
                 isinstance(val(e), int) for c in node.test.comparators if isinstance(c, ast.Tuple) for e in c.elts
@@ -140,15 +140,15 @@ class CodeVisitor(ast.NodeVisitor):
         ):
             self.generic_visit(node)
 
-    def visit_Import(self, node):  # noqa: N802 # false positive
+    def visit_Import(self, node):
         for alias in node.names:
             self.add(alias.name)
 
-    def visit_ImportFrom(self, node):  # noqa: N802 # false positive
+    def visit_ImportFrom(self, node):
         if node.module and not node.level:
             self.add(node.module)
 
-    def visit_Assign(self, node):  # noqa: N802 # false positive
+    def visit_Assign(self, node):
         # Handle Django settings.py file.
         if self.path.name == 'settings.py' or self.path.parent.name == 'settings':
             for target in node.targets:
@@ -166,7 +166,7 @@ class CodeVisitor(ast.NodeVisitor):
                 # A requirement might be required by a backend.
                 elif target.id == 'CACHES':
                     for value in node.value.values:  # noqa: PD011 # false positive
-                        for k, v in zip(value.keys, value.values):
+                        for k, v in zip(value.keys, value.values, strict=True):
                             if val(k) == 'BACKEND':
                                 if val(v) == 'django.core.cache.backends.memcached.MemcachedCache':
                                     self.add('memcache')
@@ -174,7 +174,7 @@ class CodeVisitor(ast.NodeVisitor):
                                     self.add('pymemcache')
                 elif target.id == 'CHANNEL_LAYERS':
                     for value in node.value.values:  # noqa: PD011 # false positive
-                        for k, v in zip(value.keys, value.values):
+                        for k, v in zip(value.keys, value.values, strict=True):
                             if val(k) in 'BACKEND' and val(v) == 'channels_redis.core.RedisChannelLayer':
                                 self.add('channels_redis')
                 elif target.id == 'DATABASES':
@@ -192,7 +192,7 @@ class CodeVisitor(ast.NodeVisitor):
                             if default and urlsplit(val(default.value)).scheme == 'postgresql':
                                 self.add('psycopg2')
                         elif isinstance(value, ast.Dict):
-                            for k, v in zip(value.keys, value.values):
+                            for k, v in zip(value.keys, value.values, strict=True):
                                 if val(k) == 'ENGINE' and val(v) in (
                                     'django.db.backends.postgresql',
                                     'django.db.backends.postgresql_psycopg2',

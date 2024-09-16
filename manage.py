@@ -24,9 +24,7 @@ def cli():
 @click.argument('path')
 @click.option('--match', help='')
 def download_extensions(path, match):
-    """
-    Download all registered extensions to a directory.
-    """
+    """Download all registered extensions to a directory."""
     path = path.rstrip('/')
 
     registry = ExtensionRegistry(extension_versions_url)
@@ -36,7 +34,7 @@ def download_extensions(path, match):
             if not os.path.isdir(directory):
                 command = ['git', 'clone', version.repository_url, directory]
                 click.echo(' '.join(command))
-                subprocess.call(command)
+                subprocess.call(command)  # noqa: S603 # trusted input
 
 
 @cli.command()
@@ -96,9 +94,7 @@ def set_topics():
 
 @cli.command()
 def check_aspell_dictionary():
-    """
-    Check whether ~/.aspell.en.pws contains unwanted words.
-    """
+    """Check whether ~/.aspell.en.pws contains unwanted words."""
     with open(os.path.expanduser('~/.aspell.en.pws'), encoding='iso-8859-1') as f:
         aspell = f.read()
 

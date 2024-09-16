@@ -41,6 +41,7 @@ IGNORE=(
     D415 # ends-in-punctuation (D400 ends-in-period)
     # https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
     COM812 # missing-trailing-comma (ruff format)
+    ISC001 # single-line-implicit-string-concatenation (ruff format)
     Q000   # bad-quotes-inline-string (ruff format)
 
     # Complexity
@@ -66,6 +67,7 @@ IGNORE=(
     # Specific repositories
     B028   # no-explicit-stacklevel [jscc, ocds-merge, sample-data, standard, standard-maintenance-scripts]
     EXE003 # shebang-missing-python [deploy]
+    SLF001 # private-member-access [cove-ocds, kingfisher-collect, pelican-frontend]
 )
 if [ -n "$REQUIREMENTS_FILE" ]; then
     if grep babel $REQUIREMENTS_FILE > /dev/null; then
@@ -86,20 +88,24 @@ if [ -n "$REQUIREMENTS_FILE" ]; then
             PT    # pytest
             DJ008 # django-model-without-dunder-str
             S308  # suspicious-mark-safe-usage (false positive)
-            # https://docs.djangoproject.com/en/4.2/topics/http/views/
+            # signals.py     https://docs.djangoproject.com/en/4.2/topics/signals/
+            # views.py       https://docs.djangoproject.com/en/4.2/topics/http/views/
+            # migrations/    https://docs.djangoproject.com/en/4.2/howto/writing-migrations/
             ARG001 # unused-function-argument
-            # https://docs.djangoproject.com/en/4.2/topics/class-based-views/
+            # admin.py       https://docs.djangoproject.com/en/4.2/ref/contrib/admin/#modeladmin-methods
+            # routers.py     https://docs.djangoproject.com/en/4.2/topics/db/multi-db/#an-example
+            # views.py       https://docs.djangoproject.com/en/4.2/topics/class-based-views/
+            # commands.py    https://docs.djangoproject.com/en/4.2/howto/custom-management-commands/
             ARG002 # unused-method-argument
-            # https://docs.djangoproject.com/en/4.2/ref/models/options/#constraints
-            # https://docs.djangoproject.com/en/4.2/ref/models/options/#indexes
-            # https://docs.djangoproject.com/en/4.2/topics/forms/modelforms/
-            # https://docs.djangoproject.com/en/4.2/topics/migrations/#migration-files
-            # https://docs.djangoproject.com/en/4.2/topics/db/multi-db/#an-example
-            # https://docs.djangoproject.com/en/4.2/topics/db/fixtures/#how-to-use-a-fixture
-            # https://www.django-rest-framework.org/api-guide/serializers/#modelserializer
+            # admin.py       https://docs.djangoproject.com/en/4.2/ref/contrib/admin/
+            # forms.py       https://docs.djangoproject.com/en/4.2/topics/forms/modelforms/
+            # models.py      https://docs.djangoproject.com/en/4.2/ref/models/options/
+            # serializers.py https://www.django-rest-framework.org/api-guide/serializers/#modelserializer
+            # translation.py https://django-modeltranslation.readthedocs.io/en/latest/registration.html#required-langs
+            # views.py       https://www.django-rest-framework.org/api-guide/viewsets/
+            # migrations/    https://docs.djangoproject.com/en/4.2/topics/migrations/#migration-files
+            # tests/         https://docs.djangoproject.com/en/4.2/topics/db/fixtures/#how-to-use-a-fixture
             RUF012 # mutable-class-default
-            # https://docs.djangoproject.com/en/4.2/ref/models/meta/
-            SLF001 # private-member-access
         )
         BUILTINS_IGNORELIST+=(
             "'id'" # path component
@@ -232,13 +238,12 @@ ruff check . --select ALL \
         IFS=,
         echo "${PER_FILE_IGNORES[*]}"
     )" \
-    --config 'line-length = 119' \
-    --config "lint.allowed-confusables = ['’']" \
     --config "lint.flake8-builtins.builtins-ignorelist = [$(
         IFS=,
         echo "${BUILTINS_IGNORELIST[*]}"
     )]" \
-    --config 'lint.flake8-self.extend-ignore-names = ["_job"]' \
+    --config "lint.allowed-confusables = ['’']" \
+    --config 'line-length = 119' \
     --exclude 'demo_docs,t'
 
 if [ -n "$CI" ]; then
