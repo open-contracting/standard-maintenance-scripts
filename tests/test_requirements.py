@@ -69,6 +69,8 @@ def projects_and_modules(requirements):
     :rtype: dict
     """
     mapping = defaultdict(set)
+    if isinstance(requirements, str):
+        requirements = requirements.splitlines()
     for line in requirements:
         if not line or line.startswith(('-', '#', 'git+')):
             continue
