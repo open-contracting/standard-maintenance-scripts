@@ -545,7 +545,14 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
         if name not in exceptions_plus_versioned_and_packages_and_record:
             # Extensions aren't expected to repeat referenced codelist CSV files.
             # Only the release schema is presently expected to use all codelists.
-            errors += validate_schema_codelists_match(path, data, cwd, is_extension, is_profile, external_codelists)
+            errors += validate_schema_codelists_match(
+                path,
+                data,
+                cwd,
+                is_extension=is_extension,
+                is_profile=is_profile,
+                external_codelists=external_codelists,
+            )
 
     else:
         # Don't count these as errors.
