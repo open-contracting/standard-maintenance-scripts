@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# shellcheck disable=SC2269
-CI="$CI"
+: "${CI:=}"
+: "${GITHUB_REPOSITORY:=$PWD}"
 
 if [ -n "$CI" ]; then
     set -xeu
@@ -23,10 +23,6 @@ if [ -f requirements.txt ]; then
 elif [ -f pyproject.toml ]; then
     REQUIREMENTS_FILE=pyproject.toml
 fi
-
-BUILTINS_IGNORELIST=(
-    "'type'" # [credere-backend, pelican-frontend]
-)
 
 IGNORE=(
     RUF100 # Specific repositories can have stricter rules in pyproject.toml, with more noqa in files.
@@ -60,10 +56,45 @@ IGNORE=(
     PLR2004 # magic-value-comparison
     PLW2901 # redefined-loop-name
     TRY003  # raise-vanilla-args
-    # Specific repositories
-    B028   # no-explicit-stacklevel [jscc, ocds-merge, sample-data, standard-maintenance-scripts, standard_profile_template]
-    EXE003 # shebang-missing-python [deploy]
 )
+
+PER_FILE_IGNORES=(
+    # Command-line interfaces
+    */commands/*:T201 # print
+    __main__.py:T201  # print
+    manage.py:T201    # print
+    run.py:T201       # print
+
+    # Documentation
+    docs/*:D100   # undocumented-public-module
+    docs/*:INP001 # implicit-namespace-package
+
+    # Migrations
+    *migrations/*:E501   # line-too-long
+    *migrations/*:INP001 # implicit-namespace-package
+
+    # Notebooks
+    *.ipynb:E501   # line-too-long
+    *.ipynb:ERA001 # commented-out-code
+    *.ipynb:F401   # unused-import
+    *.ipynb:F821   # undefined-name
+
+    # Namespace packages
+    sphinxcontrib/*:INP001 # implicit-namespace-package
+
+    # Settings
+    */settings.py:ERA001 # commented-out-code
+
+    # Tests
+    tests/*:FBT003 # boolean-positional-value-in-call
+    tests/*:INP001 # implicit-namespace-package
+    tests/*:TRY003 # raise-vanilla-args (AssertionError)
+    tests/*:S      # security
+    test_*:S101    # [credere-backend, kingfisher-collect]
+)
+
+BUILTINS_IGNORELIST=("'placeholder'")
+
 if [ -n "$REQUIREMENTS_FILE" ]; then
     if grep babel $REQUIREMENTS_FILE > /dev/null; then
         IGNORE+=(
@@ -83,30 +114,40 @@ if [ -n "$REQUIREMENTS_FILE" ]; then
             PT    # pytest
             DJ008 # django-model-without-dunder-str
             S308  # suspicious-mark-safe-usage (false positive)
-            # signals.py     https://docs.djangoproject.com/en/4.2/topics/signals/
-            # views.py       https://docs.djangoproject.com/en/4.2/topics/http/views/
-            # migrations/    https://docs.djangoproject.com/en/4.2/howto/writing-migrations/
-            ARG001 # unused-function-argument
-            # admin.py       https://docs.djangoproject.com/en/4.2/ref/contrib/admin/#modeladmin-methods
-            # routers.py     https://docs.djangoproject.com/en/4.2/topics/db/multi-db/#an-example
-            # views.py       https://docs.djangoproject.com/en/4.2/topics/class-based-views/
-            # commands.py    https://docs.djangoproject.com/en/4.2/howto/custom-management-commands/
-            ARG002 # unused-method-argument
-            # admin.py       https://docs.djangoproject.com/en/4.2/ref/contrib/admin/
-            # forms.py       https://docs.djangoproject.com/en/4.2/topics/forms/modelforms/
-            # models.py      https://docs.djangoproject.com/en/4.2/ref/models/options/
-            # serializers.py https://www.django-rest-framework.org/api-guide/serializers/#modelserializer
-            # translation.py https://django-modeltranslation.readthedocs.io/en/latest/registration.html#required-langs
-            # views.py       https://www.django-rest-framework.org/api-guide/viewsets/
-            # migrations/    https://docs.djangoproject.com/en/4.2/topics/migrations/#migration-files
-            # tests/         https://docs.djangoproject.com/en/4.2/topics/db/fixtures/#how-to-use-a-fixture
-            RUF012 # mutable-class-default
+        )
+        PER_FILE_IGNORES+=(
+            # signals.py  https://docs.djangoproject.com/en/4.2/topics/signals/
+            # views.py    https://docs.djangoproject.com/en/4.2/topics/http/views/
+            # migrations/ https://docs.djangoproject.com/en/4.2/howto/writing-migrations/
+            {*/signals,*/views,*/migrations/*}.py:ARG001 # unused-function-argument
+            # admin.py    https://docs.djangoproject.com/en/4.2/ref/contrib/admin/#modeladmin-methods
+            # routers.py  https://docs.djangoproject.com/en/4.2/topics/db/multi-db/#an-example
+            # views.py    https://docs.djangoproject.com/en/4.2/topics/class-based-views/
+            # commands.py https://docs.djangoproject.com/en/4.2/howto/custom-management-commands/
+            {*/admin,*/routers,*/views,*/commands/*}.py:ARG002 # unused-method-argument
+            # admin.py    https://docs.djangoproject.com/en/4.2/ref/contrib/admin/
+            # forms.py    https://docs.djangoproject.com/en/4.2/topics/forms/modelforms/
+            # models.py   https://docs.djangoproject.com/en/4.2/ref/models/options/
+            # migrations/ https://docs.djangoproject.com/en/4.2/topics/migrations/#migration-files
+            # tests/      https://docs.djangoproject.com/en/4.2/topics/db/fixtures/#how-to-use-a-fixture
+            {*/admin,*/forms,*/models,*/routers,*/serializers,*/translation,*/migrations/*,tests/*}.py:RUF012 # mutable-class-default
         )
         BUILTINS_IGNORELIST+=(
             "'id'" # path component
         )
     fi
+    if grep django-modeltranslation $REQUIREMENTS_FILE > /dev/null; then
+        PER_FILE_IGNORES+=(
+            # translation.py https://django-modeltranslation.readthedocs.io/en/latest/registration.html#required-langs
+            */translation.py:RUF012
+        )
+    fi
     if grep djangorestframework $REQUIREMENTS_FILE > /dev/null; then
+        PER_FILE_IGNORES+=(
+            # serializers.py https://www.django-rest-framework.org/api-guide/serializers/#modelserializer
+            # views.py       https://www.django-rest-framework.org/api-guide/viewsets/
+            */{serializers,views}.py:RUF012
+        )
         BUILTINS_IGNORELIST+=(
             # https://www.django-rest-framework.org/api-guide/format-suffixes/
             "'format'"
@@ -165,44 +206,6 @@ if [ ! -f .python-version ] || grep 3.10 .python-version > /dev/null; then
         PYI024 # collections-named-tuple (Python 3.11+)
     )
 fi
-
-PER_FILE_IGNORES=(
-    # Command-line interfaces
-    __main__.py:T201  # print
-    manage.py:T201    # print
-    run.py:T201       # print
-    */commands/*:T201 # print
-
-    # Documentation
-    docs/*:D100   # undocumented-public-module
-    docs/*:INP001 # implicit-namespace-package
-
-    # Migrations
-    *migrations/*:E501   # line-too-long
-    *migrations/*:INP001 # implicit-namespace-package
-
-    # Notebooks
-    *.ipynb:E501   # line-too-long
-    *.ipynb:ERA001 # commented-out-code
-    *.ipynb:F401   # unused-import
-    *.ipynb:F821   # undefined-name
-
-    # Namespace packages
-    sphinxcontrib/*:INP001 # implicit-namespace-package
-
-    # Settings
-    */settings.py:ERA001 # commented-out-code
-
-    # Tests
-    tests/*:FBT003 # boolean-positional-value-in-call
-    tests/*:INP001 # implicit-namespace-package
-    tests/*:TRY003 # raise-vanilla-args (AssertionError)
-    tests/*:S      # security
-    test_*:S       # [kingfisher-collect]
-    # Specific repositories
-    tests/*:RUF012        # mutable-class-default [pelican-backend]
-    tests/fixtures/*:T201 # print [yapw]
-)
 if [ -f MANIFEST.in ]; then
     PER_FILE_IGNORES+=(
         tests/*:ARG001 # unused-function-argument (fixtures)
@@ -222,6 +225,28 @@ if [ -f common-requirements.txt ]; then
         )
     fi
 fi
+
+case "${GITHUB_REPOSITORY##*/}" in
+jscc | ocds-merge | sample-data | standard-maintenance-scripts | standard)
+    IGNORE+=(B028) # no-explicit-stacklevel
+    ;;
+credere-backend)
+    BUILTINS_IGNORELIST+=("'type'")
+    ;;
+deploy)
+    IGNORE+=(EXE003) # shebang-missing-python
+    ;;
+pelican-backend)
+    PER_FILE_IGNORES+=(tests/*:RUF012) # mutable-class-default
+    ;;
+pelican-frontend)
+    IGNORE+=(ARG001 RUF012) # unused-function-argument mutable-class-default
+    BUILTINS_IGNORELIST+=("'type'")
+    ;;
+yapw)
+    PER_FILE_IGNORES+=(tests/fixtures/*:T201) # print
+    ;;
+esac
 
 ruff check . --select ALL \
     --ignore "$(
