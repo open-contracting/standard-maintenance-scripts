@@ -56,18 +56,13 @@ IGNORE=(
     D
     DTZ
     PTH
-    FIX002  # line-contains-todo (TD003 missing-todo-link)
+    FIX002  # line-contains-todo
     PLR2004 # magic-value-comparison
     PLW2901 # redefined-loop-name
-    S607    # start-process-with-partial-path
-    # Error handling
-    TRY003 # raise-vanilla-args (nice errors)
-    # False positives
-    S603 # subprocess-without-shell-equals-true
+    TRY003  # raise-vanilla-args
     # Specific repositories
-    B028   # no-explicit-stacklevel [jscc, ocds-merge, sample-data, standard, standard-maintenance-scripts]
+    B028   # no-explicit-stacklevel [jscc, ocds-merge, sample-data, standard-maintenance-scripts, standard_profile_template]
     EXE003 # shebang-missing-python [deploy]
-    SLF001 # private-member-access [cove-ocds, kingfisher-collect, pelican-frontend]
 )
 if [ -n "$REQUIREMENTS_FILE" ]; then
     if grep babel $REQUIREMENTS_FILE > /dev/null; then
@@ -121,7 +116,6 @@ if [ -n "$REQUIREMENTS_FILE" ]; then
         IGNORE+=(
             # https://fastapi.tiangolo.com/reference/dependencies/
             ARG001 # unused-function-argument
-            B008   # function-call-in-default-argument
         )
         BUILTINS_IGNORELIST+=(
             "'id'" # path component
