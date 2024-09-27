@@ -35,7 +35,7 @@ use_development_version = (
     '1.2' in os.getenv('GITHUB_REF_NAME', '')
     or '1.2' in os.getenv('GITHUB_BASE_REF', '')
     # Extensions that are versioned with OCDS.
-    or repo_name in ('ocds_lots_extension',)
+    or repo_name == 'ocds_lots_extension'
     # Extensions that depend on those extensions.
     or (
         'https://raw.githubusercontent.com/open-contracting-extensions/ocds_lots_extension/master/extension.json'

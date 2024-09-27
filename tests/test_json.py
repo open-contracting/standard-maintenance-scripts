@@ -66,12 +66,12 @@ def read_metadata(*, allow_missing=False):
 cwd = os.getcwd()
 repo_name = os.path.basename(os.getenv('GITHUB_REPOSITORY', cwd))
 ocds_version = os.getenv('OCDS_TEST_VERSION')
-is_profile = os.path.isfile('Makefile') and os.path.isdir('docs') and repo_name not in ('standard', 'infrastructure')
+is_profile = os.path.isfile('Makefile') and os.path.isdir('docs') and repo_name not in {'standard', 'infrastructure'}
 is_extension = os.path.isfile('extension.json') or is_profile
 extensiondir = os.path.join('schema', 'profile') if is_profile else '.'
-if repo_name == 'standard' and os.getenv('GITHUB_ACTOR', '').lower() not in (
+if repo_name == 'standard' and os.getenv('GITHUB_ACTOR', '').lower() not in {
     'colinmaudry', 'duncandewhurst', 'jachymhercher', 'odscjen', 'jpmckinney', 'yolile',
-):
+}:
     standard_owner = os.getenv('GITHUB_ACTOR', 'open-contracting')
 else:
     standard_owner = 'open-contracting'
@@ -81,7 +81,7 @@ use_development_version = (
     '1.2' in os.getenv('GITHUB_REF_NAME', '')
     or '1.2' in os.getenv('GITHUB_BASE_REF', '')
     # Extensions that are versioned with OCDS.
-    or repo_name in ('ocds_lots_extension',)
+    or repo_name == 'ocds_lots_extension'
     # Extensions that depend on those extensions.
     or (
         'https://raw.githubusercontent.com/open-contracting-extensions/ocds_lots_extension/master/extension.json'
@@ -186,7 +186,7 @@ def _merge_obj(result, obj, pointer=''):  # changed code
             if (
                 value is None
                 and pointer_and_key == '/definitions/Milestone/properties/documents/deprecated'
-                and repo_name in ('ocds_milestone_documents_extension', 'public-private-partnerships')
+                and repo_name in {'ocds_milestone_documents_extension', 'public-private-partnerships'}
             ):
                 warnings.warn(f're-adds {pointer}')
             elif (
@@ -347,7 +347,7 @@ def test_empty():
 def test_indent():
     def include(path, name):
         # http://json-schema.org/draft-04/schema
-        return name not in ('biome.json', 'json-schema-draft-4.json', 'package.json', 'package-lock.json')
+        return name not in {'biome.json', 'json-schema-draft-4.json', 'package.json', 'package-lock.json'}
 
     warn_and_assert(get_misindented_files(include), '{0} is not indented as expected, run: ocdskit indent {0}',
                     'Files are not indented as expected. See warnings below, or run: ocdskit indent -r .')
@@ -568,11 +568,11 @@ def test_schema_valid(path, name, data):
     extension, ensures JSON Schema files have required metadata and valid references.
     """
     schemas = metaschemas()
-    if name in ('release-schema.json', 'release-package-schema.json'):
+    if name in {'release-schema.json', 'release-package-schema.json'}:
         metaschema = schemas['release_package_metaschema']
-    elif name in ('record-schema.json', 'record-package-schema.json'):
+    elif name in {'record-schema.json', 'record-package-schema.json'}:
         metaschema = schemas['record_package_metaschema']
-    elif name in ('project-schema.json', 'project-package-schema.json'):
+    elif name in {'project-schema.json', 'project-package-schema.json'}:
         metaschema = schemas['project_package_metaschema']
     else:
         metaschema = schemas['metaschema']

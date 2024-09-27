@@ -157,7 +157,7 @@ class CodeVisitor(ast.NodeVisitor):
                 if not isinstance(target, ast.Name):
                     continue
                 # A requirement might be declared as an installed app or middleware.
-                if target.id in ('INSTALLED_APPS', 'MIDDLEWARE'):
+                if target.id in {'INSTALLED_APPS', 'MIDDLEWARE'}:
                     for elt in node.value.elts:
                         self.add(val(elt))
                 elif target.id == 'CELERY_BROKER_URL':
@@ -195,10 +195,10 @@ class CodeVisitor(ast.NodeVisitor):
                                 self.add('psycopg2')
                         elif isinstance(value, ast.Dict):
                             for k, v in zip(value.keys, value.values, strict=True):
-                                if val(k) == 'ENGINE' and val(v) in (
+                                if val(k) == 'ENGINE' and val(v) in {
                                     'django.db.backends.postgresql',
                                     'django.db.backends.postgresql_psycopg2',
-                                ):
+                                }:
                                     self.add('psycopg2')
 
     def add(self, name):
