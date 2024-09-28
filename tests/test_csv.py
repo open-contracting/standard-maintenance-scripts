@@ -58,10 +58,8 @@ def test_valid():
 
                     columns[col_index - 1].append(cell)
 
-                    # Extra cells are added to a None columns.
-                    cells = cell if header is None and isinstance(cell, list) else [cell]
-
-                    for value in cells:
+                    # Extra cells were added to a column with a `None` header.
+                    for value in (cell if header is None and isinstance(cell, list) else [cell]):
                         if value is not None and value != value.strip():
                             errors += 1
                             warnings.warn(f'ERROR: {path} {header} "{value}" has leading or trailing whitespace at '

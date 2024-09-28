@@ -634,8 +634,7 @@ def test_extension_json():
 
         validate_json_schema(path, 'extension.json', data, schema)
 
-        urls = data.get('dependencies', []) + data.get('testDependencies', [])
-        for url in urls:
+        for url in data.get('dependencies', []) + data.get('testDependencies', []):
             try:
                 status_code = http_head(url).status_code
             except requests.exceptions.ConnectionError as e:
@@ -643,8 +642,7 @@ def test_extension_json():
             else:
                 assert status_code == 200, f'HTTP {status_code} on {url}'
 
-        urls = list(data['documentationUrl'].values())
-        for url in urls:
+        for url in list(data['documentationUrl'].values()):
             try:
                 status_code = http_get(url).status_code  # allow redirects
             except requests.exceptions.ConnectionError as e:

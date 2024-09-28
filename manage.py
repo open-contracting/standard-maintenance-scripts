@@ -27,8 +27,7 @@ def download_extensions(path, match):
     """Download all registered extensions to a directory."""
     path = path.rstrip('/')
 
-    registry = ExtensionRegistry(extension_versions_url)
-    for version in registry:
+    for version in ExtensionRegistry(extension_versions_url):
         if not match or match in version.base_url:
             directory = os.path.join(path, version.repository_name)
             if not os.path.isdir(directory):
@@ -55,16 +54,14 @@ def set_topics():
     for profile, branch in (('european-union', 'latest'), ('public-private-partnerships', '1.0-dev')):
         response = requests.get(format_string.format(profile, branch), timeout=10)
         response.raise_for_status()
-        extension_versions = response.json()
-        for extension_id in extension_versions:
+        for extension_id in response.json():
             profiles[extension_id].append(profile)
 
     registry = ExtensionRegistry(extension_versions_url, extensions_url)
 
     response = requests.get('https://api.github.com/orgs/open-contracting-extensions/repos?per_page=100', timeout=10)
     response.raise_for_status()
-    repos = response.json()
-    for repo in repos:
+    for repo in response.json():
         topics = []
 
         if repo['name'].endswith('_extension'):

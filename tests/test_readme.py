@@ -343,15 +343,13 @@ def test_example_codes():
 
     # Ostensibly, we should download all codelists. To save time, we only download those we presently reference.
     for codelist in ('milestoneStatus', 'tenderStatus', 'partyRole', 'releaseTag'):
-        reader = csv.DictReader(StringIO(http_get(f'{url_prefix}/codelists/{codelist}.csv').text))
-        for row in reader:
+        for row in csv.DictReader(StringIO(http_get(f'{url_prefix}/codelists/{codelist}.csv').text)):
             literals.add(row['Code'])
 
     if 'codelists' in metadata:
         for codelist in metadata['codelists']:
             with open(os.path.join('codelists', codelist)) as f:
-                reader = csv.DictReader(f)
-                for row in reader:
+                for row in csv.DictReader(f):
                     literals.add(row['Code'])
                     if 'Category' in row:
                         literals.add(row['Category'])
