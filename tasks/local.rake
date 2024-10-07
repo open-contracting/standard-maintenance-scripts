@@ -17,7 +17,7 @@ namespace :local do
   def get_extension_ids
     extension_ids = {}
     url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/main/build/extensions.json'
-    JSON.load(open(url).read)['extensions'].each do |extension|
+    JSON.load(URI.open(url).read)['extensions'].each do |extension|
       full_name = extension['url'][%r{\Ahttps://raw\.githubusercontent\.com/([^/]+/[^/]+)}, 1]
       extension_ids[full_name] = extension['id']
     end
@@ -38,7 +38,7 @@ namespace :local do
 
     extension_repositories = Set.new
     url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/main/build/extensions.json'
-    JSON.load(open(url).read)['extensions'].each do |extension|
+    JSON.load(URI.open(url).read)['extensions'].each do |extension|
       extension_repositories << URI.parse(extension['url']).path.split('/')[2]
     end
 
@@ -190,6 +190,8 @@ namespace :local do
         'Tech support priority can be assessed based on the impact of the project becoming unavailable and the degree of usage, which can be assessed based on [Python package downloads](http://www.pypi-stats.com/author/?q=30327), [GitHub traffic](https://github.com/open-contracting/standard-development-handbook/issues/76#issuecomment-334540063) and user feedback.',
         '',
         'In addition to the below, within the [OpenDataServices](https://github.com/OpenDataServices) organization, the `lib-cove`, `lib-cove-web`, `sphinxcontrib-jsonschema` and `sphinxcontrib-opendataservices` dependencies are relevant.',
+        '',
+        "*Stmts* is the number of statements, measured by Coveralls. For example, the assignment of a dict literal or a list comprehension is a single statement, which can be spread across many lines of code (e.g. measured by [Tokei](https://github.com/XAMPPRocky/tokei)). This is more informative, because developers generally reason at the level of statements.",
       ]
     end
 
@@ -215,8 +217,8 @@ namespace :local do
           ]
         else
           output += [
-            '|Build|Docs|Name|',
-            '|-|-|-|',
+            '|Build|Docs|Stmts|Name|',
+            '|-|-|-|-|',
           ]
         end
 
@@ -226,6 +228,7 @@ namespace :local do
           end
 
           line = '|'
+          loc = ''
 
           begin
             hooks = repo.rels[:hooks].get.data
@@ -248,6 +251,8 @@ namespace :local do
 
               if [workflow_files['ci'], tox].any?{ |contents| contents.include?('coveralls') }
                 line << " [![Coverage Status](https://coveralls.io/repos/github/#{repo.full_name}/badge.svg?branch=#{repo.default_branch})](https://coveralls.io/github/#{repo.full_name}?branch=#{repo.default_branch})"
+
+                loc = URI.open("https://coveralls.io/github/#{repo.full_name}").read.match(%r{<strong>(\d+)</strong>\s+relevant lines covered})[1]
               end
             end
           end
@@ -256,20 +261,14 @@ namespace :local do
             line << " [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/#{repo.full_name}/#{repo.default_branch}.svg)](https://results.pre-commit.ci/latest/github/#{repo.full_name}/#{repo.default_branch})"
           end
 
-          if workflow_files.any?{ |_, content| !content.empty? } || precommit.include?(repo.name)
-            line << '|'
-          else
-            line << '-|'
-          end
+          line << '|'
 
           if ENV['ORG'] != 'open-contracting-partnership' && !REPOSITORY_CATEGORIES_WITHOUT_DOCS.include?(heading)
             hook = hooks.find{ |datum| datum.config.url && datum.config.url[%r{\Ahttps://readthedocs.org/api/v2/webhook/([^/]+)}] }
             if hook
               line << "[Docs](https://#{$1}.readthedocs.io/)"
-              line << '|'
-            else
-              line << '-|'
             end
+            line << "|#{loc}|"
           end
 
           output << line + "[#{repo.name}](#{repo.html_url})|"

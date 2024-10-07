@@ -158,7 +158,7 @@ def core_extensions
     base_url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/main/'
 
     ids_to_repos = {}
-    CSV.parse(open("#{base_url}/extension_versions.csv").read, headers: true).each do |version|
+    CSV.parse(URI.open("#{base_url}/extension_versions.csv").read, headers: true).each do |version|
       parts = URI.parse(version.fetch('Base URL'))
       # Assumes different versions of the same extension use the same repository.
       if ['bitbucket.org', 'gitlab.com', 'raw.githubusercontent.com'].include?(parts.hostname)
@@ -169,7 +169,7 @@ def core_extensions
     end
 
     repos_to_core = {}
-    CSV.parse(open("#{base_url}/extensions.csv").read, headers: true).each do |extension|
+    CSV.parse(URI.open("#{base_url}/extensions.csv").read, headers: true).each do |extension|
       repos_to_core[ids_to_repos.fetch(extension.fetch('Id'))] = extension.fetch('Core') == 'true'
     end
 
