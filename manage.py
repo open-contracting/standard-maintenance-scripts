@@ -278,9 +278,11 @@ fragment f on User {{
         end += "T23:59:59Z"
 
     if not start and days:
-        start = (datetime.datetime.now(tz=datetime.UTC) - datetime.timedelta(days=days)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        start = (datetime.datetime.now(tz=datetime.timezone.utc) - datetime.timedelta(days=days)).strftime(
+            "%Y-%m-%dT%H:%M:%SZ"
+        )
     if not end:
-        end = datetime.datetime.now(tz=datetime.UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+        end = datetime.datetime.now(tz=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     query = format_string.format(
         queries="\n".join(f'  user{i}: user(login: "{login}") {{\n    ...f\n  }}' for i, login in enumerate(user)),
