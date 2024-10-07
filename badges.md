@@ -2,7 +2,7 @@
 
 Tech support priority can be assessed based on the impact of the project becoming unavailable and the degree of usage, which can be assessed based on [Python package downloads](http://www.pypi-stats.com/author/?q=30327), [GitHub traffic](https://github.com/open-contracting/standard-development-handbook/issues/76#issuecomment-334540063) and user feedback.
 
-In addition to the below, within the [OpenDataServices](https://github.com/OpenDataServices) organization, the `lib-cove`, `lib-cove-web`, `sphinxcontrib-jsonschema` and `sphinxcontrib-opendataservices` dependencies are relevant.
+In addition to the below, within the [OpenDataServices](https://github.com/OpenDataServices) organization, the `flatten-tool`, `lib-cove`, `lib-cove-web`, `sphinxcontrib-jsonschema` and `sphinxcontrib-opendataservices` dependencies are relevant.
 
 *Stmts* is the number of statements, measured by Coveralls. For example, the assignment of a dict literal or a list comprehension is a single statement, which can be spread across many lines of code (e.g. measured by [Tokei](https://github.com/XAMPPRocky/tokei)). This is more informative, because developers generally reason at the level of statements.
 
