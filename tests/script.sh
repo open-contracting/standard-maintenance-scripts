@@ -237,6 +237,7 @@ deploy)
     IGNORE+=(EXE003) # shebang-missing-python
     ;;
 pelican-backend)
+    IGNORE+=(ERA001) # commented-out-code
     PER_FILE_IGNORES+=(tests/*:RUF012) # mutable-class-default
     ;;
 pelican-frontend)
