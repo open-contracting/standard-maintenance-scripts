@@ -267,5 +267,5 @@ ruff check . --select ALL \
     --exclude 'demo_docs,t'
 
 if [ -n "$CI" ]; then
-    pytest -rs --tb=line /tmp/test_csv.py /tmp/test_json.py /tmp/test_readme.py # test_requirements.py is opt-in
+    pytest -rs /tmp/test_csv.py /tmp/test_json.py /tmp/test_readme.py # test_requirements.py is opt-in
 fi
