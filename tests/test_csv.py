@@ -1,6 +1,7 @@
 import csv
 import json
 import os
+import re
 import warnings
 from io import StringIO
 
@@ -98,10 +99,12 @@ def test_codelist():
         'country.csv': "'Description' is a required property",
         # ocds_coveredBy_extension
         'coveredBy.csv': "'Description' is a required property",
+        # ocds_eu_extension
+        'sources.csv': re.compile(" does not match "),  # copies EU
         # ocds_medicine_extension
         'administrationRoute.csv': "'Description' is a required property",
-        'dosageForm.csv': "None is not of type 'string'",
-        'immediateContainer.csv': "None is not of type 'string'",
+        'dosageForm.csv': "None is not of type 'string'",  # copies HL7
+        'immediateContainer.csv': "None is not of type 'string'",  # copies HL7
     }
 
     array_columns = ('Framework', 'Section')
@@ -160,8 +163,11 @@ def test_codelist():
             schema = minus_schema if os.path.basename(path).startswith('-') else codelist_schema
 
             for error in Validator(schema, format_checker=FormatChecker()).iter_errors(data):
-                if error.message != exceptions.get(os.path.basename(path)):
+                message = error.message
+                pattern = exceptions.get(os.path.basename(path))
+                is_regex = hasattr(pattern, "search")
+                if is_regex and not pattern.search(message) or not is_regex and message != pattern:
                     any_errors = True
-                    warnings.warn(f"{path}: {error.message} ({'/'.join(error.absolute_schema_path)})\n")
+                    warnings.warn(f"{path}: {message} ({'/'.join(error.absolute_schema_path)})\n")
 
     assert not any_errors
