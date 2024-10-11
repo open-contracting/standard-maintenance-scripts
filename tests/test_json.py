@@ -641,7 +641,7 @@ def test_extension_json():
         for url in data.get('dependencies', []) + data.get('testDependencies', []):
             try:
                 status_code = http_head(url).status_code
-            except requests.exceptions.ConnectionError as e:
+            except requests.ConnectionError as e:
                 raise AssertionError(url) from e
             else:
                 assert status_code == 200, f'HTTP {status_code} on {url}'
@@ -649,7 +649,7 @@ def test_extension_json():
         for url in list(data['documentationUrl'].values()):
             try:
                 status_code = http_get(url).status_code  # allow redirects
-            except requests.exceptions.ConnectionError as e:
+            except requests.ConnectionError as e:
                 raise AssertionError(url) from e
             else:
                 assert status_code == 200, f'HTTP {status_code} on {url}'
