@@ -174,7 +174,6 @@ namespace :org do
       'deploy',
       'deploy-pillar-private',
       'deploy-salt-private',
-      'dogsbody-maintenance',
     ]
     standard = [
       # Specifications
