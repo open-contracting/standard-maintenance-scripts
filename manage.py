@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import csv
 import datetime
-import glob
 import json
 import os
 import re
