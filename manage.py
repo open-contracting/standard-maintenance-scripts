@@ -1,14 +1,17 @@
 #!/usr/bin/env python
 import csv
 import datetime
+import glob
 import json
 import os
 import re
 import subprocess
-from collections import defaultdict
+from collections import Counter, defaultdict
+from pathlib import Path
 
 import click
 import requests
+import tomli
 from ocdsextensionregistry import ExtensionRegistry
 
 extensions_url = "https://raw.githubusercontent.com/open-contracting/extension_registry/main/extensions.csv"
@@ -153,6 +156,7 @@ def check_aspell_dictionary():
     report(lambda line: re.sub(r"e?s$", "", line).lower(), combined_exceptions)
 
 
+# https://ocp-software-handbook.readthedocs.io/en/latest/python/preferences.html#license-compliance
 @cli.command()
 @click.argument("file", type=click.File())
 def check_licenses(file):
@@ -251,11 +255,47 @@ def check_licenses(file):
 
 
 @cli.command()
+@click.argument("directory", type=click.Path(exists=True, file_okay=False, path_type=Path))
+def count_dependencies(directory):
+    """
+    Count the most common dependencies across local repositories.
+    """
+    pattern = re.compile(r"[<>!;[]")
+
+    counter = Counter()
+
+    for path in directory.iterdir():
+        if path.is_dir():
+            counter.update(
+                pattern.split(req)[0]
+                for file in path.glob("*requirements*.in")
+                # Ignore development and documentation requirements.
+                if not file.name.endswith("_dev.in") and file.name != "common-requirements.in"
+                for req in file.read_text().splitlines()
+                if req and not req.startswith(("# ", "-r ", "-e file:.#"))
+            )
+
+            pyproject = path / "pyproject.toml"
+            if pyproject.is_file():
+                counter.update(
+                    pattern.split(req)[0]
+                    for req in tomli.loads(pyproject.read_text()).get("project", {}).get("dependencies", [])
+                )
+
+    for requirement, count in reversed(counter.most_common()):
+        click.echo(f"{count:3d} {requirement}")
+    click.echo(f"{len(counter)} total")
+
+
+@cli.command()
 @click.argument("user", nargs=-1)
 @click.option("--days", type=int, default=90, help="Days ago from which to count contributions")
 @click.option("--start", help="Datetime from which to count contributions")
 @click.option("--end", help="Datetime up to which to count contributions")
 def github_activity(user, days, start, end):
+    """
+    Report the number of contributions by users, per repository.
+    """
     format_string = """\
 query {{
 {queries}

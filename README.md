@@ -73,6 +73,10 @@ Review outside collaborators:
 
 ## Code tasks
 
+Count frequent dependencies in Python projects and Python packages:
+
+    ./manage.py count-dependencies ..
+
 ### Change GitHub repository configuration
 
 Enables delete branch on merge, disables empty wikis, updates extensions' descriptions and homepages, and lists repositories with invalid names, unexpected configurations, etc. ⏰:
@@ -137,11 +141,11 @@ Lists repository descriptions:
 
 Download all registered extensions to a directory:
 
-    ./manage.py download_extensions <directory>
+    ./manage.py download-extensions <directory>
 
 Check whether `~/.aspell.en.pws` contains unwanted words:
 
-    ./manage.py check_aspell_dictionary
+    ./manage.py check-aspell-dictionary
 
 ### Review third-party extensions
 
@@ -246,3 +250,7 @@ Convert code titles to sentence case:
 Lists web traffic statistics over past two weeks:
 
     bundle exec rake repos:traffic
+
+Report the number of contributions by users, per repository:
+
+    ./manage.py github-activity jpmckinney --start 2023-01-01 --end 2023-12-31
