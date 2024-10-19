@@ -130,7 +130,7 @@ if [ -n "$REQUIREMENTS_FILE" ]; then
             # models.py   https://docs.djangoproject.com/en/4.2/ref/models/options/
             # migrations/ https://docs.djangoproject.com/en/4.2/topics/migrations/#migration-files
             # tests/      https://docs.djangoproject.com/en/4.2/topics/db/fixtures/#how-to-use-a-fixture
-            {*/admin,*/forms,*/models,*/routers,*/serializers,*/translation,*/migrations/*,tests/*}.py:RUF012 # mutable-class-default
+            {*/admin,*/forms,*/models,*/routers,*/migrations/*,tests/*}.py:RUF012 # mutable-class-default
         )
         BUILTINS_IGNORELIST+=(
             "'id'" # path component
