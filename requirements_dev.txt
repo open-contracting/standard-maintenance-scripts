@@ -54,7 +54,7 @@ jsonschema==4.23.0
     # via -r requirements_dev.in
 jsonschema-specifications==2023.12.1
     # via jsonschema
-ocdsextensionregistry==0.4.0
+ocdsextensionregistry==0.5.0
     # via
     #   -r requirements.txt
     #   ocdskit
@@ -104,8 +104,10 @@ six==1.16.0
     #   -r requirements.txt
     #   rfc3339-validator
     #   url-normalize
-tomli==2.0.1
-    # via pytest
+tomli==2.0.2
+    # via
+    #   -r requirements.txt
+    #   pytest
 typing-extensions==4.12.2
     # via
     #   -r requirements.txt
