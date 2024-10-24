@@ -34,7 +34,8 @@ def test_valid():
     """
     errors = 0
 
-    for path, _, text, fieldnames, rows in walk_csv_data():
+    excluded = ('.git', '.ve', '.venv', '_static', 'build', 'fixtures', 'node_modules')
+    for path, _, text, fieldnames, rows in walk_csv_data(excluded=excluded):
         codelist = is_codelist(fieldnames)
         width = len(fieldnames)
         columns = []
