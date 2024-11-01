@@ -4,168 +4,173 @@
   "description": "Schema for codelist CSV files.",
   "type": "array",
   "items": {
-    "title": "A row in a CSV file.",
-    "type": "object",
-    "required": [
-      "Code",
-      "Title",
-      "Description"
-    ],
-    "additionalProperties": false,
-    "properties": {
-      "Code": {
-        "title": "Code",
-        "description": "The value to use in data. Codes should match the letter case of external codes (e.g. ISO 4217, JSON Schema, GeoJSON, IANA Media Types) and should be camel case, otherwise.",
-        "type": "string",
-        "pattern": "^(([a-z]+|oc4ids)([A-Z][a-z]+|EU|GPP)*(\\.[a-z]+([A-Z][a-z]+)*)?|[A-Z]+[0-9]?|[A-Z]{2}(-[A-Z]+)+|TED(_[A-Z]+)+|(eu|fsr)(-[a-z]+)+|date-time|LineString|Point|Polygon|MultiLineString|MultiPoint|MultiPolygon|(offline|application|audio|font|example|image|message|model|multipart|text|video)/[\\w.+-]+|pre-award)$"
-      },
-      "Title": {
-        "title": "Title",
-        "description": "A short title for the code.",
-        "type": "string",
-        "minLength": 1
-      },
-      "Description": {
-        "title": "Description",
-        "description": "A longer-form description of the code.",
-        "type": "string",
-        "minLength": 1
-      },
-      "Business Logic": {
-        "title": "Business Logic",
-        "description": "A description of how this field's value relates to the values of other fields.",
-        "type": [
-          "string",
-          "null"
-        ],
-        "minLength": 1
-      },
-      "Category": {
-        "title": "Category",
-        "description": "A single category by which to filter codes. The extension's documentation should explain the categorization system.",
-        "type": [
-          "string",
-          "null"
-        ],
-        "minLength": 1
-      },
-      "Deprecated": {
-        "title": "Deprecated",
-        "description": "The minor version (or patch version under 0.x) in which the code was deprecated.",
-        "type": [
-          "string",
-          "null"
-        ],
-        "pattern": "^(\\d+\\.\\d+|0\\.\\d+\\.\\d+)$"
-      },
-      "Deprecation note": {
-        "title": "Deprecation note",
-        "description": "The reason for the deprecation, and any guidance.",
-        "type": [
-          "string",
-          "null"
-        ],
-        "minLength": 1
-      },
-      "Extension": {
-        "title": "Extension",
-        "description": "The title of the extension from which the code is sourced, or 'OCDS Core'.",
-        "type": [
-          "string",
-          "null"
-        ],
-        "minLength": 1
-      },
-      "Framework": {
-        "title": "Framework",
-        "description": "A reference to The World Bank Framework for Disclosure in Public Private Partnership Projects.",
-        "type": "array",
-        "minItems": 1,
-        "items": {
+    "$ref": "#/definitions/Row"
+  },
+  "definitions": {
+    "Row": {
+      "title": "Row",
+      "type": "object",
+      "required": [
+        "Code",
+        "Title",
+        "Description"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "Code": {
+          "title": "Code",
+          "description": "The value to use in data. Codes should match the letter case of external codes (e.g. ISO 4217, JSON Schema, GeoJSON, IANA Media Types) and should be camel case, otherwise.",
           "type": "string",
-          "pattern": "^[XVI]+(\\.\\d+)+$"
+          "pattern": "^(([a-z]+|oc4ids)([A-Z][a-z]+|EU|GPP)*(\\.[a-z]+([A-Z][a-z]+)*)?|[A-Z]+[0-9]?|[A-Z]{2}(-[A-Z]+)+|TED(_[A-Z]+)+|(eu|fsr)(-[a-z]+)+|date-time|LineString|Point|Polygon|MultiLineString|MultiPoint|MultiPolygon|(offline|application|audio|font|example|image|message|model|multipart|text|video)/[\\w.+-]+|pre-award)$"
         },
-        "uniqueItems": true
-      },
-      "Notes": {
-        "title": "Notes",
-        "description": "Notes on the application of the code",
-        "type": "string",
-        "pattern": "^milestone/type = [A-Za-z]+$"
-      },
-      "Section": {
-        "title": "Section",
-        "description": "The only OCDS objects in which this documentType code should be used. (This field is a ', '-delimited value in the CSV file.)",
-        "type": [
-          "array",
-          "null"
-        ],
-        "minItems": 1,
-        "items": {
+        "Title": {
+          "title": "Title",
+          "description": "A short title for the code.",
           "type": "string",
-          "enum": [
-            "award",
-            "bid",
-            "bidder",
-            "contract",
-            "implementation",
-            "planning",
-            "preQualification",
-            "tender"
-          ]
+          "minLength": 1
         },
-        "uniqueItems": true
-      },
-      "Source": {
-        "title": "Source",
-        "description": "The third-party source for the code.",
-        "oneOf": [
-          {
-            "type": [
-              "string",
-              "null"
-            ],
-            "format": "uri"
+        "Description": {
+          "title": "Description",
+          "description": "A longer-form description of the code.",
+          "type": "string",
+          "minLength": 1
+        },
+        "Business Logic": {
+          "title": "Business Logic",
+          "description": "A description of how this field's value relates to the values of other fields.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "Category": {
+          "title": "Category",
+          "description": "A single category by which to filter codes. The extension's documentation should explain the categorization system.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "Deprecated": {
+          "title": "Deprecated",
+          "description": "The minor version (or patch version under 0.x) in which the code was deprecated.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^(\\d+\\.\\d+|0\\.\\d+\\.\\d+)$"
+        },
+        "Deprecation note": {
+          "title": "Deprecation note",
+          "description": "The reason for the deprecation, and any guidance.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "Extension": {
+          "title": "Extension",
+          "description": "The title of the extension from which the code is sourced, or 'OCDS Core'.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "Framework": {
+          "title": "Framework",
+          "description": "A reference to The World Bank Framework for Disclosure in Public Private Partnership Projects.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^[XVI]+(\\.\\d+)+$"
           },
-          {
+          "uniqueItems": true
+        },
+        "Notes": {
+          "title": "Notes",
+          "description": "Notes on the application of the code",
+          "type": "string",
+          "pattern": "^milestone/type = [A-Za-z]+$"
+        },
+        "Section": {
+          "title": "Section",
+          "description": "The only OCDS objects in which this documentType code should be used. (This field is a ', '-delimited value in the CSV file.)",
+          "type": [
+            "array",
+            "null"
+          ],
+          "minItems": 1,
+          "items": {
             "type": "string",
             "enum": [
-              "OC4IDS",
-              "OCDS",
-              "OCDS for PPPs"
+              "award",
+              "bid",
+              "bidder",
+              "contract",
+              "implementation",
+              "planning",
+              "preQualification",
+              "tender"
             ]
-          }
-        ]
+          },
+          "uniqueItems": true
+        },
+        "Source": {
+          "title": "Source",
+          "description": "The third-party source for the code.",
+          "oneOf": [
+            {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "uri"
+            },
+            {
+              "type": "string",
+              "enum": [
+                "OC4IDS",
+                "OCDS",
+                "OCDS for PPPs"
+              ]
+            }
+          ]
+        },
+        "Summary required": {
+          "title": "Summary required",
+          "description": "",
+          "type": "string",
+          "enum": [
+            "No",
+            "Yes"
+          ]
+        },
+        "URI Pattern": {
+          "title": "URI Pattern",
+          "description": "The pattern to which URLs following this scheme should adhere.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        },
+        "Valid Until": {
+          "title": "Valid Until",
+          "description": "The date past which the code is no longer valid for use.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^(\\d{4}/\\d{4}|\\d{4}-\\d{2}(/\\d{4}-\\d{2})?)$"
+        }
       },
-      "Summary required": {
-        "title": "Summary required",
-        "description": "",
-        "type": "string",
-        "enum": [
-          "No",
-          "Yes"
-        ]
-      },
-      "URI Pattern": {
-        "title": "URI Pattern",
-        "description": "The pattern to which URLs following this scheme should adhere.",
-        "type": [
-          "string",
-          "null"
-        ],
-        "format": "uri"
-      },
-      "Valid Until": {
-        "title": "Valid Until",
-        "description": "The date past which the code is no longer valid for use.",
-        "type": [
-          "string",
-          "null"
-        ],
-        "pattern": "^(\\d{4}/\\d{4}|\\d{4}-\\d{2}(/\\d{4}-\\d{2})?)$"
-      }
-    },
-    "minProperties": 1
+      "minProperties": 1
+    }
   },
   "minItems": 1,
   "uniqueItems": true
