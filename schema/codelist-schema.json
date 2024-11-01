@@ -31,7 +31,7 @@
         },
         "Description": {
           "title": "Description",
-          "description": "A longer-form description of the code.",
+          "description": "A longer description of the code.",
           "type": "string",
           "minLength": 1
         },
