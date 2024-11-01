@@ -7,14 +7,14 @@
     "name",
     "description",
     "documentationUrl",
-    "compatibility",
-    "contactPoint"
+    "contactPoint",
+    "compatibility"
   ],
   "additionalProperties": false,
   "properties": {
     "name": {
       "title": "Name",
-      "description": "Name of the extension as an object with keys being language codes (ISO 639-1) and values the name in that language.",
+      "description": "The sentence-case name of the extension.\n\nFor backwards compatibility, it is an object with keys being language codes (ISO 639-1) and values the name in that language.",
       "type": "object",
       "minProperties": 1,
       "additionalProperties": false,
@@ -27,7 +27,7 @@
     },
     "description": {
       "title": "Description",
-      "description": "Description of the extensions as an object with keys being language codes (ISO 639-1) and values the description in that language.",
+      "description": "The concise description of what the extension does.\n\nFor backwards compatibility, it is an object with keys being language codes (ISO 639-1) and values the description in that language.",
       "type": "object",
       "minProperties": 1,
       "additionalProperties": false,
@@ -40,7 +40,7 @@
     },
     "documentationUrl": {
       "title": "Documentation URL",
-      "description": "Location of the documentation for the extension as an object with keys being language codes (ISO 639-1) and values the URL of the documentation in that language.",
+      "description": "The URL of the documentation for the extension. For example, the extension's GitHub page.\n\nFor backwards compatibility, it is an object with keys being language codes (ISO 639-1) and values the URL of the documentation in that language.",
       "type": "object",
       "minProperties": 1,
       "additionalProperties": false,
@@ -51,72 +51,9 @@
         }
       }
     },
-    "compatibility": {
-      "title": "Compatibility",
-      "description": "Minor versions of OCDS this extension works with.",
-      "type": "array",
-      "minItems": 1,
-      "items": {
-        "type": "string",
-        "enum": [
-          "1.1"
-        ]
-      },
-      "uniqueItems": true
-    },
-    "codelists": {
-      "title": "Extension codelists",
-      "description": "Codelists for this extension.",
-      "type": "array",
-      "minItems": 1,
-      "items": {
-        "type": "string",
-        "pattern": "^.+\\.csv$"
-      },
-      "uniqueItems": true
-    },
-    "schemas": {
-      "title": "Extension schemas",
-      "description": "JSON Schema Patch files in this extension.",
-      "type": "array",
-      "minItems": 1,
-      "items": {
-        "type": "string",
-        "enum": [
-          "record-package-schema.json",
-          "release-package-schema.json",
-          "release-schema.json"
-        ]
-      },
-      "uniqueItems": true
-    },
-    "dependencies": {
-      "title": "Dependencies",
-      "description": "Extensions this extension depends on.",
-      "type": "array",
-      "minItems": 1,
-      "items": {
-        "type": "string",
-        "format": "uri",
-        "pattern": "^.+/extension\\.json$"
-      },
-      "uniqueItems": true
-    },
-    "testDependencies": {
-      "title": "Test dependencies",
-      "description": "Extensions needed to test this extension.",
-      "type": "array",
-      "minItems": 1,
-      "items": {
-        "type": "string",
-        "format": "uri",
-        "pattern": "^.+/extension\\.json$"
-      },
-      "uniqueItems": true
-    },
     "contactPoint": {
       "title": "Contact point",
-      "description": "The contact point to communicate with the extension's authors or maintainers.",
+      "description": "The contact point to communicate with the extension's authors or maintainers. The contact point can be an individual or organization.",
       "type": "object",
       "required": [
         "name",
@@ -137,6 +74,69 @@
         }
       },
       "minProperties": 1
+    },
+    "compatibility": {
+      "title": "Compatibility",
+      "description": "The minor versions of OCDS that the extension is compatible with. For example: `[\"1.1\"]`",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": [
+          "1.1"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "codelists": {
+      "title": "Extension codelists",
+      "description": "The filenames of the codelist files in the extension's codelists directory. For example: `[\"codelistName.csv\", \"+partyRole.csv\"]`",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "pattern": "^.+\\.csv$"
+      },
+      "uniqueItems": true
+    },
+    "schemas": {
+      "title": "Extension schemas",
+      "description": "The filenames of the schema files in the extension's root directory. For example: `[\"release-schema.json\"]`",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": [
+          "record-package-schema.json",
+          "release-package-schema.json",
+          "release-schema.json"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "dependencies": {
+      "title": "Dependencies",
+      "description": "The URLs of other extensions, whose definitions are referenced by the extension's schema, using $ref. For example: `[\"https://raw.githubusercontent.com/open-contracting-extensions/ocds_location_extension/master/extension.json\"]`",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "format": "uri",
+        "pattern": "^.+/extension\\.json$"
+      },
+      "uniqueItems": true
+    },
+    "testDependencies": {
+      "title": "Test dependencies",
+      "description": "The URLs of other extensions, needed to test the extension.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "format": "uri",
+        "pattern": "^.+/extension\\.json$"
+      },
+      "uniqueItems": true
     }
   },
   "minProperties": 1
