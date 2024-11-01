@@ -4,6 +4,7 @@
   "description": "Schema for codelist CSV files.",
   "type": "array",
   "items": {
+    "title": "A row in a CSV file.",
     "type": "object",
     "required": [
       "Code",
