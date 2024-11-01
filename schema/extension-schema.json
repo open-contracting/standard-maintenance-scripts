@@ -14,7 +14,7 @@
   "properties": {
     "name": {
       "title": "Name",
-      "description": "The sentence-case name of the extension.\n\nFor backwards compatibility, it is an object with keys being language codes (ISO 639-1) and values the name in that language.",
+      "description": "The sentence-case name of the extension.\n\nFor backwards compatibility, it is an object in which keys are language codes (ISO 639-1), and values are the name in that language.",
       "type": "object",
       "minProperties": 1,
       "additionalProperties": false,
@@ -27,7 +27,7 @@
     },
     "description": {
       "title": "Description",
-      "description": "The concise description of what the extension does.\n\nFor backwards compatibility, it is an object with keys being language codes (ISO 639-1) and values the description in that language.",
+      "description": "The concise description of the changes made by the extension, at a high level.\n\nFor backwards compatibility, it is an object in which keys are language codes (ISO 639-1), and values are the description in that language.",
       "type": "object",
       "minProperties": 1,
       "additionalProperties": false,
@@ -40,7 +40,7 @@
     },
     "documentationUrl": {
       "title": "Documentation URL",
-      "description": "The URL of the documentation for the extension. For example, the extension's GitHub page.\n\nFor backwards compatibility, it is an object with keys being language codes (ISO 639-1) and values the URL of the documentation in that language.",
+      "description": "The URL of the documentation for the extension. For example, the extension's GitHub page.\n\nFor backwards compatibility, it is an object in which keys are language codes (ISO 639-1), and values are the URL of the documentation in that language.",
       "type": "object",
       "minProperties": 1,
       "additionalProperties": false,
