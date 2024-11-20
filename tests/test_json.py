@@ -381,6 +381,7 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
     # * include "id" fields in objects within arrays
     # * require "title", "description" and "type" properties
     json_schema_exceptions = {
+        'biome.json',
         'json-schema-draft-4.json',
         'meta-schema.json',
         'meta-schema-patch.json',
