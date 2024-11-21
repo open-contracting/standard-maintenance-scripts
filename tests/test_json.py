@@ -143,7 +143,7 @@ excluded_repo_name = (
     'sphinxcontrib-opencontracting',
 )
 json_schemas = [(path, name, data) for path, name, _, data in walk_json_data(patch, excluded=excluded)
-                if is_json_schema(data) and repo_name not in excluded_repo_name]
+                if is_json_schema(data) and repo_name not in excluded_repo_name and name not in {'biome.json'}]
 
 
 def loader(url, **kwargs):
@@ -381,7 +381,6 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
     # * include "id" fields in objects within arrays
     # * require "title", "description" and "type" properties
     json_schema_exceptions = {
-        'biome.json',
         'json-schema-draft-4.json',
         'meta-schema.json',
         'meta-schema-patch.json',
