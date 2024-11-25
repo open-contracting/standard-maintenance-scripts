@@ -202,22 +202,22 @@ def _merge_obj(result, obj, pointer=''):  # changed code
             elif (
                 # TODO(james): Remove after OCDS 1.2 release.
                 # https://github.com/open-contracting/standard-maintenance-scripts/issues/175
-                repo_name == 'ocds_lots_extension'
-                and pointer_and_key.startswith('/definitions/SimpleIdentifier/')
+                (repo_name == 'ocds_lots_extension'
+                and pointer_and_key.startswith('/definitions/SimpleIdentifier/'))
                 # https://github.com/open-contracting/standard/issues/1183
-                or repo_name == 'ocds_submissionTerms_extension'
+                or (repo_name == 'ocds_submissionTerms_extension'
                 and pointer_and_key.startswith((
                     '/definitions/SubmissionTerms/',
                     '/definitions/Tender/properties/submissionTerms/',
                     # Included in master version (1.2) of lots extension.
                     '/definitions/Lot/properties/submissionTerms/',
-                ))
+                )))
                 # https://github.com/open-contracting/standard/issues/1607
-                or repo_name == 'ocds_selectionCriteria_extension'
+                or (repo_name == 'ocds_selectionCriteria_extension'
                 and pointer_and_key.startswith((
                     '/definitions/SelectionCriteria/',
                     '/definitions/Tender/properties/selectionCriteria/',
-                ))
+                )))
             ):
                 warnings.warn(f'copies {pointer_and_key}')
             else:

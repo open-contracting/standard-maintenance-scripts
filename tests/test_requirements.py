@@ -244,7 +244,7 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
             if directory in dirs:
                 dirs.remove(directory)
         for file in files:
-            if file.endswith('.py') and (dev or not file.startswith('test') and file != 'conftest.py'):
+            if file.endswith('.py') and (dev or (not file.startswith('test') and file != 'conftest.py')):
                 filename = os.path.join(root, file)
                 with open(filename) as f:
                     code = ast.parse(f.read())

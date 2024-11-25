@@ -256,9 +256,7 @@ def check_licenses(file):
 @cli.command()
 @click.argument("directory", type=click.Path(exists=True, file_okay=False, path_type=Path))
 def count_dependencies(directory):
-    """
-    Count the most common dependencies across local repositories.
-    """
+    """Count the most common dependencies across local repositories."""
     pattern = re.compile(r"[<>!;[]")
 
     counter = Counter()
@@ -292,9 +290,7 @@ def count_dependencies(directory):
 @click.option("--start", help="Datetime from which to count contributions")
 @click.option("--end", help="Datetime up to which to count contributions")
 def github_activity(user, days, start, end):
-    """
-    Report the number of contributions by users, per repository.
-    """
+    """Report the number of contributions by users, per repository."""
     format_string = """\
 query {{
 {queries}

@@ -167,7 +167,7 @@ def test_codelist():
                 message = error.message
                 pattern = exceptions.get(os.path.basename(path))
                 is_regex = hasattr(pattern, "search")
-                if is_regex and not pattern.search(message) or not is_regex and message != pattern:
+                if (is_regex and not pattern.search(message)) or (not is_regex and message != pattern):
                     any_errors = True
                     warnings.warn(f"{path}: {message} ({'/'.join(error.absolute_schema_path)})\n")
 

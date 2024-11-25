@@ -128,10 +128,9 @@ namespace :local do
       '# Project Statuses',
     ]
 
-    # find . -path '*/.github/workflows/*' ! -path '*/node_modules/*' ! -path '*/vendor/*' ! -name ci.yml \
-    # ! -name lint.yml ! -name js.yml ! -name shell.yml ! -name i18n.yml ! -name a11y.yml ! -name mypy.yml \
-    # ! -name spellcheck.yml ! -name docker.yml ! -name deploy.yml ! -name pypi.yml ! -name release.yml \
-    # ! -name automerge.yml
+    # find . -path '*/.github/workflows/*' ! -path '*/node_modules/*' ! -path '*/vendor/*' ! -name a11y.yml \
+    # ! -name automerge.yml ! -name ci.yml ! -name deploy.yml ! -name docker.yml ! -name i18n.yml ! -name js.yml \
+    # ! -name lint.yml ! -name pypi.yml ! -name release.yml ! -name shell.yml ! -name spellcheck.yml
     workflows = {
       'ci' => 'CI',
       'lint' => 'Lint',
@@ -139,7 +138,6 @@ namespace :local do
       'shell' => 'Lint Shell',
       'i18n' => 'Translations',
       'a11y' => 'Accessibility',
-      'mypy' => 'Mypy',
       'spellcheck' => 'Spell-check',
     }
 
