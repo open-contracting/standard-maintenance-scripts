@@ -64,6 +64,7 @@ DOCUMENTATION_DEPENDENCIES = [
   'ocds-babel',
   'ocds-index',
   'sphinxcontrib-opencontracting',
+  'standard_theme',
 ]
 non_tools = SPECIFICATIONS + guides + DOCUMENTATION_DEPENDENCIES
 
