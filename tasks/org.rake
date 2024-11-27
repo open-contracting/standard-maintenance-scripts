@@ -6,10 +6,21 @@ namespace :org do
   MEMBERS = {
     'General' => [
       # Open Contracting Partnership
+      'allakulov', # Umrbek Allakulov
       'camilamila', # Camila Salazar
       'fppenna', # Félix Penna
       'ndrhzn', # Andrii Hazin
-      'allakulov', # Umrbek Allakulov
+      'sebasdocp', # Sebastian Barrera
+    ],
+    'Robots' => [
+      'ocp-deploy',
+    ],
+    'Transfers' => [
+    ],
+
+    # By responsibility.
+    'Data Support' => [
+      'colinmaudry', # Colin Maudry
     ],
     'OC4IDS' => [
       # Open Data Services Co-operative Limited
@@ -19,16 +30,12 @@ namespace :org do
       'neelima-j', # Neelima Janardhanan
       'odscjen', # Jen Harris
     ],
-    'RBC Group' => [
-      'a-radik',
-      'andrzejbeletsky', # Andrzej Beletsky
-      'karandinserhii', # Sergey Karandin
-      'ndrhzn', # Andrii Hazin
-      'ocds-bi-tools',
-      'vgeryarbc', # Vadim Gerya
-    ],
-    'Robots' => [
-      'ocp-deploy',
+    'Servers' => [
+      'robhooper',
+      # Dogsbody Technology Limited
+      'dogsbody', # Dan Benton
+      'dogsbody-josh', # Josh Archer
+      'dogsbody-mark', # Mark Flitter
     ],
     'Standard' => [
       'colinmaudry', # Colin Maudry
@@ -37,18 +44,32 @@ namespace :org do
       'duncandewhurst', # Duncan Dewhurst
       'odscjen', # Jen Harris
     ],
-    'Servers' => [
-      # Dogsbody Technology Limited
-      'dogsbody', # Dan Benton
-      'dogsbody-ashley', # Ashley Holland
-      'dogsbody-josh', # Josh Archer
+
+    # By organization.
+    'Quintagroup' => [
+      'irashevchenkoquinta', # Ira Shevchenko
+      'myroslav', # Myroslav Opyr
+      'yshalenyk', # Yaroslav Shalenyk
     ],
-    'Transfers' => [
+    'RBC Group' => [
+      'a-radik',
+      'andrzejbeletsky', # Andrzej Beletsky
+      'innastets',
+      'karandinserhii', # Sergey Karandin
+      'myshchak',
+      'ndrhzn', # Andrii Hazin
+      'ocds-bi-tools',
+      'vgeryarbc', # Vadim Gerya
     ],
     'uStudio Design' => [
       'paulboroday', # Paul Boroday
     ],
   }
+
+  OPEN_CONTRACTING_EXTENSIONS_ADDITIONAL = [
+    # Quintagroup
+    'shakhanton',
+  ]
 
   ISSUES_ONLY = [
     'sabahfromlondon', # Sabah Zdanowska
@@ -72,6 +93,9 @@ namespace :org do
       names = people.map{ |member| member.login.downcase }
 
       difference = names - expected - ADMINS - ISSUES_ONLY
+      if organization == 'open-contracting-extensions'
+        difference -= OPEN_CONTRACTING_EXTENSIONS_ADDITIONAL
+      end
       if difference.any?
         puts "#{organization}: add to MEMBERS in tasks/org.rake: #{difference.join(', ')}"
       end
@@ -143,55 +167,19 @@ namespace :org do
 
   desc 'Lists repositories that should be added or removed from teams'
   task :team_repos do
-    dream_bi = [
-      'bi.dream.gov.ua',
-      'bi.dream.gov.ua-mdcp',
-    ]
     # The repositories that should be accessible to these teams.
-    rbcgroup = [
-      'bi.open-contracting.org',
-    ]
-    oc4ids = [
-      'cove-oc4ids',
-      'infrastructure',
-      'lib-cove-oc4ids',
-      'notebooks-oc4ids',
-      'oc4idskit',
-    ]
-    robots = [
-      'deploy-salt-private',
-      # lint.yml workflows using the stefanzweifel/git-auto-commit-action action with a personal access token (PAT).
-      'cove-oc4ids',
-      'cove-ocds',
-      'credere-backend',
-      'data-registry',
-      'kingfisher-process',
-      'kingfisher-summarize',
-      'pelican-backend',
-      'pelican-frontend',
-    ]
     servers = [
       'deploy',
       'deploy-pillar-private',
       'deploy-salt-private',
     ]
-    standard = [
-      # Specifications
-      'ocds-extensions',
-      'standard',
-      # Extension tools
-      'extension_registry',
-      'ocds-extensions-translations',
-      # Internal tools
-      'standard-development-handbook',
-      # Documentation dependencies
-      'european-union-support',
-      # Templates
-      'standard_extension_template',
-      'standard_profile_template',
+    # By organization.
+    rbc_group_dream_bi = [
+      'bi.dream.gov.ua',
+      'bi.dream.gov.ua-mdcp',
+      'bi.dream.gov.ua-qlikauth',
     ]
     ustudio_design = [
-      'dream',
       'dream-api-docs',
     ]
 
@@ -199,13 +187,69 @@ namespace :org do
     archived = repos.select(&:archived).map(&:name)
 
     expected = {
-      'General' => repos.map(&:name) - archived - servers - dream_bi - ustudio_design - ['backup-codes'],
-      'OC4IDS' => oc4ids,
-      'RBC Group' => rbcgroup + dream_bi,
-      'Robots' => robots,
-      'Servers' => servers,
-      'Standard' => standard,
+      'General' => repos.map(&:name) - archived - servers - rbc_group_dream_bi - ustudio_design - ['.github', 'backup-codes'],
+      'Robots' => [
+        'deploy-salt-private',
+
+        # lint.yml workflows using the stefanzweifel/git-auto-commit-action action with a personal access token (PAT).
+        # (Search for "permissions: write".) standard prevents commits to protected branches, so it doesn't need the PAT.
+        'collect-generic',
+        'cove-oc4ids',
+        'cove-ocds',
+        'credere-backend',
+        'data-registry',
+        'data-support',
+        'data-support-private',
+        'deploy',
+        'european-union-support',
+        'extension-explorer',
+        'extension_registry',
+        'field-level-mapping-template',
+        'green-cure',
+        'infrastructure',
+        'kingfisher-collect',
+        'kingfisher-process',
+        'kingfisher-summarize',
+        'notebooks-ocds',
+        'ocds-extensions-translations',
+        'pelican-backend',
+        'pelican-frontend',
+        'sample-data',
+        'spoonbill-test',
+        'spoonbill-web',
+        'standard-maintenance-scripts',
+        'standard_profile_template',
+      ],
       'Transfers' => [],
+      # By responsibility.
+      'Data Support' => [
+        'data-support',
+        'data-support-private',
+        'field-level-mapping-template',
+        'notebooks-ocds',
+      ],
+      'OC4IDS' => [
+        'cove-oc4ids',
+        'infrastructure',
+        'lib-cove-oc4ids',
+        'notebooks-oc4ids',
+        'oc4idskit',
+      ],
+      'Servers' => servers,
+      'Standard' => [
+        'european-union-support',
+        'extension-explorer',
+        'extension_registry',
+        'ocds-extensions',
+        'ocds-extensions-translations',
+        'standard',
+        'standard-development-handbook',
+        'standard_extension_template',
+        'standard_profile_template',
+      ],
+      # By organization.
+      'RBC Group' => ['bi.open-contracting.org'] + rbc_group_dream_bi,
+      'Quintagroup' => ['nightingale'],
       'uStudio Design' => ustudio_design,
     }
 

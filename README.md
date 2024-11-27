@@ -49,7 +49,7 @@ Lists owners that should be added or removed from the organization:
 
     bundle exec rake org:owners
 
-Removes admin access to specific repositories from non-admin members:
+Removes admin access to specific repositories from non-admin members (slow):
 
     bundle exec rake org:collaborators
 
