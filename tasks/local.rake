@@ -141,45 +141,9 @@ namespace :local do
       'spellcheck' => 'Spell-check',
     }
 
-    # https://github.com/organizations/open-contracting/settings/installations/20658712
-    # Using an installation access token is too complicated.
-    # https://docs.github.com/en/rest/apps/installations?apiVersion=2022-11-28
-    precommit = Set.new([
-      'cardinal-rs',
-      'collect-generic',
-      'cove-oc4ids',
-      'cove-ocds',
-      'credere-backend',
-      'credere-frontend',
-      'data-registry',
-      'data-support',
-      'data-support-private',
-      'deploy',
-      'european-union-support',
-      'extension-explorer',
-      'extension_registry',
-      'field-level-mapping-template',
-      'flake8-opencontracting',  # archived
-      'green-cure',
-      'infrastructure',
-      'kingfisher-process',
-      'lib-cove-oc4ids',
-      'lib-cove-ocds',
-      'notebooks-ocds',
-      'ocds-extensions-translations',
-      'ocds-index',
-      'ocds-merge-rs',
-      'pelican-backend',
-      'pelican-frontend',
-      'sample-data',
-      'scrapy-log-analyzer',
-      'software-development-handbook',
-      'spoonbill',
-      'spoonbill-test',
-      'spoonbill-web',
-      'standard-maintenance-scripts',
-      'standard_profile_template',
-      'yapw',
+    ignore_repos = Set.new([
+      # The workflows are reused but not run.
+      '.github',
     ])
 
     if ENV['ORG'] != 'open-contracting-partnership'
@@ -221,7 +185,7 @@ namespace :local do
         end
 
         matches.sort_by(&:full_name).each do |repo|
-          if repo.archived || repo.private || ['standard_theme'].include?(repo.name)
+          if repo.archived || repo.private || ignore_repos.include?(repo.name)
             next
           end
 
@@ -255,7 +219,9 @@ namespace :local do
             end
           end
 
-          if precommit.include?(repo.name)
+          # open-contracting https://github.com/organizations/open-contracting/settings/installations/20658712
+          # open-contracting-extensions https://github.com/organizations/open-contracting-extensions/settings/installations/57656794
+          if has_github_file(repo.full_name, ".pre-commit-config.yaml")
             line << " [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/#{repo.full_name}/#{repo.default_branch}.svg)](https://results.pre-commit.ci/latest/github/#{repo.full_name}/#{repo.default_branch})"
           end
 
