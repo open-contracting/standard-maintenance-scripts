@@ -7,4 +7,4 @@ jobs:
       contents: write
     with:
       python-version: '3.10'
-      basedir: file://${{ github.workspace }}
+      local-basedir: true
