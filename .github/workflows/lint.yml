@@ -1,7 +1,5 @@
 name: Lint
 on: [push, pull_request]
-env:
-  BASEDIR: file://${{ github.workspace }}
 jobs:
   lint:
     uses: open-contracting/.github/.github/workflows/lint.yml@main
@@ -9,3 +7,4 @@ jobs:
       contents: write
     with:
       python-version: '3.10'
+      basedir: file://${{ github.workspace }}
