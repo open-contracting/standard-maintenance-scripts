@@ -42,6 +42,7 @@ namespace :repos do
                 dismissComment
                 dismissReason
                 dismissedAt
+                autoDismissedAt
                 securityVulnerability {
                   package {
                     name
@@ -59,7 +60,7 @@ namespace :repos do
         raise response.body
       end
       data = JSON.load(response.body)
-      nodes = data['data']['repository']['vulnerabilityAlerts']['nodes'].reject{ |node| node['fixedAt'] }
+      nodes = data['data']['repository']['vulnerabilityAlerts']['nodes'].reject{ |node| node['fixedAt'] || node['autoDismissedAt'] }
       if nodes.any?
         puts "#{repo.full_name}"
         rows = nodes.map do |node|
