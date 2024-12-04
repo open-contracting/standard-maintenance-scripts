@@ -109,6 +109,10 @@ Lists open and dismissed vulnerabilities (`GITHUB_ACCESS_TOKEN` should match the
 
     env GITHUB_ACCESS_TOKEN=... bundle exec rake repos:vulnerabilities ORGS=open-contracting
 
+Lists open and dismissed code scanning alerts (`GITHUB_ACCESS_TOKEN` should match the password in the `~/.netrc` file):
+
+    env GITHUB_ACCESS_TOKEN=... bundle exec rake repos:code_scanning ORGS=open-contracting
+
 Lists repositories with unexpected, old branches:
 
     bundle exec rake repos:branches [EXCLUDE=branch1,branch2]

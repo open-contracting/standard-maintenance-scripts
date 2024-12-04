@@ -73,6 +73,25 @@ namespace :repos do
     end
   end
 
+  desc 'Lists open code scanning alerts'
+  task :code_scanning do
+    client.auto_paginate = true
+
+    organizations.each do |organization|
+      client.list_code_scanning_alerts_for_org(organization, state: 'open', per_page: 100, accept: 'application/vnd.github+json').each do |alert|
+        puts "#{alert.rule.severity.upcase.ljust(7).red} #{alert.updated_at.to_s[0..9]} #{alert.repository.name}:#{alert.most_recent_instance.location.path.yellow} #{alert.rule.id} #{alert.html_url}"
+      end
+    end
+
+    puts '---'
+
+    organizations.each do |organization|
+      client.list_code_scanning_alerts_for_org(organization, state: 'dismissed', per_page: 100, accept: 'application/vnd.github+json').each do |alert|
+        puts "#{alert.rule.severity.upcase.ljust(7).yellow} #{alert.dismissed_at.to_s[0..9]} #{alert.repository.name} #{alert.rule.id} #{alert.html_url} #{alert.dismissed_reason} (#{alert.dismissed_comment})"
+      end
+    end
+  end
+
   desc 'Lists repositories with unexpected, old branches'
   task :branches do
     repos.each do |repo|
