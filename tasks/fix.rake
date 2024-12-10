@@ -40,6 +40,16 @@ namespace :fix do
     end
   end
 
+  def protect_branch(repo, branch, options, messages=[])
+    client.protect_branch(repo.full_name, branch.name, options)
+    puts "#{repo.html_url}/settings/branches #{branch.name}: #{messages.join(' | ').bold}"
+
+    # Need to switch to GraphQL API, otherwise. "To use wildcard characters in branch names, use the GraphQL API."
+    if extension?(repo.name, profiles: false, templates: false) && branch.name == "1.1"
+      puts "#{repo.html_url}/settings/branches: #{'rename the branch name pattern from 1.1 to 1.?'.red}"
+    end
+  end
+
   desc "Enables delete branch on merge, disables empty wikis, updates extensions' descriptions and homepages, and lists repositories with invalid names, unexpected configurations, etc."
   task :lint_repos do
     repos.each do |repo|
@@ -174,7 +184,11 @@ namespace :fix do
       lint = read_github_file(repo.full_name, '.github/workflows/lint.yml')
 
       if !ci.empty? || !lint.empty?
-        contexts << 'build'
+        if repo.owner.login == 'open-contracting-extensions'
+          contexts << 'lint / build'
+        else
+          contexts << 'build'
+        end
       end
 
       branches = repo.rels[:branches].get(headers: headers).data
@@ -187,14 +201,7 @@ namespace :fix do
           end
         end
       end
-      if extension?(repo.name, profiles: false, templates: false)
-        branches.each do |branch|
-          if branch.name == "1.2"
-            branches_to_protect << branch
-          end
-        end
-      end
-      branches_to_protect.compact!
+      branches_to_protect.uniq!
 
       if not branches_to_protect
         raise "no branches to protect"
@@ -229,8 +236,7 @@ namespace :fix do
         end
 
         if !branch.protected
-          client.protect_branch(repo.full_name, branch.name, options)
-          puts "#{repo.html_url}/settings/branches #{'protected'.bold}"
+          protect_branch(repo, branch, options, ['protected'])
         else
           protection = client.branch_protection(repo.full_name, branch.name, headers)
 
@@ -278,8 +284,7 @@ namespace :fix do
               messages << "removed: #{removed.join(', ')}"
             end
 
-            client.protect_branch(repo.full_name, branch.name, options)
-            puts "#{repo.html_url}/settings/branches #{messages.join(' | ').bold}"
+            protect_branch(repo, branch, options, messages)
           elsif protection.required_status_checks.contexts != contexts
             puts "#{repo.html_url}/settings/branches expected #{contexts.join(', ')}, got #{protection.required_status_checks.contexts.join(', ').bold}"
           end
@@ -287,7 +292,11 @@ namespace :fix do
       end
 
       expected_protected_branches = branches_to_protect.map(&:name)
-      unexpected_protected_branches = branches.select{ |branch| branch.protected && !expected_protected_branches.include?(branch.name) }
+      unexpected_protected_branches = branches.select do |branch|
+        branch.protected && !expected_protected_branches.include?(branch.name) &&
+        # "1.2" branches are allowed on extensions whose default branch is "1.1".
+        (!extension?(repo.name, profiles: false, templates: false) || repo.default_branch != "1.1" || branch.name != "1.2")
+      end
       if unexpected_protected_branches.any?
         puts "#{repo.html_url}/settings/branches unexpectedly protects #{unexpected_protected_branches.map(&:name).join(' and ').bold}"
       end
