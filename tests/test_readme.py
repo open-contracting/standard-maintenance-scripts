@@ -14,6 +14,7 @@ from jscc.testing.checks import validate_schema
 from jscc.testing.util import http_get
 from jsonschema import FormatChecker
 from jsonschema.validators import Draft4Validator
+from ocdsextensionregistry.util import replace_refs
 from ocdskit.schema import get_schema_fields
 
 
@@ -277,18 +278,17 @@ def test_example_backticks():
         if not os.path.isfile(os.path.join(cwd, basename)):
             continue
 
-        schema = jsonref.replace_refs(patch_schema(basename))
-        for field in get_schema_fields(schema):
-            if 'patternProperties' in field.pointer_components:
-                literal, pattern = re.search(r'^(.*)\(\^?(.+)\$?\)$', field.path).groups()
+        for field in get_schema_fields(replace_refs(patch_schema(basename), keep_defs=True)):
+            if field.pattern:
+                literal, pattern = re.search(r'^([^^]*)\^?([^$]+)\$?$', field.path).groups()
                 patterns.add(re.compile(r'^' + re.escape(literal) + pattern + r'$'))
             else:
                 literals.add(field.path)  # e.g. tender.id
                 if len(field.path_components) > 1:
                     literals.add(field.path_components[-1])  # e.g. scale
-                if field.definition_path_components:
-                    literals.add(field.definition_path)  # e.g. Lot
-                    literals.add(f'{field.definition_path}.{field.path}')  # e.g. Lot.id
+                if field.definition:
+                    literals.add(field.definition)  # e.g. Lot
+                    literals.add(f'{field.definition}.{field.path}')  # e.g. Lot.id
                 if 'codelist' in field.schema:
                     literals.add(field.schema['codelist'])
                     literals.add(f"+{field.schema['codelist']}")
