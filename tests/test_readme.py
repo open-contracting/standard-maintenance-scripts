@@ -7,7 +7,6 @@ from copy import deepcopy
 from io import StringIO
 
 import json_merge_patch
-import jsonref
 import pytest
 from jscc.schema import extend_schema
 from jscc.testing.checks import validate_schema
