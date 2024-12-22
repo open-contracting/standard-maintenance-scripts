@@ -6,6 +6,7 @@ import os
 import re
 import subprocess
 from collections import Counter, defaultdict
+from operator import itemgetter
 from pathlib import Path
 
 import click
@@ -341,7 +342,7 @@ fragment f on User {{
             click.echo(data)
 
     click.echo("  R   C  URL")
-    for i, (url, count) in enumerate(sorted(counter.items(), key=lambda item: item[1], reverse=True), 1):
+    for i, (url, count) in enumerate(sorted(counter.items(), key=itemgetter(1), reverse=True), 1):
         click.echo(f"{i:3d} {count:3d} {url}")
 
 
