@@ -75,7 +75,7 @@ def read_readme():
 
 
 def examples():
-    for i, text in enumerate(re.findall(r'```json(.+?)```', read_readme(), re.DOTALL)):
+    for i, text in enumerate(re.findall(r'```json(.+?)```', read_readme(), re.DOTALL), 1):
         try:
             yield i, text, json.loads(text)
         except json.decoder.JSONDecodeError as e:
@@ -174,6 +174,9 @@ def test_example_backticks():
         # Substring of pattern property.
         'ocds_exchangeRate_extension': {'CODE'},
 
+        # Unique patterns in changelog entries.
+        'ocds_legalBasis_extension': {'+itemClassificationScheme.csv'},
+
         # Consecutive removed terms in changelog entries.
         'ocds_finance_extension': {'financeCategory.csv', 'financeType.csv'},
         'ocds_project_extension': {'Project.project'},
@@ -254,7 +257,7 @@ def test_example_codes():
     literals = set()
 
     # Ostensibly, we should download all codelists. To save time, we only download those we presently reference.
-    for codelist in ('documentType', 'milestoneStatus', 'partyRole', 'releaseTag', 'tenderStatus'):
+    for codelist in ('documentType', 'milestoneStatus', 'milestoneType', 'partyRole', 'releaseTag', 'tenderStatus'):
         for row in csv.DictReader(StringIO(http_get(f'{url_prefix}/codelists/{codelist}.csv').text)):
             literals.add(row['Code'])
 
