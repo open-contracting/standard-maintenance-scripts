@@ -166,94 +166,18 @@ def test_example_valid():
                     reason='not an extension (test_example_backticks)')
 def test_example_backticks():
     exceptions = {
+        # Example query string parameters.
         'ocds_pagination_extension': {
-            # Example query string parameters.
             'offset', 'offset=NUMBER', 'page', 'page=1', 'page=NUMBER', 'since', 'since=TIMESTAMP',
-            # Changelog entries for non-existent or removed fields.
-            'links.all', 'packageMetadata',
         },
 
         # Substring of pattern property.
-        'ocds_exchangeRate_extension': {
-            'CODE',
-        },
+        'ocds_exchangeRate_extension': {'CODE'},
 
-        # Cross-references to other extensions.
-        'ocds_contract_signatories_extension': {
-            'preferredBidders',
-            'publicAuthority',
-        },
-
-        # Changelog entries for non-existent or removed fields or codelists.
-        'ocds_bid_extension': {
-            'BidsStatistic',
-            'BidsStatistic.currency',
-            'BidsStatistic.id',
-            'BidsStatistic.measure',
-            'BidsStatistic.requirementResponses',
-            'BidsStatistic.value',
-            'BidsStatistic.valueGross',
-            'BidStatistic',
-            'bidStatistics.csv',
-        },
-        'ocds_countryCode_extension': {
-            'countryCode',
-        },
-        'ocds_eu_extension': {
-            'minimumValue',
-            'Lot.minimumValue',
-        },
-        'ocds_finance_extension': {
-            'Finance.financeCategory',
-            'Finance.financeType',
-            'Finance.repaymentFrequency',
-            'financeCategory.csv',
-            'financeType.csv',
-        },
-        'ocds_legalBasis_extension': {
-            '+itemClassificationScheme.csv',
-        },
-        'ocds_lots_extension': {
-            'LotDetails',
-            'Bid.relatedLots',
-            'Finance.relatedLots',
-            # Adding the bid extension as a test dependency to avoid this error causes an overwrite error.
-            'Bid',
-        },
-        'ocds_medicine_extension': {
-            'container',
-            'container.csv',
-        },
-        'ocds_ppp_extension': {
-            '+documentType.csv',
-            '+partyRole.csv',
-            'initiationType.csv',
-        },
-        'ocds_project_extension': {
-            'Project.source',
-            'Project.project',
-        },
-        'ocds_qualification_extension': {
-            'PreQualification.procurementMethodRationale',
-            'PreQualification.awardCriteriaDetails',
-        },
-        'ocds_requirements_extension': {
-            'Award.requirementResponses',
-            'Contract.requirementResponses',
-            'Criterion.relatesTo',
-            'Criterion.source',
-            'RequirementResponse.relatedTenderer',
-            'relatesTo.csv',
-            'responseSource.csv',
-        },
-        'ocds_shareholders_extension': {
-            'Organization.beneficialOwnership',
-        },
-        'ocds_submissionTerms_extension': {
-            'SubmissionTerms.nonElectronicSubmissionRationale',
-            'electronicCataloguePolicy',
-            'requiresGuarantees',
-        },
+        # Consecutive removed terms in changelog entries.
+        'ocds_finance_extension': {'financeCategory.csv', 'financeType.csv'},
+        'ocds_project_extension': {'Project.project'},
+        'ocds_qualification_extension': {'PreQualification.awardCriteriaDetails'},
     }
 
     # Add JSON null, JSON booleans, and a jsonmerge field from OCDS 1.0.
@@ -293,9 +217,19 @@ def test_example_backticks():
                     literals.add(f"+{field.schema['codelist']}")
                     literals.add(f"-{field.schema['codelist']}")
 
+    readme = read_readme()
+
+    # Add removals from changelog entries.
+    literals.update(
+        re.findall(
+            r'\* (?:(?:Move|Remove|Rename|Replace)(?: the)?|Remove multilingual support for non-existent) `([^`\s]+)`',
+            readme,
+        )
+    )
+
     errors = 0
 
-    for text in re.findall(r'`([^`\n]+)`', read_readme(), re.DOTALL):
+    for text in re.findall(r'`([^`\s]+)`', readme):
         if (text not in literals and not any(re.search(pattern, text) for pattern in patterns)
                 # e.g. `"uniqueItems": true`
                 and not text.startswith('"') and text not in exceptions.get(repo_name, [])):
@@ -313,37 +247,14 @@ def test_example_codes():
     metadata = read_metadata()
 
     exceptions = {
-        # Open codelists.
-        'ocds_enquiry_extension': {
-            'clarifications',
-        },
-
-        # Changelog entries for removed codes.
-        'ocds_finance_extension': {
-            'mezzanineDebt',
-            'publicBondIssue',
-            'seniorDebt',
-            'supplierCredit',
-        },
-        'ocds_ppp_extension': {
-            'bidder',
-            'disqualifiedBidder',
-            'qualifiedBidder',
-        },
-
-        'ocds_eu_extension': {
-            # Codes introduced in OCDS 1.2.
-            'informationService',
-            'securityClearanceDeadline',
-            # Changelog entries for removed codes.
-            'eu-oj',
-        },
+        # Consecutive removed terms in changelog entries.
+        'ocds_ppp_extension': {'disqualifiedBidder'},
     }
 
     literals = set()
 
     # Ostensibly, we should download all codelists. To save time, we only download those we presently reference.
-    for codelist in ('milestoneStatus', 'tenderStatus', 'partyRole', 'releaseTag'):
+    for codelist in ('documentType', 'milestoneStatus', 'partyRole', 'releaseTag', 'tenderStatus'):
         for row in csv.DictReader(StringIO(http_get(f'{url_prefix}/codelists/{codelist}.csv').text)):
             literals.add(row['Code'])
 
@@ -355,9 +266,15 @@ def test_example_codes():
                     if 'Category' in row:
                         literals.add(row['Category'])
 
+    readme = read_readme()
+
+    # Add removals from changelog entries.
+    literals.update(re.findall(r"\* Remove '(\S+)'", readme))
+    literals.update(re.findall(r"\* '(\S+)' is replaced by", readme))
+
     errors = 0
 
-    for text in re.findall(r"'(\S+)'", read_readme(), re.DOTALL):
+    for text in re.findall(r"'(\S+)'", readme):
         if text not in literals and text not in exceptions.get(repo_name, []):
             errors += 1
             warnings.warn(f'README.md: "{text}" code is not in codelists')
