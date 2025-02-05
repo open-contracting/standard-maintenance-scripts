@@ -331,10 +331,12 @@ def test_example_codes():
             'qualifiedBidder',
         },
 
-        # Codes introduced in OCDS 1.2.
         'ocds_eu_extension': {
+            # Codes introduced in OCDS 1.2.
             'informationService',
             'securityClearanceDeadline',
+            # Changelog entries for removed codes.
+            'eu-oj',
         },
     }
 
