@@ -12,8 +12,10 @@ from setuptools import find_packages
 
 try:
     import tomllib
+    TOMLLIB_STDLIB = True
 except ImportError:
     import tomli as tomllib  # Python 3.10 or less
+    TOMLLIB_STDLIB = False
 
 path = os.getcwd()
 
@@ -41,6 +43,9 @@ stdlib = {
     "warnings", "wave", "weakref", "webbrowser", "winreg", "winsound", "wsgiref", "xdrlib", "xml", "xmlrpc", "zipapp",
     "zipfile", "zipimport", "zlib", "zoneinfo",
 }
+if TOMLLIB_STDLIB:
+    stdlib.add("tomllib")
+
 
 IGNORE = [
     # https://docs.python.org/3/library/__future__.html
