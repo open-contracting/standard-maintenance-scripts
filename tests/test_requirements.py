@@ -172,7 +172,7 @@ class CodeVisitor(ast.NodeVisitor):
                             self.add('redis')
                 # A requirement might be required by a backend.
                 elif target.id == 'CACHES':
-                    for value in node.value.values:  # noqa: PD011 # false positive
+                    for value in node.value.values:
                         for k, v in zip(value.keys, value.values, strict=True):
                             if val(k) == 'BACKEND':
                                 if val(v) == 'django.core.cache.backends.memcached.MemcachedCache':
@@ -180,12 +180,12 @@ class CodeVisitor(ast.NodeVisitor):
                                 elif val(v) == 'django.core.cache.backends.memcached.PyMemcacheCache':
                                     self.add('pymemcache')
                 elif target.id == 'CHANNEL_LAYERS':
-                    for value in node.value.values:  # noqa: PD011 # false positive
+                    for value in node.value.values:
                         for k, v in zip(value.keys, value.values, strict=True):
                             if val(k) in 'BACKEND' and val(v) == 'channels_redis.core.RedisChannelLayer':
                                 self.add('channels_redis')
                 elif target.id == 'DATABASES':
-                    for value in node.value.values:  # noqa: PD011 # false positive
+                    for value in node.value.values:
                         if isinstance(value, ast.Call):
                             # value.func <ast.Attribute>
                             #   .value <ast.Name>

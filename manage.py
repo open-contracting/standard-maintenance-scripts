@@ -20,8 +20,8 @@ extension_versions_url = (
 )
 
 
-def get(*args, **kwargs):
-    response = requests.get(*args, **kwargs)
+def get(*args):
+    response = requests.get(*args, timeout=10)
     response.raise_for_status()
     return response
 
@@ -76,8 +76,9 @@ def set_topics():
 
     for repo in get("https://api.github.com/orgs/open-contracting-extensions/repos?per_page=100").json():
         topics = []
+        name = repo["name"]
 
-        if repo["name"].endswith("_extension"):
+        if name.endswith("_extension"):
             topics.append("ocds-extension")
         else:
             topics.append("ocds-profile")
@@ -295,11 +296,8 @@ def count_dependencies(directory):
 
 @cli.command()
 @click.argument("organization")
-@click.option("--days", type=int, default=90, help="Days ago from which to count contributors")
-@click.option("--start", help="Datetime from which to count contributors")
-@click.option("--end", help="Datetime up to which to count contributors")
 @click.option("--verbose", help="Dump contributors data")
-def github_contributors(organization, days, start, end, verbose):
+def github_contributors(organization, verbose):
     """Report the number of contributors to an organization's repositories."""
     contributors = set()
     contributors_by_repository = {}
