@@ -20,6 +20,18 @@ extension_versions_url = (
 )
 
 
+def get(*args, **kwargs):
+    response = requests.get(*args, **kwargs)
+    response.raise_for_status()
+    return response
+
+
+def default(obj):
+    if isinstance(obj, set):
+        return list(obj)
+    return json.JSONEncoder().default(obj)
+
+
 @click.group()
 def cli():
     pass
@@ -57,16 +69,12 @@ def set_topics():
 
     profiles = defaultdict(list)
     for profile, branch in (("european-union", "latest"), ("public-private-partnerships", "1.0-dev")):
-        response = requests.get(format_string.format(profile, branch), timeout=10)
-        response.raise_for_status()
-        for extension_id in response.json():
+        for extension_id in get(format_string.format(profile, branch)).json():
             profiles[extension_id].append(profile)
 
     registry = ExtensionRegistry(extension_versions_url, extensions_url)
 
-    response = requests.get("https://api.github.com/orgs/open-contracting-extensions/repos?per_page=100", timeout=10)
-    response.raise_for_status()
-    for repo in response.json():
+    for repo in get("https://api.github.com/orgs/open-contracting-extensions/repos?per_page=100").json():
         topics = []
 
         if repo["name"].endswith("_extension"):
@@ -84,7 +92,7 @@ def set_topics():
                 break
         else:
             if "ocds-profile" not in topics:
-                click.echo(f"{repo['name']} is not registered")
+                click.echo(f"{name} is not registered")
 
         requests.put(
             f"https://api.github.com/repos/{repo['full_name']}/topics",
@@ -283,6 +291,52 @@ def count_dependencies(directory):
     for requirement, count in reversed(counter.most_common()):
         click.echo(f"{count:3d} {requirement}")
     click.echo(f"{len(counter)} total")
+
+
+@cli.command()
+@click.argument("organization")
+@click.option("--days", type=int, default=90, help="Days ago from which to count contributors")
+@click.option("--start", help="Datetime from which to count contributors")
+@click.option("--end", help="Datetime up to which to count contributors")
+@click.option("--verbose", help="Dump contributors data")
+def github_contributors(organization, days, start, end, verbose):
+    """Report the number of contributors to an organization's repositories."""
+    contributors = set()
+    contributors_by_repository = {}
+
+    repos = get(f"https://api.github.com/orgs/{organization}/repos?type=sources&per_page=100").json()
+    click.echo(f"Retrieving metadata for {len(repos)} source repositories..")
+    for i, repo in enumerate(repos, 1):
+        name = repo['name']
+        logins = set()
+
+        click.echo(f"{i:2d} {name} ", nl=False)
+
+        url = f"https://api.github.com/repos/{repo['full_name']}/issues/comments?per_page=100"
+        while url:
+            response = get(url)
+            logins.update(
+                comment["user"]["login"]
+                for comment in response.json()
+                if not comment["user"]["login"].endswith("[bot]")
+            )
+            url = response.links.get("next", {}).get("url")
+            click.echo(".", nl=False)
+
+        logins.update(
+            user["login"]
+            for user in get(f"{repo['contributors_url']}?per_page=100").json()
+            if not user["login"].endswith("[bot]")
+        )
+
+        contributors_by_repository[repo["name"]] = logins
+        contributors.update(logins)
+
+        click.echo("")
+
+    if verbose:
+        click.echo(json.dumps(contributors_by_repository, indent=2, default=default))
+    click.echo(f"\n{len(contributors)} contributors across {len(repos)} repositories")
 
 
 @cli.command()
