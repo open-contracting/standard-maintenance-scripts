@@ -1,4 +1,5 @@
 require 'hashdiff'
+require 'zip'
 
 namespace :repos do
   def s(condition)
@@ -88,6 +89,43 @@ namespace :repos do
     organizations.each do |organization|
       client.list_code_scanning_alerts_for_org(organization, state: 'dismissed', per_page: 100, accept: 'application/vnd.github+json').each do |alert|
         puts "#{alert.rule.severity.upcase.ljust(7).yellow} #{alert.dismissed_at.to_s[0..9]} #{alert.repository.name} #{alert.rule.id} #{alert.html_url} #{alert.dismissed_reason} (#{alert.dismissed_comment})"
+      end
+    end
+  end
+
+  # bundle exec rake repos:workflow_runs ORGS=open-contracting workflow=lint.yml start=2025-03-14 end=2025-03-15 grep=changed-files
+  desc 'Lists workflow runs'
+  task :workflow_runs do
+    repos.each do |repo|
+      begin
+        seen = false
+        client.workflow_runs(repo.full_name, ENV.fetch('workflow'), created: "#{ENV.fetch('start')}..#{ENV.fetch('end')}")[:workflow_runs].each do |run|
+          lines = []
+          urls = Set.new
+
+          Zip::File.open_buffer(run.rels[:logs].get.data) do |zip|
+            zip.each do |entry|
+              if entry.file?
+                entry.get_input_stream.read.each_line do |line|
+                  if line.include?(ENV.fetch('grep'))
+                    lines << line
+                    urls << run.html_url
+                  end
+                end
+              end
+            end
+          end
+
+          if lines.any?
+            if !seen
+              puts repo.full_name.yellow
+              seen = true
+            end
+            puts urls.to_a
+            puts lines
+          end
+        end
+      rescue Octokit::NotFound
       end
     end
   end
