@@ -11,6 +11,8 @@ If changes are made to `codelist-schema.json`, changes may be needed to:
 * [standard](https://github.com/open-contracting/standard), extensions, profiles and templates: codelist CSV files (see below)
 * [standard-maintenance-scripts](https://github.com/open-contracting/standard-maintenance-scripts): `test_csv.py`
 
+See also: [Open Data Services Codelist Schema](https://codelist-schema.readthedocs.io/latest/)
+
 ### extension-schema.json
 
 This repository holds `extension-schema.json`, against which `extension.json` files are tested. The schema is documented in [standard_extension_template](https://github.com/open-contracting/standard_extension_template#extensionjson) – except for the `testDependencies` field, which is documented in the [OCDS Development Handbook](https://ocds-standard-development-handbook.readthedocs.io/en/latest/extensions/), because it is only relevant to OCP-authored extensions.
