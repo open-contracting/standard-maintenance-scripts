@@ -321,11 +321,13 @@ def github_contributors(organization, verbose):
             url = response.links.get("next", {}).get("url")
             click.echo(".", nl=False)
 
-        logins.update(
-            user["login"]
-            for user in get(f"{repo['contributors_url']}?per_page=100").json()
-            if not user["login"].endswith("[bot]")
-        )
+        response = get(f"{repo['contributors_url']}?per_page=100")
+        if response.content:
+            logins.update(
+                user["login"]
+                for user in response.json()
+                if not user["login"].endswith("[bot]")
+            )
 
         contributors_by_repository[repo["name"]] = logins
         contributors.update(logins)
