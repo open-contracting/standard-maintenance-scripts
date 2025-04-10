@@ -296,8 +296,9 @@ def count_dependencies(directory):
 
 @cli.command()
 @click.argument("organization")
-@click.option("--verbose", help="Dump contributors data")
-def github_contributors(organization, verbose):
+@click.option("--commenters", is_flag=True, help="Include issue commenters")
+@click.option("--verbose", is_flag=True, help="Dump contributors data")
+def github_contributors(organization, commenters, verbose):
     """Report the number of contributors to an organization's repositories."""
     contributors = set()
     contributors_by_repository = {}
@@ -310,16 +311,17 @@ def github_contributors(organization, verbose):
 
         click.echo(f"{i:2d} {name} ", nl=False)
 
-        url = f"https://api.github.com/repos/{repo['full_name']}/issues/comments?per_page=100"
-        while url:
-            response = get(url)
-            logins.update(
-                comment["user"]["login"]
-                for comment in response.json()
-                if not comment["user"]["login"].endswith("[bot]")
-            )
-            url = response.links.get("next", {}).get("url")
-            click.echo(".", nl=False)
+        if commenters:
+            url = f"https://api.github.com/repos/{repo['full_name']}/issues/comments?per_page=100"
+            while url:
+                response = get(url)
+                logins.update(
+                    comment["user"]["login"]
+                    for comment in response.json()
+                    if not comment["user"]["login"].endswith("[bot]")
+                )
+                url = response.links.get("next", {}).get("url")
+                click.echo(".", nl=False)
 
         response = get(f"{repo['contributors_url']}?per_page=100")
         if response.content:
@@ -398,6 +400,7 @@ fragment f on User {{
     click.echo("  R   C  URL")
     for i, (url, count) in enumerate(sorted(counter.items(), key=itemgetter(1), reverse=True), 1):
         click.echo(f"{i:3d} {count:3d} {url}")
+    click.echo(f"{sum(counter.values())} contributions")
 
 
 if __name__ == "__main__":
