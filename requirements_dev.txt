@@ -97,8 +97,6 @@ rpds-py==0.20.0
     # via
     #   jsonschema
     #   referencing
-setuptools==74.1.2
-    # via -r requirements_dev.in
 six==1.16.0
     # via
     #   -r requirements.txt
