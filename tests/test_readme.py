@@ -78,7 +78,7 @@ def examples():
     for i, text in enumerate(re.findall(r'```json(.+?)```', read_readme(), re.DOTALL), 1):
         try:
             yield i, text, json.loads(text)
-        except json.decoder.JSONDecodeError as e:
+        except json.JSONDecodeError as e:
             raise AssertionError(f'README.md: JSON block {i} is not valid JSON') from e
 
 
