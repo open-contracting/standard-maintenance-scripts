@@ -24,7 +24,7 @@ ocdsextensionregistry==0.5.0
     # via -r requirements.in
 platformdirs==4.2.2
     # via requests-cache
-requests==2.32.3
+requests==2.32.4
     # via
     #   -r requirements.in
     #   ocdsextensionregistry
