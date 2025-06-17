@@ -116,6 +116,7 @@ if [ -n "$REQUIREMENTS_FILE" ]; then
             S308  # suspicious-mark-safe-usage (false positive)
         )
         PER_FILE_IGNORES+=(
+            manage.py:PLC0415 # import-outside-top-level
             # signals.py  https://docs.djangoproject.com/en/4.2/topics/signals/
             # views.py    https://docs.djangoproject.com/en/4.2/topics/http/views/
             # migrations/ https://docs.djangoproject.com/en/4.2/howto/writing-migrations/
