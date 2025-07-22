@@ -197,11 +197,6 @@ if [ -d docs ]; then
         "'copyright'"
     )
 fi
-if [ ! -f .python-version ]; then # Packages support Python 3.9.
-    IGNORE+=(
-        UP038 # non-pep604-isinstance (Python 3.10+)
-    )
-fi
 if [ ! -f .python-version ] || grep 3.10 .python-version > /dev/null; then
     IGNORE+=(
         PYI024 # collections-named-tuple (Python 3.11+)
