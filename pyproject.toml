@@ -14,6 +14,7 @@ ignore = [
     "PTH",
     "B028",  # warnings
     "FIX002",  # todo
+    "PD011",
 ]
 
 [tool.ruff.lint.flake8-unused-arguments]

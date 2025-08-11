@@ -12,36 +12,232 @@ from setuptools import find_packages
 
 try:
     import tomllib
+
     TOMLLIB_STDLIB = True
 except ImportError:
     import tomli as tomllib  # Python 3.10 or less
+
     TOMLLIB_STDLIB = False
 
 path = os.getcwd()
 
 # https://github.com/PyCQA/isort/blob/develop/isort/stdlibs/py39.py
 stdlib = {
-    "_ast", "_thread", "abc", "aifc", "argparse", "array", "ast", "asynchat", "asyncio", "asyncore", "atexit",
-    "audioop", "base64", "bdb", "binascii", "binhex", "bisect", "builtins", "bz2", "cProfile", "calendar", "cgi",
-    "cgitb", "chunk", "cmath", "cmd", "code", "codecs", "codeop", "collections", "colorsys", "compileall",
-    "concurrent", "configparser", "contextlib", "contextvars", "copy", "copyreg", "crypt", "csv", "ctypes", "curses",
-    "dataclasses", "datetime", "dbm", "decimal", "difflib", "dis", "distutils", "doctest", "email", "encodings",
-    "ensurepip", "enum", "errno", "faulthandler", "fcntl", "filecmp", "fileinput", "fnmatch", "formatter", "fractions",
-    "ftplib", "functools", "gc", "getopt", "getpass", "gettext", "glob", "graphlib", "grp", "gzip", "hashlib", "heapq",
-    "hmac", "html", "http", "imaplib", "imghdr", "imp", "importlib", "inspect", "io", "ipaddress", "itertools", "json",
-    "keyword", "lib2to3", "linecache", "locale", "logging", "lzma", "mailbox", "mailcap", "marshal", "math",
-    "mimetypes", "mmap", "modulefinder", "msilib", "msvcrt", "multiprocessing", "netrc", "nis", "nntplib", "ntpath",
-    "numbers", "operator", "optparse", "os", "ossaudiodev", "parser", "pathlib", "pdb", "pickle", "pickletools",
-    "pipes", "pkgutil", "platform", "plistlib", "poplib", "posix", "posixpath", "pprint", "profile", "pstats", "pty",
-    "pwd", "py_compile", "pyclbr", "pydoc", "queue", "quopri", "random", "re", "readline", "reprlib", "resource",
-    "rlcompleter", "runpy", "sched", "secrets", "select", "selectors", "shelve", "shlex", "shutil", "signal", "site",
-    "smtpd", "smtplib", "sndhdr", "socket", "socketserver", "spwd", "sqlite3", "sre", "sre_compile", "sre_constants",
-    "sre_parse", "ssl", "stat", "statistics", "string", "stringprep", "struct", "subprocess", "sunau", "symbol",
-    "symtable", "sys", "sysconfig", "syslog", "tabnanny", "tarfile", "telnetlib", "tempfile", "termios", "test",
-    "textwrap", "threading", "time", "timeit", "tkinter", "token", "tokenize", "trace", "traceback", "tracemalloc",
-    "tty", "turtle", "turtledemo", "types", "typing", "unicodedata", "unittest", "urllib", "uu", "uuid", "venv",
-    "warnings", "wave", "weakref", "webbrowser", "winreg", "winsound", "wsgiref", "xdrlib", "xml", "xmlrpc", "zipapp",
-    "zipfile", "zipimport", "zlib", "zoneinfo",
+    "_ast",
+    "_thread",
+    "abc",
+    "aifc",
+    "argparse",
+    "array",
+    "ast",
+    "asynchat",
+    "asyncio",
+    "asyncore",
+    "atexit",
+    "audioop",
+    "base64",
+    "bdb",
+    "binascii",
+    "binhex",
+    "bisect",
+    "builtins",
+    "bz2",
+    "cProfile",
+    "calendar",
+    "cgi",
+    "cgitb",
+    "chunk",
+    "cmath",
+    "cmd",
+    "code",
+    "codecs",
+    "codeop",
+    "collections",
+    "colorsys",
+    "compileall",
+    "concurrent",
+    "configparser",
+    "contextlib",
+    "contextvars",
+    "copy",
+    "copyreg",
+    "crypt",
+    "csv",
+    "ctypes",
+    "curses",
+    "dataclasses",
+    "datetime",
+    "dbm",
+    "decimal",
+    "difflib",
+    "dis",
+    "distutils",
+    "doctest",
+    "email",
+    "encodings",
+    "ensurepip",
+    "enum",
+    "errno",
+    "faulthandler",
+    "fcntl",
+    "filecmp",
+    "fileinput",
+    "fnmatch",
+    "formatter",
+    "fractions",
+    "ftplib",
+    "functools",
+    "gc",
+    "getopt",
+    "getpass",
+    "gettext",
+    "glob",
+    "graphlib",
+    "grp",
+    "gzip",
+    "hashlib",
+    "heapq",
+    "hmac",
+    "html",
+    "http",
+    "imaplib",
+    "imghdr",
+    "imp",
+    "importlib",
+    "inspect",
+    "io",
+    "ipaddress",
+    "itertools",
+    "json",
+    "keyword",
+    "lib2to3",
+    "linecache",
+    "locale",
+    "logging",
+    "lzma",
+    "mailbox",
+    "mailcap",
+    "marshal",
+    "math",
+    "mimetypes",
+    "mmap",
+    "modulefinder",
+    "msilib",
+    "msvcrt",
+    "multiprocessing",
+    "netrc",
+    "nis",
+    "nntplib",
+    "ntpath",
+    "numbers",
+    "operator",
+    "optparse",
+    "os",
+    "ossaudiodev",
+    "parser",
+    "pathlib",
+    "pdb",
+    "pickle",
+    "pickletools",
+    "pipes",
+    "pkgutil",
+    "platform",
+    "plistlib",
+    "poplib",
+    "posix",
+    "posixpath",
+    "pprint",
+    "profile",
+    "pstats",
+    "pty",
+    "pwd",
+    "py_compile",
+    "pyclbr",
+    "pydoc",
+    "queue",
+    "quopri",
+    "random",
+    "re",
+    "readline",
+    "reprlib",
+    "resource",
+    "rlcompleter",
+    "runpy",
+    "sched",
+    "secrets",
+    "select",
+    "selectors",
+    "shelve",
+    "shlex",
+    "shutil",
+    "signal",
+    "site",
+    "smtpd",
+    "smtplib",
+    "sndhdr",
+    "socket",
+    "socketserver",
+    "spwd",
+    "sqlite3",
+    "sre",
+    "sre_compile",
+    "sre_constants",
+    "sre_parse",
+    "ssl",
+    "stat",
+    "statistics",
+    "string",
+    "stringprep",
+    "struct",
+    "subprocess",
+    "sunau",
+    "symbol",
+    "symtable",
+    "sys",
+    "sysconfig",
+    "syslog",
+    "tabnanny",
+    "tarfile",
+    "telnetlib",
+    "tempfile",
+    "termios",
+    "test",
+    "textwrap",
+    "threading",
+    "time",
+    "timeit",
+    "tkinter",
+    "token",
+    "tokenize",
+    "trace",
+    "traceback",
+    "tracemalloc",
+    "tty",
+    "turtle",
+    "turtledemo",
+    "types",
+    "typing",
+    "unicodedata",
+    "unittest",
+    "urllib",
+    "uu",
+    "uuid",
+    "venv",
+    "warnings",
+    "wave",
+    "weakref",
+    "webbrowser",
+    "winreg",
+    "winsound",
+    "wsgiref",
+    "xdrlib",
+    "xml",
+    "xmlrpc",
+    "zipapp",
+    "zipfile",
+    "zipimport",
+    "zlib",
+    "zoneinfo",
 }
 if TOMLLIB_STDLIB:
     stdlib.add("tomllib")
@@ -49,9 +245,9 @@ if TOMLLIB_STDLIB:
 
 IGNORE = [
     # https://docs.python.org/3/library/__future__.html
-    '__future__',
+    "__future__",
     # Web server dependencies.
-    'gunicorn',
+    "gunicorn",
 ]
 
 
@@ -77,19 +273,19 @@ def projects_and_modules(requirements):
     if isinstance(requirements, str):
         requirements = requirements.splitlines()
     for line in requirements:
-        if not line or line.startswith(('-', '#', 'git+')):
+        if not line or line.startswith(("-", "#", "git+")):
             continue
         requirement = Requirement(line)
         if requirement.marker and not requirement.marker.evaluate():
             continue
         for file in distribution(requirement.name).files:
             path = str(file)
-            if path.startswith(f'src{os.sep}'):
+            if path.startswith(f"src{os.sep}"):
                 path = path[4:]
-            if path.endswith('.py') and os.sep in path:
+            if path.endswith(".py") and os.sep in path:
                 mapping[requirement.name].add(path.split(os.sep, 1)[0])
-            elif path.endswith(('.py', '.so')):
-                mapping[requirement.name].add(path.split('.', 1)[0])
+            elif path.endswith((".py", ".so")):
+                mapping[requirement.name].add(path.split(".", 1)[0])
     return mapping
 
 
@@ -103,10 +299,10 @@ class SetupVisitor(ast.NodeVisitor):
         self.extras = extras
 
     def visit_keyword(self, node):
-        if node.arg == 'install_requires':
+        if node.arg == "install_requires":
             for elt in node.value.elts:
                 self.mapping.update(projects_and_modules(val(elt)))
-        elif node.arg == 'extras_require' and self.extras:
+        elif node.arg == "extras_require" and self.extras:
             for key, value in zip(node.value.keys, node.value.values, strict=True):
                 if val(key) in self.extras:
                     for elt in value.elts:
@@ -127,12 +323,12 @@ class CodeVisitor(ast.NodeVisitor):
         self.path = Path(filename)
         self.excluded = stdlib
         self.excluded.update(packages)
-        if self.path.name == 'setup.py':
-            self.excluded.add('setuptools')
+        if self.path.name == "setup.py":
+            self.excluded.add("setuptools")
 
     def visit_Try(self, node):
         # Don't collect imports in `try: ... except ImportError: ...` blocks.
-        if not any(h.type.id == 'ImportError' for h in node.handlers if isinstance(h.type, ast.Name)):
+        if not any(h.type.id == "ImportError" for h in node.handlers if isinstance(h.type, ast.Name)):
             self.generic_visit(node)
 
     def visit_If(self, node):
@@ -157,34 +353,34 @@ class CodeVisitor(ast.NodeVisitor):
 
     def visit_Assign(self, node):
         # Handle Django settings.py file.
-        if self.path.name == 'settings.py' or self.path.parent.name == 'settings':
+        if self.path.name == "settings.py" or self.path.parent.name == "settings":
             for target in node.targets:
                 if not isinstance(target, ast.Name):
                     continue
                 # A requirement might be declared as an installed app or middleware.
-                if target.id in {'INSTALLED_APPS', 'MIDDLEWARE'}:
+                if target.id in {"INSTALLED_APPS", "MIDDLEWARE"}:
                     for elt in node.value.elts:
                         self.add(val(elt))
-                elif target.id == 'CELERY_BROKER_URL':
+                elif target.id == "CELERY_BROKER_URL":
                     if isinstance(node.value, ast.Call):
                         default = node.value.args[1] if len(node.value.args) == 2 else None
-                        if default and urlsplit(val(default)).scheme == 'redis':
-                            self.add('redis')
+                        if default and urlsplit(val(default)).scheme == "redis":
+                            self.add("redis")
                 # A requirement might be required by a backend.
-                elif target.id == 'CACHES':
+                elif target.id == "CACHES":
                     for value in node.value.values:
                         for k, v in zip(value.keys, value.values, strict=True):
-                            if val(k) == 'BACKEND':
-                                if val(v) == 'django.core.cache.backends.memcached.MemcachedCache':
-                                    self.add('memcache')
-                                elif val(v) == 'django.core.cache.backends.memcached.PyMemcacheCache':
-                                    self.add('pymemcache')
-                elif target.id == 'CHANNEL_LAYERS':
+                            if val(k) == "BACKEND":
+                                if val(v) == "django.core.cache.backends.memcached.MemcachedCache":
+                                    self.add("memcache")
+                                elif val(v) == "django.core.cache.backends.memcached.PyMemcacheCache":
+                                    self.add("pymemcache")
+                elif target.id == "CHANNEL_LAYERS":
                     for value in node.value.values:
                         for k, v in zip(value.keys, value.values, strict=True):
-                            if val(k) in 'BACKEND' and val(v) == 'channels_redis.core.RedisChannelLayer':
-                                self.add('channels_redis')
-                elif target.id == 'DATABASES':
+                            if val(k) in "BACKEND" and val(v) == "channels_redis.core.RedisChannelLayer":
+                                self.add("channels_redis")
+                elif target.id == "DATABASES":
                     for value in node.value.values:
                         if isinstance(value, ast.Call):
                             # value.func <ast.Attribute>
@@ -196,33 +392,33 @@ class CodeVisitor(ast.NodeVisitor):
                             #   .value <ast.Constant>
                             #     .value == "postgresql://"
                             default = next((keyword for keyword in value.keywords if keyword.arg == "default"), None)
-                            if default and urlsplit(val(default.value)).scheme == 'postgresql':
-                                self.add('psycopg2')
+                            if default and urlsplit(val(default.value)).scheme == "postgresql":
+                                self.add("psycopg2")
                         elif isinstance(value, ast.Dict):
                             for k, v in zip(value.keys, value.values, strict=True):
-                                if val(k) == 'ENGINE' and val(v) in {
-                                    'django.db.backends.postgresql',
-                                    'django.db.backends.postgresql_psycopg2',
+                                if val(k) == "ENGINE" and val(v) in {
+                                    "django.db.backends.postgresql",
+                                    "django.db.backends.postgresql_psycopg2",
                                 }:
-                                    self.add('psycopg2')
+                                    self.add("psycopg2")
 
     def add(self, name):
-        if 'django.contrib.postgres' in name:
-            self.add('psycopg2')
+        if "django.contrib.postgres" in name:
+            self.add("psycopg2")
 
-        name = name.split('.', 1)[0]
+        name = name.split(".", 1)[0]
         if name not in self.excluded:
             self.imports.add(name)
 
 
 def check_requirements(path, *requirements_files, dev=False, ignore=()):
-    pyproject_toml = os.path.join(path, 'pyproject.toml')
-    setup_py = os.path.join(path, 'setup.py')
-    requirements_in = os.path.join(path, 'requirements.in')
+    pyproject_toml = os.path.join(path, "pyproject.toml")
+    setup_py = os.path.join(path, "setup.py")
+    requirements_in = os.path.join(path, "requirements.in")
 
-    ignore = list(ignore) + os.getenv('STANDARD_MAINTENANCE_SCRIPTS_IGNORE', '').split(',')
-    extras = os.getenv('STANDARD_MAINTENANCE_SCRIPTS_EXTRAS', '').split(',')
-    files = os.getenv('STANDARD_MAINTENANCE_SCRIPTS_FILES', '').split(',')
+    ignore = list(ignore) + os.getenv("STANDARD_MAINTENANCE_SCRIPTS_IGNORE", "").split(",")
+    extras = os.getenv("STANDARD_MAINTENANCE_SCRIPTS_EXTRAS", "").split(",")
+    files = os.getenv("STANDARD_MAINTENANCE_SCRIPTS_FILES", "").split(",")
     if any(files):
         requirements_files += tuple(files)
     if os.path.exists(requirements_in):
@@ -232,14 +428,14 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
     if not any(os.path.exists(filename) for filename in files):
         pytest.skip(f"No {', '.join(files)} file found")
 
-    excluded = ['.git', '.venv', 'docs', 'node_modules', 'vendor']
+    excluded = [".git", ".venv", "docs", "node_modules", "vendor"]
     find_packages_kwargs = {}
     if not dev:
-        find_packages_kwargs['exclude'] = ['tests', 'tests.*']
-        excluded.append('tests')
+        find_packages_kwargs["exclude"] = ["tests", "tests.*"]
+        excluded.append("tests")
 
     packages = find_packages(where=path, **find_packages_kwargs)
-    for filename in glob.glob(os.path.join(path, '*.py')):
+    for filename in glob.glob(os.path.join(path, "*.py")):
         packages.append(os.path.splitext(os.path.basename(filename))[0])
 
     # Collect the modules that are imported.
@@ -249,7 +445,7 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
             if directory in dirs:
                 dirs.remove(directory)
         for file in files:
-            if file.endswith('.py') and (dev or (not file.startswith('test') and file != 'conftest.py')):
+            if file.endswith(".py") and (dev or (not file.startswith("test") and file != "conftest.py")):
                 filename = os.path.join(root, file)
                 with open(filename) as f:
                     code = ast.parse(f.read())
@@ -260,11 +456,11 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
 
     # Collect the requirements and the modules that can be imported.
     if os.path.exists(pyproject_toml):
-        with open(pyproject_toml, 'rb') as f:
+        with open(pyproject_toml, "rb") as f:
             config = tomllib.load(f)
-        mapping = projects_and_modules(config['project'].get('dependencies', []))
+        mapping = projects_and_modules(config["project"].get("dependencies", []))
         for extra in extras:
-            mapping.update(projects_and_modules(config['project'].get('optional-dependencies', {}).get(extra, [])))
+            mapping.update(projects_and_modules(config["project"].get("optional-dependencies", {}).get(extra, [])))
 
     if os.path.exists(setup_py):
         with open(setup_py) as f:
@@ -279,12 +475,12 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
             with open(os.path.join(path, requirements_file)) as f:
                 mapping.update(projects_and_modules(f.read().splitlines()))
 
-    if 'psycopg2-binary' in mapping and 'psycopg2' in mapping:
-        del mapping['psycopg2-binary']
+    if "psycopg2-binary" in mapping and "psycopg2" in mapping:
+        del mapping["psycopg2-binary"]
 
     # Some modules affect the behavior of `jsonschema` without being imported.
-    if 'jsonschema' in mapping:
-        for project in ('rfc3339-validator', 'rfc3986-validator', 'rfc3987'):
+    if "jsonschema" in mapping:
+        for project in ("rfc3339-validator", "rfc3986-validator", "rfc3987"):
             if project in mapping and not any(module for module in mapping[project] if module in imports):
                 del mapping[project]
 
@@ -305,37 +501,38 @@ def test_requirements():
     check_requirements(path, ignore=IGNORE)
 
 
-@pytest.mark.skipif(not os.path.exists(os.path.join(path, 'requirements_dev.in')),
-                    reason='No requirements_dev.in file found')
+@pytest.mark.skipif(
+    not os.path.exists(os.path.join(path, "requirements_dev.in")), reason="No requirements_dev.in file found"
+)
 def test_dev_requirements():
     # Ignore development dependencies that are not typically imported.
     ignore = [
         # Code linters.
-        'mypy',
-        'nbqa',
-        'pre-commit',
-        'pylint',
+        "mypy",
+        "nbqa",
+        "pre-commit",
+        "pylint",
         # Test runners.
-        'pytest',
+        "pytest",
         # Pytest plugins, which provide fixtures, for example.
-        'pytest-asyncio',
-        'pytest-django',
-        'pytest-env',
-        'pytest-flask',
-        'pytest-localserver',
-        'pytest-mock',
-        'pytest-order',
-        'pytest-random-order',
-        'pytest-subtests',
+        "pytest-asyncio",
+        "pytest-django",
+        "pytest-env",
+        "pytest-flask",
+        "pytest-localserver",
+        "pytest-mock",
+        "pytest-order",
+        "pytest-random-order",
+        "pytest-subtests",
         # Code coverage.
-        'coverage',
+        "coverage",
         # Documentation dependencies.
-        'furo',
-        'sphinx',
-        'sphinx-design',
-        'sphinx-intl',
+        "furo",
+        "sphinx",
+        "sphinx-design",
+        "sphinx-intl",
         # Build utilities.
-        'libsass',
+        "libsass",
     ]
 
-    check_requirements(path, 'requirements_dev.in', dev=True, ignore=IGNORE + ignore)
+    check_requirements(path, "requirements_dev.in", dev=True, ignore=IGNORE + ignore)

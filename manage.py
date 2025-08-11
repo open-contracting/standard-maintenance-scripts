@@ -256,9 +256,9 @@ def check_licenses(file):
     for name, (row, venvs) in packages.items():
         licenses = row["License"]
         if licenses & strong_copyleft:
-            click.secho(f'{name}: {", ".join(licenses)}', fg="red")
+            click.secho(f"{name}: {', '.join(licenses)}", fg="red")
         else:
-            click.secho(f'{name}: {", ".join(licenses)} {row["URL"]}', fg="yellow")
+            click.secho(f"{name}: {', '.join(licenses)} {row['URL']}", fg="yellow")
         for venv in venvs:
             click.echo(f"  {venv}")
 
@@ -306,7 +306,7 @@ def github_contributors(organization, commenters, verbose):
     repos = get(f"https://api.github.com/orgs/{organization}/repos?type=sources&per_page=100").json()
     click.echo(f"Retrieving metadata for {len(repos)} source repositories..")
     for i, repo in enumerate(repos, 1):
-        name = repo['name']
+        name = repo["name"]
         logins = set()
 
         click.echo(f"{i:2d} {name} ", nl=False)
@@ -325,11 +325,7 @@ def github_contributors(organization, commenters, verbose):
 
         response = get(f"{repo['contributors_url']}?per_page=100")
         if response.content:
-            logins.update(
-                user["login"]
-                for user in response.json()
-                if not user["login"].endswith("[bot]")
-            )
+            logins.update(user["login"] for user in response.json() if not user["login"].endswith("[bot]"))
 
         contributors_by_repository[repo["name"]] = logins
         contributors.update(logins)

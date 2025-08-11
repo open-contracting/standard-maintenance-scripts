@@ -36,27 +36,27 @@ from jsonschema.validators import Draft4Validator
 from ocdskit.schema import add_validation_properties
 
 external_codelists = set()
-for version in ('1.1', '1.2'):
-    response = requests.get(f'https://codeload.github.com/open-contracting/standard/zip/{version}-dev')
+for version in ("1.1", "1.2"):
+    response = requests.get(f"https://codeload.github.com/open-contracting/standard/zip/{version}-dev")
     response.raise_for_status()
     with zipfile.ZipFile(io.BytesIO(response.content)) as z:
         external_codelists |= {
-            os.path.basename(name) for name in z.namelist() if 'codelists/' in name and name.endswith('.csv')
+            os.path.basename(name) for name in z.namelist() if "codelists/" in name and name.endswith(".csv")
         }
 
 # https://github.com/open-contracting/extension_registry/blob/main/extensions.csv
 core_extensions = {
-    'ocds_bid_extension',
-    'ocds_enquiry_extension',
-    'ocds_location_extension',
-    'ocds_lots_extension',
-    'ocds_participationFee_extension',
-    'ocds_process_title_extension',
+    "ocds_bid_extension",
+    "ocds_enquiry_extension",
+    "ocds_location_extension",
+    "ocds_lots_extension",
+    "ocds_participationFee_extension",
+    "ocds_process_title_extension",
 }
 
 
 def read_metadata(*, allow_missing=False):
-    path = os.path.join(cwd, 'extension.json')
+    path = os.path.join(cwd, "extension.json")
     if allow_missing and not os.path.isfile(path):
         return {}
     with open(path) as f:
@@ -64,53 +64,58 @@ def read_metadata(*, allow_missing=False):
 
 
 cwd = os.getcwd()
-repo_name = os.path.basename(os.getenv('GITHUB_REPOSITORY', cwd))
-ocds_version = os.getenv('OCDS_TEST_VERSION')
-is_profile = os.path.isfile('Makefile') and os.path.isdir('docs') and repo_name not in {'standard', 'infrastructure'}
-is_extension = os.path.isfile('extension.json') or is_profile
-extensiondir = os.path.join('schema', 'profile') if is_profile else '.'
-if repo_name == 'standard' and os.getenv('GITHUB_ACTOR', '').lower() not in {
-    'colinmaudry', 'duncandewhurst', 'jachymhercher', 'odscjen', 'jpmckinney', 'yolile',
+repo_name = os.path.basename(os.getenv("GITHUB_REPOSITORY", cwd))
+ocds_version = os.getenv("OCDS_TEST_VERSION")
+is_profile = os.path.isfile("Makefile") and os.path.isdir("docs") and repo_name not in {"standard", "infrastructure"}
+is_extension = os.path.isfile("extension.json") or is_profile
+extensiondir = os.path.join("schema", "profile") if is_profile else "."
+if repo_name == "standard" and os.getenv("GITHUB_ACTOR", "").lower() not in {
+    "colinmaudry",
+    "duncandewhurst",
+    "jachymhercher",
+    "odscjen",
+    "jpmckinney",
+    "yolile",
 }:
-    standard_owner = os.getenv('GITHUB_ACTOR', 'open-contracting')
+    standard_owner = os.getenv("GITHUB_ACTOR", "open-contracting")
 else:
-    standard_owner = 'open-contracting'
+    standard_owner = "open-contracting"
 
 # Whether to use the 1.2-dev version of OCDS.
 use_development_version = (
-    '1.1' not in os.getenv('GITHUB_REF_NAME', '')
-    and '1.1' not in os.getenv('GITHUB_BASE_REF', '')
+    "1.1" not in os.getenv("GITHUB_REF_NAME", "")
+    and "1.1" not in os.getenv("GITHUB_BASE_REF", "")
     and (
-        '1.2' in os.getenv('GITHUB_REF_NAME', '')
-        or '1.2' in os.getenv('GITHUB_BASE_REF', '')
+        "1.2" in os.getenv("GITHUB_REF_NAME", "")
+        or "1.2" in os.getenv("GITHUB_BASE_REF", "")
         # Extensions that are versioned with OCDS.
-        or repo_name == 'ocds_lots_extension'
+        or repo_name == "ocds_lots_extension"
         # Extensions that depend on those extensions.
         or (
-            'https://raw.githubusercontent.com/open-contracting-extensions/ocds_lots_extension/master/extension.json'
-            in read_metadata(allow_missing=True).get('testDependencies', [])
+            "https://raw.githubusercontent.com/open-contracting-extensions/ocds_lots_extension/master/extension.json"
+            in read_metadata(allow_missing=True).get("testDependencies", [])
         )
     )
 )
 
-if repo_name == 'infrastructure':
-    ocds_schema_base_url = 'https://standard.open-contracting.org/infrastructure/schema/'
+if repo_name == "infrastructure":
+    ocds_schema_base_url = "https://standard.open-contracting.org/infrastructure/schema/"
 else:
-    ocds_schema_base_url = 'https://standard.open-contracting.org/schema/'
-development_base_ref = os.getenv('GITHUB_HEAD_REF') or '1.2-dev'
+    ocds_schema_base_url = "https://standard.open-contracting.org/schema/"
+development_base_ref = os.getenv("GITHUB_HEAD_REF") or "1.2-dev"
 development_base_url = f"https://raw.githubusercontent.com/{standard_owner}/standard/{development_base_ref}/schema"
-ocds_tags = re.findall(r'\d+__\d+__\d+', http_get(ocds_schema_base_url).text)
-ocds_tag = ocds_version.replace('.', '__') if ocds_version else ocds_tags[-1]
+ocds_tags = re.findall(r"\d+__\d+__\d+", http_get(ocds_schema_base_url).text)
+ocds_tag = ocds_version.replace(".", "__") if ocds_version else ocds_tags[-1]
 
 
 def formatwarning(message, category, filename, lineno, line=None):
     if category != DeepPropertiesWarning:
-        message = f'ERROR: {message}'
-    return str(message).replace(cwd + os.sep, '')
+        message = f"ERROR: {message}"
+    return str(message).replace(cwd + os.sep, "")
 
 
 warnings.formatwarning = formatwarning
-pytestmark = pytest.mark.filterwarnings('always')
+pytestmark = pytest.mark.filterwarnings("always")
 
 warnings.warn(
     f"{repo_name=}\n{ocds_version=}\n{ocds_tag=}\n{is_profile=}\n{is_extension=}\n{extensiondir=}\n{standard_owner=}\n"
@@ -122,7 +127,7 @@ def patch(text):
     """
     Handle unreleased tag in $ref.
     """
-    for tag in re.findall(r'\d+__\d+__\d+', text):
+    for tag in re.findall(r"\d+__\d+__\d+", text):
         if tag not in ocds_tags:
             if ocds_version or not use_development_version:
                 text = text.replace(tag, ocds_tag)
@@ -131,24 +136,27 @@ def patch(text):
     return text
 
 
-excluded = ('.git', '.ve', '.venv', '_static', 'build', 'fixtures', 'node_modules')
+excluded = (".git", ".ve", ".venv", "_static", "build", "fixtures", "node_modules")
 excluded_repo_name = (
     # data-support extends and stores the release schema to, for example, unflatten data.
-    'data-support',
+    "data-support",
     # These have a copy of the release schema, e.g. to generate and validate check names.
-    'pelican-backend',
-    'pelican-frontend',
-    'spoonbill-web',
+    "pelican-backend",
+    "pelican-frontend",
+    "spoonbill-web",
     # sphincontrib-opencontracting uses simplified schema files in its documentation.
-    'sphinxcontrib-opencontracting',
+    "sphinxcontrib-opencontracting",
 )
-json_schemas = [(path, name, data) for path, name, _, data in walk_json_data(patch, excluded=excluded)
-                if is_json_schema(data) and repo_name not in excluded_repo_name and name not in {'biome.json'}]
+json_schemas = [
+    (path, name, data)
+    for path, name, _, data in walk_json_data(patch, excluded=excluded)
+    if is_json_schema(data) and repo_name not in excluded_repo_name and name not in {"biome.json"}
+]
 
 
 def loader(url, **kwargs):
-    if repo_name == 'standard' and url.startswith('https://standard.open-contracting.org/schema/'):
-        with open(os.path.join(cwd, 'schema', url.rsplit('/', 1)[1])) as f:
+    if repo_name == "standard" and url.startswith("https://standard.open-contracting.org/schema/"):
+        with open(os.path.join(cwd, "schema", url.rsplit("/", 1)[1])) as f:
             return json.load(f)
     return jsonref.jsonloader(url, **kwargs)
 
@@ -163,7 +171,7 @@ def merge(*objs):
     return result
 
 
-def _merge_obj(result, obj, pointer=''):  # changed code
+def _merge_obj(result, obj, pointer=""):  # changed code
     """
     Copied from json_merge_patch, with edits to raise an error if overwriting.
     """
@@ -177,55 +185,58 @@ def _merge_obj(result, obj, pointer=''):  # changed code
         if isinstance(value, dict):
             target = result.get(key)
             if isinstance(target, dict):
-                _merge_obj(target, value, pointer=f'{pointer}/{key}')  # changed code
+                _merge_obj(target, value, pointer=f"{pointer}/{key}")  # changed code
                 continue
             result[key] = {}
-            _merge_obj(result[key], value, pointer=f'{pointer}/{key}')  # changed code
+            _merge_obj(result[key], value, pointer=f"{pointer}/{key}")  # changed code
             continue
 
         # new code
         if key in result:
-            pointer_and_key = f'{pointer}/{key}'
+            pointer_and_key = f"{pointer}/{key}"
             # Exceptions.
             if (
                 value is None
-                and pointer_and_key == '/definitions/Milestone/properties/documents/deprecated'
-                and repo_name in {'ocds_milestone_documents_extension', 'public-private-partnerships'}
+                and pointer_and_key == "/definitions/Milestone/properties/documents/deprecated"
+                and repo_name in {"ocds_milestone_documents_extension", "public-private-partnerships"}
             ):
-                warnings.warn(f're-adds {pointer}')
-            elif (
-                value == []
-                and pointer_and_key == '/required'
-                and repo_name == 'ocds_pagination_extension'
-            ):
-                warnings.warn(f'empties {pointer_and_key}')
+                warnings.warn(f"re-adds {pointer}")
+            elif value == [] and pointer_and_key == "/required" and repo_name == "ocds_pagination_extension":
+                warnings.warn(f"empties {pointer_and_key}")
             elif (
                 # TODO(james): Remove after OCDS 1.2 release.
                 # https://github.com/open-contracting/standard-maintenance-scripts/issues/175
-                (repo_name == 'ocds_lots_extension'
-                and pointer_and_key.startswith('/definitions/SimpleIdentifier/'))
+                (repo_name == "ocds_lots_extension" and pointer_and_key.startswith("/definitions/SimpleIdentifier/"))
                 # https://github.com/open-contracting/standard/issues/1183
-                or (repo_name == 'ocds_submissionTerms_extension'
-                and pointer_and_key.startswith((
-                    '/definitions/SubmissionTerms/',
-                    '/definitions/Tender/properties/submissionTerms/',
-                    # Included in master version (1.2) of lots extension.
-                    '/definitions/Lot/properties/submissionTerms/',
-                )))
+                or (
+                    repo_name == "ocds_submissionTerms_extension"
+                    and pointer_and_key.startswith(
+                        (
+                            "/definitions/SubmissionTerms/",
+                            "/definitions/Tender/properties/submissionTerms/",
+                            # Included in master version (1.2) of lots extension.
+                            "/definitions/Lot/properties/submissionTerms/",
+                        )
+                    )
+                )
                 # https://github.com/open-contracting/standard/issues/1607
-                or (repo_name == 'ocds_selectionCriteria_extension'
-                and pointer_and_key.startswith((
-                    '/definitions/SelectionCriteria/',
-                    '/definitions/Tender/properties/selectionCriteria/',
-                )))
+                or (
+                    repo_name == "ocds_selectionCriteria_extension"
+                    and pointer_and_key.startswith(
+                        (
+                            "/definitions/SelectionCriteria/",
+                            "/definitions/Tender/properties/selectionCriteria/",
+                        )
+                    )
+                )
             ):
-                warnings.warn(f'copies {pointer_and_key}')
+                warnings.warn(f"copies {pointer_and_key}")
             else:
                 if is_profile:
-                    message = ' - check for repeats across extension_versions.json, dependencies, testDependencies'
+                    message = " - check for repeats across extension_versions.json, dependencies, testDependencies"
                 else:
-                    message = ''
-                raise AssertionError(f'unexpectedly overwrites {pointer_and_key}{message}')
+                    message = ""
+                raise AssertionError(f"unexpectedly overwrites {pointer_and_key}{message}")
 
         if value is None:
             result.pop(key, None)
@@ -240,65 +251,61 @@ def metaschemas():
     # See https://ocds-standard-development-handbook.readthedocs.io/en/latest/meta/schema_style_guide.html#validation-keywords
     unused_json_schema_properties = {
         # Validation keywords for numeric instances
-        'multipleOf',
-        'exclusiveMaximum',
-
+        "multipleOf",
+        "exclusiveMaximum",
         # Validation keywords for strings
-        'maxLength',
-
+        "maxLength",
         # Validation keywords for arrays
-        'additionalItems',
-        'maxItems',
-
+        "additionalItems",
+        "maxItems",
         # Validation keywords for objects
-        'additionalProperties',
-        'dependencies',
-        'maxProperties',
-
+        "additionalProperties",
+        "dependencies",
+        "maxProperties",
         # Validation keywords for any instance type
-        'allOf',
-        'anyOf',
-        'not',
+        "allOf",
+        "anyOf",
+        "not",
     }
 
-    url = 'https://raw.githubusercontent.com/open-contracting/standard/1.1/schema/meta-schema.json'
+    url = "https://raw.githubusercontent.com/open-contracting/standard/1.1/schema/meta-schema.json"
     metaschema = http_get(url).json()
 
     # Draft 6 removes `minItems` from `definitions/stringArray`.
     # See https://github.com/open-contracting-extensions/ocds_api_extension/blob/master/release-package-schema.json#L2
-    del metaschema['definitions']['stringArray']['minItems']
+    del metaschema["definitions"]["stringArray"]["minItems"]
 
     # See https://tools.ietf.org/html/rfc7396
     if is_extension:
         # See https://github.com/open-contracting-extensions/ocds_milestone_documents_extension/blob/master/release-schema.json#L9
-        metaschema['properties']['deprecated']['type'] = ['object', 'null']
+        metaschema["properties"]["deprecated"]["type"] = ["object", "null"]
 
     # Fork the project package schema here, to not add merge properties to it.
     project_package_metaschema = deepcopy(metaschema)
 
     # jsonmerge fields for OCDS 1.0.
     # See https://github.com/open-contracting-archive/jsonmerge
-    metaschema['properties']['mergeStrategy'] = {
-        'type': 'string',
-        'enum': [
-            'append',
-            'arrayMergeById',
-            'objectMerge',
-            'ocdsOmit',
-            'ocdsVersion',
-            'overwrite',
-            'version',
+    metaschema["properties"]["mergeStrategy"] = {
+        "type": "string",
+        "enum": [
+            "append",
+            "arrayMergeById",
+            "objectMerge",
+            "ocdsOmit",
+            "ocdsVersion",
+            "overwrite",
+            "version",
         ],
     }
-    metaschema['properties']['mergeOptions'] = {
-        'type': 'object',
-        'properties': {
-            'additionalProperties': False,
-            'idRef': {'type': 'string'},
-            'ignoreDups': {'type': 'boolean'},
-            'ignoreId': {'type': 'string'},
-            'limit': {'type': 'number'},
-            'unique': {'type': 'boolean'},
+    metaschema["properties"]["mergeOptions"] = {
+        "type": "object",
+        "properties": {
+            "additionalProperties": False,
+            "idRef": {"type": "string"},
+            "ignoreDups": {"type": "boolean"},
+            "ignoreId": {"type": "string"},
+            "limit": {"type": "number"},
+            "unique": {"type": "boolean"},
         },
     }
 
@@ -306,61 +313,67 @@ def metaschemas():
     record_package_metaschema = deepcopy(metaschema)
 
     for prop in unused_json_schema_properties:
-        del record_package_metaschema['properties'][prop]
-        del project_package_metaschema['properties'][prop]
+        del record_package_metaschema["properties"][prop]
+        del project_package_metaschema["properties"][prop]
 
-    subschema = {'$ref': '#/definitions/schemaArray'}
-    record_package_metaschema['properties']['items']['anyOf'].remove(subschema)
-    project_package_metaschema['properties']['items']['anyOf'].remove(subschema)
+    subschema = {"$ref": "#/definitions/schemaArray"}
+    record_package_metaschema["properties"]["items"]["anyOf"].remove(subschema)
+    project_package_metaschema["properties"]["items"]["anyOf"].remove(subschema)
 
     # Record package schema allows oneOf, but release package schema does not.
     release_package_metaschema = deepcopy(record_package_metaschema)
 
-    del release_package_metaschema['properties']['oneOf']
-    del project_package_metaschema['properties']['oneOf']
+    del release_package_metaschema["properties"]["oneOf"]
+    del project_package_metaschema["properties"]["oneOf"]
 
-    metaschema['$id'] = deepcopy(metaschema['id'])
-    metaschema['properties']['$id'] = deepcopy(metaschema['properties']['id'])
+    metaschema["$id"] = deepcopy(metaschema["id"])
+    metaschema["properties"]["$id"] = deepcopy(metaschema["properties"]["id"])
 
     return {
-        'metaschema': metaschema,
-        'project_package_metaschema': project_package_metaschema,
-        'record_package_metaschema': record_package_metaschema,
-        'release_package_metaschema': release_package_metaschema,
+        "metaschema": metaschema,
+        "project_package_metaschema": project_package_metaschema,
+        "record_package_metaschema": record_package_metaschema,
+        "release_package_metaschema": release_package_metaschema,
     }
 
 
 def test_empty():
     def include(path, name):
-        return name not in {'.gitkeep', 'py.typed'} and (
+        return name not in {".gitkeep", "py.typed"} and (
             # Template repositories are allowed to have empty schema files.
-            name not in {
-                'record-package-schema.json',
-                'record-schema.json',
-                'release-package-schema.json',
-                'release-schema.json',
+            name
+            not in {
+                "record-package-schema.json",
+                "record-schema.json",
+                "release-package-schema.json",
+                "release-schema.json",
             }
-            or repo_name not in {'standard_extension_template', 'standard_profile_template'}
+            or repo_name not in {"standard_extension_template", "standard_profile_template"}
         )
 
-    warn_and_assert(get_empty_files(include), '{0} is empty, run: rm {0}',
-                    'Files are empty. See warnings below.')
+    warn_and_assert(get_empty_files(include), "{0} is empty, run: rm {0}", "Files are empty. See warnings below.")
 
 
-@pytest.mark.skipif(bool(os.getenv('OCDS_NOINDENT', '')), reason='skipped indentation')
+@pytest.mark.skipif(bool(os.getenv("OCDS_NOINDENT", "")), reason="skipped indentation")
 def test_indent():
     def include(path, name):
         # http://json-schema.org/draft-04/schema
-        return name not in {'biome.json', 'json-schema-draft-4.json', 'package.json', 'package-lock.json'}
+        return name not in {"biome.json", "json-schema-draft-4.json", "package.json", "package-lock.json"}
 
-    warn_and_assert(get_misindented_files(include), '{0} is not indented as expected, run: ocdskit indent {0}',
-                    'Files are not indented as expected. See warnings below, or run: ocdskit indent -r .')
+    warn_and_assert(
+        get_misindented_files(include),
+        "{0} is not indented as expected, run: ocdskit indent {0}",
+        "Files are not indented as expected. See warnings below, or run: ocdskit indent -r .",
+    )
 
 
 def test_json_valid():
-    excluded = ('.git', '.ve', '.venv', '_static', 'build', 'fixtures', 'node_modules')
-    warn_and_assert(get_invalid_json_files(excluded=excluded), '{0} is not valid JSON: {1}',
-                    'JSON files are invalid. See warnings below.')
+    excluded = (".git", ".ve", ".venv", "_static", "build", "fixtures", "node_modules")
+    warn_and_assert(
+        get_invalid_json_files(excluded=excluded),
+        "{0} is not valid JSON: {1}",
+        "JSON files are invalid. See warnings below.",
+    )
 
 
 def validate_json_schema(path, name, data, schema, full_schema=not is_extension):
@@ -370,7 +383,7 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
     errors = 0
 
     # The standard repository has an example extension.
-    if 'docs/examples/organizations/organizational_units/ocds_divisionCode_extension' in path:
+    if "docs/examples/organizations/organizational_units/ocds_divisionCode_extension" in path:
         full_schema = False
 
     # Non-OCDS schema don't:
@@ -381,31 +394,31 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
     # * include "id" fields in objects within arrays
     # * require "title", "description" and "type" properties
     json_schema_exceptions = {
-        'json-schema-draft-4.json',
-        'meta-schema.json',
-        'meta-schema-patch.json',
+        "json-schema-draft-4.json",
+        "meta-schema.json",
+        "meta-schema-patch.json",
     }
     ocds_schema_exceptions = {
-        'dereferenced-release-schema.json',
+        "dereferenced-release-schema.json",
         # standard-maintenance-scripts
-        'codelist-schema.json',
-        'extension-schema.json',
+        "codelist-schema.json",
+        "extension-schema.json",
         # extension_registry
-        'extensions-schema.json',
-        'extension_versions-schema.json',
+        "extensions-schema.json",
+        "extension_versions-schema.json",
         # kingfisher-collect
-        '1.0.json',
-        '1.1.json',
+        "1.0.json",
+        "1.1.json",
         # spoonbill
-        'ocds-simplified-schema.json',
+        "ocds-simplified-schema.json",
     }
     schema_exceptions = json_schema_exceptions | ocds_schema_exceptions
 
     validate_items_type_kwargs = {
-        'allow_invalid': {
-            '/definitions/Amendment/properties/changes/items',  # deprecated
-            '/definitions/AmendmentUnversioned/properties/changes/items',  # deprecated
-            '/definitions/record/properties/releases/oneOf/0/items',  # 1.1
+        "allow_invalid": {
+            "/definitions/Amendment/properties/changes/items",  # deprecated
+            "/definitions/AmendmentUnversioned/properties/changes/items",  # deprecated
+            "/definitions/record/properties/releases/oneOf/0/items",  # 1.1
         },
     }
 
@@ -413,102 +426,105 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
         return is_extension and codelist in external_codelists
 
     validate_codelist_enum_kwargs = {
-        'fallback': {
-            '/definitions/Metric/properties/id': ['string'],
-            '/definitions/Milestone/properties/code': ['string', 'null'],
+        "fallback": {
+            "/definitions/Metric/properties/id": ["string"],
+            "/definitions/Milestone/properties/code": ["string", "null"],
         },
-        'allow_missing': validate_codelist_enum_allow_missing,
+        "allow_missing": validate_codelist_enum_allow_missing,
     }
 
     validate_letter_case_kwargs = {
-        'property_exceptions': {'former_value'},  # deprecated
-        'definition_exceptions': {'record'},  # 1.1
+        "property_exceptions": {"former_value"},  # deprecated
+        "definition_exceptions": {"record"},  # 1.1
     }
 
     def validate_metadata_presence_allow_missing(pointer):
-        parts = pointer.split('/')
+        parts = pointer.split("/")
         # record-schema.json sets "type" as sibling to "oneOf".
-        return 'links' in parts or 'oneOf' in parts  # ocds_pagination_extension
+        return "links" in parts or "oneOf" in parts  # ocds_pagination_extension
 
     validate_metadata_presence_kwargs = {
-        'allow_missing': validate_metadata_presence_allow_missing,
+        "allow_missing": validate_metadata_presence_allow_missing,
     }
 
     def validate_object_id_allow_missing(pointer):
-        parts = pointer.split('/')
-        return repo_name == 'infrastructure' or 'versionedRelease' in parts or parts[-1] in {
-            'changes',  # deprecated
-            'records',  # uses `ocid` not `id`
-            '0',  # linked releases
-        }
+        parts = pointer.split("/")
+        return (
+            repo_name == "infrastructure"
+            or "versionedRelease" in parts
+            or parts[-1]
+            in {
+                "changes",  # deprecated
+                "records",  # uses `ocid` not `id`
+                "0",  # linked releases
+            }
+        )
 
     validate_object_id_kwargs = {
-        'allow_missing': validate_object_id_allow_missing,
-        'allow_optional': {
+        "allow_missing": validate_object_id_allow_missing,
+        "allow_optional": {
             # 2.0 fixes.
             # See https://github.com/open-contracting/standard/issues/650
-            '/definitions/Amendment',
-            '/definitions/Organization',
-            '/definitions/OrganizationReference',
-            '/definitions/RelatedProcess',
+            "/definitions/Amendment",
+            "/definitions/Organization",
+            "/definitions/OrganizationReference",
+            "/definitions/RelatedProcess",
         },
     }
-    if repo_name == 'infrastructure':
-        validate_object_id_kwargs['allow_optional'].add('/definitions/Classification')
+    if repo_name == "infrastructure":
+        validate_object_id_kwargs["allow_optional"].add("/definitions/Classification")
 
     validate_null_type_kwargs = {
         # OCDS allows null. OC4IDS disallows null.
-        'no_null': repo_name == 'infrastructure',
-        'allow_object_null': {
-            '/definitions/Amendment/properties/changes/items/properties/former_value',  # deprecated
+        "no_null": repo_name == "infrastructure",
+        "allow_object_null": {
+            "/definitions/Amendment/properties/changes/items/properties/former_value",  # deprecated
             # See https://github.com/open-contracting/standard/pull/738#issuecomment-440727233
-            '/definitions/Organization/properties/details',
+            "/definitions/Organization/properties/details",
         },
-        'allow_no_null': {
-            '/properties/releases',  # record-schema.json disallows "releases": null
-            '/definitions/Amendment/properties/changes/items/properties/property',  # deprecated
-
+        "allow_no_null": {
+            "/properties/releases",  # record-schema.json disallows "releases": null
+            "/definitions/Amendment/properties/changes/items/properties/property",  # deprecated
             # Children of fields with omitWhenMerged.
-            '/definitions/Link/properties/rel',
-            '/definitions/Link/properties/href',
-
+            "/definitions/Link/properties/rel",
+            "/definitions/Link/properties/href",
             # 2.0 fixes.
             # See https://github.com/open-contracting/standard/issues/650
-            '/definitions/LinkedRelease/properties/tag',
-            '/definitions/Organization/properties/id',
-            '/definitions/OrganizationReference/properties/id',
-            '/definitions/RelatedProcess/properties/id',
+            "/definitions/LinkedRelease/properties/tag",
+            "/definitions/Organization/properties/id",
+            "/definitions/OrganizationReference/properties/id",
+            "/definitions/RelatedProcess/properties/id",
         },
     }
 
     validate_array_items_kwargs = {
-        'allow_invalid': {
-            '/definitions/Amendment/properties/changes/items/properties/former_value',  # deprecated
-            '/definitions/Location/properties/geometry/properties/coordinates/items',  # recursion
-            '/properties/releases',  # record-schema.json sets "items" within "oneOf"
+        "allow_invalid": {
+            "/definitions/Amendment/properties/changes/items/properties/former_value",  # deprecated
+            "/definitions/Location/properties/geometry/properties/coordinates/items",  # recursion
+            "/properties/releases",  # record-schema.json sets "items" within "oneOf"
             # versioned-release-validation-schema.json
-            '/definitions/Location/properties/geometry/properties/coordinates/items/properties/value/items',
-            '/definitions/LocationUnversioned/properties/geometry/properties/coordinates/items',
+            "/definitions/Location/properties/geometry/properties/coordinates/items/properties/value/items",
+            "/definitions/LocationUnversioned/properties/geometry/properties/coordinates/items",
         },
     }
 
     validate_deep_properties_kwargs = {
-        'allow_deep': {
-            '/definitions/Amendment/properties/changes/items',  # deprecated
+        "allow_deep": {
+            "/definitions/Amendment/properties/changes/items",  # deprecated
         },
     }
     if is_extension:  # avoid repetition in extensions
-        validate_deep_properties_kwargs['allow_deep'].add('/definitions/Item/properties/unit')
+        validate_deep_properties_kwargs["allow_deep"].add("/definitions/Item/properties/unit")
 
     validator = Draft4Validator(schema, format_checker=FormatChecker())
 
     errors += validate_schema(path, data, validator)
     if errors:
-        warnings.warn(f'{path} is not valid against the schema ({errors} errors)')
+        warnings.warn(f"{path} is not valid against the schema ({errors} errors)")
 
     if name not in schema_exceptions:
-        if 'versioned-release-validation-schema.json' in path:
-            validate_items_type_kwargs['additional_valid_types'] = ['object']
+        if "versioned-release-validation-schema.json" in path:
+            validate_items_type_kwargs["additional_valid_types"] = ["object"]
         errors += validate_array_items(path, data, **validate_array_items_kwargs)
         errors += validate_items_type(path, data, **validate_items_type_kwargs)
         errors += validate_codelist_enum(path, data, **validate_codelist_enum_kwargs)
@@ -518,17 +534,17 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
     # `full_schema` is set to not expect extensions to repeat information from core.
     if full_schema:
         exceptions_plus_versioned = schema_exceptions | {
-            'versioned-release-validation-schema.json',
+            "versioned-release-validation-schema.json",
         }
 
         exceptions_plus_versioned_and_packages = exceptions_plus_versioned | {
-            'project-package-schema.json',
-            'record-package-schema.json',
-            'release-package-schema.json',
+            "project-package-schema.json",
+            "record-package-schema.json",
+            "release-package-schema.json",
         }
 
         exceptions_plus_versioned_and_packages_and_record = exceptions_plus_versioned_and_packages | {
-            'record-schema.json',
+            "record-schema.json",
         }
 
         # Extensions aren't expected to repeat referenced `definitions`.
@@ -538,9 +554,7 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
             # Extensions aren't expected to repeat `title`, `description`, `type`.
             errors += validate_metadata_presence(path, data, **validate_metadata_presence_kwargs)
             # Extensions aren't expected to repeat referenced `definitions`.
-            errors += validate_object_id(
-                path, jsonref.replace_refs(data, loader=loader), **validate_object_id_kwargs
-            )
+            errors += validate_object_id(path, jsonref.replace_refs(data, loader=loader), **validate_object_id_kwargs)
 
         if name not in exceptions_plus_versioned_and_packages:
             # Extensions aren't expected to repeat `required`. Packages don't have merge rules.
@@ -562,35 +576,37 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
         # Don't count these as errors.
         validate_deep_properties(path, data, **validate_deep_properties_kwargs)
 
-    assert not errors, 'One or more JSON Schema files are invalid. See warnings below.'
+    assert not errors, "One or more JSON Schema files are invalid. See warnings below."
 
 
-@pytest.mark.parametrize(('path', 'name', 'data'), json_schemas)
+@pytest.mark.parametrize(("path", "name", "data"), json_schemas)
 def test_schema_valid(path, name, data):
     """
     Ensures all JSON Schema files are valid JSON Schema Draft 4 and use codelists correctly. Unless this is an
     extension, ensures JSON Schema files have required metadata and valid references.
     """
     schemas = metaschemas()
-    if name in {'release-schema.json', 'release-package-schema.json'}:
-        metaschema = schemas['release_package_metaschema']
-    elif name in {'record-schema.json', 'record-package-schema.json'}:
-        metaschema = schemas['record_package_metaschema']
-    elif name in {'project-schema.json', 'project-package-schema.json'}:
-        metaschema = schemas['project_package_metaschema']
+    if name in {"release-schema.json", "release-package-schema.json"}:
+        metaschema = schemas["release_package_metaschema"]
+    elif name in {"record-schema.json", "record-package-schema.json"}:
+        metaschema = schemas["record_package_metaschema"]
+    elif name in {"project-schema.json", "project-package-schema.json"}:
+        metaschema = schemas["project_package_metaschema"]
     else:
-        metaschema = schemas['metaschema']
+        metaschema = schemas["metaschema"]
 
     validate_json_schema(path, name, data, metaschema)
 
 
-@pytest.mark.skipif(is_profile or not is_extension or repo_name in core_extensions,
-                    reason='is a profile, or is not a community extension (test_schema_strict)')
+@pytest.mark.skipif(
+    is_profile or not is_extension or repo_name in core_extensions,
+    reason="is a profile, or is not a community extension (test_schema_strict)",
+)
 def test_schema_strict():
     """
     Ensures `ocdskit schema-strict` has been run on all JSON Schema files.
     """
-    path = os.path.join(extensiondir, 'release-schema.json')
+    path = os.path.join(extensiondir, "release-schema.json")
     if os.path.isfile(path):
         with open(path) as f:
             data = json.load(f)
@@ -598,77 +614,78 @@ def test_schema_strict():
         original = deepcopy(data)
         add_validation_properties(data)
 
-        assert data == original, f'{path} is missing validation properties, run: ocdskit schema-strict {path}'
+        assert data == original, f"{path} is missing validation properties, run: ocdskit schema-strict {path}"
 
 
-@pytest.mark.skipif(not is_extension, reason='not an extension (test_versioned_release_schema)')
+@pytest.mark.skipif(not is_extension, reason="not an extension (test_versioned_release_schema)")
 def test_versioned_release_schema():
     """
     Ensures the extension contains no versioned-release-validation-schema.json file.
     """
-    path = 'versioned-release-validation-schema.json'
+    path = "versioned-release-validation-schema.json"
     if os.path.exists(path):
-        warn_and_assert([path], '{0} is present, run: rm {0}',
-                        'Versioned release schema files are present. See warnings below.')
+        warn_and_assert(
+            [path], "{0} is present, run: rm {0}", "Versioned release schema files are present. See warnings below."
+        )
 
 
-@pytest.mark.skipif(not is_extension, reason='not an extension (test_extension_json)')
+@pytest.mark.skipif(not is_extension, reason="not an extension (test_extension_json)")
 def test_extension_json():
     """
     Ensures the extension's extension.json file is valid against extension-schema.json, all codelists are included, and
     all URLs resolve.
     """
-    path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'schema', 'extension-schema.json')
+    path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "schema", "extension-schema.json")
     if os.path.isfile(path):
         with open(path) as f:
             schema = json.load(f)
     else:
-        url = 'https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/main/schema/extension-schema.json'
+        url = "https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/main/schema/extension-schema.json"
         schema = http_get(url).json()
 
-    expected_codelists = {name for _, name, _, _, _ in
-                          walk_csv_data(top=os.path.join(extensiondir, 'codelists'))}
-    expected_schemas = {name for _, name, _, _ in
-                        walk_json_data(patch, top=extensiondir) if name.endswith('-schema.json')}
+    expected_codelists = {name for _, name, _, _, _ in walk_csv_data(top=os.path.join(extensiondir, "codelists"))}
+    expected_schemas = {
+        name for _, name, _, _ in walk_json_data(patch, top=extensiondir) if name.endswith("-schema.json")
+    }
 
-    path = os.path.join(extensiondir, 'extension.json')
+    path = os.path.join(extensiondir, "extension.json")
     if os.path.isfile(path):
         with open(path) as f:
             data = json.load(f, object_pairs_hook=rejecting_dict)
 
-        validate_json_schema(path, 'extension.json', data, schema)
+        validate_json_schema(path, "extension.json", data, schema)
 
-        for url in data.get('dependencies', []) + data.get('testDependencies', []):
+        for url in data.get("dependencies", []) + data.get("testDependencies", []):
             try:
                 status_code = http_head(url).status_code
             except requests.ConnectionError as e:
                 raise AssertionError(url) from e
             else:
-                assert status_code == 200, f'HTTP {status_code} on {url}'
+                assert status_code == 200, f"HTTP {status_code} on {url}"
 
-        for url in list(data['documentationUrl'].values()):
+        for url in list(data["documentationUrl"].values()):
             try:
                 status_code = http_get(url).status_code  # allow redirects
             except requests.ConnectionError as e:
                 raise AssertionError(url) from e
             else:
-                assert status_code == 200, f'HTTP {status_code} on {url}'
+                assert status_code == 200, f"HTTP {status_code} on {url}"
 
-        actual_codelists = set(data.get('codelists', []))
+        actual_codelists = set(data.get("codelists", []))
         if actual_codelists != expected_codelists:
             added, removed = difference(actual_codelists, expected_codelists)
-            raise AssertionError(f'{path} has mismatch with codelists{added}{removed}')
+            raise AssertionError(f"{path} has mismatch with codelists{added}{removed}")
 
-        actual_schemas = set(data.get('schemas', []))
+        actual_schemas = set(data.get("schemas", []))
         if actual_schemas != expected_schemas:
             added, removed = difference(actual_schemas, expected_schemas)
-            raise AssertionError(f'{path} has mismatch with schema{added}{removed}')
+            raise AssertionError(f"{path} has mismatch with schema{added}{removed}")
     else:
         # This code is never reached, as the test is only run if there is an extension.json file.
-        raise AssertionError('expected an extension.json file')
+        raise AssertionError("expected an extension.json file")
 
 
-@pytest.mark.skipif(not is_extension, reason='not an extension (test_json_merge_patch)')
+@pytest.mark.skipif(not is_extension, reason="not an extension (test_json_merge_patch)")
 def test_json_merge_patch():
     """
     Ensures all extension JSON Schema successfully patch and change core JSON Schema, generating schema that are valid
@@ -677,27 +694,27 @@ def test_json_merge_patch():
     schemas = {}
 
     basenames = (
-        'record-package-schema.json',
-        'record-schema.json',
-        'release-package-schema.json',
-        'release-schema.json',
-        'versioned-release-validation-schema.json',
+        "record-package-schema.json",
+        "record-schema.json",
+        "release-package-schema.json",
+        "release-schema.json",
+        "versioned-release-validation-schema.json",
     )
 
     if ocds_version or not use_development_version:
-        url_pattern = ocds_schema_base_url + ocds_tag + '/{}'
+        url_pattern = ocds_schema_base_url + ocds_tag + "/{}"
     else:
-        url_pattern = development_base_url + '/{}'
+        url_pattern = development_base_url + "/{}"
 
     for basename in basenames:
         # Remove this condition after OCDS 1.2.0 released.
-        if basename == 'record-schema.json':
-            schemas[basename] = http_get(f'{development_base_url}/{basename}').json()
+        if basename == "record-schema.json":
+            schemas[basename] = http_get(f"{development_base_url}/{basename}").json()
         else:
             schemas[basename] = http_get(url_pattern.format(basename)).json()
 
-        if basename == 'release-schema.json':
-            path = os.path.join(extensiondir, 'extension.json')
+        if basename == "release-schema.json":
+            path = os.path.join(extensiondir, "extension.json")
             with open(path) as f:
                 metadata = json.load(f, object_pairs_hook=rejecting_dict)
                 schemas[basename] = extend_schema(basename, schemas[basename], metadata, codelists=external_codelists)
@@ -712,7 +729,7 @@ def test_json_merge_patch():
                 raise AssertionError(path) from e
 
             # All metadata should be present.
-            validate_json_schema(path, name, patched, metaschemas()['metaschema'], full_schema=True)
+            validate_json_schema(path, name, patched, metaschemas()["metaschema"], full_schema=True)
 
             # Empty patches aren't allowed. json_merge_patch mutates `unpatched`, so `schemas[name]` is tested.
             assert patched != schemas[name]
