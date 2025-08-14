@@ -32,36 +32,35 @@ namespace :repos do
   desc 'Lists open and dismissed vulnerabilities'
   task :vulnerabilities do
     repos.each do |repo|
-      params = {
-        # vulnerabilityAlerts at https://docs.github.com/en/graphql/reference/objects#repository
-        # https://docs.github.com/en/graphql/reference/objects#repositoryvulnerabilityalert
-        query: %({
-          repository(name: "#{repo.name}", owner: "#{repo.owner.login}") {
-            vulnerabilityAlerts(first: 100) {
-              nodes {
-                fixedAt
-                dismissComment
-                dismissReason
-                dismissedAt
-                autoDismissedAt
-                securityVulnerability {
-                  package {
-                    name
-                  }
+      # vulnerabilityAlerts at https://docs.github.com/en/graphql/reference/objects#repository
+      # https://docs.github.com/en/graphql/reference/objects#repositoryvulnerabilityalert
+      query = %({
+        repository(name: "#{repo.name}", owner: "#{repo.owner.login}") {
+          vulnerabilityAlerts(first: 100) {
+            nodes {
+              fixedAt
+              dismissComment
+              dismissReason
+              dismissedAt
+              autoDismissedAt
+              securityVulnerability {
+                package {
+                  name
                 }
               }
             }
           }
-        })
-      }
-      response = Faraday.post('https://api.github.com/graphql', JSON.dump(params)) do |request|
+        }
+      })
+      response = Faraday.post('https://api.github.com/graphql', JSON.dump(query: query)) do |request|
         request.headers['Authorization'] = "bearer #{ENV.fetch('GITHUB_ACCESS_TOKEN')}"
       end
       if response.status != 200
         raise response.body
       end
-      data = JSON.load(response.body)
-      nodes = data['data']['repository']['vulnerabilityAlerts']['nodes'].reject{ |node| node['fixedAt'] || node['autoDismissedAt'] }
+      nodes = JSON.load(response.body)['data']['repository']['vulnerabilityAlerts']['nodes'].reject do |node|
+        node['fixedAt'] || node['autoDismissedAt']
+      end
       if nodes.any?
         puts "#{repo.full_name}"
         rows = nodes.map do |node|
