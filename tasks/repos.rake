@@ -342,7 +342,20 @@ Report issues for this extension in the [ocds-extensions repository](https://git
         end
 
         if repo.has_projects
-          projects = client.projects(repo.full_name, accept: 'application/vnd.github.inertia-preview+json').size # projects
+          query = %({
+            repository(name: "#{repo.name}", owner: "#{repo.owner.login}") {
+              projectsV2(first: 100) {
+                totalCount
+              }
+            }
+          })
+          response = Faraday.post('https://api.github.com/graphql', JSON.dump(query: query)) do |request|
+            request.headers['Authorization'] = "bearer #{ENV.fetch('GITHUB_ACCESS_TOKEN')}" if ENV['GITHUB_ACCESS_TOKEN']
+          end
+          if response.status != 200
+            raise response.body
+          end
+          projects = JSON.load(response.body)['data']['repository']['projectsV2']['totalCount']
         else
           projects = 0
         end
