@@ -178,6 +178,10 @@ namespace :fix do
     headers = {accept: 'application/vnd.github.luke-cage-preview+json'} # branch_protection
 
     repos.each do |repo|
+      if repo.archived
+        next
+      end
+
       contexts = []
 
       ci = read_github_file(repo.full_name, '.github/workflows/ci.yml')
