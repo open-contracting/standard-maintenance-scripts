@@ -153,7 +153,7 @@ namespace :local do
         '',
         'In addition to the below, within the [OpenDataServices](https://github.com/OpenDataServices) organization, the `flatten-tool`, `sphinxcontrib-jsonschema` and `sphinxcontrib-opendataservices` dependencies are relevant.',
         '',
-        "*Stmts* is the number of statements, measured by Coveralls. For example, the assignment of a dict literal or a list comprehension is a single statement, which can be spread across many lines of code (e.g. measured by [Tokei](https://github.com/XAMPPRocky/tokei)). This is more informative, because developers generally reason at the level of statements.",
+        "*Stmts* is the number of statements, measured by Codecov. For example, the assignment of a dict literal or a list comprehension is a single statement, which can be spread across many lines of code (e.g. measured by [Tokei](https://github.com/XAMPPRocky/tokei)). This is more informative, because developers generally reason at the level of statements.",
       ]
     end
 
@@ -211,10 +211,16 @@ namespace :local do
             if ['Tools', 'Extension tools', 'Internal tools', 'Documentation dependencies'].include?(heading)
               tox = read_github_file(repo.full_name, 'tox.ini')
 
-              if [workflow_files['ci'], tox].any?{ |contents| contents.include?('coveralls') }
-                line << " [![Coverage Status](https://coveralls.io/repos/github/#{repo.full_name}/badge.svg?branch=#{repo.default_branch})](https://coveralls.io/github/#{repo.full_name}?branch=#{repo.default_branch})"
+              if [workflow_files['ci'], tox].any?{ |contents| contents.include?('codecov') }
+                line << " [![Coverage Status](https://codecov.io/github/#{repo.full_name}/badge.svg)](https://codecov.io/github/#{repo.full_name})"
 
-                loc = URI.open("https://coveralls.io/github/#{repo.full_name}").read.match(%r{<strong>(\d+)</strong>\s+relevant lines covered})[1]
+                begin
+                  url = "https://api.codecov.io/api/v2/github/#{repo.owner.login}/repos/#{repo.name}/report/?branch=#{repo.default_branch}"
+                  loc = JSON.load(URI.open(url).read)['totals']['lines']
+                rescue OpenURI::HTTPError => e
+                  puts "#{e.to_s.bold}: #{url}"
+                  loc = ''
+                end
               end
             end
           end
