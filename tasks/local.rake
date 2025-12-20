@@ -231,6 +231,13 @@ namespace :local do
             line << " [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/#{repo.full_name}/#{repo.default_branch}.svg)](https://results.pre-commit.ci/latest/github/#{repo.full_name}/#{repo.default_branch})"
           end
 
+          begin
+            client.get("/repos/#{repo.full_name}/code-scanning/analyses", per_page: 1)
+            line << " [![CodeQL](https://github.com/#{repo.full_name}/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/#{repo.full_name}/actions/workflows/github-code-scanning/codeql)"
+          rescue Octokit::NotFound
+            # CodeQL not enabled
+          end
+
           line << '|'
 
           if ENV['ORG'] != 'open-contracting-partnership' && !REPOSITORY_CATEGORIES_WITHOUT_DOCS.include?(heading)
