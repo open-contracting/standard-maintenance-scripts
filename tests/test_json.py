@@ -150,7 +150,7 @@ excluded_repo_name = (
 json_schemas = [
     (path, name, data)
     for path, name, _, data in walk_json_data(patch, excluded=excluded)
-    if is_json_schema(data) and repo_name not in excluded_repo_name and name not in {"biome.json"}
+    if is_json_schema(data) and repo_name not in excluded_repo_name and name != "biome.json"
 ]
 
 

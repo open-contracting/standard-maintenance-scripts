@@ -24,9 +24,9 @@ warnings.formatwarning = formatwarning
 pytestmark = pytest.mark.filterwarnings("always")
 
 
-@pytest.mark.skipif(repo_name in ("pelican-backend",), reason="cached upstream file")
-@pytest.mark.skipif(repo_name in ("data-support",), reason="expected trailing whitespace")
-@pytest.mark.skipif(repo_name in ("european-union-support",), reason="extra quoting characters")
+@pytest.mark.skipif(repo_name == "pelican-backend", reason="cached upstream file")
+@pytest.mark.skipif(repo_name == "data-support", reason="expected trailing whitespace")
+@pytest.mark.skipif(repo_name == "european-union-support", reason="extra quoting characters")
 def test_valid():
     """
     Ensures all CSV files are valid: no empty rows or columns, no leading or trailing whitespace in cells, same number
@@ -90,8 +90,8 @@ def test_valid():
     assert errors == 0, "One or more codelist CSV files are invalid. See warnings below."
 
 
-@pytest.mark.skipif(repo_name in ("pelican-backend",), reason="not a codelist")
-@pytest.mark.skipif(repo_name in ("european-union-support",), reason="not a codelist")
+@pytest.mark.skipif(repo_name == "pelican-backend", reason="not a codelist")
+@pytest.mark.skipif(repo_name == "european-union-support", reason="not a codelist")
 def test_codelist():
     """
     Ensures all codelists files are valid against codelist-schema.json.

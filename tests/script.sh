@@ -172,7 +172,6 @@ if [ -n "$REQUIREMENTS_FILE" ]; then
     if grep pandas $REQUIREMENTS_FILE > /dev/null; then
         IGNORE+=(
             PD008 # pandas-use-of-dot-at
-            PD901 # pandas-df-variable-name
         )
     fi
     if grep scrapy $REQUIREMENTS_FILE > /dev/null; then
