@@ -12,8 +12,6 @@ charset-normalizer==3.3.2
     # via requests
 click==8.1.7
     # via -r requirements.in
-exceptiongroup==1.2.2
-    # via cattrs
 idna==3.8
     # via requests
 json-merge-patch==0.2
@@ -35,8 +33,6 @@ six==1.16.0
     # via url-normalize
 tomli==2.0.2
     # via -r requirements.in
-typing-extensions==4.12.2
-    # via cattrs
 url-normalize==1.4.3
     # via requests-cache
 urllib3==2.6.3
