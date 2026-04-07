@@ -106,7 +106,7 @@ def test_example_present():
     readme = read_readme()
 
     # ocds_enquiry_extension has "Example" as text, instead of as a heading.
-    assert re.search(r"\bexamples?\b", readme, re.IGNORECASE), "README.md: expected an Example heading"
+    assert re.search(r"\b(examples?|ejemplo)\b", readme, re.IGNORECASE), "README.md: expected an Example heading"
     assert "```json" in readme, "README.md: expected a JSON example"
 
 
