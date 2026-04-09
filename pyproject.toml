@@ -27,3 +27,6 @@ extend-ignore-names = ["visit_*"]
 "tests/*" = [
     "ARG001", "D", "FBT003", "INP001", "PLR2004", "S", "TRY003",
 ]
+
+[tool.uv.pip]
+exclude-newer = "1 week"
