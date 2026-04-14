@@ -4,9 +4,11 @@
 
 |Build|Name|
 |-|-|
-|-|[dataanddealsUK](https://github.com/open-contracting-partnership/dataanddealsUK)|
-|-|[oc-map](https://github.com/open-contracting-partnership/oc-map)|
-|[![Build Status](https://travis-ci.org/open-contracting-partnership/ocp-data.svg)](https://travis-ci.org/open-contracting-partnership/ocp-data)|[ocp-data](https://github.com/open-contracting-partnership/ocp-data)|
-|-|[ocp-form](https://github.com/open-contracting-partnership/ocp-form)|
-|-|[ocp-form-server](https://github.com/open-contracting-partnership/ocp-form-server)|
-|-|[website](https://github.com/open-contracting-partnership/website)|
+| [![CodeQL](https://github.com/open-contracting-partnership/buyingai.open-contracting.org/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/open-contracting-partnership/buyingai.open-contracting.org/actions/workflows/github-code-scanning/codeql)|[buyingai.open-contracting.org](https://github.com/open-contracting-partnership/buyingai.open-contracting.org)|
+| [![CodeQL](https://github.com/open-contracting-partnership/mythbusting.open-contracting.org/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/open-contracting-partnership/mythbusting.open-contracting.org/actions/workflows/github-code-scanning/codeql)|[mythbusting.open-contracting.org](https://github.com/open-contracting-partnership/mythbusting.open-contracting.org)|
+| [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/open-contracting-partnership/ocp-data/master.svg)](https://results.pre-commit.ci/latest/github/open-contracting-partnership/ocp-data/master) [![CodeQL](https://github.com/open-contracting-partnership/ocp-data/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/open-contracting-partnership/ocp-data/actions/workflows/github-code-scanning/codeql)|[ocp-data](https://github.com/open-contracting-partnership/ocp-data)|
+| [![Lint](https://github.com/open-contracting-partnership/ocp-form/actions/workflows/lint.yml/badge.svg)](https://github.com/open-contracting-partnership/ocp-form/actions/workflows/lint.yml) [![CodeQL](https://github.com/open-contracting-partnership/ocp-form/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/open-contracting-partnership/ocp-form/actions/workflows/github-code-scanning/codeql)|[ocp-form](https://github.com/open-contracting-partnership/ocp-form)|
+| [![CodeQL](https://github.com/open-contracting-partnership/ocp-form-server/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/open-contracting-partnership/ocp-form-server/actions/workflows/github-code-scanning/codeql)|[ocp-form-server](https://github.com/open-contracting-partnership/ocp-form-server)|
+| [![CodeQL](https://github.com/open-contracting-partnership/website/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/open-contracting-partnership/website/actions/workflows/github-code-scanning/codeql)|[website](https://github.com/open-contracting-partnership/website)|
+||[www.open-contracting.eu](https://github.com/open-contracting-partnership/www.open-contracting.eu)|
+| [![CodeQL](https://github.com/open-contracting-partnership/www.open-spending.eu/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/open-contracting-partnership/www.open-spending.eu/actions/workflows/github-code-scanning/codeql)|[www.open-spending.eu](https://github.com/open-contracting-partnership/www.open-spending.eu)|
