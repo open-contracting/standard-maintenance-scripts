@@ -68,7 +68,12 @@ repo_name = os.path.basename(os.getenv("GITHUB_REPOSITORY", cwd))
 ocds_version = os.getenv("OCDS_TEST_VERSION")
 is_profile = os.path.isfile("Makefile") and os.path.isdir("docs") and repo_name not in {"standard", "infrastructure"}
 is_extension = os.path.isfile("extension.json") or is_profile
-extensiondir = os.path.join("schema", "profile") if is_profile else "."
+extension_dir = os.path.join("schema", "profile") if is_profile else "."
+extension_paths = [
+    # The standard repository has an example extension.
+    "docs/examples/organizations/organizational_units/ocds_divisionCode_extension",
+    *(path for path in os.getenv("OCDS_EXTENSION_PATHS", "").split(",") if path),
+]
 if repo_name == "standard" and os.getenv("GITHUB_ACTOR", "").lower() not in {
     "colinmaudry",
     "duncandewhurst",
@@ -118,8 +123,8 @@ warnings.formatwarning = formatwarning
 pytestmark = pytest.mark.filterwarnings("always")
 
 warnings.warn(
-    f"{repo_name=}\n{ocds_version=}\n{ocds_tag=}\n{is_profile=}\n{is_extension=}\n{extensiondir=}\n{standard_owner=}\n"
-    f"{use_development_version=}\n{ocds_schema_base_url=}\n{development_base_ref=}\n{development_base_url=}"
+    f"{repo_name=}\n{ocds_version=}\n{ocds_tag=}\n{is_profile=}\n{is_extension=}\n{extension_dir=}\n{standard_owner=}"
+    f"\n{use_development_version=}\n{ocds_schema_base_url=}\n{development_base_ref=}\n{development_base_url=}"
 )
 
 
@@ -137,20 +142,10 @@ def patch(text):
 
 
 excluded = (".git", ".ve", ".venv", "_static", "build", "fixtures", "node_modules")
-excluded_repo_name = (
-    # data-support extends and stores the release schema to, for example, unflatten data.
-    "data-support",
-    # These have a copy of the release schema, e.g. to generate and validate check names.
-    "pelican-backend",
-    "pelican-frontend",
-    "spoonbill-web",
-    # sphincontrib-opencontracting uses simplified schema files in its documentation.
-    "sphinxcontrib-opencontracting",
-)
 json_schemas = [
     (path, name, data)
     for path, name, _, data in walk_json_data(patch, excluded=excluded)
-    if is_json_schema(data) and repo_name not in excluded_repo_name and name != "biome.json"
+    if is_json_schema(data) and name != "biome.json"
 ]
 
 
@@ -368,7 +363,6 @@ def test_indent():
 
 
 def test_json_valid():
-    excluded = (".git", ".ve", ".venv", "_static", "build", "fixtures", "node_modules")
     warn_and_assert(
         get_invalid_json_files(excluded=excluded),
         "{0} is not valid JSON: {1}",
@@ -382,8 +376,7 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
     """
     errors = 0
 
-    # The standard repository has an example extension.
-    if "docs/examples/organizations/organizational_units/ocds_divisionCode_extension" in path:
+    if any(p in path for p in extension_paths):
         full_schema = False
 
     # Non-OCDS schema don't:
@@ -400,17 +393,7 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
     }
     ocds_schema_exceptions = {
         "dereferenced-release-schema.json",
-        # standard-maintenance-scripts
-        "codelist-schema.json",
-        "extension-schema.json",
-        # extension_registry
-        "extensions-schema.json",
-        "extension_versions-schema.json",
-        # kingfisher-collect
-        "1.0.json",
-        "1.1.json",
-        # spoonbill
-        "ocds-simplified-schema.json",
+        *(name for name in os.getenv("OCDS_SCHEMA_EXCEPTIONS", "").split(",") if name),
     }
     schema_exceptions = json_schema_exceptions | ocds_schema_exceptions
 
@@ -606,7 +589,7 @@ def test_schema_strict():
     """
     Ensures `ocdskit schema-strict` has been run on all JSON Schema files.
     """
-    path = os.path.join(extensiondir, "release-schema.json")
+    path = os.path.join(extension_dir, "release-schema.json")
     if os.path.isfile(path):
         with open(path) as f:
             data = json.load(f)
@@ -643,12 +626,12 @@ def test_extension_json():
         url = "https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/main/schema/extension-schema.json"
         schema = http_get(url).json()
 
-    expected_codelists = {name for _, name, _, _, _ in walk_csv_data(top=os.path.join(extensiondir, "codelists"))}
+    expected_codelists = {name for _, name, _, _, _ in walk_csv_data(top=os.path.join(extension_dir, "codelists"))}
     expected_schemas = {
-        name for _, name, _, _ in walk_json_data(patch, top=extensiondir) if name.endswith("-schema.json")
+        name for _, name, _, _ in walk_json_data(patch, top=extension_dir) if name.endswith("-schema.json")
     }
 
-    path = os.path.join(extensiondir, "extension.json")
+    path = os.path.join(extension_dir, "extension.json")
     if os.path.isfile(path):
         with open(path) as f:
             data = json.load(f, object_pairs_hook=rejecting_dict)
@@ -714,7 +697,7 @@ def test_json_merge_patch():
             schemas[basename] = http_get(url_pattern.format(basename)).json()
 
         if basename == "release-schema.json":
-            path = os.path.join(extensiondir, "extension.json")
+            path = os.path.join(extension_dir, "extension.json")
             with open(path) as f:
                 metadata = json.load(f, object_pairs_hook=rejecting_dict)
                 schemas[basename] = extend_schema(basename, schemas[basename], metadata, codelists=external_codelists)

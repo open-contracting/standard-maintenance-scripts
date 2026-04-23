@@ -9,3 +9,4 @@ jobs:
       personal-access-token: ${{ secrets.PAT }}
     with:
       local-basedir: true
+      ocds-schema-exceptions: codelist-schema.json,extension-schema.json
