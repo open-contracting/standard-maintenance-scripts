@@ -66,6 +66,7 @@ def read_metadata(*, allow_missing=False):
 cwd = os.getcwd()
 repo_name = os.path.basename(os.getenv("GITHUB_REPOSITORY", cwd))
 ocds_version = os.getenv("OCDS_TEST_VERSION")
+no_null = bool(os.getenv("OCDS_DISALLOW_NULL", ""))
 is_ocds = repo_name == "standard"
 is_oc4ids = repo_name == "infrastructure"
 is_profile = os.path.isfile("Makefile") and os.path.isdir("docs") and not is_ocds and not is_oc4ids
@@ -461,7 +462,7 @@ def validate_json_schema(path, name, data, schema, *, validator_cls=Draft4Valida
 
     validate_null_type_kwargs = {
         # OCDS allows null. OC4IDS disallows null.
-        "no_null": repo_name == "infrastructure",
+        "no_null": no_null,
         "allow_object_null": {
             "/definitions/Amendment/properties/changes/items/properties/former_value",  # deprecated
             # See https://github.com/open-contracting/standard/pull/738#issuecomment-440727233

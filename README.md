@@ -35,7 +35,8 @@ Control the tests' behavior with these environment variables:
 * `OCDS_NOINDENT=1`: Skip the JSON indentation test.
 * `OCDS_TEST_VERSION`: Specify the `X.Y.Z` version of OCDS to test against (e.g. a profile requiring a specific version).
 * `OCDS_EXTENSION_PATHS`: A comma-separated list of unexpected paths to OCDS extensions.
-* `OCDS_SCHEMA_EXCEPTIONS`: A comma-separated list of JSON Schema basenames for which to skip JSCC checks.
+* `OCDS_SCHEMA_EXCEPTIONS`: A comma-separated list of JSON Schema basenames for which to skip [JSCC](https://jscc.readthedocs.io/en/latest/) checks.
+* `OCDS_DISALLOW_NULL`: Whether to call JSCC's [`validate_null_type`](https://jscc.readthedocs.io/en/latest/api/testing/checks.html#jscc.testing.checks.validate_null_type) with `no_null=True`.
 * `STANDARD_MAINTENANCE_SCRIPTS_EXTRAS`: A comma-separated list of `extras_require` keys. Add the packages under these keys to the list of declared requirements.
 * `STANDARD_MAINTENANCE_SCRIPTS_IGNORE`: A comma-separated list of Python packages. Don't error if these packages appear in a requirement file but aren't imported by the source code, or vice versa.
 * `STANDARD_MAINTENANCE_SCRIPTS_FILES`: A comma-separated list of `.in` files to test, in addition to `requirements.in` and `requirements_dev.in`.
