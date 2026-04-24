@@ -142,10 +142,11 @@ def patch(text):
 
 
 excluded = (".git", ".ve", ".venv", "_static", "build", "fixtures", "node_modules")
+ocds_schema_exceptions = {name for name in os.getenv("OCDS_SCHEMA_EXCEPTIONS", "").split(",") if name}
 json_schemas = [
     (path, name, data)
     for path, name, _, data in walk_json_data(patch, excluded=excluded)
-    if is_json_schema(data) and name != "biome.json"
+    if is_json_schema(data) and name != "biome.json" and name not in ocds_schema_exceptions
 ]
 
 
@@ -391,11 +392,8 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
         "meta-schema.json",
         "meta-schema-patch.json",
     }
-    ocds_schema_exceptions = {
-        "dereferenced-release-schema.json",
-        *(name for name in os.getenv("OCDS_SCHEMA_EXCEPTIONS", "").split(",") if name),
-    }
-    schema_exceptions = json_schema_exceptions | ocds_schema_exceptions
+
+    schema_exceptions = json_schema_exceptions
 
     validate_items_type_kwargs = {
         "allow_invalid": {
