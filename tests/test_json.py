@@ -32,7 +32,7 @@ from jscc.testing.checks import (
 from jscc.testing.filesystem import walk_csv_data, walk_json_data
 from jscc.testing.util import difference, http_get, http_head, warn_and_assert
 from jsonschema import FormatChecker
-from jsonschema.validators import Draft4Validator
+from jsonschema.validators import Draft4Validator, Draft202012Validator
 from ocdskit.schema import add_validation_properties
 
 external_codelists = set()
@@ -145,8 +145,8 @@ def patch(text):
 
 excluded = (".git", ".ve", ".venv", "_static", "build", "fixtures", "node_modules")
 json_schemas = [
-    (path, name, data)
-    for path, name, _, data in walk_json_data(patch, excluded=excluded)
+    (path, name, text, data)
+    for path, name, text, data in walk_json_data(patch, excluded=excluded)
     if is_json_schema(data) and name != "biome.json"
 ]
 
@@ -372,7 +372,7 @@ def test_json_valid():
     )
 
 
-def validate_json_schema(path, name, data, schema, full_schema=not is_extension):
+def validate_json_schema(path, name, data, schema, *, validator_cls=Draft4Validator, full_schema=not is_extension):
     """
     Prints and asserts errors in a JSON Schema.
     """
@@ -501,7 +501,7 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
     if is_extension:  # avoid repetition in extensions
         validate_deep_properties_kwargs["allow_deep"].add("/definitions/Item/properties/unit")
 
-    validator = Draft4Validator(schema, format_checker=FormatChecker())
+    validator = validator_cls(schema, format_checker=FormatChecker())
 
     errors += validate_schema(path, data, validator)
     if errors:
@@ -564,23 +564,27 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
     assert not errors, "One or more JSON Schema files are invalid. See warnings below."
 
 
-@pytest.mark.parametrize(("path", "name", "data"), json_schemas)
-def test_schema_valid(path, name, data):
+@pytest.mark.parametrize(("path", "name", "text", "data"), json_schemas)
+def test_schema_valid(path, name, text, data):
     """
     Ensures all JSON Schema files are valid JSON Schema Draft 4 and use codelists correctly. Unless this is an
     extension, ensures JSON Schema files have required metadata and valid references.
     """
     schemas = metaschemas()
+    validator_cls = Draft4Validator
+
     if name in {"release-schema.json", "release-package-schema.json"}:
         metaschema = schemas["release_package_metaschema"]
     elif name in {"record-schema.json", "record-package-schema.json"}:
         metaschema = schemas["record_package_metaschema"]
     elif name in {"project-schema.json", "project-package-schema.json"}:
         metaschema = schemas["project_package_metaschema"]
+    elif '"$defs"' in text:
+        validator_cls, metaschema = Draft202012Validator, Draft202012Validator.META_SCHEMA
     else:
         metaschema = schemas["metaschema"]
 
-    validate_json_schema(path, name, data, metaschema)
+    validate_json_schema(path, name, data, metaschema, validator_cls=validator_cls)
 
 
 @pytest.mark.skipif(
