@@ -66,7 +66,9 @@ def read_metadata(*, allow_missing=False):
 cwd = os.getcwd()
 repo_name = os.path.basename(os.getenv("GITHUB_REPOSITORY", cwd))
 ocds_version = os.getenv("OCDS_TEST_VERSION")
-is_profile = os.path.isfile("Makefile") and os.path.isdir("docs") and repo_name not in {"standard", "infrastructure"}
+is_ocds = repo_name == "standard"
+is_oc4ids = repo_name == "infrastructure"
+is_profile = os.path.isfile("Makefile") and os.path.isdir("docs") and not is_ocds and not is_oc4ids
 is_extension = os.path.isfile("extension.json") or is_profile
 extension_dir = os.path.join("schema", "profile") if is_profile else "."
 extension_paths = [
@@ -74,7 +76,7 @@ extension_paths = [
     "docs/examples/organizations/organizational_units/ocds_divisionCode_extension",
     *(path for path in os.getenv("OCDS_EXTENSION_PATHS", "").split(",") if path),
 ]
-if repo_name == "standard" and os.getenv("GITHUB_ACTOR", "").lower() not in {
+if is_ocds and os.getenv("GITHUB_ACTOR", "").lower() not in {
     "colinmaudry",
     "duncandewhurst",
     "jachymhercher",
@@ -103,7 +105,7 @@ use_development_version = (
     )
 )
 
-if repo_name == "infrastructure":
+if is_oc4ids:
     ocds_schema_base_url = "https://standard.open-contracting.org/infrastructure/schema/"
 else:
     ocds_schema_base_url = "https://standard.open-contracting.org/schema/"
@@ -150,7 +152,7 @@ json_schemas = [
 
 
 def loader(url, **kwargs):
-    if repo_name == "standard" and url.startswith("https://standard.open-contracting.org/schema/"):
+    if is_ocds and url.startswith("https://standard.open-contracting.org/schema/"):
         with open(os.path.join(cwd, "schema", url.rsplit("/", 1)[1])) as f:
             return json.load(f)
     return jsonref.jsonloader(url, **kwargs)
@@ -433,7 +435,7 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
     def validate_object_id_allow_missing(pointer):
         parts = pointer.split("/")
         return (
-            repo_name == "infrastructure"
+            is_oc4ids
             or "versionedRelease" in parts
             or parts[-1]
             in {
@@ -454,7 +456,7 @@ def validate_json_schema(path, name, data, schema, full_schema=not is_extension)
             "/definitions/RelatedProcess",
         },
     }
-    if repo_name == "infrastructure":
+    if is_oc4ids:
         validate_object_id_kwargs["allow_optional"].add("/definitions/Classification")
 
     validate_null_type_kwargs = {
