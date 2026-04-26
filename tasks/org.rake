@@ -10,7 +10,6 @@ namespace :org do
       'camilamila', # Camila Salazar
       'fppenna', # Félix Penna
       'ndrhzn', # Andrii Hazin
-      'sebasdocp', # Sebastian Barrera
     ],
     'Robots' => [
       'ocp-deploy',
@@ -32,10 +31,6 @@ namespace :org do
     ],
     'Servers' => [
       'robhooper',
-      # Dogsbody Technology Limited
-      'dogsbody', # Dan Benton
-      'dogsbody-josh', # Josh Archer
-      'dogsbody-mark', # Mark Flitter
     ],
     'Standard' => [
       'colinmaudry', # Colin Maudry
@@ -54,8 +49,11 @@ namespace :org do
     'RBC Group' => [
       'a-radik',
       'andrzejbeletsky', # Andrzej Beletsky
+      'chykalenko-n',
+      'delunov',
       'innastets',
       'karandinserhii', # Sergey Karandin
+      'mariiaherasymchuk',
       'myshchak',
       'ndrhzn', # Andrii Hazin
       'ocds-bi-tools',
@@ -196,17 +194,18 @@ namespace :org do
         'collect-generic',
         'cove-oc4ids',
         'cove-ocds',
-        'credere-backend',
+        'credere',
         'data-registry',
         'data-support',
         'data-support-private',
         'deploy',
+        'digitalbuying',
         'european-union-support',
         'extension-explorer',
         'extension_registry',
         'field-level-mapping-template',
-        'green-cure',
         'infrastructure',
+        'kestrel',
         'kingfisher-collect',
         'kingfisher-process',
         'kingfisher-summarize',
@@ -232,7 +231,6 @@ namespace :org do
         'cove-oc4ids',
         'infrastructure',
         'lib-cove-oc4ids',
-        'notebooks-oc4ids',
         'oc4idskit',
       ],
       'Servers' => servers,
