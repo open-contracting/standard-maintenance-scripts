@@ -35,7 +35,7 @@ tomli==2.0.2
     # via -r requirements.in
 url-normalize==1.4.3
     # via requests-cache
-urllib3==2.6.3
+urllib3==2.7.0
     # via
     #   requests
     #   requests-cache
