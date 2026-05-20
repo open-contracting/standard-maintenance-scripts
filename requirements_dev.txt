@@ -21,7 +21,7 @@ charset-normalizer==3.3.2
     #   requests
 click==8.1.7
     # via -r requirements.txt
-idna==3.8
+idna==3.15
     # via
     #   -r requirements.txt
     #   requests
