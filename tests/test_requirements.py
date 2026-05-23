@@ -273,7 +273,7 @@ def projects_and_modules(requirements):
     if isinstance(requirements, str):
         requirements = requirements.splitlines()
     for line in requirements:
-        if not line or line.startswith(("-", "#", "git+")):
+        if not line or line.startswith(("-", "#", "git+", "./", "../", "/", "file:")):
             continue
         requirement = Requirement(line)
         if requirement.marker and not requirement.marker.evaluate():
