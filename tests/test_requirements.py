@@ -375,6 +375,8 @@ class CodeVisitor(ast.NodeVisitor):
                                     self.add("memcache")
                                 elif val(v) == "django.core.cache.backends.memcached.PyMemcacheCache":
                                     self.add("pymemcache")
+                                elif val(v) == "django_redis.cache.RedisCache":
+                                    self.add("django_redis")
                 elif target.id == "CHANNEL_LAYERS":
                     for value in node.value.values:
                         for k, v in zip(value.keys, value.values, strict=True):
