@@ -399,6 +399,7 @@ class CodeVisitor(ast.NodeVisitor):
                         elif isinstance(value, ast.Dict):
                             for k, v in zip(value.keys, value.values, strict=True):
                                 if val(k) == "ENGINE" and val(v) in {
+                                    "django.contrib.gis.db.backends.postgis",
                                     "django.db.backends.postgresql",
                                     "django.db.backends.postgresql_psycopg2",
                                 }:
