@@ -395,7 +395,7 @@ class CodeVisitor(ast.NodeVisitor):
                             #     .value == "postgresql://"
                             default = next((keyword for keyword in value.keywords if keyword.arg == "default"), None)
                             if default and urlsplit(val(default.value)).scheme == "postgresql":
-                                self.add("psycopg2")
+                                self.add("psycopg")
                         elif isinstance(value, ast.Dict):
                             for k, v in zip(value.keys, value.values, strict=True):
                                 if val(k) == "ENGINE" and val(v) in {
@@ -403,11 +403,11 @@ class CodeVisitor(ast.NodeVisitor):
                                     "django.db.backends.postgresql",
                                     "django.db.backends.postgresql_psycopg2",
                                 }:
-                                    self.add("psycopg2")
+                                    self.add("psycopg")
 
     def add(self, name):
         if "django.contrib.postgres" in name:
-            self.add("psycopg2")
+            self.add("psycopg")
 
         name = name.split(".", 1)[0]
         if name not in self.excluded:
@@ -477,9 +477,6 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
         for requirements_file in requirements_files:
             with open(os.path.join(path, requirements_file)) as f:
                 mapping.update(projects_and_modules(f.read().splitlines()))
-
-    if "psycopg2-binary" in mapping and "psycopg2" in mapping:
-        del mapping["psycopg2-binary"]
 
     # Some modules affect the behavior of `jsonschema` without being imported.
     if "jsonschema" in mapping:
