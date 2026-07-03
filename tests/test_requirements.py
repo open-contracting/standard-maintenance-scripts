@@ -394,7 +394,7 @@ class CodeVisitor(ast.NodeVisitor):
                             #   .value <ast.Constant>
                             #     .value == "postgresql://"
                             default = next((keyword for keyword in value.keywords if keyword.arg == "default"), None)
-                            if default and urlsplit(val(default.value)).scheme == "postgresql":
+                            if default and urlsplit(val(default.value)).scheme in {"postgresql", "postgresql+psycopg"}:
                                 self.add("psycopg")
                         elif isinstance(value, ast.Dict):
                             for k, v in zip(value.keys, value.values, strict=True):
