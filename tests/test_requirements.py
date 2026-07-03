@@ -401,7 +401,6 @@ class CodeVisitor(ast.NodeVisitor):
                                 if val(k) == "ENGINE" and val(v) in {
                                     "django.contrib.gis.db.backends.postgis",
                                     "django.db.backends.postgresql",
-                                    "django.db.backends.postgresql_psycopg2",
                                 }:
                                     self.add("psycopg")
 
