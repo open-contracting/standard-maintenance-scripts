@@ -56,6 +56,7 @@ internal_tools = [
   'software-development-handbook',
   'standard-development-handbook',
   'standard-maintenance-scripts',
+  'vibes',
   'yapw',
 ]
 DOCUMENTATION_DEPENDENCIES = [
