@@ -282,7 +282,7 @@ def projects_and_modules(requirements):
             path = str(file)
             if path.startswith(f"src{os.sep}"):
                 path = path[4:]
-            if path.endswith(".py") and os.sep in path:
+            if path.endswith((".py", ".so")) and os.sep in path:
                 mapping[requirement.name].add(path.split(os.sep, 1)[0])
             elif path.endswith((".py", ".so")):
                 mapping[requirement.name].add(path.split(".", 1)[0])
@@ -375,12 +375,12 @@ class CodeVisitor(ast.NodeVisitor):
                                     self.add("memcache")
                                 elif val(v) == "django.core.cache.backends.memcached.PyMemcacheCache":
                                     self.add("pymemcache")
-                                elif val(v) == "django_redis.cache.RedisCache":
-                                    self.add("django_redis")
+                                elif val(v) == "django.core.cache.backends.redis.RedisCache":
+                                    self.add("redis")
                 elif target.id == "CHANNEL_LAYERS":
                     for value in node.value.values:
                         for k, v in zip(value.keys, value.values, strict=True):
-                            if val(k) in "BACKEND" and val(v) == "channels_redis.core.RedisChannelLayer":
+                            if val(k) == "BACKEND" and val(v) == "channels_redis.core.RedisChannelLayer":
                                 self.add("channels_redis")
                 elif target.id == "DATABASES":
                     for value in node.value.values:
@@ -394,8 +394,12 @@ class CodeVisitor(ast.NodeVisitor):
                             #   .value <ast.Constant>
                             #     .value == "postgresql://"
                             default = next((keyword for keyword in value.keywords if keyword.arg == "default"), None)
-                            if default and urlsplit(val(default.value)).scheme in {"postgresql", "postgresql+psycopg"}:
-                                self.add("psycopg")
+                            if default:
+                                match urlsplit(val(default.value)).scheme:
+                                    case "postgresql" | "postgresql+psycopg":
+                                        self.add("psycopg")
+                                    case "mysql":
+                                        self.add("MySQLdb")
                         elif isinstance(value, ast.Dict):
                             for k, v in zip(value.keys, value.values, strict=True):
                                 if val(k) == "ENGINE" and val(v) in {
