@@ -511,9 +511,6 @@ def test_dev_requirements():
     ignore = [
         # Code linters.
         "mypy",
-        "nbqa",
-        "pre-commit",
-        "pylint",
         # Test runners.
         "pytest",
         # Pytest plugins, which provide fixtures, for example.
@@ -524,7 +521,6 @@ def test_dev_requirements():
         "pytest-localserver",
         "pytest-mock",
         "pytest-order",
-        "pytest-random-order",
         "pytest-subtests",
         # Code coverage.
         "coverage",
@@ -535,6 +531,8 @@ def test_dev_requirements():
         "sphinx-intl",
         # Build utilities.
         "libsass",
+        # Type stubs.
+        "django-stubs",
     ]
 
     check_requirements(path, "requirements_dev.in", dev=True, ignore=IGNORE + ignore)
