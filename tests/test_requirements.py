@@ -416,6 +416,7 @@ class CodeVisitor(ast.NodeVisitor):
 def check_requirements(path, *requirements_files, dev=False, ignore=()):
     pyproject_toml = os.path.join(path, "pyproject.toml")
     setup_py = os.path.join(path, "setup.py")
+    requirements_base_in = os.path.join(path, "requirements_base.in")
     requirements_in = os.path.join(path, "requirements.in")
 
     ignore = list(ignore) + os.getenv("STANDARD_MAINTENANCE_SCRIPTS_IGNORE", "").split(",")
@@ -423,6 +424,8 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
     files = os.getenv("STANDARD_MAINTENANCE_SCRIPTS_FILES", "").split(",")
     if any(files):
         requirements_files += tuple(files)
+    if os.path.exists(requirements_base_in):
+        requirements_files += (requirements_base_in,)
     if os.path.exists(requirements_in):
         requirements_files += (requirements_in,)
 
