@@ -90,10 +90,12 @@ rfc3339-validator==0.1.4
     # via -r requirements_dev.in
 rfc3986-validator==0.1.1
     # via -r requirements_dev.in
-rpds-py==0.20.0
+rpds-py==2026.6.3
     # via
     #   jsonschema
     #   referencing
+setuptools==83.0.0
+    # via -r requirements_dev.in
 six==1.16.0
     # via
     #   -r requirements.txt
