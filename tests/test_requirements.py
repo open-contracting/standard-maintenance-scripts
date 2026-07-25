@@ -320,6 +320,8 @@ class CodeVisitor(ast.NodeVisitor):
         :param list packages: A list of first-party packages to ignore
         """
         self.imports = set()
+        self.optional_imports = set()
+        self.optional = False
         self.path = Path(filename)
         self.excluded = stdlib
         self.excluded.update(packages)
@@ -327,9 +329,13 @@ class CodeVisitor(ast.NodeVisitor):
             self.excluded.add("setuptools")
 
     def visit_Try(self, node):
-        # Don't collect imports in `try: ... except ImportError: ...` blocks.
-        if not any(h.type.id == "ImportError" for h in node.handlers if isinstance(h.type, ast.Name)):
-            self.generic_visit(node)
+        # Collect imports in `try: ... except ImportError: ...` blocks as optional.
+        optional = self.optional
+        self.optional = optional or any(
+            h.type.id == "ImportError" for h in node.handlers if isinstance(h.type, ast.Name)
+        )
+        self.generic_visit(node)
+        self.optional = optional
 
     def visit_If(self, node):
         # Don't collect imports in `if sys.version_info >= (3, 8): ... else: ...` blocks.
@@ -414,7 +420,10 @@ class CodeVisitor(ast.NodeVisitor):
 
         name = name.split(".", 1)[0]
         if name not in self.excluded:
-            self.imports.add(name)
+            if self.optional:
+                self.optional_imports.add(name)
+            else:
+                self.imports.add(name)
 
 
 def check_requirements(path, *requirements_files, dev=False, ignore=()):
@@ -449,6 +458,7 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
 
     # Collect the modules that are imported.
     imports = defaultdict(set)
+    optional_imports = defaultdict(set)
     for root, dirs, files in os.walk(path):
         for directory in excluded:
             if directory in dirs:
@@ -462,6 +472,8 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
                 code_visitor.visit(code)
                 for module in code_visitor.imports:
                     imports[module].add(file)
+                for module in code_visitor.optional_imports:
+                    optional_imports[module].add(file)
 
     # Collect the requirements and the modules that can be imported.
     if os.path.exists(pyproject_toml):
@@ -491,10 +503,11 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
                 del mapping[project]
 
     inverse_mapping = {module: project for project, modules in mapping.items() for module in modules}
-    for module in imports:
+    # An optional import marks a requirement as used, but doesn't make a requirement missing.
+    for module in (*imports, *optional_imports):
         project = inverse_mapping.get(module)
         if project:
-            del mapping[project]
+            mapping.pop(project, None)
 
     difference = {k: v for k, v in mapping.items() if k not in ignore}
     assert not difference, f"Unused requirements: {', '.join(sorted(difference))}"
