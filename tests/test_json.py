@@ -379,7 +379,7 @@ def validate_json_schema(path, name, data, schema, *, validator_cls=Draft4Valida
     """
     errors = 0
 
-    if any(p in path for p in extension_paths):
+    if any(p in str(path) for p in extension_paths):
         full_schema = False
 
     # Non-OCDS schema don't:
@@ -509,7 +509,7 @@ def validate_json_schema(path, name, data, schema, *, validator_cls=Draft4Valida
         warnings.warn(f"{path} is not valid against the schema ({errors} errors)")
 
     if name not in schema_exceptions:
-        if "versioned-release-validation-schema.json" in path:
+        if name == "versioned-release-validation-schema.json":
             validate_items_type_kwargs["additional_valid_types"] = ["object"]
         errors += validate_array_items(path, data, **validate_array_items_kwargs)
         errors += validate_items_type(path, data, **validate_items_type_kwargs)

@@ -139,7 +139,7 @@ def test_codelist():
 
     any_errors = False
 
-    for path, _, _, fieldnames, rows in walk_csv_data():
+    for path, name, _, fieldnames, rows in walk_csv_data():
         codes_seen = set()
         if is_codelist(fieldnames):
             data = []
@@ -160,11 +160,11 @@ def test_codelist():
                         item[k] = None
                 data.append(item)
 
-            schema = minus_schema if os.path.basename(path).startswith("-") else codelist_schema
+            schema = minus_schema if name.startswith("-") else codelist_schema
 
             for error in Validator(schema, format_checker=FormatChecker()).iter_errors(data):
                 message = error.message
-                pattern = exceptions.get(os.path.basename(path))
+                pattern = exceptions.get(name)
                 is_regex = hasattr(pattern, "search")
                 if (is_regex and not pattern.search(message)) or (not is_regex and message != pattern):
                     any_errors = True
