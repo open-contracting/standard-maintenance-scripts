@@ -539,6 +539,7 @@ def test_dev_requirements():
         "pytest-mock",
         "pytest-order",
         "pytest-subtests",
+        "pytest-twisted",
         # Code coverage.
         "coverage",
         # Documentation dependencies.
