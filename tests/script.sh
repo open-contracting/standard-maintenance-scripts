@@ -91,7 +91,7 @@ PER_FILE_IGNORES=(
     tests/*:INP001 # implicit-namespace-package
     tests/*:TRY003 # raise-vanilla-args (AssertionError)
     tests/*:S      # security
-    test_*:S101    # [credere-backend, kingfisher-collect]
+    test_*:S101    # [kingfisher-collect]
 )
 
 BUILTINS_IGNORELIST=("'placeholder'")
@@ -225,9 +225,6 @@ fi
 case "${GITHUB_REPOSITORY##*/}" in
 jscc | ocds-merge | sample-data | standard-maintenance-scripts | standard)
     IGNORE+=(B028) # no-explicit-stacklevel
-    ;;
-credere-backend)
-    BUILTINS_IGNORELIST+=("'type'")
     ;;
 deploy)
     IGNORE+=(EXE003) # shebang-missing-python

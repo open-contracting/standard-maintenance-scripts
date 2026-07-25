@@ -41,11 +41,6 @@ namespace :org do
     ],
 
     # By organization.
-    'Quintagroup' => [
-      'irashevchenkoquinta', # Ira Shevchenko
-      'myroslav', # Myroslav Opyr
-      'yshalenyk', # Yaroslav Shalenyk
-    ],
     'RBC Group' => [
       'a-radik',
       'andrzejbeletsky', # Andrzej Beletsky
@@ -194,7 +189,6 @@ namespace :org do
         'collect-generic',
         'cove-oc4ids',
         'cove-ocds',
-        'credere',
         'data-registry',
         'data-support',
         'data-support-private',
@@ -205,7 +199,6 @@ namespace :org do
         'extension_registry',
         'field-level-mapping-template',
         'infrastructure',
-        'kestrel',
         'kingfisher-collect',
         'kingfisher-process',
         'kingfisher-summarize',
@@ -214,8 +207,6 @@ namespace :org do
         'pelican-backend',
         'pelican-frontend',
         'sample-data',
-        'spoonbill-test',
-        'spoonbill-web',
         'standard-maintenance-scripts',
         'standard_profile_template',
       ],
@@ -247,7 +238,6 @@ namespace :org do
       ],
       # By organization.
       'RBC Group' => ['bi.open-contracting.org'] + rbc_group_dream_bi,
-      'Quintagroup' => ['nightingale'],
       'uStudio Design' => ustudio_design,
     }
 
