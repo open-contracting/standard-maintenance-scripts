@@ -90,7 +90,7 @@ namespace :org do
         difference -= OPEN_CONTRACTING_EXTENSIONS_ADDITIONAL
       end
       if difference.any?
-        puts "#{organization}: add to MEMBERS in tasks/org.rake: #{difference.join(', ')}"
+        puts "#{organization}: remove from organization, or add to MEMBERS in tasks/org.rake: #{difference.join(', ')}"
       end
 
       # MEMBERS is based only on the membership of the open-contracting organization.
@@ -246,11 +246,11 @@ namespace :org do
 
       difference = team_repos - expected.fetch(team.name)
       if difference.any?
-        puts "#{team.html_url}: remove from team: #{difference.join(', ')}"
+        puts "#{team.html_url}/repositories: remove from team: #{difference.join(', ')}"
       end
       difference = expected.fetch(team.name) - team_repos
       if difference.any?
-        puts "#{team.html_url}: add to team: #{difference.join(', ')}"
+        puts "#{team.html_url}/repositories: add to team: #{difference.join(', ')}"
       end
     end
   end

@@ -72,6 +72,7 @@ Lists incorrect team repository permissions:
 Review outside collaborators:
 
 * [open-contracting](https://github.com/orgs/open-contracting/outside-collaborators)
+* [open-contracting-partnership](https://github.com/orgs/open-contracting-partnership/outside-collaborators)
 * [open-contracting-extensions](https://github.com/orgs/open-contracting-extensions/outside-collaborators)
 * [open-contracting-archive](https://github.com/orgs/open-contracting-archive/outside-collaborators)
 
