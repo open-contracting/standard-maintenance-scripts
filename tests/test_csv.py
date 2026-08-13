@@ -78,7 +78,7 @@ def test_valid():
         writer.writerows(rows)
         expected = output.getvalue()
 
-        if text != expected and repo_name != "sample-data":
+        if text != expected:
             errors += 1
             warnings.warn(
                 f"ERROR: {path} is improperly formatted (e.g. missing trailing newline, extra quoting "

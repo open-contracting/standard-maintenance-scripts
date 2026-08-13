@@ -14,12 +14,6 @@ In addition to the below, within the [OpenDataServices](https://github.com/OpenD
 ||[ocds-extensions](https://github.com/open-contracting/ocds-extensions)|
 | [![CI](https://github.com/open-contracting/standard/actions/workflows/ci.yml/badge.svg)](https://github.com/open-contracting/standard/actions/workflows/ci.yml) [![Lint](https://github.com/open-contracting/standard/actions/workflows/lint.yml/badge.svg)](https://github.com/open-contracting/standard/actions/workflows/lint.yml) [![Lint JavaScript](https://github.com/open-contracting/standard/actions/workflows/js.yml/badge.svg)](https://github.com/open-contracting/standard/actions/workflows/js.yml) [![Lint Shell](https://github.com/open-contracting/standard/actions/workflows/shell.yml/badge.svg)](https://github.com/open-contracting/standard/actions/workflows/shell.yml) [![Spell-check](https://github.com/open-contracting/standard/actions/workflows/spellcheck.yml/badge.svg)](https://github.com/open-contracting/standard/actions/workflows/spellcheck.yml) [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/open-contracting/standard/1.2-dev.svg)](https://results.pre-commit.ci/latest/github/open-contracting/standard/1.2-dev) [![CodeQL](https://github.com/open-contracting/standard/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/open-contracting/standard/actions/workflows/github-code-scanning/codeql)|[standard](https://github.com/open-contracting/standard)|
 
-## Guides
-
-|Build|Name|
-|-|-|
-| [![CI](https://github.com/open-contracting/sample-data/actions/workflows/ci.yml/badge.svg)](https://github.com/open-contracting/sample-data/actions/workflows/ci.yml) [![Lint](https://github.com/open-contracting/sample-data/actions/workflows/lint.yml/badge.svg)](https://github.com/open-contracting/sample-data/actions/workflows/lint.yml) [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/open-contracting/sample-data/main.svg)](https://results.pre-commit.ci/latest/github/open-contracting/sample-data/main) [![CodeQL](https://github.com/open-contracting/sample-data/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/open-contracting/sample-data/actions/workflows/github-code-scanning/codeql)|[sample-data](https://github.com/open-contracting/sample-data)|
-
 ## Tools
 
 |Build|Docs|Stmts|Name|

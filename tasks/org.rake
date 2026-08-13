@@ -206,7 +206,6 @@ namespace :org do
         'ocds-extensions-translations',
         'pelican-backend',
         'pelican-frontend',
-        'sample-data',
         'standard-maintenance-scripts',
         'standard_profile_template',
       ],

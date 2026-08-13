@@ -223,7 +223,7 @@ if [ -f common-requirements.txt ]; then
 fi
 
 case "${GITHUB_REPOSITORY##*/}" in
-jscc | ocds-merge | sample-data | standard-maintenance-scripts | standard)
+jscc | ocds-merge | standard-maintenance-scripts | standard)
     IGNORE+=(B028) # no-explicit-stacklevel
     ;;
 deploy)

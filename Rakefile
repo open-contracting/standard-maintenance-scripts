@@ -14,30 +14,14 @@ require 'safe_yaml'
 
 SafeYAML::OPTIONS[:default_mode] = :safe
 
-PROFILES = [
-  'eforms',
-  'european-union',
-  'government-procurement-agreement',
-  'public-private-partnerships',
-]
-TEMPLATES = [
-  'standard_extension_template',
-  'standard_profile_template',
-]
 SPECIFICATIONS = [
   'infrastructure',
   'ocds-extensions',
   'standard',
 ]
 
-guides = [
-  'ocds-kibana-manual',
-  'ocds-r-manual',
-  'sample-data',
-]
 extension_tools = [
   'extension-explorer',
-  'extension_creator',
   'extension_registry',
   'extension_registry.py',
   'ocds-extensions-translations',
@@ -46,12 +30,10 @@ internal_tools = [
   'collect-generic',
   'data-support',
   'deploy',
-  'editor-tools',
   'field-level-mapping-template',
   'jscc',
   'json-schema-random',
   'notebooks-ocds',
-  'notebooks-oc4ids',
   'scrapy-log-analyzer',
   'software-development-handbook',
   'standard-development-handbook',
@@ -67,11 +49,20 @@ DOCUMENTATION_DEPENDENCIES = [
   'sphinxcontrib-opencontracting',
   'standard_theme',
 ]
-non_tools = SPECIFICATIONS + guides + DOCUMENTATION_DEPENDENCIES
+TEMPLATES = [
+  'standard_extension_template',
+  'standard_profile_template',
+]
+PROFILES = [
+  'eforms',
+  'european-union',
+  'government-procurement-agreement',
+  'public-private-partnerships',
+]
+non_tools = SPECIFICATIONS + DOCUMENTATION_DEPENDENCIES
 
 REPOSITORY_CATEGORIES = {
   'Specifications' => -> (repo) { specification?(repo.name) },
-  'Guides' => -> (repo) { guides.include?(repo.name) },
   'Tools' => -> (repo) { !extension?(repo.name) && !extension_tools.include?(repo.name) && !internal_tools.include?(repo.name) && !non_tools.include?(repo.name) },
   'Extension tools' => -> (repo) { extension_tools.include?(repo.name) },
   'Internal tools' => -> (repo) { internal_tools.include?(repo.name) },
