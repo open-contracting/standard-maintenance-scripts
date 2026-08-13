@@ -118,20 +118,20 @@ if [ -n "$REQUIREMENTS_FILE" ]; then
         )
         PER_FILE_IGNORES+=(
             manage.py:PLC0415 # import-outside-top-level
-            # signals.py  https://docs.djangoproject.com/en/4.2/topics/signals/
-            # views.py    https://docs.djangoproject.com/en/4.2/topics/http/views/
-            # migrations/ https://docs.djangoproject.com/en/4.2/howto/writing-migrations/
+            # signals.py  https://docs.djangoproject.com/en/stable/topics/signals/
+            # views.py    https://docs.djangoproject.com/en/stable/topics/http/views/
+            # migrations/ https://docs.djangoproject.com/en/stable/howto/writing-migrations/
             {*/signals,*/views,*/migrations/*}.py:ARG001 # unused-function-argument
-            # admin.py    https://docs.djangoproject.com/en/4.2/ref/contrib/admin/#modeladmin-methods
-            # routers.py  https://docs.djangoproject.com/en/4.2/topics/db/multi-db/#an-example
-            # views.py    https://docs.djangoproject.com/en/4.2/topics/class-based-views/
-            # commands.py https://docs.djangoproject.com/en/4.2/howto/custom-management-commands/
+            # admin.py    https://docs.djangoproject.com/en/stable/ref/contrib/admin/#modeladmin-methods
+            # routers.py  https://docs.djangoproject.com/en/stable/topics/db/multi-db/#an-example
+            # views.py    https://docs.djangoproject.com/en/stable/topics/class-based-views/
+            # commands.py https://docs.djangoproject.com/en/stable/howto/custom-management-commands/
             {*/admin,*/routers,*/views,*/commands/*}.py:ARG002 # unused-method-argument
-            # admin.py    https://docs.djangoproject.com/en/4.2/ref/contrib/admin/
-            # forms.py    https://docs.djangoproject.com/en/4.2/topics/forms/modelforms/
-            # models.py   https://docs.djangoproject.com/en/4.2/ref/models/options/
-            # migrations/ https://docs.djangoproject.com/en/4.2/topics/migrations/#migration-files
-            # tests/      https://docs.djangoproject.com/en/4.2/topics/db/fixtures/#how-to-use-a-fixture
+            # admin.py    https://docs.djangoproject.com/en/stable/ref/contrib/admin/
+            # forms.py    https://docs.djangoproject.com/en/stable/topics/forms/modelforms/
+            # models.py   https://docs.djangoproject.com/en/stable/ref/models/options/
+            # migrations/ https://docs.djangoproject.com/en/stable/topics/migrations/#migration-files
+            # tests/      https://docs.djangoproject.com/en/stable/topics/db/fixtures/#how-to-use-a-fixture
             {*/admin,*/forms,*/models,*/routers,*/migrations/*,tests/*}.py:RUF012 # mutable-class-default
         )
         BUILTINS_IGNORELIST+=(
