@@ -230,11 +230,8 @@ deploy)
     IGNORE+=(EXE003) # shebang-missing-python
     ;;
 pelican-backend)
-    IGNORE+=(ERA001) # commented-out-code
-    PER_FILE_IGNORES+=(
-        manage.py:PLC0415 # import-outside-top-level (dev updatedocs command)
-        tests/*:RUF012    # mutable-class-default
-    )
+    IGNORE+=(ERA001)                   # commented-out-code
+    PER_FILE_IGNORES+=(tests/*:RUF012) # mutable-class-default
     ;;
 pelican-frontend)
     IGNORE+=(ARG001 RUF012) # unused-function-argument mutable-class-default
