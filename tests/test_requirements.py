@@ -538,6 +538,7 @@ def test_dev_requirements():
         "pytest-localserver",
         "pytest-mock",
         "pytest-order",
+        "pytest-random-order",
         "pytest-subtests",
         "pytest-twisted",
         # Code coverage.
