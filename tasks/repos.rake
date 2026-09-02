@@ -335,7 +335,7 @@ Report issues for this extension in the [ocds-extensions repository](https://git
           end
         end
 
-        projects = repo.has_projects ? projects_count(repo) : 0
+        projects = repo.has_projects ? open_projects_count(repo) : 0
 
         puts format % [
           "#{repo.html_url}/issues",

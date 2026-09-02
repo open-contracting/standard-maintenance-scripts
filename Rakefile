@@ -128,10 +128,10 @@ def graphql(query)
   response.fetch(:data)
 end
 
-def projects_count(repo)
+def open_projects_count(repo)
   query = %({
     repository(name: "#{repo.name}", owner: "#{repo.owner.login}") {
-      projectsV2(first: 100) {
+      projectsV2(first: 100, query: "is:open") {
         totalCount
       }
     }

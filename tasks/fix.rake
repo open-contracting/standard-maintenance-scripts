@@ -30,11 +30,11 @@ namespace :fix do
 
   def disable_projects(repo, message)
     if repo.has_projects
-      if projects_count(repo).zero?
+      if open_projects_count(repo).zero?
         client.edit_repository(repo.full_name, has_projects: false)
         puts "#{repo.html_url}/settings #{'disabled projects'.bold}"
       else
-        puts "#{repo.html_url}/issues #{"projects #{message}".bold}"
+        puts "#{repo.html_url}/projects #{"projects #{message}".bold}"
       end
     end
   end
