@@ -30,8 +30,7 @@ namespace :fix do
 
   def disable_projects(repo, message)
     if repo.has_projects
-      projects = client.projects(repo.full_name, accept: 'application/vnd.github.inertia-preview+json') # projects
-      if projects.none?
+      if projects_count(repo).zero?
         client.edit_repository(repo.full_name, has_projects: false)
         puts "#{repo.html_url}/settings #{'disabled projects'.bold}"
       else

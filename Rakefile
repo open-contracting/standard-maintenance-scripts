@@ -120,6 +120,25 @@ def read_github_file(full_name, path)
   end
 end
 
+def graphql(query)
+  response = client.post('/graphql', JSON.dump(query: query)).to_h
+  if response[:errors]
+    raise response[:errors].map{ |error| error[:message] }.join("\n")
+  end
+  response.fetch(:data)
+end
+
+def projects_count(repo)
+  query = %({
+    repository(name: "#{repo.name}", owner: "#{repo.owner.login}") {
+      projectsV2(first: 100) {
+        totalCount
+      }
+    }
+  })
+  graphql(query).dig(:repository, :projectsV2, :totalCount)
+end
+
 def profile?(name)
   PROFILES.include?(name)
 end
