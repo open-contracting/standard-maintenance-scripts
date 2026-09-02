@@ -114,13 +114,13 @@ Lists repositories with number of issues, PRs, branches, milestones and whether 
 
 * If a repository has multiple branches, delete any branches without commits ahead of the default branch, ask branch creators whether the other branches can be deleted or made into pull requests.
 
-Lists open and dismissed Dependabot vulnerabilities (`GITHUB_ACCESS_TOKEN` should match the password in the `~/.netrc` file):
+Lists open and dismissed Dependabot vulnerabilities:
 
-    env GITHUB_ACCESS_TOKEN=... bundle exec rake repos:vulnerabilities ORGS=open-contracting
+    bundle exec rake repos:vulnerabilities ORGS=open-contracting
 
-Lists open and dismissed CodeQL code scanning alerts (`GITHUB_ACCESS_TOKEN` should match the password in the `~/.netrc` file):
+Lists open and dismissed CodeQL code scanning alerts:
 
-    env GITHUB_ACCESS_TOKEN=... bundle exec rake repos:code_scanning ORGS=open-contracting
+    bundle exec rake repos:code_scanning ORGS=open-contracting
 
 Lists repositories with unexpected, old branches:
 

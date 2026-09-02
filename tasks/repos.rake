@@ -52,19 +52,13 @@ namespace :repos do
           }
         }
       })
-      response = Faraday.post('https://api.github.com/graphql', JSON.dump(query: query)) do |request|
-        request.headers['Authorization'] = "bearer #{ENV.fetch('GITHUB_ACCESS_TOKEN')}"
-      end
-      if response.status != 200
-        raise response.body
-      end
-      nodes = JSON.load(response.body)['data']['repository']['vulnerabilityAlerts']['nodes'].reject do |node|
-        node['fixedAt'] || node['autoDismissedAt']
+      nodes = graphql(query).dig(:repository, :vulnerabilityAlerts, :nodes).reject do |node|
+        node[:fixedAt] || node[:autoDismissedAt]
       end
       if nodes.any?
         puts "#{repo.full_name}"
         rows = nodes.map do |node|
-          [node['securityVulnerability']['package']['name'], node['dismissedAt'], node['dismissReason'], node['dismissComment']]
+          [node.dig(:securityVulnerability, :package, :name), node[:dismissedAt], node[:dismissReason], node[:dismissComment]]
         end
         rows.uniq.each do |package_name, dismissed_at, reason, comment|
           puts "- #{package_name.ljust(25)} #{dismissed_at}  #{reason}  #{comment}"
