@@ -7,10 +7,14 @@ Tasks that should be run manually periodically have a ⏰ icon.
     pip install -r requirements.txt
     bundle
 
-To run the Rake tasks:
+To run the Rake tasks, and the `./manage.py` commands that use the GitHub API:
 
-* [Create a GitHub personal access token](https://github.com/settings/tokens) with the scopes `public_repo` and `admin:org`
-* [Edit your `~/.netrc` file](https://github.com/octokit/octokit.rb#using-a-netrc-file) using the token as your password
+- [Create a GitHub personal access token (classic)](https://github.com/settings/tokens) with the scopes:
+  - `repo`, to access private repositories (`org:team_repos`, `repos:licenses`, etc.), and for `manage.py set-topics`
+  - `read:org`, for `org:*` and `extensions:discover`
+  - `read:project`, for `repos:status`
+  - `delete_repo`, for `extensions:delete_fork_unregistered`
+- [Edit your `~/.netrc` file](https://github.com/octokit/octokit.rb#using-a-netrc-file) using the token as your password
 
 To list all available tasks:
 
