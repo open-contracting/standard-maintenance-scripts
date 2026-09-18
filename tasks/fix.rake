@@ -1,21 +1,4 @@
 namespace :fix do
-  REQUIRE_PULL_REQUEST_REVIEWS = [
-    'cove-oc4ids',
-    'cove-ocds',
-    'kingfisher-archive',
-    'kingfisher-collect',
-    'kingfisher-process',
-    'kingfisher-vagrant',
-    'kingfisher-summarize',
-    'lib-cove-oc4ids',
-    'lib-cove-ocds',
-    'notebooks-oc4ids',
-  ]
-  ENFORCE_ADMINS = [
-    'public-private-partnerships',
-    'standard',
-  ]
-
   def disable_issues(repo, message)
     if repo.has_issues
       open_issues = repo.open_issues - repo.rels[:pulls].get.data.size
@@ -36,16 +19,6 @@ namespace :fix do
       else
         puts "#{repo.html_url}/projects #{"projects #{message}".bold}"
       end
-    end
-  end
-
-  def protect_branch(repo, branch, options, messages=[])
-    client.protect_branch(repo.full_name, branch.name, options)
-    puts "#{repo.html_url}/settings/branches #{branch.name}: #{messages.join(' | ').bold}"
-
-    # Need to switch to GraphQL API, otherwise. "To use wildcard characters in branch names, use the GraphQL API."
-    if extension?(repo.name, profiles: false, templates: false) && branch.name == "1.1"
-      puts "#{repo.html_url}/settings/branches: #{'rename the branch name pattern from 1.1 to 1.?'.red}"
     end
   end
 
@@ -169,142 +142,6 @@ namespace :fix do
           end
         end
       end
-    end
-  end
-
-  desc 'Protects default branches'
-  task :protect_branches do
-    headers = {accept: 'application/vnd.github.luke-cage-preview+json'} # branch_protection
-
-    repos.each do |repo|
-      if repo.archived
-        next
-      end
-
-      contexts = []
-
-      ci = read_github_file(repo.full_name, '.github/workflows/ci.yml')
-      lint = read_github_file(repo.full_name, '.github/workflows/lint.yml')
-
-      if !ci.empty? || !lint.empty?
-        if repo.owner.login == 'open-contracting-extensions'
-          contexts << 'lint / build'
-        else
-          contexts << 'build'
-        end
-      end
-
-      branches = repo.rels[:branches].get(headers: headers).data
-
-      branches_to_protect = [branches.find{ |branch| branch.name == repo.default_branch }]
-      if ['standard', 'public-private-partnerships', 'infrastructure'].include?(repo.name)
-        branches.each do |branch|
-          if branch.name[/\A\d\.\d(?:-dev)?\z/]
-            branches_to_protect << branch
-          end
-        end
-      end
-      branches_to_protect.uniq!
-
-      if not branches_to_protect
-        raise "no branches to protect"
-      end
-
-      options = headers.merge({
-        enforce_admins: false,
-        required_status_checks: {
-          strict: false,
-          contexts: contexts,
-        },
-        required_pull_request_reviews: nil,
-      })
-
-      if ENFORCE_ADMINS.include?(repo.name)
-        options[:enforce_admins] = true
-      end
-
-      if REQUIRE_PULL_REQUEST_REVIEWS.include?(repo.name)
-        options[:required_pull_request_reviews] = {
-          required_approving_review_count: 1,
-          dismiss_stale_reviews: true,
-        }
-      end
-
-      branches_to_protect.each do |branch|
-        branch = client.branch(repo.full_name, branch.name)
-
-        enforce_admins = options[:enforce_admins]
-        if repo.name == 'public-private-partnerships' && branch.name.end_with?('-dev')
-          enforce_admins = false
-        end
-
-        if !branch.protected
-          protect_branch(repo, branch, options, ['protected'])
-        else
-          protection = client.branch_protection(repo.full_name, branch.name, headers)
-
-          if (enforce_admins && !protection.enforce_admins.enabled ||
-              !enforce_admins && protection.enforce_admins.enabled ||
-              protection.required_status_checks && protection.required_status_checks.strict ||
-              protection.required_status_checks && protection.required_status_checks.contexts != contexts ||
-              protection.required_status_checks.nil? ||
-              options[:required_pull_request_reviews] && !protection.required_pull_request_reviews ||
-              !options[:required_pull_request_reviews] && protection.required_pull_request_reviews)
-            messages = []
-
-            if enforce_admins
-              if !protection.enforce_admins.enabled
-                messages << "check 'Include administrators'"
-              end
-            else
-              if protection.enforce_admins.enabled
-                messages << "uncheck 'Include administrators'"
-              end
-            end
-            if protection.required_status_checks && protection.required_status_checks.strict
-              messages << "uncheck 'Require branches to be up to date before merging'"
-            end
-            if options[:required_pull_request_reviews]
-              if !protection.required_pull_request_reviews || !protection.required_pull_request_reviews.dismiss_stale_reviews
-                messages << "check 'Dismiss stale pull request approvals when new commits are pushed'"
-              end
-              if !protection.required_pull_request_reviews || protection.required_pull_request_reviews.required_approving_review_count != 1
-                messages << "set 'Required approving reviews' to 1"
-              end
-            else
-              if protection.required_pull_request_reviews
-                messages << "uncheck 'Require pull request reviews before merging'"
-              end
-            end
-
-            added = contexts - branch.protection.required_status_checks.contexts
-            if added.any?
-              messages << "added: #{added.join(', ')}"
-            end
-
-            removed = branch.protection.required_status_checks.contexts - contexts
-            if removed.any?
-              messages << "removed: #{removed.join(', ')}"
-            end
-
-            protect_branch(repo, branch, options, messages)
-          elsif protection.required_status_checks.contexts != contexts
-            puts "#{repo.html_url}/settings/branches expected #{contexts.join(', ')}, got #{protection.required_status_checks.contexts.join(', ').bold}"
-          end
-        end
-      end
-
-      expected_protected_branches = branches_to_protect.map(&:name)
-      unexpected_protected_branches = branches.select do |branch|
-        branch.protected && !expected_protected_branches.include?(branch.name) &&
-        # "1.2" branches are allowed on extensions whose default branch is "1.1".
-        (!extension?(repo.name, profiles: false, templates: false) || repo.default_branch != "1.1" || branch.name != "1.2")
-      end
-      if unexpected_protected_branches.any?
-        puts "#{repo.html_url}/settings/branches unexpectedly protects #{unexpected_protected_branches.map(&:name).join(' and ').bold}"
-      end
-
-      print '.'
     end
   end
 
