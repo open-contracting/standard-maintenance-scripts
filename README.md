@@ -118,6 +118,10 @@ Lists open and dismissed CodeQL code scanning alerts:
 
     bundle exec rake repos:code_scanning ORGS=open-contracting
 
+Lists repositories whose required status checks don't match GitHub Actions workflows:
+
+    bundle exec rake repos:status_checks
+
 Lists repositories with unexpected, old branches:
 
     bundle exec rake repos:branches [EXCLUDE=branch1,branch2]

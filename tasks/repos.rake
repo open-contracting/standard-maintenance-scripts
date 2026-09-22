@@ -375,4 +375,74 @@ Report issues for this extension in the [ocds-extensions repository](https://git
       end
     end
   end
+
+  desc "Lists repositories whose required status checks don't match GitHub Actions workflows"
+  task :status_checks do
+    # The job id that each reusable workflow is called from, so that each reports a distinct context.
+    job_ids = {
+      'lint.yml' => 'lint',
+      'shell.yml' => 'shell',
+      'spellcheck.yml' => 'spellcheck',
+      'js.yml' => 'js',
+      'ci-profile.yml' => 'ci',
+      'i18n-babel.yml' => 'i18n',
+      'i18n-django.yml' => 'i18n',
+    }
+
+    repos.each do |repo|
+      next if repo.archived
+
+      expected = Set.new
+      messages = []
+
+      begin
+        entries = client.contents(repo.full_name, path: '.github/workflows')
+      rescue Octokit::NotFound
+        entries = []
+      end
+
+      entries.each do |entry|
+        document = YAML.safe_load(read_github_file(repo.full_name, entry.path))
+
+        # "on" is a YAML boolean. A workflow reports on a pull request head only if it runs on that event.
+        on = document[true]
+        on = {on => nil} if on.is_a?(String)
+        on = on.to_h { |event| [event, nil] } if on.is_a?(Array)
+        next unless on.is_a?(Hash) && (on.key?('pull_request') || on.key?('pull_request_target'))
+
+        document['jobs'].each do |id, job|
+          shared_workflow = job['uses'].to_s[%r{\Aopen-contracting/\.github/\.github/workflows/([^@]+)@}, 1]
+
+          if job_ids.key?(shared_workflow)
+            # The context is "<caller job id> / <called job id>", so a caller's job id must match the convention.
+            if id != job_ids[shared_workflow]
+              messages << "#{entry.path}: rename the #{id} job to #{job_ids[shared_workflow]}"
+            end
+            expected << "#{job_ids[shared_workflow]} / build"
+          elsif shared_workflow.nil? && id == 'build'
+            expected << 'build'
+          end
+        end
+      end
+
+      actual = client.get("/repos/#{repo.full_name}/rules/branches/#{repo.default_branch}").select { |rule|
+        rule.type == 'required_status_checks'
+      }.flat_map { |rule|
+        rule.parameters.required_status_checks.map(&:context)
+      }.to_set
+
+      missing = expected - actual
+      messages << "missing #{missing.sort.join(', ')}" if missing.any?
+
+      # Contexts from other jobs, like a matrix job or a release job, are managed per repository.
+      extra = actual.select { |context| context == 'build' || job_ids.value?(context.split(' / ').first) }.to_set - expected
+      messages << "extra #{extra.sort.join(', ')}" if extra.any?
+
+      if messages.any?
+        puts "#{repo.html_url}/settings/rules #{messages.join(' | ').bold}"
+      end
+
+      print '.'
+    end
+  end
 end
