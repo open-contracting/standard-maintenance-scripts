@@ -15,17 +15,6 @@ namespace :org do
     ],
 
     # By responsibility.
-    'Data Support' => [
-      'colinmaudry', # Colin Maudry
-    ],
-    'OC4IDS' => [
-      # Open Data Services Co-operative Limited
-      'bjwebb', # Ben Webb
-      'duncandewhurst', # Duncan Dewhurst
-      'odscrachel', # Rachel Vint
-      'neelima-j', # Neelima Janardhanan
-      'odscjen', # Jen Harris
-    ],
     'Servers' => [
       'robhooper',
     ],
@@ -38,6 +27,13 @@ namespace :org do
     ],
 
     # By organization.
+    'Open Data Services' => [
+      'bjwebb', # Ben Webb
+      'duncandewhurst', # Duncan Dewhurst
+      'odscrachel', # Rachel Vint
+      'neelima-j', # Neelima Janardhanan
+      'odscjen', # Jen Harris
+    ],
     'RBC Group' => [
       'a-radik',
       'andrzejbeletsky', # Andrzej Beletsky
