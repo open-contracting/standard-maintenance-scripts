@@ -281,7 +281,7 @@ Report issues for this extension in the [ocds-extensions repository](https://git
   task :webhooks do
     repos.each do |repo|
       data = repo.rels[:hooks].get.data.reject do |datum|
-        datum.config.url[%r{\A(https://readthedocs.org/api/v2/webhook/)}]
+        datum.config.url[%r{\A(https://(app\.)?readthedocs.org/api/v2/webhook/)}]
       end
       if data.any?
         puts "#{repo.html_url}/settings/hooks"
