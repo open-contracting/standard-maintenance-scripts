@@ -153,10 +153,6 @@ Report issues for this extension in the [ocds-extensions repository](https://git
   desc 'Lists missing or unexpected licenses'
   task :licenses do
     license_overrides = {
-      'lib-cove-oc4ids:other' => 'other:agpl-3.0-or-later',
-      'lib-cove-ocds:other' => 'other:agpl-3.0-or-later',
-      'cove-oc4ids:other' => 'other:agpl-3.0-or-later',
-      'cove-ocds:other' => 'other:agpl-3.0-or-later',
       'software-development-handbook:other' => 'other:cc-by-4.0',
       'standard-development-handbook:other' => 'other:cc-by-4.0',
     }
