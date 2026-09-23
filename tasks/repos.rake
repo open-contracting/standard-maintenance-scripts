@@ -266,7 +266,7 @@ Report issues for this extension in the [ocds-extensions repository](https://git
   desc 'Lists secrets'
   task :secrets do
     repos.each do |repo|
-      data = client.list_secrets(repo.full_name).secrets.map(&:name)
+      data = client.list_actions_secrets(repo.full_name).secrets.map(&:name)
       # Ignore OCDS documentation secrets.
       if data.any? && data != ['ELASTICSEARCH_PASSWORD', 'PRIVATE_KEY']
         puts "#{repo.html_url}/settings/secrets/actions"
