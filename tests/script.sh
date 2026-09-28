@@ -96,27 +96,32 @@ PER_FILE_IGNORES=(
 
 BUILTINS_IGNORELIST=("'placeholder'")
 
-if [ -n "$REQUIREMENTS_FILE" ]; then
-    if grep babel $REQUIREMENTS_FILE > /dev/null; then
-        IGNORE+=(
+# Add ignores for the frameworks in a Python project's requirements file. The project is at the repository root, if
+# the prefix is empty, or else in a subdirectory, like a Django app in a monorepo, whose ignores are scoped to it.
+# Ruff's per-file-ignores patterns are relative to the repository root, and "*" matches "/".
+add_framework_ignores() {
+    local file=$1 prefix=$2 rules=() patterns=() rule pattern
+
+    if grep babel "$file" > /dev/null; then
+        rules+=(
             # https://babel.pocoo.org/en/latest/api/messages/extract.html#language-parsing
             ARG001 # unused-function-argument
         )
     fi
-    if grep click $REQUIREMENTS_FILE > /dev/null; then
-        IGNORE+=(
+    if grep click "$file" > /dev/null; then
+        rules+=(
             # https://click.palletsprojects.com/en/8.1.x/options/#callbacks-for-validation
             ARG001 # unused-function-argument
             ARG002 # unused-method-argument
         )
     fi
-    if grep django $REQUIREMENTS_FILE > /dev/null; then
-        IGNORE+=(
+    if grep django "$file" > /dev/null; then
+        rules+=(
             PT    # pytest
             DJ008 # django-model-without-dunder-str
             S308  # suspicious-mark-safe-usage (false positive)
         )
-        PER_FILE_IGNORES+=(
+        patterns+=(
             manage.py:PLC0415 # import-outside-top-level
             # signals.py  https://docs.djangoproject.com/en/stable/topics/signals/
             # views.py    https://docs.djangoproject.com/en/stable/topics/http/views/
@@ -138,14 +143,14 @@ if [ -n "$REQUIREMENTS_FILE" ]; then
             "'id'" # path component
         )
     fi
-    if grep django-modeltranslation $REQUIREMENTS_FILE > /dev/null; then
-        PER_FILE_IGNORES+=(
+    if grep django-modeltranslation "$file" > /dev/null; then
+        patterns+=(
             # translation.py https://django-modeltranslation.readthedocs.io/en/latest/registration.html#required-langs
             */translation.py:RUF012
         )
     fi
-    if grep djangorestframework $REQUIREMENTS_FILE > /dev/null; then
-        PER_FILE_IGNORES+=(
+    if grep djangorestframework "$file" > /dev/null; then
+        patterns+=(
             # serializers.py https://www.django-rest-framework.org/api-guide/serializers/#modelserializer
             # views.py       https://www.django-rest-framework.org/api-guide/viewsets/
             */{serializers,views}.py:RUF012
@@ -155,8 +160,8 @@ if [ -n "$REQUIREMENTS_FILE" ]; then
             "'format'"
         )
     fi
-    if grep fastapi $REQUIREMENTS_FILE > /dev/null; then
-        IGNORE+=(
+    if grep fastapi "$file" > /dev/null; then
+        rules+=(
             # https://fastapi.tiangolo.com/reference/dependencies/
             ARG001 # unused-function-argument
         )
@@ -164,34 +169,59 @@ if [ -n "$REQUIREMENTS_FILE" ]; then
             "'id'" # path component
         )
     fi
-    if grep pika $REQUIREMENTS_FILE > /dev/null; then
-        IGNORE+=(
+    if grep pika "$file" > /dev/null; then
+        rules+=(
             # https://pika.readthedocs.io/en/stable/modules/channel.html
             ARG002 # unused-method-argument
         )
     fi
-    if grep pandas $REQUIREMENTS_FILE > /dev/null; then
-        IGNORE+=(
+    if grep pandas "$file" > /dev/null; then
+        rules+=(
             PD008 # pandas-use-of-dot-at
         )
     fi
-    if grep scrapy $REQUIREMENTS_FILE > /dev/null; then
-        IGNORE+=(
+    if grep scrapy "$file" > /dev/null; then
+        rules+=(
             # https://docs.scrapy.org/en/latest/topics/spiders.html#spider-arguments
             ARG002 # unused-method-argument
             # https://docs.scrapy.org/en/latest/topics/spiders.html#scrapy.Spider
             RUF012 # mutable-class-default
         )
     fi
-    if grep sphinx $REQUIREMENTS_FILE > /dev/null; then
-        IGNORE+=(
+    if grep sphinx "$file" > /dev/null; then
+        rules+=(
             # https://www.sphinx-doc.org/en/master/development/tutorials/extending_build.html
             ARG001 # unused-function-argument
             # https://www.sphinx-doc.org/en/master/extdev/appapi.html#sphinx.application.Sphinx.add_directive
             RUF012 # mutable-class-default
         )
     fi
+
+    for rule in ${rules[@]+"${rules[@]}"}; do
+        if [ -z "$prefix" ]; then
+            IGNORE+=("$rule")
+        else
+            PER_FILE_IGNORES+=("$prefix*:$rule")
+        fi
+    done
+    for pattern in ${patterns[@]+"${patterns[@]}"}; do
+        PER_FILE_IGNORES+=("$prefix$pattern")
+    done
+}
+
+if [ -n "$REQUIREMENTS_FILE" ]; then
+    add_framework_ignores "$REQUIREMENTS_FILE" ""
 fi
+# Like at the root, a subdirectory's requirements.txt is preferred to its pyproject.toml. docs/requirements.txt is
+# skipped, as it is for Read the Docs. Glob metacharacters in the prefix are escaped, like cookiecutter's "{{" and "}}".
+while IFS= read -r directory; do
+    prefix="$(printf '%s/' "$directory" | sed 's/[][{}*?]/\\&/g')"
+    if [ -f "$directory/requirements.txt" ]; then
+        add_framework_ignores "$directory/requirements.txt" "$prefix"
+    else
+        add_framework_ignores "$directory/pyproject.toml" "$prefix"
+    fi
+done < <(git ls-files '*/requirements.txt' '*/pyproject.toml' 2> /dev/null | sed 's|/[^/]*$||' | sort -u | grep -vx docs)
 if [ -d docs ]; then
     BUILTINS_IGNORELIST+=(
         "'copyright'"
