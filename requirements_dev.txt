@@ -94,8 +94,6 @@ rpds-py==2026.6.3
     # via
     #   jsonschema
     #   referencing
-setuptools==83.0.0
-    # via -r requirements_dev.in
 six==1.16.0
     # via
     #   -r requirements.txt
@@ -107,7 +105,7 @@ url-normalize==1.4.3
     # via
     #   -r requirements.txt
     #   requests-cache
-urllib3==2.7.0
+urllib3==2.8.0
     # via
     #   -r requirements.txt
     #   requests
