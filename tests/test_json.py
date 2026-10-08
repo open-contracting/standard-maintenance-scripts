@@ -338,9 +338,10 @@ def metaschemas():
 def test_empty():
     def include(path, name):
         return name not in {".gitkeep", "py.typed"} and (
-            # Template repositories are allowed to have empty schema files.
+            # Template repositories are allowed to have empty schema files and extension_versions.json.
             name
             not in {
+                "extension_versions.json",
                 "record-package-schema.json",
                 "record-schema.json",
                 "release-package-schema.json",
