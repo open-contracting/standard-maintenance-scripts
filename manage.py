@@ -5,13 +5,13 @@ import json
 import os
 import re
 import subprocess
+import tomllib
 from collections import Counter, defaultdict
 from operator import itemgetter
 from pathlib import Path
 
 import click
 import requests
-import tomli
 from ocdsextensionregistry import ExtensionRegistry
 
 extensions_url = "https://raw.githubusercontent.com/open-contracting/extension_registry/main/extensions.csv"
@@ -286,7 +286,7 @@ def count_dependencies(directory):
             if pyproject.is_file():
                 counter.update(
                     pattern.split(req)[0]
-                    for req in tomli.loads(pyproject.read_text()).get("project", {}).get("dependencies", [])
+                    for req in tomllib.loads(pyproject.read_text()).get("project", {}).get("dependencies", [])
                 )
 
     for requirement, count in reversed(counter.most_common()):

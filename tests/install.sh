@@ -3,7 +3,7 @@
 set -eu
 
 pip install ruff 'jscc>=0.5.0' json-merge-patch jsonref jsonschema ocdsextensionregistry ocdskit packaging pytest \
-    requests rfc3339-validator rfc3986-validator setuptools tomli # Python 3.10 or less
+    requests rfc3339-validator rfc3986-validator setuptools
 
 curl -s -S --retry 3 -o /tmp/test_csv.py "$BASEDIR"/tests/test_csv.py
 curl -s -S --retry 3 -o /tmp/test_json.py "$BASEDIR"/tests/test_json.py
