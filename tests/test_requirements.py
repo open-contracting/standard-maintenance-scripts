@@ -1,6 +1,7 @@
 import ast
 import glob
 import os
+import tomllib
 from collections import defaultdict
 from importlib.metadata import distribution
 from pathlib import Path
@@ -9,15 +10,6 @@ from urllib.parse import urlsplit
 import pytest
 from packaging.requirements import Requirement
 from setuptools import find_packages
-
-try:
-    import tomllib
-
-    TOMLLIB_STDLIB = True
-except ImportError:
-    import tomli as tomllib  # Python 3.10 or less
-
-    TOMLLIB_STDLIB = False
 
 path = os.getcwd()
 
@@ -209,6 +201,7 @@ stdlib = {
     "tkinter",
     "token",
     "tokenize",
+    "tomllib",
     "trace",
     "traceback",
     "tracemalloc",
@@ -239,8 +232,6 @@ stdlib = {
     "zlib",
     "zoneinfo",
 }
-if TOMLLIB_STDLIB:
-    stdlib.add("tomllib")
 
 
 IGNORE = [

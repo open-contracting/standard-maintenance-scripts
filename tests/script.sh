@@ -227,11 +227,6 @@ if [ -d docs ]; then
         "'copyright'"
     )
 fi
-if [ ! -f .python-version ] || grep 3.10 .python-version > /dev/null; then
-    IGNORE+=(
-        PYI024 # collections-named-tuple (Python 3.11+)
-    )
-fi
 if [ -f MANIFEST.in ]; then
     PER_FILE_IGNORES+=(
         tests/*:ARG001 # unused-function-argument (fixtures)

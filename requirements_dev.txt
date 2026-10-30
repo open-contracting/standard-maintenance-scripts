@@ -94,13 +94,13 @@ rpds-py==2026.6.3
     # via
     #   jsonschema
     #   referencing
+setuptools==84.2.1
+    # via -r requirements_dev.in
 six==1.16.0
     # via
     #   -r requirements.txt
     #   rfc3339-validator
     #   url-normalize
-tomli==2.0.2
-    # via -r requirements.txt
 url-normalize==1.4.3
     # via
     #   -r requirements.txt
