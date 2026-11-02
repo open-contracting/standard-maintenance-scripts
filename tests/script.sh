@@ -45,8 +45,8 @@ IGNORE=(
     PLR091 # too-many-...
 
     # Irrelevant
-    CPY001  # missing-copyright-notice
-    EM      # flake8-errmsg (nice backtrace)
+    CPY001 # missing-copyright-notice
+    EM     # flake8-errmsg (nice backtrace)
 
     # Project-specific
     D
