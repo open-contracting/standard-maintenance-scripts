@@ -47,7 +47,6 @@ IGNORE=(
     # Irrelevant
     CPY001  # missing-copyright-notice
     EM      # flake8-errmsg (nice backtrace)
-    PERF203 # try-except-in-loop ("Why is this bad?" https://docs.astral.sh/ruff/rules/try-except-in-loop/)
 
     # Project-specific
     D
