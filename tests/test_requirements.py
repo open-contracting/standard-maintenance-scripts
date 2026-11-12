@@ -280,26 +280,6 @@ def projects_and_modules(requirements):
     return mapping
 
 
-class SetupVisitor(ast.NodeVisitor):
-    """
-    Reads a setup.py file and collects the modules that can be imported from each requirement.
-    """
-
-    def __init__(self, extras=()):
-        self.mapping = {}
-        self.extras = extras
-
-    def visit_keyword(self, node):
-        if node.arg == "install_requires":
-            for elt in node.value.elts:
-                self.mapping.update(projects_and_modules(val(elt)))
-        elif node.arg == "extras_require" and self.extras:
-            for key, value in zip(node.value.keys, node.value.values, strict=True):
-                if val(key) in self.extras:
-                    for elt in value.elts:
-                        self.mapping.update(projects_and_modules(val(elt)))
-
-
 class CodeVisitor(ast.NodeVisitor):
     """
     Reads a Python file and collects the modules that are imported.
@@ -316,8 +296,6 @@ class CodeVisitor(ast.NodeVisitor):
         self.path = Path(filename)
         self.excluded = stdlib
         self.excluded.update(packages)
-        if self.path.name == "setup.py":
-            self.excluded.add("setuptools")
 
     def visit_Try(self, node):
         # Collect imports in `try: ... except ImportError: ...` blocks as optional.
@@ -419,7 +397,6 @@ class CodeVisitor(ast.NodeVisitor):
 
 def check_requirements(path, *requirements_files, dev=False, ignore=()):
     pyproject_toml = os.path.join(path, "pyproject.toml")
-    setup_py = os.path.join(path, "setup.py")
     requirements_base_in = os.path.join(path, "requirements_base.in")
     requirements_in = os.path.join(path, "requirements.in")
 
@@ -433,7 +410,7 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
     if os.path.exists(requirements_in):
         requirements_files += (requirements_in,)
 
-    files = (pyproject_toml, setup_py, *requirements_files)
+    files = (pyproject_toml, *requirements_files)
     if not any(os.path.exists(filename) for filename in files):
         pytest.skip(f"No {', '.join(files)} file found")
 
@@ -472,13 +449,6 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
         mapping = projects_and_modules(config["project"].get("dependencies", []))
         for extra in extras:
             mapping.update(projects_and_modules(config["project"].get("optional-dependencies", {}).get(extra, [])))
-
-    if os.path.exists(setup_py):
-        with open(setup_py) as f:
-            root = ast.parse(f.read())
-        setup_visitor = SetupVisitor(extras=extras)
-        setup_visitor.visit(root)
-        mapping = setup_visitor.mapping
 
     if any(os.path.exists(filename) for filename in requirements_files):
         mapping = {}
