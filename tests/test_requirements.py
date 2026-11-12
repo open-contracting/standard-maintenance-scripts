@@ -279,6 +279,21 @@ def projects_and_modules(requirements):
     return mapping
 
 
+def local_projects_and_modules(requirements, path):
+    """Return a dict of each local project in a sibling or child directory, like ``-e ../library``, to its packages."""
+    mapping = {}
+    for line in requirements:
+        directory = line.removeprefix("-e").strip()  # can remove --editable and comment later, if needed
+        if directory.startswith(("./", "../")):
+            mapping[directory] = {name for name in find_packages(where=path / directory) if "." not in name}
+    return mapping
+
+
+def is_project(directory):
+    """Return whether the directory is an application (with requirements.in) or a package (with MANIFEST.in)."""
+    return (directory / "requirements.in").exists() or (directory / "MANIFEST.in").exists()
+
+
 class CodeVisitor(ast.NodeVisitor):
     """
     Reads a Python file and collects the modules that are imported.
@@ -428,13 +443,18 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
     imports = defaultdict(set)
     optional_imports = defaultdict(set)
     for root, dirs, files in path.walk():
-        # Skip excluded directories, and nested projects (directories with their own requirements.in).
-        dirs[:] = [d for d in dirs if d not in excluded and not (root / d / "requirements.in").exists()]
+        # Skip excluded directories, and nested projects.
+        dirs[:] = [d for d in dirs if d not in excluded and not is_project(root / d)]
+        # A file can import its siblings if its directory isn't a package, as Python or pytest adds it to sys.path.
+        siblings = []
+        if not (root / "__init__.py").exists():
+            siblings.extend(file[:-3] for file in files if file.endswith(".py"))
+            siblings.extend(d for d in dirs if (root / d / "__init__.py").exists())
         for file in files:
             if file.endswith(".py") and (dev or (not file.startswith("test") and file != "conftest.py")):
                 filename = root / file
                 code = ast.parse(filename.read_text())
-                code_visitor = CodeVisitor(filename.relative_to(path), packages)
+                code_visitor = CodeVisitor(filename.relative_to(path), [*packages, *siblings])
                 code_visitor.visit(code)
                 for module in code_visitor.imports:
                     imports[module].add(file)
@@ -452,7 +472,9 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
     if any(filename.exists() for filename in requirements_files):
         mapping = {}
         for requirements_file in requirements_files:
-            mapping.update(projects_and_modules(requirements_file.read_text().splitlines()))
+            lines = requirements_file.read_text().splitlines()
+            mapping.update(projects_and_modules(lines))
+            mapping.update(local_projects_and_modules(lines, path))
 
     # Some modules affect the behavior of `jsonschema` without being imported.
     if "jsonschema" in mapping:
