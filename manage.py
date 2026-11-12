@@ -2,7 +2,6 @@
 import csv
 import datetime as dt
 import json
-import os
 import re
 import subprocess
 import tomllib
@@ -42,13 +41,11 @@ def cli():
 @click.option("--match", help="")
 def download_extensions(path, match):
     """Download all registered extensions to a directory."""
-    path = path.rstrip("/")
-
     for version in ExtensionRegistry(extension_versions_url):
         if not match or match in version.base_url:
-            directory = os.path.join(path, version.repository_name)
-            if not os.path.isdir(directory):
-                command = ["git", "clone", version.repository_url, directory]
+            directory = Path(path, version.repository_name)
+            if not directory.is_dir():
+                command = ["git", "clone", version.repository_url, str(directory)]
                 click.echo(" ".join(command))
                 subprocess.call(command)  # noqa: S603 # trusted input
 
@@ -106,7 +103,7 @@ def set_topics():
 @cli.command()
 def check_aspell_dictionary():
     """Check whether ~/.aspell.en.pws contains unwanted words."""
-    with open(os.path.expanduser("~/.aspell.en.pws"), encoding="iso-8859-1") as f:
+    with (Path.home() / ".aspell.en.pws").open(encoding="iso-8859-1") as f:
         aspell = f.read()
 
     def report(method, exceptions):

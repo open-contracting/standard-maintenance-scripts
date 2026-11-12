@@ -4,6 +4,7 @@ import os
 import re
 import warnings
 from io import StringIO
+from pathlib import Path
 
 import pytest
 import requests
@@ -12,8 +13,8 @@ from jscc.testing.filesystem import walk_csv_data
 from jsonschema import FormatChecker
 from jsonschema.validators import Draft4Validator as Validator
 
-cwd = os.getcwd()
-repo_name = os.path.basename(os.getenv("GITHUB_REPOSITORY", cwd))
+cwd = str(Path.cwd())
+repo_name = Path(os.getenv("GITHUB_REPOSITORY", cwd)).name
 
 
 def formatwarning(message, category, filename, lineno, line=None):
@@ -111,9 +112,9 @@ def test_codelist():
 
     array_columns = ("Framework", "Section")
 
-    path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "schema", "codelist-schema.json")
-    if os.path.isfile(path):
-        with open(path) as f:
+    path = Path(__file__).resolve().parent.parent / "schema" / "codelist-schema.json"
+    if path.is_file():
+        with path.open() as f:
             codelist_schema = json.load(f)
     else:
         url = "https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/main/schema/codelist-schema.json"

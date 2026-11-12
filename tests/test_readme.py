@@ -5,6 +5,7 @@ import re
 import warnings
 from copy import deepcopy
 from io import StringIO
+from pathlib import Path
 
 import json_merge_patch
 import pytest
@@ -18,17 +19,17 @@ from ocdskit.schema import get_schema_fields
 
 
 def read_metadata(*, allow_missing=False):
-    path = os.path.join(cwd, "extension.json")
-    if allow_missing and not os.path.isfile(path):
+    path = Path(cwd, "extension.json")
+    if allow_missing and not path.is_file():
         return {}
-    with open(path) as f:
+    with path.open() as f:
         return json.load(f)
 
 
-cwd = os.getcwd()
-repo_name = os.path.basename(os.getenv("GITHUB_REPOSITORY", cwd))
+cwd = str(Path.cwd())
+repo_name = Path(os.getenv("GITHUB_REPOSITORY", cwd)).name
 ocds_version = os.getenv("OCDS_TEST_VERSION")
-is_extension = os.path.isfile(os.path.join(cwd, "extension.json"))
+is_extension = Path(cwd, "extension.json").is_file()
 
 # Whether to use the 1.2-dev version of OCDS.
 use_development_version = (
@@ -68,9 +69,9 @@ pytestmark = pytest.mark.filterwarnings("always")
 
 
 def read_readme():
-    path = os.path.join(cwd, "README.md")
-    assert os.path.isfile(path), "expected a README.md file"
-    with open(path) as f:
+    path = Path(cwd, "README.md")
+    assert path.is_file(), "expected a README.md file"
+    with path.open() as f:
         return f.read()
 
 
@@ -85,7 +86,7 @@ def examples():
 def patch_schema(basename="release-schema.json"):
     schema = http_get(url_prefix + "/" + basename).json()
     patched = extend_schema(basename, schema, read_metadata())
-    with open(os.path.join(cwd, basename)) as f:
+    with Path(cwd, basename).open() as f:
         json_merge_patch.merge(patched, json.load(f))
 
     return patched
@@ -139,7 +140,7 @@ def test_example_valid():
                 set_additional_properties_false(value)
 
     for basename in ("release-schema.json", "release-package-schema.json", "record-package-schema.json"):
-        if os.path.isfile(os.path.join(cwd, basename)):
+        if Path(cwd, basename).is_file():
             patched = patch_schema(basename)
             break
     else:
@@ -207,7 +208,7 @@ def test_example_backticks():
 
     # Add JSON paths, field names and definition names.
     for basename in ("release-schema.json", "release-package-schema.json", "record-package-schema.json"):
-        if not os.path.isfile(os.path.join(cwd, basename)):
+        if not Path(cwd, basename).is_file():
             continue
 
         for field in get_schema_fields(replace_refs(patch_schema(basename), keep_defs=True)):
@@ -273,7 +274,7 @@ def test_example_codes():
 
     if "codelists" in metadata:
         for codelist in metadata["codelists"]:
-            with open(os.path.join("codelists", codelist)) as f:
+            with Path("codelists", codelist).open() as f:
                 for row in csv.DictReader(f):
                     literals.add(row["Code"])
                     if "Category" in row:

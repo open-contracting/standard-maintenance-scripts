@@ -6,6 +6,7 @@ import warnings
 import zipfile
 from copy import deepcopy
 from functools import lru_cache
+from pathlib import Path
 
 import jsonref
 import pytest
@@ -41,7 +42,7 @@ for version in ("1.1", "1.2"):
     response.raise_for_status()
     with zipfile.ZipFile(io.BytesIO(response.content)) as z:
         external_codelists |= {
-            os.path.basename(name) for name in z.namelist() if "codelists/" in name and name.endswith(".csv")
+            Path(name).name for name in z.namelist() if "codelists/" in name and name.endswith(".csv")
         }
 
 # https://github.com/open-contracting/extension_registry/blob/main/extensions.csv
@@ -56,22 +57,22 @@ core_extensions = {
 
 
 def read_metadata(*, allow_missing=False):
-    path = os.path.join(cwd, "extension.json")
-    if allow_missing and not os.path.isfile(path):
+    path = Path(cwd, "extension.json")
+    if allow_missing and not path.is_file():
         return {}
-    with open(path) as f:
+    with path.open() as f:
         return json.load(f)
 
 
-cwd = os.getcwd()
-repo_name = os.path.basename(os.getenv("GITHUB_REPOSITORY", cwd))
+cwd = str(Path.cwd())
+repo_name = Path(os.getenv("GITHUB_REPOSITORY", cwd)).name
 ocds_version = os.getenv("OCDS_TEST_VERSION")
 no_null = bool(os.getenv("OCDS_DISALLOW_NULL", ""))
 is_ocds = repo_name == "standard"
 is_oc4ids = repo_name == "infrastructure"
-is_profile = os.path.isfile("Makefile") and os.path.isdir("docs") and not is_ocds and not is_oc4ids
-is_extension = os.path.isfile("extension.json") or is_profile
-extension_dir = os.path.join("schema", "profile") if is_profile else "."
+is_profile = Path("Makefile").is_file() and Path("docs").is_dir() and not is_ocds and not is_oc4ids
+is_extension = Path("extension.json").is_file() or is_profile
+extension_dir = "schema/profile" if is_profile else "."
 extension_paths = [
     # The standard repository has an example extension.
     "docs/examples/organizations/organizational_units/ocds_divisionCode_extension",
@@ -154,7 +155,7 @@ json_schemas = [
 
 def loader(url, **kwargs):
     if is_ocds and url.startswith("https://standard.open-contracting.org/schema/"):
-        with open(os.path.join(cwd, "schema", url.rsplit("/", 1)[1])) as f:
+        with Path(cwd, "schema", url.rsplit("/", 1)[1]).open() as f:
             return json.load(f)
     return jsonref.jsonloader(url, **kwargs)
 
@@ -597,9 +598,9 @@ def test_schema_strict():
     """
     Ensures `ocdskit schema-strict` has been run on all JSON Schema files.
     """
-    path = os.path.join(extension_dir, "release-schema.json")
-    if os.path.isfile(path):
-        with open(path) as f:
+    path = Path(extension_dir, "release-schema.json")
+    if path.is_file():
+        with path.open() as f:
             data = json.load(f)
 
         original = deepcopy(data)
@@ -614,7 +615,7 @@ def test_versioned_release_schema():
     Ensures the extension contains no versioned-release-validation-schema.json file.
     """
     path = "versioned-release-validation-schema.json"
-    if os.path.exists(path):
+    if Path(path).exists():
         warn_and_assert(
             [path], "{0} is present, run: rm {0}", "Versioned release schema files are present. See warnings below."
         )
@@ -626,22 +627,22 @@ def test_extension_json():
     Ensures the extension's extension.json file is valid against extension-schema.json, all codelists are included, and
     all URLs resolve.
     """
-    path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "schema", "extension-schema.json")
-    if os.path.isfile(path):
-        with open(path) as f:
+    path = Path(__file__).resolve().parent.parent / "schema" / "extension-schema.json"
+    if path.is_file():
+        with path.open() as f:
             schema = json.load(f)
     else:
         url = "https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/main/schema/extension-schema.json"
         schema = http_get(url).json()
 
-    expected_codelists = {name for _, name, _, _, _ in walk_csv_data(top=os.path.join(extension_dir, "codelists"))}
+    expected_codelists = {name for _, name, _, _, _ in walk_csv_data(top=Path(extension_dir, "codelists"))}
     expected_schemas = {
         name for _, name, _, _ in walk_json_data(patch, top=extension_dir) if name.endswith("-schema.json")
     }
 
-    path = os.path.join(extension_dir, "extension.json")
-    if os.path.isfile(path):
-        with open(path) as f:
+    path = Path(extension_dir, "extension.json")
+    if path.is_file():
+        with path.open() as f:
             data = json.load(f, object_pairs_hook=rejecting_dict)
 
         validate_json_schema(path, "extension.json", data, schema)
@@ -705,8 +706,8 @@ def test_json_merge_patch():
             schemas[basename] = http_get(url_pattern.format(basename)).json()
 
         if basename == "release-schema.json":
-            path = os.path.join(extension_dir, "extension.json")
-            with open(path) as f:
+            path = Path(extension_dir, "extension.json")
+            with path.open() as f:
                 metadata = json.load(f, object_pairs_hook=rejecting_dict)
                 schemas[basename] = extend_schema(basename, schemas[basename], metadata, codelists=external_codelists)
 

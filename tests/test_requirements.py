@@ -1,5 +1,4 @@
 import ast
-import glob
 import os
 import tomllib
 from collections import defaultdict
@@ -11,7 +10,7 @@ import pytest
 from packaging.requirements import Requirement
 from setuptools import find_packages
 
-path = os.getcwd()
+path = Path.cwd()
 
 # https://github.com/PyCQA/isort/blob/develop/isort/stdlibs/py39.py
 stdlib = {
@@ -396,23 +395,25 @@ class CodeVisitor(ast.NodeVisitor):
 
 
 def check_requirements(path, *requirements_files, dev=False, ignore=()):
-    pyproject_toml = os.path.join(path, "pyproject.toml")
-    requirements_base_in = os.path.join(path, "requirements_base.in")
-    requirements_in = os.path.join(path, "requirements.in")
+    path = Path(path)
+    pyproject_toml = path / "pyproject.toml"
+    requirements_base_in = path / "requirements_base.in"
+    requirements_in = path / "requirements.in"
 
     ignore = list(ignore) + os.getenv("STANDARD_MAINTENANCE_SCRIPTS_IGNORE", "").split(",")
     extras = os.getenv("STANDARD_MAINTENANCE_SCRIPTS_EXTRAS", "").split(",")
     files = os.getenv("STANDARD_MAINTENANCE_SCRIPTS_FILES", "").split(",")
     if any(files):
         requirements_files += tuple(files)
-    if os.path.exists(requirements_base_in):
+    if requirements_base_in.exists():
         requirements_files += (requirements_base_in,)
-    if os.path.exists(requirements_in):
+    if requirements_in.exists():
         requirements_files += (requirements_in,)
+    requirements_files = tuple(path / filename for filename in requirements_files)
 
     files = (pyproject_toml, *requirements_files)
-    if not any(os.path.exists(filename) for filename in files):
-        pytest.skip(f"No {', '.join(files)} file found")
+    if not any(filename.exists() for filename in files):
+        pytest.skip(f"No {', '.join(map(str, files))} file found")
 
     excluded = [".git", ".venv", "docs", "node_modules", "vendor"]
     find_packages_kwargs = {}
@@ -421,8 +422,7 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
         excluded.append("tests")
 
     packages = find_packages(where=path, **find_packages_kwargs)
-    for filename in glob.glob(os.path.join(path, "*.py")):
-        packages.append(os.path.splitext(os.path.basename(filename))[0])
+    packages.extend(filename.stem for filename in path.glob("*.py"))
 
     # Collect the modules that are imported.
     imports = defaultdict(set)
@@ -432,10 +432,9 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
         dirs[:] = [d for d in dirs if d not in excluded and not Path(root, d, "requirements.in").exists()]
         for file in files:
             if file.endswith(".py") and (dev or (not file.startswith("test") and file != "conftest.py")):
-                filename = os.path.join(root, file)
-                with open(filename) as f:
-                    code = ast.parse(f.read())
-                code_visitor = CodeVisitor(os.path.relpath(filename, path), packages)
+                filename = Path(root, file)
+                code = ast.parse(filename.read_text())
+                code_visitor = CodeVisitor(filename.relative_to(path), packages)
                 code_visitor.visit(code)
                 for module in code_visitor.imports:
                     imports[module].add(file)
@@ -443,18 +442,17 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
                     optional_imports[module].add(file)
 
     # Collect the requirements and the modules that can be imported.
-    if os.path.exists(pyproject_toml):
-        with open(pyproject_toml, "rb") as f:
+    if pyproject_toml.exists():
+        with pyproject_toml.open("rb") as f:
             config = tomllib.load(f)
         mapping = projects_and_modules(config["project"].get("dependencies", []))
         for extra in extras:
             mapping.update(projects_and_modules(config["project"].get("optional-dependencies", {}).get(extra, [])))
 
-    if any(os.path.exists(filename) for filename in requirements_files):
+    if any(filename.exists() for filename in requirements_files):
         mapping = {}
         for requirements_file in requirements_files:
-            with open(os.path.join(path, requirements_file)) as f:
-                mapping.update(projects_and_modules(f.read().splitlines()))
+            mapping.update(projects_and_modules(requirements_file.read_text().splitlines()))
 
     # Some modules affect the behavior of `jsonschema` without being imported.
     if "jsonschema" in mapping:
@@ -480,9 +478,7 @@ def test_requirements():
     check_requirements(path, ignore=IGNORE)
 
 
-@pytest.mark.skipif(
-    not os.path.exists(os.path.join(path, "requirements_dev.in")), reason="No requirements_dev.in file found"
-)
+@pytest.mark.skipif(not (path / "requirements_dev.in").exists(), reason="No requirements_dev.in file found")
 def test_dev_requirements():
     # Ignore development dependencies that are not typically imported.
     ignore = [
