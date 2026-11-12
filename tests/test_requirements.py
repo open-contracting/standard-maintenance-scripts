@@ -451,9 +451,8 @@ def check_requirements(path, *requirements_files, dev=False, ignore=()):
     imports = defaultdict(set)
     optional_imports = defaultdict(set)
     for root, dirs, files in os.walk(path):
-        for directory in excluded:
-            if directory in dirs:
-                dirs.remove(directory)
+        # Skip excluded directories, and nested projects (directories with their own requirements.in).
+        dirs[:] = [d for d in dirs if d not in excluded and not Path(root, d, "requirements.in").exists()]
         for file in files:
             if file.endswith(".py") and (dev or (not file.startswith("test") and file != "conftest.py")):
                 filename = os.path.join(root, file)
