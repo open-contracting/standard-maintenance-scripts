@@ -308,8 +308,7 @@ class CodeVisitor(ast.NodeVisitor):
         self.optional_imports = set()
         self.optional = False
         self.path = Path(filename)
-        self.excluded = stdlib
-        self.excluded.update(packages)
+        self.excluded = stdlib | set(packages)
 
     def visit_Try(self, node):
         # Collect imports in `try: ... except ImportError: ...` blocks as optional.

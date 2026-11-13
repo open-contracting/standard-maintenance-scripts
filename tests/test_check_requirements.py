@@ -1,6 +1,6 @@
 import pytest
 
-from tests.test_requirements import check_requirements
+from tests.test_requirements import CodeVisitor, check_requirements, stdlib
 
 
 def write(path, content=""):
@@ -51,6 +51,12 @@ def test_import_sibling_package_if_not_module(project):
     write(project / "scripts" / "run.py", "import utils\n")
 
     check_requirements(str(project))
+
+
+def test_code_visitor_leaves_stdlib_unchanged():
+    CodeVisitor("a.py", ["celery"])
+
+    assert "celery" not in stdlib
 
 
 def test_fail_unused_sibling_project(tmp_path):
