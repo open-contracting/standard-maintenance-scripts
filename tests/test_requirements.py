@@ -290,8 +290,8 @@ def local_projects_and_modules(requirements, path):
 
 
 def is_project(directory):
-    """Return whether the directory is an application (with requirements.in) or a package (with MANIFEST.in)."""
-    return (directory / "requirements.in").exists() or (directory / "MANIFEST.in").exists()
+    """Return whether the directory is a package or an application."""
+    return any((directory / name).exists() for name in ("MANIFEST.in", "requirements.in", "requirements_dev.txt"))
 
 
 class CodeVisitor(ast.NodeVisitor):

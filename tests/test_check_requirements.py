@@ -22,7 +22,7 @@ def test_check_subdirectory_if_not_subproject(project):
         check_requirements(str(project))
 
 
-@pytest.mark.parametrize("filename", ["requirements.in", "MANIFEST.in"])
+@pytest.mark.parametrize("filename", ["MANIFEST.in", "requirements.in", "requirements_dev.txt"])
 def test_skip_subdirectory_if_subproject(project, filename):
     write(project / "sub-project" / filename)
     write(project / "sub-project" / "main.py", "import django\n")
