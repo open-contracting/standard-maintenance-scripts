@@ -17,13 +17,6 @@ if [ -n "$CI" ]; then
         -o -type d \! -perm 755 \! -path '*/deploy/cache/*' | grep . && exit 1
 fi
 
-REQUIREMENTS_FILE=""
-if [ -f requirements.txt ]; then
-    REQUIREMENTS_FILE=requirements.txt
-elif [ -f pyproject.toml ]; then
-    REQUIREMENTS_FILE=pyproject.toml
-fi
-
 IGNORE=(
     RUF100 # Specific repositories can have stricter rules in pyproject.toml, with more noqa in files.
 
@@ -65,10 +58,6 @@ PER_FILE_IGNORES=(
     manage.py:T201    # print
     run.py:T201       # print
 
-    # Documentation
-    docs/*:D100   # undocumented-public-module
-    docs/*:INP001 # implicit-namespace-package
-
     # Migrations
     *migrations/*:E501   # line-too-long
     *migrations/*:INP001 # implicit-namespace-package
@@ -86,11 +75,20 @@ PER_FILE_IGNORES=(
     */settings.py:ERA001 # commented-out-code
 
     # Tests
+    test_*:S101 # [kingfisher-collect]
+)
+
+# The ignores for a Python project's documentation and tests. See add_project_ignores.
+PROJECT_PER_FILE_IGNORES=(
+    # Documentation
+    docs/*:D100   # undocumented-public-module
+    docs/*:INP001 # implicit-namespace-package
+
+    # Tests
     tests/*:FBT003 # boolean-positional-value-in-call
     tests/*:INP001 # implicit-namespace-package
     tests/*:TRY003 # raise-vanilla-args (AssertionError)
     tests/*:S      # security
-    test_*:S101    # [kingfisher-collect]
 )
 
 BUILTINS_IGNORELIST=("'placeholder'")
@@ -208,43 +206,42 @@ add_framework_ignores() {
     done
 }
 
-if [ -n "$REQUIREMENTS_FILE" ]; then
-    add_framework_ignores "$REQUIREMENTS_FILE" ""
-fi
-# Like at the root, a subdirectory's requirements.txt is preferred to its pyproject.toml. docs/requirements.txt is
-# skipped, as it is for Read the Docs. Glob metacharacters in the prefix are escaped, like cookiecutter's "{{" and "}}".
-while IFS= read -r directory; do
-    prefix="$(printf '%s/' "$directory" | sed 's/[][{}*?]/\\&/g')"
+# Add ignores for a Python project's documentation, tests and frameworks. The directory and prefix are as for
+# add_framework_ignores.
+add_project_ignores() {
+    local directory=$1 prefix=$2 pattern
+
+    for pattern in "${PROJECT_PER_FILE_IGNORES[@]}"; do
+        PER_FILE_IGNORES+=("$prefix$pattern")
+    done
+    if [ -d "$directory/docs" ]; then
+        BUILTINS_IGNORELIST+=("'copyright'")
+    fi
+    # unused-function-argument (fixtures)
+    if [ -f "$directory/MANIFEST.in" ]; then
+        PER_FILE_IGNORES+=("${prefix}tests/*:ARG001")
+    fi
+    if [ -f "$directory/requirements_dev.txt" ] && grep pytest "$directory/requirements_dev.txt" > /dev/null; then
+        PER_FILE_IGNORES+=("${prefix}tests/*:ARG001" "${prefix}test_*:ARG001")
+    fi
+    if [ -f "$directory/common-requirements.txt" ] && grep pytest "$directory/common-requirements.txt" > /dev/null; then
+        PER_FILE_IGNORES+=("${prefix}tests/*:ARG001")
+    fi
+
+    # A requirements.txt is preferred to a pyproject.toml.
     if [ -f "$directory/requirements.txt" ]; then
         add_framework_ignores "$directory/requirements.txt" "$prefix"
-    else
+    elif [ -f "$directory/pyproject.toml" ]; then
         add_framework_ignores "$directory/pyproject.toml" "$prefix"
     fi
-done < <(git ls-files '*/requirements.txt' '*/pyproject.toml' 2> /dev/null | sed 's|/[^/]*$||' | sort -u | grep -vx docs)
-if [ -d docs ]; then
-    BUILTINS_IGNORELIST+=(
-        "'copyright'"
-    )
-fi
-if [ -f MANIFEST.in ]; then
-    PER_FILE_IGNORES+=(
-        tests/*:ARG001 # unused-function-argument (fixtures)
-    )
-fi
-if [ -f requirements_dev.txt ]; then
-    if grep pytest requirements_dev.txt > /dev/null; then
-        PER_FILE_IGNORES+=(
-            tests/*:ARG001 test_*:ARG001 # unused-function-argument (fixtures)
-        )
-    fi
-fi
-if [ -f common-requirements.txt ]; then
-    if grep pytest common-requirements.txt > /dev/null; then
-        PER_FILE_IGNORES+=(
-            tests/*:ARG001 # unused-function-argument (fixtures)
-        )
-    fi
-fi
+}
+
+add_project_ignores . ""
+# A docs/requirements.txt is skipped, as it is for ReadTheDocs. Glob metacharacters in the prefix are escaped, like
+# cookiecutter's "{{" and "}}".
+while IFS= read -r directory; do
+    add_project_ignores "$directory" "$(printf '%s/' "$directory" | sed 's/[][{}*?]/\\&/g')"
+done < <(git ls-files '*/requirements.txt' '*/pyproject.toml' 2> /dev/null | sed 's|/[^/]*$||' | sort -u | grep -v '\(^\|/\)docs$')
 
 case "${GITHUB_REPOSITORY##*/}" in
 jscc | ocds-merge | standard-maintenance-scripts | standard)
