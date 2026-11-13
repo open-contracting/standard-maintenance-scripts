@@ -309,6 +309,9 @@ class CodeVisitor(ast.NodeVisitor):
         self.optional = False
         self.path = Path(filename)
         self.excluded = stdlib | set(packages)
+        # A setup.py file, like for scrapyd-deploy, imports its build dependency.
+        if self.path.name == "setup.py":
+            self.excluded.add("setuptools")
 
     def visit_Try(self, node):
         # Collect imports in `try: ... except ImportError: ...` blocks as optional.

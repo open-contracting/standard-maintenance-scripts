@@ -76,3 +76,9 @@ def test_pass_used_sibling_project(tmp_path, requirement):
     write(tmp_path / "app" / "main.py", "import mylib.sub\nimport requests\n")
 
     check_requirements(str(tmp_path / "app"))
+
+
+def test_import_setuptools_in_setup_py(project):
+    write(project / "setup.py", "from setuptools import setup\n")
+
+    check_requirements(str(project))
